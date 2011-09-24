@@ -1,0 +1,6 @@
+# Ignore auto-save/backup files
+*~
+
+# Ignore data store
+/store/
+

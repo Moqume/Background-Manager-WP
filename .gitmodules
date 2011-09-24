@@ -1,0 +1,6 @@
+[submodule "vendor/Twig"]
+	path = vendor/Twig
+	url = http://github.com/fabpot/Twig.git
+[submodule "vendor/pf4wp"]
+	path = vendor/pf4wp
+	url = git://projects.emixode.net/pf4wp.git
