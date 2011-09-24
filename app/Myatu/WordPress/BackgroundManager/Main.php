@@ -12,6 +12,15 @@ namespace Myatu\WordPress\BackgroundManager;
 use Pf4wp\WordpressPlugin;
 use Pf4wp\Menu\SubHeadMenu;
 
+/**
+ * The main class for the BackgroundManager
+ *
+ * It is the controller for all other functionality of BackgroundManager
+ *
+ * @author Mike Green <myatus@gmail.com>
+ * @version 0.0.0.1
+ * @package BackgroundManager
+ */
 class Main extends WordpressPlugin
 {
     /**
@@ -23,8 +32,8 @@ class Main extends WordpressPlugin
     {
         parent::registerActions();
         
-        // Remove the 'Background' menu and WP's custom background callback
-        remove_custom_background();
+        // Remove the original 'Background' menu and WP's callback
+        remove_custom_background(); // WP 3.1
         
         // And add our own handlers
         add_action('wp_head', array($this, 'onWpHead'));
@@ -41,13 +50,15 @@ class Main extends WordpressPlugin
         $mymenu = new SubHeadMenu($this->getName());
         
         // Add settings menu
-        $menu = $mymenu->addMenu(__('Background Manager', $this->getName()), array($this, 'onSettingsMenu'));
+        $menu = $mymenu->addMenu(__('Background', $this->getName()), array($this, 'onSettingsMenu'));
+        $menu->page_title = __('Background Manager', $this->getName());
         $menu->large_icon = 'icon-themes';
         
-        // Add galley submenu
-        $menu = $mymenu->addSubmenu(__('Galleries', $this->getName()), array($this, 'onGalleriesMenu'));
+        // Add photo sets (galleries) submenu
+        $menu = $mymenu->addSubmenu(__('Photo Sets', $this->getName()), array($this, 'onGalleriesMenu'));
+        $menu->per_page = 30;
 
-        // Make it appear in `Appearance`
+        // Make it appear in Appearance
         $mymenu->setType(\Pf4wp\Menu\MenuEntry::MT_THEMES);
         
         // Give the 'Home' a different title
@@ -61,8 +72,15 @@ class Main extends WordpressPlugin
      */
     public function onSettingsMenu($data, $per_page)
     {
+        if (!empty($_POST) && !wp_verify_nonce($_POST['_nonce'], 'onSettingsMenu'))
+            wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
+        
+        $test_val = isset($_POST['test']) ? $_POST['test'] : 'Default';
+        
         $vars = array(
-            'page_title' => 'Test'
+            'nonce' => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
+            'submit_button' => get_submit_button(),
+            'test_val' => $test_val,
         );
         
         $this->template->display('settings.html.twig', $vars);
@@ -73,7 +91,19 @@ class Main extends WordpressPlugin
      */
     public function onGalleriesMenu($data, $per_page)
     {
-        $this->template->display('galleries.html.twig');
+        $galleries_list = new \Myatu\WordPress\BackgroundManager\Lists\Galleries($this, $per_page);
+        $galleries_list->prepare_items();
+        $galleries_list->views();
+        
+        ob_start();
+        $galleries_list->display();
+        $list = ob_get_clean();
+        
+        $vars = array(
+            'list' => $list
+        );
+        
+        $this->template->display('galleries.html.twig', $vars);
     }    
     
     /**

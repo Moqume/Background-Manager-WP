@@ -1,3 +1,10 @@
-<h2>{{ page_title }}</h2>
 
-All the settings will appear here... Forms and all.
+<form method="post" action="">
+
+    <label for="test">{{ __('Test') }}</label>
+    <input type="text" id="test" name="test" value="{{ test_val }}" />
+
+    {{ nonce | raw }}
+    {{ submit_button | raw }}
+
+</form>
