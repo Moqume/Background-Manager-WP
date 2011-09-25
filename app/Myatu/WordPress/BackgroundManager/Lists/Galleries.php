@@ -26,12 +26,14 @@ class Galleries extends \WP_List_Table
     /** Items per page to display */
     protected $per_page;
     
+    private $mode = 'list';
+    
     /**
      * Constructor [Override]
      *
      * @param WordpressPlugin $owner The owner of this list
      */
-    public function __construct(WordpressPlugin $owner, $per_page)
+    public function __construct(WordpressPlugin $owner, $per_page = 20)
     {
         $this->owner    = $owner;
         $this->per_page = $per_page;
@@ -43,6 +45,19 @@ class Galleries extends \WP_List_Table
                 'ajax' => false,
             )
         );
+    }
+    
+    /**
+     * Displays the list [Override]
+     *
+     * This redirects the output and returns it instead
+     * @return string The list to display
+     */
+    function display()
+    {
+        ob_start();
+        parent::display();
+        return ob_get_clean();
     }
     
     /**
@@ -66,34 +81,36 @@ class Galleries extends \WP_List_Table
      */
     function prepare_items()
     {
-        $orderby = (isset($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : '';
-        $order = (isset($_REQUEST['order'])) ? $_REQUEST['order'] : 'asc';
+        global $wpdb;
+        
+        $db_galleries = $wpdb->prefix . \Myatu\WordPress\BackgroundManager\Main::DB_GALLERIES;
+        $db_photos    = $wpdb->prefix . \Myatu\WordPress\BackgroundManager\Main::DB_PHOTOS;
+        
+        // Grab the request data, if any
+        $orderby    = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'id';
+        $order      = (!empty($_REQUEST['order'])) ? $_REQUEST['order'] : 'asc';
+        $this->mode = (!empty($_REQUEST['mode'])) ? $_REQUEST['mode'] : 'list';
+        
+        // Ensure we have valid request values
+        $orderby = in_array($orderby, array_keys($this->get_sortable_columns())) ? $orderby : 'id';
+        $order   = ($order == 'asc') ? 'ASC' : 'DESC';
                 
-        $results = array();
-        $results[] = array('id'=>1, 'name'=>'Test1', 'desc'=>'Blah blah');
-        $results[] = array('id'=>2, 'name'=>'Test2', 'desc'=>'Meh meh');
-        $results[] = array('id'=>3, 'name'=>'Test3', 'desc'=>'Doh doh');
-        $total = count($results);
+        // Starting point
+        $start = ($this->get_pagenum()-1) * $this->per_page;
         
-        if (!empty($results) && !empty($orderby)) {
-            $current = current($results);
-            if (array_key_exists($orderby, $current)) {
-                foreach($results as $key => $row)
-                    $sorter[$key] = $row[$orderby];
-        
-                $dir = ($order == 'desc') ? SORT_DESC : SORT_ASC;
-                array_multisort($sorter, $dir, $results);
-            }
-        }
-        
-        $results = array_chunk($results, $this->per_page);
-        
-        $this->items = $results[$this->get_pagenum()-1];
+        $this->items = $wpdb->get_results("SELECT *, 
+            (SELECT COUNT(*) FROM `{$db_photos}` 
+                WHERE `{$db_photos}`.`bgm_gallery_id` = `{$db_galleries}`.`id`
+            ) AS `photos`
+            FROM `{$db_galleries}`
+            ORDER BY `{$orderby}` {$order}
+            LIMIT {$start},{$this->per_page}"
+        );
         
         $this->set_pagination_args(
             array(
-                'total_items' => $total,
-                'per_page' => $this->per_page,
+                'total_items' => count($this->items),
+                'per_page'    => $this->per_page,
             )
 		);
     }
@@ -110,9 +127,10 @@ class Galleries extends \WP_List_Table
     function get_columns()
     {
         return array(
-            'cb' => '<input type="checkbox" />',
-            'name' => 'Name',
-            'desc' => 'Description',
+            'cb'          => '<input type="checkbox" />',
+            'name'        => __('Name', $this->owner->getName()),
+            'description' => __('Description', $this->owner->getName()),
+            'photos'      => __('Photos', $this->owner->getName()),
         );
     }
     
@@ -129,30 +147,76 @@ class Galleries extends \WP_List_Table
 	function get_sortable_columns()
     {
 		return array(
-            'name' => array('name', true),
-            'desc' => array('desc', false),
+            'name'        => array('name', true),
+            'description' => array('description', false),
+            'photos'      => array('photos', false),
         );
 	}
     
+    /**
+     * Returns to WP_List_Table what columns are available [Override]
+     *
+     * @return array Array containing all columns, hidden columns and which ones are sortable
+     */
     function get_column_info()
     {
         return array(
-            $this->get_columns(), 
-            array(), 
+            $this->get_columns(),
+            get_user_option('manage' . get_current_screen()->id . 'columnshidden'),
             $this->get_sortable_columns()
         );
     }
     
+	/**
+	 * Get an associative array (option_name => option_title) with the list
+	 * of bulk actions available on this table. [Override]
+     *
+	 * @return array
+	 */
+	function get_bulk_actions() {
+		return array(
+            'trash_all' => __('Move to Trash', $this->owner->getName())
+        );
+	}
+    
+    /**
+     * Add view switcher to pagination top row [Override]
+     *
+     * Switches between `list` or `excerpt`
+     */
+    function pagination($which) {
+		parent::pagination($which);
+
+		if ($which == 'top')
+			$this->view_switcher($this->mode);
+	}
+    
+    /**
+     * Displays a checkbox column
+     */
     function column_cb($item)
     {
         echo '<input type="checkbox" name="delete_item[]" value="' . $item['id'] . '" />';
 	}
     
+    /**
+     * Displays a simple column item
+     */
     function column_default($item, $column_name)
     {
         echo $item[$column_name];
     }
     
+    /**
+     * Displays the name and actions
+     */
+    function column_name($item)
+    {
+        echo $item['name'];
+        
+        $actions = array('Test' => '#');
+        
+        $this->row_actions($actions);
+    }
     
-
 }

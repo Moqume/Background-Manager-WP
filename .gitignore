@@ -1,5 +1,6 @@
 # Ignore auto-save/backup files
 *~
+*.bak
 
 # Ignore data store
 /store/
