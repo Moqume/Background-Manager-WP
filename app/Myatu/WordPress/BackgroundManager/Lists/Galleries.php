@@ -48,26 +48,17 @@ class Galleries extends \WP_List_Table
     }
     
     /**
-     * Displays the list [Override]
+     * Renders the list
      *
-     * This redirects the output and returns it instead
+     * This redirects the display() output and returns it instead
+     * 
      * @return string The list to display
      */
-    function display()
+    function render()
     {
         ob_start();
-        parent::display();
+        $this->display();
         return ob_get_clean();
-    }
-    
-    /**
-     * Checks if the user has the required permission(s)  [Override]
-     *
-     * @return bool Returns `true` if the user has the required permission(s), `false` otherwise
-     */
-    function ajax_user_can()
-    {
-        return current_user_can('edit_theme_options');
     }
     
     /**
@@ -114,6 +105,14 @@ class Galleries extends \WP_List_Table
             )
 		);
     }
+
+	/**
+	 * Message to be displayed when there are no items [Override]
+	 */
+	function no_items()
+    {
+		echo __('No photo sets found.', $this->owner->getName());
+	}    
     
     /**
      * Provides the columns [Override]
@@ -173,18 +172,36 @@ class Galleries extends \WP_List_Table
      *
 	 * @return array
 	 */
-	function get_bulk_actions() {
+	function get_bulk_actions()
+    {
 		return array(
             'trash_all' => __('Move to Trash', $this->owner->getName())
         );
 	}
     
     /**
+	 * Extra controls to be displayed between bulk actions and pagination [Override]
+	 */
+    function extra_tablenav($which)
+    {
+        if (!current_user_can('edit_theme_options'))
+            return;
+            
+        if ($which == 'top')
+            printf(
+                '<div class="alignleft actions"><a href="%s" class="button-secondary action" style="display:inline-block">%s</a></div>',
+                esc_url(add_query_arg('edit', 'new')),
+                __('Add New', $this->owner->getName())
+            );
+    }
+    
+    /**
      * Add view switcher to pagination top row [Override]
      *
      * Switches between `list` or `excerpt`
      */
-    function pagination($which) {
+    function pagination($which)
+    {
 		parent::pagination($which);
 
 		if ($which == 'top')
@@ -196,7 +213,7 @@ class Galleries extends \WP_List_Table
      */
     function column_cb($item)
     {
-        echo '<input type="checkbox" name="delete_item[]" value="' . $item['id'] . '" />';
+        echo '<input type="checkbox" name="delete_item[]" value="' . $item->id . '" />';
 	}
     
     /**
@@ -204,7 +221,7 @@ class Galleries extends \WP_List_Table
      */
     function column_default($item, $column_name)
     {
-        echo $item[$column_name];
+        echo $item->$column_name;
     }
     
     /**
@@ -212,11 +229,28 @@ class Galleries extends \WP_List_Table
      */
     function column_name($item)
     {
-        echo $item['name'];
+        $a_link     = '<a href="%s" title="%s">%s</a>';
+        $edit_link  = esc_url(add_query_arg('edit', $item->id));
+        $trash_link = esc_url(add_query_arg(
+            array(
+                'trash' => $item->id,
+                '_wpnonce' => wp_create_nonce('bgm-trash-photo-set'),
+            )
+        ));
         
-        $actions = array('Test' => '#');
+        // Print the title of the item
+        printf($a_link, $edit_link, 
+            htmlspecialchars(sprintf(__('Edit "%s"', $this->owner->getName()), $item->name)), 
+            sprintf('<strong>%s</strong>', htmlspecialchars($item->name))
+        );
         
-        $this->row_actions($actions);
+        // Output the actions
+        $actions = array(
+            'edit'  => sprintf($a_link, $edit_link, __('Edit this photo set', $this->owner->getName()), __('Edit', $this->owner->getName())),
+            'trash' => sprintf($a_link, $trash_link, __('Move this photo set to the Trash', $this->owner->getName()), __('Trash', $this->owner->getName())),
+        );
+        
+        echo $this->row_actions($actions);
     }
     
 }
