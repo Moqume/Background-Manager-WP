@@ -26,17 +26,20 @@ class Galleries extends \WP_List_Table
     /** Items per page to display */
     protected $per_page;
     
-    private $mode = 'list';
+    private $mode  = 'list';
+    private $trash = false;
     
     /**
      * Constructor [Override]
      *
      * @param WordpressPlugin $owner The owner of this list
      */
-    public function __construct(WordpressPlugin $owner, $per_page = 20)
+    public function __construct(WordpressPlugin $owner, $trash = false, $per_page = 20)
     {
-        $this->owner    = $owner;
-        $this->per_page = $per_page;
+        $this->owner = $owner;
+        
+        $this->setPerPage($per_page);
+        $this->setTrash($trash);
 
         parent::__construct(
             array(
@@ -45,6 +48,22 @@ class Galleries extends \WP_List_Table
                 'ajax' => false,
             )
         );
+    }
+    
+    /**
+     * Sets the items to display per page
+     */
+    public function setPerPage($per_page)
+    {
+        $this->per_page = $per_page;
+    }
+    
+    /**
+     * Sets whether we should display trash, instead of active items
+     */
+    public function setTrash($trash)
+    {
+        $this->trash = $trash;
     }
     
     /**
@@ -89,18 +108,24 @@ class Galleries extends \WP_List_Table
         // Starting point
         $start = ($this->get_pagenum()-1) * $this->per_page;
         
-        $this->items = $wpdb->get_results("SELECT *, 
+        // Whether we are displaying active or trashed galleries
+        $trash = ($this->trash) ? 'TRUE' : 'FALSE';
+        
+        // Query the DB
+        $this->items = $wpdb->get_results("SELECT `id`, `name`, `description`, 
             (SELECT COUNT(*) FROM `{$db_photos}` 
                 WHERE `{$db_photos}`.`bgm_gallery_id` = `{$db_galleries}`.`id`
             ) AS `photos`
             FROM `{$db_galleries}`
+            WHERE `trash` = {$trash}
             ORDER BY `{$orderby}` {$order}
             LIMIT {$start},{$this->per_page}"
         );
         
+        // ... and set the pagination args. 
         $this->set_pagination_args(
             array(
-                'total_items' => count($this->items),
+                'total_items' => $this->owner->getGalleryCount(!$this->trash),
                 'per_page'    => $this->per_page,
             )
 		);
@@ -121,15 +146,20 @@ class Galleries extends \WP_List_Table
      * column with the name `cb` contains a checkbox `<input type="checkbox" />`
      * as the title.
      *
+     * The prefixing is simply to give the `Trash` its own set of columns and
+     * associated user settings, managed by both Pf4wp and WP_Table_List.
+     *
      * @return array Array containing internal name => title relations
      */
     function get_columns()
     {
+        $prefix = ($this->trash) ? 'trash_' : '';
+            
         return array(
-            'cb'          => '<input type="checkbox" />',
-            'name'        => __('Name', $this->owner->getName()),
-            'description' => __('Description', $this->owner->getName()),
-            'photos'      => __('Photos', $this->owner->getName()),
+            'cb'                  => '<input type="checkbox" />',
+            'name'                => __('Name', $this->owner->getName()),
+            $prefix.'description' => __('Description', $this->owner->getName()),
+            $prefix.'photos'      => __('Photos', $this->owner->getName()),
         );
     }
     
@@ -145,10 +175,12 @@ class Galleries extends \WP_List_Table
 	 */
 	function get_sortable_columns()
     {
+        $prefix = ($this->trash) ? 'trash_' : '';
+        
 		return array(
-            'name'        => array('name', true),
-            'description' => array('description', false),
-            'photos'      => array('photos', false),
+            'name'                => array('name', true),
+            $prefix.'description' => array('description', false),
+            $prefix.'photos'      => array('photos', false),
         );
 	}
     
@@ -174,8 +206,14 @@ class Galleries extends \WP_List_Table
 	 */
 	function get_bulk_actions()
     {
-		return array(
-            'trash_all' => __('Move to Trash', $this->owner->getName())
+        // Active bulk actions
+        if (!$this->trash)
+            return array('trash_all' => __('Move to Trash', $this->owner->getName()));
+        
+        // Trash bulk actions
+        return array(
+            'delete_all'  => __('Delete Permanently', $this->owner->getName()),
+            'restore_all' => __('Restore', $this->owner->getName()),
         );
 	}
     
@@ -186,13 +224,24 @@ class Galleries extends \WP_List_Table
     {
         if (!current_user_can('edit_theme_options'))
             return;
-            
-        if ($which == 'top')
-            printf(
-                '<div class="alignleft actions"><a href="%s" class="button-secondary action" style="display:inline-block">%s</a></div>',
-                esc_url(add_query_arg('edit', 'new')),
-                __('Add New', $this->owner->getName())
-            );
+
+        if ($which == 'top') {
+            if (!$this->trash) {
+                // Active items
+                printf(
+                    '<div class="alignleft actions"><a href="%s" class="button-secondary action" style="display:inline-block">%s</a></div>',
+                    esc_url(add_query_arg('edit', 'new')),
+                    __('Add New', $this->owner->getName())
+                );
+            } else {
+                // Trash items
+                printf(
+                    '<input type="submit" value="%s" class="button-secondary apply" id="%s" name="%2$s" />',
+                    __('Empty Trash', $this->owner->getName()),
+                    'delete_all'
+                );
+            }
+        }
     }
     
     /**
@@ -204,7 +253,7 @@ class Galleries extends \WP_List_Table
     {
 		parent::pagination($which);
 
-		if ($which == 'top')
+		if ($which == 'top' && !$this->trash)
 			$this->view_switcher($this->mode);
 	}
     
@@ -213,15 +262,31 @@ class Galleries extends \WP_List_Table
      */
     function column_cb($item)
     {
-        echo '<input type="checkbox" name="delete_item[]" value="' . $item->id . '" />';
+        echo '<input type="checkbox" name="ids[]" value="' . $item->id . '" />';
 	}
     
     /**
-     * Displays a simple column item
+     * Displays a default column
      */
-    function column_default($item, $column_name)
+    function column_default($item, $column)
     {
-        echo $item->$column_name;
+        echo htmlspecialchars($item->$column);
+    }
+    
+    /**
+     * Displays the `Photos` column in the Trash
+     */
+    function column_trash_photos($item)
+    {
+        $this->column_default($item, 'photos');
+    }
+
+    /**
+     * Displays the `Description` column in the Trash
+     */
+    function column_trash_description($item)
+    {
+        $this->column_default($item, 'description');
     }
     
     /**
@@ -229,26 +294,36 @@ class Galleries extends \WP_List_Table
      */
     function column_name($item)
     {
-        $a_link     = '<a href="%s" title="%s">%s</a>';
-        $edit_link  = esc_url(add_query_arg('edit', $item->id));
-        $trash_link = esc_url(add_query_arg(
-            array(
-                'trash' => $item->id,
-                '_wpnonce' => wp_create_nonce('bgm-trash-photo-set'),
-            )
-        ));
+        $a_link = '<a href="%s" title="%s">%s</a>';
         
-        // Print the title of the item
-        printf($a_link, $edit_link, 
-            htmlspecialchars(sprintf(__('Edit "%s"', $this->owner->getName()), $item->name)), 
-            sprintf('<strong>%s</strong>', htmlspecialchars($item->name))
-        );
-        
-        // Output the actions
-        $actions = array(
-            'edit'  => sprintf($a_link, $edit_link, __('Edit this photo set', $this->owner->getName()), __('Edit', $this->owner->getName())),
-            'trash' => sprintf($a_link, $trash_link, __('Move this photo set to the Trash', $this->owner->getName()), __('Trash', $this->owner->getName())),
-        );
+        if (!$this->trash) {
+            // The links (for active items)
+            $edit_link  = esc_url(add_query_arg(array('edit' => $item->id)));
+            $trash_link = esc_url(add_query_arg(array('trash' => 1, 'ids' => $item->id,  '_wpnonce' => wp_create_nonce('trash-gallery'))));
+            
+            // Print the title of the item
+            printf($a_link, $edit_link, 
+                htmlspecialchars(sprintf(__('Edit "%s"', $this->owner->getName()), $item->name)), 
+                sprintf('<strong>%s</strong>', htmlspecialchars($item->name))
+            );
+            
+            // Output the actions
+            $actions = array(
+                'edit'  => sprintf($a_link, $edit_link, __('Edit this photo set', $this->owner->getName()), __('Edit', $this->owner->getName())),
+                'trash' => sprintf($a_link, $trash_link, __('Move this photo set to the Trash', $this->owner->getName()), __('Trash', $this->owner->getName())),
+            );
+        } else {
+            // The links (for trashed items)
+            $restore_link = esc_url(add_query_arg(array('restore' => 1, 'ids' => $item->id, '_wpnonce' => wp_create_nonce('restore-gallery'))));
+            $delete_link  = esc_url(add_query_arg(array('delete' => 1, 'ids' => $item->id, '_wpnonce' => wp_create_nonce('delete-gallery'))));
+            
+            printf('<strong>%s</strong>', htmlspecialchars($item->name));
+            
+            $actions = array(
+                'untrash' => sprintf($a_link, $restore_link, __('Restore this item from the Trash', $this->owner->getName()), __('Restore', $this->owner->getName())),
+                'delete'  => sprintf($a_link, $delete_link, __('Delete this item permanently', $this->owner->getName()), __('Delete Permanently', $this->owner->getName())),
+            );
+        }
         
         echo $this->row_actions($actions);
     }

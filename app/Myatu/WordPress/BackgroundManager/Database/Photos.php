@@ -22,7 +22,7 @@ class Photos extends SimpleSchema
 {
     protected static $schema = array(
         "CREATE TABLE IF NOT EXISTS `{#prefix#}bgm_photos` (
-          `id` BIGINT(20) NOT NULL ,
+          `id` BIGINT(20) NOT NULL AUTO_INCREMENT ,
           `bgm_gallery_id` BIGINT(20) NOT NULL ,
           `guid` TINYTEXT NULL DEFAULT '' ,
           `title` TINYTEXT NULL DEFAULT '' ,

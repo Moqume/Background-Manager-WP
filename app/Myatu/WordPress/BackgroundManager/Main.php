@@ -9,6 +9,8 @@
 
 namespace Myatu\WordPress\BackgroundManager;
 
+use Pf4wp\Notification\AdminNotice;
+
 /**
  * The main class for the BackgroundManager
  *
@@ -23,7 +25,9 @@ class Main extends \Pf4wp\WordpressPlugin
     const DB_PHOTOS    = 'bgm_photos';
     const DB_GALLERIES = 'bgm_galleries';
     
+    private $gallery_counts = array(false, false); // Trash, Active - Cached to avoid excessive DB access
     private $in_edit;
+    private $list;
     
     protected $default_options = array();
     
@@ -38,11 +42,16 @@ class Main extends \Pf4wp\WordpressPlugin
     public function getGalleryCount($active = true)
     {
         global $wpdb;
+      
+        if (($cached = $this->gallery_counts[$active]) !== false)
+            return $cached;
 
         $trashed = ($active) ? 'FALSE' : 'TRUE';
         $db      = $wpdb->prefix . self::DB_GALLERIES;
         
-        return $wpdb->get_var("SELECT COUNT(*) FROM `{$db}` WHERE `trash` = {$trashed}");
+        $this->gallery_counts[$active] = $wpdb->get_var("SELECT COUNT(*) FROM `{$db}` WHERE `trash` = {$trashed}");
+        
+        return $this->gallery_counts[$active];
     }
     
     /**
@@ -63,14 +72,15 @@ class Main extends \Pf4wp\WordpressPlugin
         $edit = (isset($_REQUEST['edit'])) ? trim($_REQUEST['edit']) : '';
         
         $result = false;
-        
+
         if ($edit == 'new') {
             $result = true;
-        } else if (!empty($edit)) {
+        } else if ($edit != '') {
             $db = $wpdb->prefix . self::DB_GALLERIES;
-        
+
             $result = ($wpdb->get_var($wpdb->prepare("SELECT `id` FROM `{$db}` WHERE `trash` = FALSE AND `id` = %d", $edit)) == $edit);
         } // else empty, return default (false)
+        
         
         $this->in_edit = $result; // Cache response
         
@@ -79,6 +89,9 @@ class Main extends \Pf4wp\WordpressPlugin
     
     /* ----------- Events ----------- */
     
+    /**
+     * Initializes the databases on activation
+     */
     public function onActivation()
     {
         if (!Database\Galleries::init() || !Database\Photos::init())
@@ -98,13 +111,13 @@ class Main extends \Pf4wp\WordpressPlugin
         parent::registerActions();
         
         // Remove the original 'Background' menu and WP's callback
-        remove_custom_background(); // WP 3.1
+        remove_custom_background(); // Since WP 3.1
         
         // And add our own handlers
         add_action('wp_head', array($this, 'onWpHead'));
         
         /** @TODO: Attachement support */
-        add_theme_support('custom-background'); 
+        add_theme_support('custom-background');
     }
        
     /**
@@ -125,14 +138,14 @@ class Main extends \Pf4wp\WordpressPlugin
         if (!$this->inEdit())
             $gallery_menu->per_page = 30; // Add a `per page` screen setting
         
-        // If items are in trash, display this menu too:
-        if (!empty($galleries)) {
+        // If there are items in the Trash, display this menu too:
+        if ($count = $this->getGalleryCount(false)) {
             $trash_menu = $mymenu->addSubmenu(__('Trash', $this->getName()), array($this, 'onTrashMenu'));
-            $trash_menu->count = $this->getGalleryCount(false);
+            $trash_menu->count = $count;
             $trash_menu->per_page = 30;
         }
 
-        // Make it appear in `Appearance`
+        // Make it appear under WordPress' `Appearance`
         $mymenu->setType(\Pf4wp\Menu\MenuEntry::MT_THEMES);
         
         // Give the 'Home' a different title
@@ -155,7 +168,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 __('Add New Photo Set', $this->getName())
             );
         }
-        
+
         return $mymenu;
     }
     
@@ -179,20 +192,17 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Return the available gallery list columns
-     *
-     * Called before onGalleriesMenu via a WordPress filter. It's due to this
-     * filter that we have a special callback, rather than just a setting.
-     *
-     * @return array Associative array of column names => column titles
+     * Before loading the Galleries Menu, load the list.
      */
-    public function onGalleriesMenuColumns($data) {
-        if ($this->inEdit())
-            return $data;
-            
-        $galleries_list = new Lists\Galleries($this);
-
-        return array_merge($data, $galleries_list->get_columns());
+    public function onGalleriesMenuLoad() {
+        $this->list = new Lists\Galleries($this);
+        
+        // Gallery action handling
+        if (isset($_REQUEST['ids']) && isset($_REQUEST['_wpnonce'])) {
+            // Check if it is a trash request
+            if ((isset($_REQUEST['trash']) && $_REQUEST['trash'] == 1) || ($this->list->current_action() == 'trash_all'))
+                $this->onTrashGallery();
+        }
     }
     
     /**
@@ -200,17 +210,29 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onGalleriesMenu($data, $per_page)
     {
+        // Basic sanity check
+        if (!isset($this->list))
+            return; 
+            
+        // Edit request
         if ($this->inEdit() && $this->onEditGallery())
             return;
             
-        $galleries_list = new Lists\Galleries($this, $per_page);
-        $galleries_list->prepare_items();
+        $this->list->setPerPage($per_page);
+        $this->list->prepare_items();
         
         $vars = array(
-            'list' => $galleries_list->render(),
+            'list' => $this->list->render(),
         );
         
         $this->template->display('galleries.html.twig', $vars);
+    }
+    
+    /**
+     * Before loading the Galleries Menu, load the list.
+     */
+    public function onTrashMenuLoad() {
+        $this->list = new Lists\Galleries($this, true);
     }
     
     /**
@@ -218,7 +240,18 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onTrashMenu($data, $per_page)
     {
-        echo 'Nothing here yet. Trashed items appear here, with the option to restore or permanently delete.';
+        if (!isset($this->list))
+            return;
+            
+        $this->list->setPerPage($per_page);
+        $this->list->prepare_items();
+        
+        $vars = array(
+            'trash' => true,
+            'list' => $this->list->render(),
+        );
+        
+        $this->template->display('galleries.html.twig', $vars);
     }
     
     /**
@@ -251,4 +284,67 @@ class Main extends \Pf4wp\WordpressPlugin
         return true;
     }
     
+    /**
+     * Send one or more galleries to the Trash
+     */
+    public function onTrashGallery()
+    {
+        global $wpdb;
+
+        $origin = remove_query_arg(array('trash','ids','_wpnonce'));
+        $ids    = $_REQUEST['ids'];
+        
+        if (!is_array($ids))
+            $ids = explode(',', trim($ids));
+
+        if (current_user_can('edit_theme_options') && !empty($ids)) {
+            // Sanitize $ids to integers only
+            foreach ($ids as $id_key => $id_val)
+                if (!is_int($id_val)) {
+                    if (!is_numeric($id_val)) {
+                        unset($ids[$id_key]);
+                    } else {
+                        $ids[$id_key] = intval($id_val);
+                    }
+                }
+            
+            // Determine nonce context for single or multiple deletions
+            $nonce_context = (count($ids) == 1) ? 'trash-gallery' : 'bulk-galleries';
+
+            if (wp_verify_nonce($_REQUEST['_wpnonce'], $nonce_context)) {
+                $db     = $wpdb->prefix . self::DB_GALLERIES;
+                $result = $wpdb->query("UPDATE {$db} SET `trash` = TRUE WHERE `id` IN (" . implode(',', $ids) . ")");
+            
+                if ($result !== false) {
+                    $nonce_context = (count($ids) == 1) ? 'restore-gallery' : 'bulk-galleries';
+                    
+                    $this->addDelayedNotice(
+                        sprintf(
+                            __('%s moved to the Trash. <a href="%s">Undo</a>', $this->getName()),
+                            _n('Item', 'Items', count($ids), $this->getName()),
+                            esc_url(add_query_arg(
+                                array(
+                                    'restore'  => 1,
+                                    'ids'      => implode(',', $ids),
+                                    '_wpnonce' => wp_create_nonce($nonce_context)
+                                ),
+                                $origin
+                            ))
+                        )
+                    );
+                } else {
+                    $this->addDelayedNotice(
+                        sprintf(
+                            __('There was a problem moving the %s to the Trash.', $this->getName()),
+                            _n('item', 'items', count($ids), $this->getName())
+                        ), 
+                    true);
+                }
+            }
+        }
+        
+        wp_redirect($origin);
+        
+        die(); // Awww, didums.
+    }
 }
