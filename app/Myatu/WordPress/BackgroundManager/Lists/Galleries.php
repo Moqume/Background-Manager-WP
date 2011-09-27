@@ -67,6 +67,16 @@ class Galleries extends \WP_List_Table
     }
     
     /**
+     * Returns whether this is a Trash listing
+     *
+     * @return bool Returns `true` if this is a Trash listing, `false` otherwise
+     */
+    public function isTrash()
+    {
+        return $this->trash;
+    }
+    
+    /**
      * Renders the list
      *
      * This redirects the display() output and returns it instead
@@ -87,7 +97,7 @@ class Galleries extends \WP_List_Table
      * total amount of pages and items per page. 
      * 
      * It also fills the variable $items exposed by \WP_List_Table with the 
-     * actual items (in the same order as the columns).
+     * actual items.
      */
     function prepare_items()
     {
@@ -98,20 +108,35 @@ class Galleries extends \WP_List_Table
         
         // Grab the request data, if any
         $orderby    = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'id';
-        $order      = (!empty($_REQUEST['order'])) ? $_REQUEST['order'] : 'asc';
-        $this->mode = (!empty($_REQUEST['mode'])) ? $_REQUEST['mode'] : 'list';
+        $order      = (!empty($_REQUEST['order']))   ? $_REQUEST['order']   : 'asc';
+        $this->mode = (!empty($_REQUEST['mode']))    ? $_REQUEST['mode']    : 'list';
         
         // Ensure we have valid request values
         $orderby = in_array($orderby, array_keys($this->get_sortable_columns())) ? $orderby : 'id';
         $order   = ($order == 'asc') ? 'ASC' : 'DESC';
-                
-        // Starting point
-        $start = ($this->get_pagenum()-1) * $this->per_page;
+        
+        // Figure out how many items and pages we have
+        $total_items = $this->owner->getGalleryCount(!$this->trash);
+        if (($total_pages = ceil($total_items / $this->per_page)) < 1)
+            $total_pages = 1;
+            
+        // Get a sensible page number from the user selection
+        $paged = $this->get_pagenum();
+        if ($paged > $total_pages) {
+            $page_num = $total_pages;
+        } else if ($paged < 1) {
+            $page_num = 1;
+        } else {
+            $page_num = $paged;
+        }
+        
+        // Select a starting point for the DB
+        $start = ($page_num-1) * $this->per_page;
         
         // Whether we are displaying active or trashed galleries
         $trash = ($this->trash) ? 'TRUE' : 'FALSE';
         
-        // Query the DB
+        // Query the DB ...
         $this->items = $wpdb->get_results("SELECT `id`, `name`, `description`, 
             (SELECT COUNT(*) FROM `{$db_photos}` 
                 WHERE `{$db_photos}`.`bgm_gallery_id` = `{$db_galleries}`.`id`
@@ -122,10 +147,11 @@ class Galleries extends \WP_List_Table
             LIMIT {$start},{$this->per_page}"
         );
         
-        // ... and set the pagination args. 
+        // ... and finally set the pagination args. 
         $this->set_pagination_args(
             array(
-                'total_items' => $this->owner->getGalleryCount(!$this->trash),
+                'total_items' => $total_items,
+                'total_pages' => $total_pages,
                 'per_page'    => $this->per_page,
             )
 		);
@@ -210,7 +236,7 @@ class Galleries extends \WP_List_Table
         if (!$this->trash)
             return array('trash_all' => __('Move to Trash', $this->owner->getName()));
         
-        // Trash bulk actions
+        // else Trash bulk actions
         return array(
             'delete_all'  => __('Delete Permanently', $this->owner->getName()),
             'restore_all' => __('Restore', $this->owner->getName()),
@@ -266,7 +292,7 @@ class Galleries extends \WP_List_Table
 	}
     
     /**
-     * Displays a default column
+     * Displays a column (default, if no specific `column_...` function is found).
      */
     function column_default($item, $column)
     {
