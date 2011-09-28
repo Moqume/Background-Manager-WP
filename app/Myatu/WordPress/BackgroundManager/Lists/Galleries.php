@@ -101,14 +101,9 @@ class Galleries extends \WP_List_Table
      */
     function prepare_items()
     {
-        global $wpdb;
-        
-        $db_galleries = $wpdb->prefix . \Myatu\WordPress\BackgroundManager\Main::DB_GALLERIES;
-        $db_photos    = $wpdb->prefix . \Myatu\WordPress\BackgroundManager\Main::DB_PHOTOS;
-        
         // Grab the request data, if any
-        $orderby    = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'id';
-        $order      = (!empty($_REQUEST['order']))   ? $_REQUEST['order']   : 'asc';
+        $orderby    = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'ID';
+        $order      = (!empty($_REQUEST['order']))   ? $_REQUEST['order']   : 'desc';
         $this->mode = (!empty($_REQUEST['mode']))    ? $_REQUEST['mode']    : 'list';
         
         // Ensure we have valid request values
@@ -130,22 +125,14 @@ class Galleries extends \WP_List_Table
             $page_num = $paged;
         }
         
-        // Select a starting point for the DB
-        $start = ($page_num-1) * $this->per_page;
-        
-        // Whether we are displaying active or trashed galleries
-        $trash = ($this->trash) ? 'TRUE' : 'FALSE';
-        
-        // Query the DB ...
-        $this->items = $wpdb->get_results("SELECT `id`, `name`, `description`, 
-            (SELECT COUNT(*) FROM `{$db_photos}` 
-                WHERE `{$db_photos}`.`bgm_gallery_id` = `{$db_galleries}`.`id`
-            ) AS `photos`
-            FROM `{$db_galleries}`
-            WHERE `trash` = {$trash}
-            ORDER BY `{$orderby}` {$order}
-            LIMIT {$start},{$this->per_page}"
-        );
+        $this->items = get_posts(array(
+            'numberposts' => $this->per_page,
+            'offset'      => ($page_num-1) * $this->per_page,
+            'orderby'     => $orderby,
+            'order'       => $order,
+            'post_type'   => \Myatu\WordPress\BackgroundManager\Main::PT_GALLERY,
+            'post_status' => ($this->trash) ? 'trash' : '',
+        ));
         
         // ... and finally set the pagination args. 
         $this->set_pagination_args(
@@ -204,9 +191,9 @@ class Galleries extends \WP_List_Table
         $prefix = ($this->trash) ? 'trash_' : '';
         
 		return array(
-            'name'                => array('name', true),
-            $prefix.'description' => array('description', false),
-            $prefix.'photos'      => array('photos', false),
+            'name'            => array('name', true),
+            $prefix.'content' => array('description', false),
+            $prefix.'photos'  => array('photos', false),
         );
 	}
     
@@ -232,15 +219,18 @@ class Galleries extends \WP_List_Table
 	 */
 	function get_bulk_actions()
     {
-        // Active bulk actions
-        if (!$this->trash)
-            return array('trash_all' => __('Move to Trash', $this->owner->getName()));
+        $result = array();
+
+        if (!$this->trash && EMPTY_TRASH_DAYS) {
+            $result['trash_all'] = __('Move to Trash', $this->owner->getName());
+        } else {
+            if (EMPTY_TRASH_DAYS)
+                $result['restore_all'] = __('Restore', $this->owner->getName());
+                
+            $result['delete_all'] = __('Delete Permanently', $this->owner->getName());
+        }
         
-        // else Trash bulk actions
-        return array(
-            'delete_all'  => __('Delete Permanently', $this->owner->getName()),
-            'restore_all' => __('Restore', $this->owner->getName()),
-        );
+        return $result;
 	}
     
     /**
@@ -283,71 +273,115 @@ class Galleries extends \WP_List_Table
 			$this->view_switcher($this->mode);
 	}
     
-    /**
-     * Displays a checkbox column
-     */
+    /** Displays a checkbox column */
     function column_cb($item)
     {
-        echo '<input type="checkbox" name="ids[]" value="' . $item->id . '" />';
+        echo '<input type="checkbox" name="ids[]" value="' . $item->ID . '" />';
 	}
     
-    /**
-     * Displays a column (default, if no specific `column_...` function is found).
-     */
-    function column_default($item, $column)
+    /** Displays the description of the item */
+    function column_description($item)
     {
-        echo htmlspecialchars($item->$column);
+        echo htmlspecialchars($item->post_content);
     }
     
-    /**
-     * Displays the `Photos` column in the Trash
+    /** 
+     * Displays the photo count of the item
+     *
+     * @TODO: This will be retrieved from the Photos class.
      */
+    function column_photos($item)
+    {
+        $children = get_children(array('post_parent' => $item->ID));
+
+        echo count((array)$children);
+    }
+    
+    /** Displays the `Photos` column in the Trash */
     function column_trash_photos($item)
     {
-        $this->column_default($item, 'photos');
+        $this->column_photos($item);
     }
 
-    /**
-     * Displays the `Description` column in the Trash
-     */
+    /** Displays the `Description` column in the Trash */
     function column_trash_description($item)
     {
-        $this->column_default($item, 'description');
+        $this->column_description($item);
     }
     
     /**
-     * Displays the name and actions
+     * Creates an action link
+     *
+     * @param string $action Action to create the link for
+     * @param int $id The item ID
+     * @param bool|string $text Optional text to display (automatically determined if set to `false`
+     * @return string
      */
+    private function actionLink($action, $id, $text = false)
+    {
+        $link = '<a href="%s" title="%s">%s</a>';
+        
+        switch ($action) {
+            case 'edit':
+                $title = __('Edit this photo set', $this->owner->getName());
+                $text  = (!$text) ? __('Edit', $this->owner->getName()) : $text;
+                return sprintf($link, esc_url(add_query_arg('edit', $id)), $title, $text);
+                
+            case 'trash':
+                $nonce =  wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_TRASH_GALLERY . $id);
+                $title = __('Move this photo set to the Trash', $this->owner->getName());
+                $text  = (!$text) ? __('Trash', $this->owner->getName()) : $text;
+                break;
+                
+            case 'delete':
+                $nonce = wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_DELETE_GALLERY . $id);
+                $title = __('Delete this item permanently', $this->owner->getName());
+                $text  = (!$text) ? __('Delete Permanently', $this->owner->getName()) : $text;
+                break;
+            
+            case 'restore':
+                $nonce = wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_RESTORE_GALLERY . $id);
+                $title = __('Restore this item from the Trash', $this->owner->getName());
+                $text  = (!$text) ? __('Restore', $this->owner->getName()) : $text;
+                break;
+                
+            default:
+                return '';
+        }
+                
+        return sprintf($link,
+            esc_url(add_query_arg(array(
+                'action'   => $action, 
+                'ids'      => $id,  
+                '_wpnonce' => $nonce,
+            ))),
+            $title,
+            $text
+        );
+    }   
+    /** Displays the name and actions */
     function column_name($item)
     {
-        $a_link = '<a href="%s" title="%s">%s</a>';
-        
         if (!$this->trash) {
-            // The links (for active items)
-            $edit_link  = esc_url(add_query_arg(array('edit' => $item->id)));
-            $trash_link = esc_url(add_query_arg(array('trash' => 1, 'ids' => $item->id,  '_wpnonce' => wp_create_nonce('trash-gallery'))));
+            // Print the name of the gallery
+            echo $this->actionLink('edit', $item->ID, sprintf('<strong>%s</strong>', htmlspecialchars($item->post_title)));
             
-            // Print the title of the item
-            printf($a_link, $edit_link, 
-                htmlspecialchars(sprintf(__('Edit "%s"', $this->owner->getName()), $item->name)), 
-                sprintf('<strong>%s</strong>', htmlspecialchars($item->name))
-            );
+            // Set the actions (start off with an `edit` link)
+            $actions = array($this->actionLink('edit', $item->ID));
             
-            // Output the actions
-            $actions = array(
-                'edit'  => sprintf($a_link, $edit_link, __('Edit this photo set', $this->owner->getName()), __('Edit', $this->owner->getName())),
-                'trash' => sprintf($a_link, $trash_link, __('Move this photo set to the Trash', $this->owner->getName()), __('Trash', $this->owner->getName())),
-            );
+            if (EMPTY_TRASH_DAYS) {
+                $actions['trash'] = $this->actionLink('trash', $item->ID);
+            } else {
+                $actions['delete'] = $this->actionLink('delete', $item->ID);
+            }
         } else {
-            // The links (for trashed items)
-            $restore_link = esc_url(add_query_arg(array('restore' => 1, 'ids' => $item->id, '_wpnonce' => wp_create_nonce('restore-gallery'))));
-            $delete_link  = esc_url(add_query_arg(array('delete' => 1, 'ids' => $item->id, '_wpnonce' => wp_create_nonce('delete-gallery'))));
+            // Print the name of the gallery
+            printf('<strong>%s</strong>', htmlspecialchars($item->post_title));
             
-            printf('<strong>%s</strong>', htmlspecialchars($item->name));
-            
+            // And set the actions
             $actions = array(
-                'untrash' => sprintf($a_link, $restore_link, __('Restore this item from the Trash', $this->owner->getName()), __('Restore', $this->owner->getName())),
-                'delete'  => sprintf($a_link, $delete_link, __('Delete this item permanently', $this->owner->getName()), __('Delete Permanently', $this->owner->getName())),
+                'untrash' => $this->actionLink('restore', $item->ID),
+                'delete'  => $this->actionLink('delete', $item->ID),
             );
         }
         

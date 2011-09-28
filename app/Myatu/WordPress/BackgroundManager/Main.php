@@ -22,14 +22,24 @@ use Pf4wp\Notification\AdminNotice;
  */
 class Main extends \Pf4wp\WordpressPlugin
 {
-    const DB_PHOTOS    = 'bgm_photos';
-    const DB_GALLERIES = 'bgm_galleries';
+    /* Post Types */
+    const PT_GALLERY = 'bgm_gallery';
     
-    private $gallery_counts = array(false, false); // Trash, Active - Cached to avoid excessive DB access
-    private $in_edit;
-    private $list;
+    /* Meta Types */
+    const MT_CSS = 'bgm_css';
+    
+    /* Gallery Nonces (to ensure consistency) */
+    const NONCE_DELETE_GALLERY  = 'delete-gallery';
+    const NONCE_TRASH_GALLERY   = 'trash-gallery';
+    const NONCE_RESTORE_GALLERY = 'restore-gallery';
+    const NONCE_EDIT_GALLERY    = 'edit-gallery';
+    
+    private $galleries;     // Instance of Galleries
+    private $list;          // Instance to a List\Galleries
+    private $in_edit;       // Cached response of inEdit()
     
     protected $default_options = array();
+    
     
     /* ----------- Helpers ----------- */
 
@@ -41,17 +51,12 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function getGalleryCount($active = true)
     {
-        global $wpdb;
-      
-        if (($cached = $this->gallery_counts[$active]) !== false)
-            return $cached;
+        $counts = wp_count_posts(self::PT_GALLERY);
+        
+        if (!$active)
+            return $counts->trash;
 
-        $trashed = ($active) ? 'FALSE' : 'TRUE';
-        $db      = $wpdb->prefix . self::DB_GALLERIES;
-        
-        $this->gallery_counts[$active] = $wpdb->get_var("SELECT COUNT(*) FROM `{$db}` WHERE `trash` = {$trashed}");
-        
-        return $this->gallery_counts[$active];
+        return $counts->publish;
     }
     
     /**
@@ -76,121 +81,16 @@ class Main extends \Pf4wp\WordpressPlugin
         if ($edit == 'new') {
             $result = true;
         } else if ($edit != '') {
-            $db = $wpdb->prefix . self::DB_GALLERIES;
-
-            $result = ($wpdb->get_var($wpdb->prepare("SELECT `id` FROM `{$db}` WHERE `trash` = FALSE AND `id` = %d", $edit)) == $edit);
+            // Check if the Gallery actually exists and isn't in the Trash
+            $result = ($wpdb->get_var($wpdb->prepare("SELECT `id` FROM `{$wpdb->posts}` WHERE `post_type` = %s AND `post_status` != 'trash' AND `id` = %d", self::PT_GALLERY, $edit)) == $edit);
         } // else empty, return default (false)
-        
         
         $this->in_edit = $result; // Cache response
         
         return $result;
     }
     
-    /**
-     * In response to an action, send specified IDs to Trash or restore them
-     *
-     * @see onTrashGallery()
-     * @param bool $to_trash If set to `true` the items will be sent to Trash, otherwise restored
-     */
-    public function handleTrashRestore($to_trash, $ids = false)
-    {
-        global $wpdb;
-        
-        // Check for user capability and present nonce
-        if (!isset($_REQUEST['_wpnonce']) || !current_user_can('edit_theme_options'))
-            return;
-            
-        // Check nonce
-        $bulk_action  = (isset($this->list) && $this->list->current_action() !== false);
-        $nonce_context = ($bulk_action) ? 'bulk-galleries' : (($to_trash) ? 'trash-gallery' : 'restore-gallery');
-
-        if (!wp_verify_nonce($_REQUEST['_wpnonce'], $nonce_context)) 
-            wp_die(__('You do not have permission to do that [nonce].', $this->getName()));            
-        
-        if (!$ids) {
-            if (!isset($_REQUEST['ids']))
-                return;
-                
-            $ids = $_REQUEST['ids'];
-        }        
-
-        // Ensure the ids is always an array, and seperate multiple ids in their own array value
-        if (!is_array($ids))
-            $ids = explode(',', trim($ids));
-
-        // Sanitize $ids to integer values only
-        foreach ($ids as $id_key => $id_val)
-            if (!is_int($id_val)) {
-                if (!is_numeric($id_val)) {
-                    unset($ids[$id_key]);
-                } else {
-                    $ids[$id_key] = intval($id_val);
-                }
-            }
-        
-        // Check if there's something left to do after sanitizing the ids.
-        if (empty($ids))
-            return;
-                
-        // Move or restore the specified items
-        $db        = $wpdb->prefix . self::DB_GALLERIES;
-        $set_value = ($to_trash) ? 'TRUE' : 'FALSE';
-        $result    = $wpdb->query("UPDATE {$db} SET `trash` = {$set_value} WHERE `id` IN (" . implode(',', $ids) . ")");
-        
-        // Set a notice depending on the outcome of the query
-        if ($result !== false) {
-            if ($to_trash) {
-               $message = sprintf(
-                    __('%s moved to the Trash. <a href="%s">Undo</a>', $this->getName()),
-                    ucfirst(_n('item', 'items', count($ids), $this->getName())),
-                    esc_url(add_query_arg(
-                        array(
-                            'restore'  => 1,
-                            'ids'      => implode(',', $ids),
-                            '_wpnonce' => wp_create_nonce('restore-gallery')
-                        ),
-                        remove_query_arg(array('trash','ids','_wpnonce'))
-                    ))
-                );
-            } else {
-                $message = sprintf(
-                    __('%s restored from the Trash.', $this->getName()),
-                    ucfirst(_n('item', 'items', count($ids), $this->getName()))
-                );
-            }
-            
-            $this->addDelayedNotice($message);
-        } else {
-            if ($to_trash) {
-                $message = sprintf(
-                    __('There was a problem moving the %s to the Trash.', $this->getName()),
-                    _n('item', 'items', count($ids), $htis->getName())
-                );
-            } else {
-                $message = sprintf(
-                    __('There was a problem restoring the %s from the Trash.', $this->getName()),
-                    _n('item', 'items', count($ids), $htis->getName())
-                );
-            }
-            
-            $this->addDelayedNotice($message, true);
-        }
-    }
-    
     /* ----------- Events ----------- */
-    
-    /**
-     * Initializes the databases on activation
-     */
-    public function onActivation()
-    {
-        if (!Database\Galleries::init() || !Database\Photos::init())
-            $this->addDelayedNotice(sprintf(
-                'There was a problem initializing the database for <strong>%s</strong> during activation.', 
-                $this->getDisplayName()
-            ), true);
-    }
     
     /**
      * Perform additional registerActions()
@@ -204,13 +104,26 @@ class Main extends \Pf4wp\WordpressPlugin
         // Remove the original 'Background' menu and WP's callback
         remove_custom_background(); // Since WP 3.1
         
-        // And add our own handlers
+        // Register additional actions
         add_action('wp_head', array($this, 'onWpHead'));
+        add_action('bgm_scheduled_delete', array($this, 'onScheduledDelete'));
+        
+        // Register post types
+        register_post_type(self::PT_GALLERY, array(
+            'labels' => array(
+                'name' => __('Background Manager Galleries', $this->getName()),
+                'singular_name' => __('Background Manager Gallery', $this->getName()),
+            ),
+            'public' => false,
+            'hierarchical' => false,
+            'rewrite' => false,
+            'query_var' => false,
+        ));
         
         /** @TODO: Attachement support */
         add_theme_support('custom-background');
     }
-       
+    
     /**
      * Build the menu
      */
@@ -242,8 +155,10 @@ class Main extends \Pf4wp\WordpressPlugin
         // Give the 'Home' a different title
         $mymenu->setHomeTitle(__('Settings', $this->getName()));
 
-        // Give any menu other than the gallery submenu an 'Add New Photo Set' link
-        if ((($active_menu = $mymenu->getActiveMenu()) == false && !$this->inEdit()) || $active_menu != $gallery_menu) {
+        // Add an 'Add New Photo Set' link
+        if (($this->inEdit() && strtolower(trim($_REQUEST['edit'])) != 'new') ||
+            (($active_menu = $mymenu->getActiveMenu()) == false) || 
+            $active_menu != $gallery_menu) {
             $add_new_url = esc_url(add_query_arg(
                 array(
                     \Pf4wp\Menu\CombinedMenu::SUBMENU_ID => $gallery_menu->getSlug(),
@@ -251,7 +166,8 @@ class Main extends \Pf4wp\WordpressPlugin
                     'edit' => 'new',
                 )
             ));
-                
+            
+            // Replace existing main page title with one that contains a link
             $main_menu->page_title = sprintf(
                 '%s <a class="add-new-h2" href="%s">%s</a>',
                 $main_menu->page_title,
@@ -270,7 +186,8 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         if (!empty($_POST) && !wp_verify_nonce($_POST['_nonce'], 'onSettingsMenu'))
             wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
-        
+            
+            
         $test_val = isset($_POST['test']) ? $_POST['test'] : 'Default';
         
         $vars = array(
@@ -283,35 +200,59 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Before loading the Galleries Menu, load the list and handle any actions
+     * Before loading the Galleries Menu, load the list and handle any pending user actions
+     *
+     * This is also shared with onTrashMenuLoad(), due to its shared code
+     *
+     * @see onTrashMenuLoad()
      */
     public function onGalleriesMenuLoad() {
-        // Setup the Galleries list
-        $this->list = new Lists\Galleries($this);
-        
-        // Gallery action handling
-        if (isset($_REQUEST['ids']) && isset($_REQUEST['_wpnonce'])) {
-            // Check if it is a trash request
-            if ((isset($_REQUEST['trash']) && $_REQUEST['trash'] == 1) || ($this->list->current_action() == 'trash_all'))
-                $this->actionTrashGallery();
+        if (!isset($this->list))
+            $this->list = new Lists\Galleries($this);
             
-            // Restore request
-            if ((isset($_REQUEST['restore']) && $_REQUEST['restore'] == 1) || ($this->list->current_action() == 'restore_all'))
-                $this->actionRestoreGallery();                
+        if (!isset($this->galleries))
+            $this->galleries = new Galleries($this);
+        
+        // "Simple" actions
+        if (isset($_REQUEST['ids']) && ($action = $this->list->current_action()) !== false) {
+            switch (strtolower($action)) {
+                case 'restore':
+                case 'restore_all':
+                    $this->galleries->restoreUserAction(($action == 'restore_all'));
+                    break;
+                
+                case 'trash':
+                case 'trash_all':
+                    $this->galleries->trashUserAction(($action == 'trash_all'));
+                    break;
+                    
+                case 'delete':
+                case 'delete_all':
+                    $this->galleries->deleteUserAction(($action == 'delete_all'));
+                    break;                    
+            }                    
         }
+        
+        // Save (new) gallery action
+        if ($this->inEdit() && isset($_POST['submit']))
+            $this->galleries->saveUserAction();
     }
     
     /**
      * Galleries Menu
+     *
+     * This is also shared with onTrashMenu(), due to its shared code
+     *
+     * @see onTrashMenu()
      */
     public function onGalleriesMenu($data, $per_page)
     {
         // Basic sanity check
-        if (!isset($this->list))
+        if (!isset($this->list) || !isset($this->galleries))
             return; 
             
         // Edit action (this is handled here, instead of Load
-        if ($this->inEdit() && $this->actionEditGallery())
+        if ($this->inEdit() && $this->editGallery())
             return;
             
         $this->list->setPerPage($per_page);
@@ -326,21 +267,20 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Before loading the Galleries Menu, load the list.
+     * Before loading the Trash Menu, load the list.
+     *
+     * @see onGalleriesMenuLoad()
      */
     public function onTrashMenuLoad() {
-        $this->list = new Lists\Galleries($this, true);
+        $this->list = new Lists\Galleries($this, true); // !!
         
-        // Gallery action handling
-        if (isset($_REQUEST['ids']) && isset($_REQUEST['_wpnonce'])) {
-            // Restore request
-            if ((isset($_REQUEST['restore']) && $_REQUEST['restore'] == 1) || ($this->list->current_action() == 'restore_all'))
-                $this->actionRestoreGallery();                
-        }        
+        $this->onGalleriesMenuLoad();
     }
     
     /**
      * Trash Menu
+     *
+     * @see onGalleriesMenu()
      */
     public function onTrashMenu($data, $per_page)
     {
@@ -365,39 +305,41 @@ class Main extends \Pf4wp\WordpressPlugin
     
     /**
      * Edit or create a gallery
+     *
+     * This will render the edit form, in place of the gallery list, unless
+     * the user does not have the privileges to edit any theme options.
+     *
+     * @see onGalleriesMenu()
      */
-    public function actionEditGallery()
+    public function editGallery()
     {
         if (!current_user_can('edit_theme_options'))
             return false;
 
-        $edit = trim($_REQUEST['edit']);
+        $edit     = strtolower(trim($_REQUEST['edit']));
+        $is_new   = ($edit == 'new');
+        $gallery  = null;
         
-        echo "OK: ". $edit;
+        if (!isset($_POST['submit'])) {
+            if (!$is_new) {
+                $edit    = intval($edit);
+                $gallery = get_post($edit);
+                
+                // Add custom css meta
+                $gallery->meta_css = get_post_meta($edit, self::MT_CSS, true);
+            }
+        }
+        
+        $vars = array(
+            'nonce'         => wp_nonce_field(self::NONCE_EDIT_GALLERY . $edit, '_nonce', true, false),
+            'submit_button' => get_submit_button(($is_new) ? __('Add Photo Set', $this->getName()) : ''),
+            'gallery'      => ($gallery) ? $gallery : $_REQUEST,
+            'is_new'        => $is_new,
+            'edit'          => $edit,
+        );
+        
+        $this->template->display('edit_gallery.html.twig', $vars);
+        
         return true;
-    }
-    
-    /**
-     * Send one or more galleries to the Trash
-     */
-    public function actionTrashGallery()
-    {
-        $this->handleTrashRestore(true);
-        
-        wp_redirect(remove_query_arg(array('trash','ids','_wpnonce')));
-        
-        die();
-    }
-    
-    /**
-     * Restore one or more galleries from the Trash
-     */
-    public function actionRestoreGallery()
-    {
-        $this->handleTrashRestore(false);
-        
-        wp_redirect(remove_query_arg(array('restore','ids','_wpnonce')));
-        
-        die();
     }
 }
