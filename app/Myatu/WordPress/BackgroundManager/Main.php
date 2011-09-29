@@ -23,10 +23,7 @@ use Pf4wp\Notification\AdminNotice;
 class Main extends \Pf4wp\WordpressPlugin
 {
     /* Post Types */
-    const PT_GALLERY = 'bgm_gallery';
-    
-    /* Meta Types */
-    const MT_CSS = 'bgm_css';
+    const PT_GALLERY = 'myatu_bgm_gallery';
     
     /* Gallery Nonces (to ensure consistency) */
     const NONCE_DELETE_GALLERY  = 'delete-gallery';
@@ -34,9 +31,10 @@ class Main extends \Pf4wp\WordpressPlugin
     const NONCE_RESTORE_GALLERY = 'restore-gallery';
     const NONCE_EDIT_GALLERY    = 'edit-gallery';
     
-    private $galleries;     // Instance of Galleries
-    private $list;          // Instance to a List\Galleries
-    private $in_edit;       // Cached response of inEdit()
+    private $gallery = null; // Instance containing current gallery being edited (if any)
+    private $galleries;      // Instance of Galleries
+    private $list;           // Instance to a List\Galleries
+    private $in_edit;        // Cached response of inEdit()
     
     protected $default_options = array();
     
@@ -83,6 +81,10 @@ class Main extends \Pf4wp\WordpressPlugin
         } else if ($edit != '') {
             // Check if the Gallery actually exists and isn't in the Trash
             $result = ($wpdb->get_var($wpdb->prepare("SELECT `id` FROM `{$wpdb->posts}` WHERE `post_type` = %s AND `post_status` != 'trash' AND `id` = %d", self::PT_GALLERY, $edit)) == $edit);
+            
+            // Pre-set $this->gallery with the actual post, so it can be used for other things too
+            if ($result && is_null($this->gallery))
+                $this->gallery = get_post($edit);
         } // else empty, return default (false)
         
         $this->in_edit = $result; // Cache response
@@ -140,13 +142,13 @@ class Main extends \Pf4wp\WordpressPlugin
         $gallery_menu = $mymenu->addSubmenu(__('Photo Sets', $this->getName()), array($this, 'onGalleriesMenu'));
         $gallery_menu->count = $this->getGalleryCount();
         if (!$this->inEdit())
-            $gallery_menu->per_page = 30; // Add a `per page` screen setting
+            $gallery_menu->per_page = 15; // Add a `per page` screen setting
         
         // If there are items in the Trash, display this menu too:
         if ($count = $this->getGalleryCount(false)) {
             $trash_menu = $mymenu->addSubmenu(__('Trash', $this->getName()), array($this, 'onTrashMenu'));
             $trash_menu->count = $count;
-            $trash_menu->per_page = 30;
+            $trash_menu->per_page = 15;
         }
 
         // Make it appear under WordPress' `Appearance`
@@ -164,7 +166,8 @@ class Main extends \Pf4wp\WordpressPlugin
                     \Pf4wp\Menu\CombinedMenu::SUBMENU_ID => $gallery_menu->getSlug(),
                     'page' => $gallery_menu->getSlug(true),
                     'edit' => 'new',
-                )
+                ),
+                remove_query_arg(array('order', 'orderby', 'action', 'ids'))
             ));
             
             // Replace existing main page title with one that contains a link
@@ -200,13 +203,16 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Before loading the Galleries Menu, load the list and handle any pending user actions
-     *
-     * This is also shared with onTrashMenuLoad(), due to its shared code
+     * Handles Pre-Galleries Menu functions
+     * 
+     * Before loading the Galleries Menu, load the list and handle any pending 
+     * user actions. This is also shared with onTrashMenuLoad(), due to its 
+     * shared code.
      *
      * @see onTrashMenuLoad()
+     * @param object $current_screen The current screen object
      */
-    public function onGalleriesMenuLoad() {
+    public function onGalleriesMenuLoad($current_screen) {
         if (!isset($this->list))
             $this->list = new Lists\Galleries($this);
             
@@ -233,9 +239,39 @@ class Main extends \Pf4wp\WordpressPlugin
             }                    
         }
         
-        // Save (new) gallery action
-        if ($this->inEdit() && isset($_POST['submit']))
-            $this->galleries->saveUserAction();
+        // Empty Trash action
+        if (isset($_POST['empty_trash']))
+            $this->galleries->emptyTrashUserAction();
+
+        // Edit actions
+        if ($this->inEdit()) {
+            // Initialize base meta boxes
+            new Meta\Submit($this);
+            new Meta\Stylesheet($this);
+            
+            // Respong to a save edit action
+            if (isset($_POST['submit']))
+                $this->galleries->saveUserAction();
+            
+            // This is needed for some JS functions
+            wp_enqueue_script('post');
+            
+            /* Set the current screen to 'bgm_gallery' - a requirement for 
+             * edit form meta boxes for this post type
+             */
+            set_current_screen(self::PT_GALLERY);
+            
+            // Set the layout two 1 or 2 column width
+            add_screen_option('layout_columns', array('max' => 2) );
+            
+            // Perform last-moment meta box registrations
+            do_action('add_meta_boxes', self::PT_GALLERY, $this->gallery);
+            do_action('add_meta_boxes_' . self::PT_GALLERY, $this->gallery);
+            
+            do_action('do_meta_boxes', self::PT_GALLERY, 'normal', $this->gallery);
+            do_action('do_meta_boxes', self::PT_GALLERY, 'advanced', $this->gallery);
+            do_action('do_meta_boxes', self::PT_GALLERY, 'side', $this->gallery);
+        }
     }
     
     /**
@@ -267,14 +303,17 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Before loading the Trash Menu, load the list.
+     * Handles pre-Trash Menu functions
+     *
+     * Before loading the Trash Menu, load the list with `Trash` enabled.
      *
      * @see onGalleriesMenuLoad()
+     * @param object $current_screen Object containing the current screen (Wordpress)
      */
-    public function onTrashMenuLoad() {
+    public function onTrashMenuLoad($current_screen) {
         $this->list = new Lists\Galleries($this, true); // !!
         
-        $this->onGalleriesMenuLoad();
+        $this->onGalleriesMenuLoad($current_screen);
     }
     
     /**
@@ -302,9 +341,9 @@ class Main extends \Pf4wp\WordpressPlugin
         
         printf('<style type="text/css" media="screen">body { %s }</style>'.PHP_EOL, $style);
     }
-    
+       
     /**
-     * Edit or create a gallery
+     * Edit an existing or new gallery
      *
      * This will render the edit form, in place of the gallery list, unless
      * the user does not have the privileges to edit any theme options.
@@ -315,27 +354,39 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         if (!current_user_can('edit_theme_options'))
             return false;
-
-        $edit     = strtolower(trim($_REQUEST['edit']));
-        $is_new   = ($edit == 'new');
-        $gallery  = null;
+            
+        /*global $wp_filter;
         
-        if (!isset($_POST['submit'])) {
-            if (!$is_new) {
-                $edit    = intval($edit);
-                $gallery = get_post($edit);
-                
-                // Add custom css meta
-                $gallery->meta_css = get_post_meta($edit, self::MT_CSS, true);
-            }
-        }
+        var_dump($wp_filter['save_post']);*/
         
+        // Get the main meta box output
+        ob_start();
+        do_meta_boxes(self::PT_GALLERY, 'normal', $this->gallery);
+        do_meta_boxes(self::PT_GALLERY, 'advanced', $this->gallery);
+        $meta_boxes_main = ob_get_clean();
+        
+        ob_start();
+        do_meta_boxes(self::PT_GALLERY, 'side', $this->gallery);
+        $meta_boxes_side = ob_get_clean();
+        
+        // Check if we start by displaying the right-side column;
+        $screen  = get_current_screen();
+        $columns = (int)get_user_option('screen_layout_'.$screen->id);
+        if ($columns == 0)
+            $columns = 2;
+            
+        $edit = ($this->gallery) ? $this->gallery->ID : 'new';
         $vars = array(
-            'nonce'         => wp_nonce_field(self::NONCE_EDIT_GALLERY . $edit, '_nonce', true, false),
-            'submit_button' => get_submit_button(($is_new) ? __('Add Photo Set', $this->getName()) : ''),
-            'gallery'      => ($gallery) ? $gallery : $_REQUEST,
-            'is_new'        => $is_new,
-            'edit'          => $edit,
+            'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar' : '',
+            'nonce'             => wp_nonce_field(self::NONCE_EDIT_GALLERY . $edit, '_nonce', true, false),
+            'nonce_meta_order'  => wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false),
+            'nonce_meta_clsd'   => wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false),
+            'gallery'           => ($this->gallery) ? $this->gallery : $_REQUEST,
+            'post_type'         => self::PT_GALLERY,
+            'meta_boxes_main'   => $meta_boxes_main,
+            'meta_boxes_side'   => $meta_boxes_side,
+            'is_new'            => is_null($this->gallery),
+            'edit'              => $edit,
         );
         
         $this->template->display('edit_gallery.html.twig', $vars);

@@ -102,14 +102,14 @@ class Galleries extends \WP_List_Table
     function prepare_items()
     {
         // Grab the request data, if any
-        $orderby    = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'ID';
+        $orderby    = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'date';
         $order      = (!empty($_REQUEST['order']))   ? $_REQUEST['order']   : 'desc';
         $this->mode = (!empty($_REQUEST['mode']))    ? $_REQUEST['mode']    : 'list';
         
         // Ensure we have valid request values
-        $orderby = in_array($orderby, array_keys($this->get_sortable_columns())) ? $orderby : 'id';
+        $orderby = (in_array($orderby, array('date', 'title'))) ? $orderby : 'date';
         $order   = ($order == 'asc') ? 'ASC' : 'DESC';
-        
+
         // Figure out how many items and pages we have
         $total_items = $this->owner->getGalleryCount(!$this->trash);
         if (($total_pages = ceil($total_items / $this->per_page)) < 1)
@@ -166,11 +166,14 @@ class Galleries extends \WP_List_Table
      */
     function get_columns()
     {
+        if ($this->owner->inEdit())
+            return array();
+            
         $prefix = ($this->trash) ? 'trash_' : '';
             
         return array(
             'cb'                  => '<input type="checkbox" />',
-            'name'                => __('Name', $this->owner->getName()),
+            'title'               => __('Title', $this->owner->getName()),
             $prefix.'description' => __('Description', $this->owner->getName()),
             $prefix.'photos'      => __('Photos', $this->owner->getName()),
         );
@@ -183,18 +186,13 @@ class Galleries extends \WP_List_Table
 	 * `'internal-name' => array( 'orderby', true )`
 	 *
 	 * If the second parameter is `true`, then it will be the initial sorting order
-	 *
+     *
+     * @see \WP_Query\get_posts()
 	 * @return array Array containing sortable columns
 	 */
 	function get_sortable_columns()
     {
-        $prefix = ($this->trash) ? 'trash_' : '';
-        
-		return array(
-            'name'            => array('name', true),
-            $prefix.'content' => array('description', false),
-            $prefix.'photos'  => array('photos', false),
-        );
+		return array('title' => array('title', true));
 	}
     
     /**
@@ -252,9 +250,9 @@ class Galleries extends \WP_List_Table
             } else {
                 // Trash items
                 printf(
-                    '<input type="submit" value="%s" class="button-secondary apply" id="%s" name="%2$s" />',
+                    '<div class="alignleft actions"><input type="submit" value="%s" class="button-secondary apply" id="%s" name="%2$s" /></div>',
                     __('Empty Trash', $this->owner->getName()),
-                    'delete_all'
+                    'empty_trash'
                 );
             }
         }
@@ -317,31 +315,31 @@ class Galleries extends \WP_List_Table
      * @param bool|string $text Optional text to display (automatically determined if set to `false`
      * @return string
      */
-    private function actionLink($action, $id, $text = false)
+    public function actionLink($action, $id, $text = false, $class = '')
     {
-        $link = '<a href="%s" title="%s">%s</a>';
-        
+        $link = '<a href="%s" title="%s" class="%s">%s</a>';
+
         switch ($action) {
             case 'edit':
-                $title = __('Edit this photo set', $this->owner->getName());
+                $title = __('Edit this Photo Set', $this->owner->getName());
                 $text  = (!$text) ? __('Edit', $this->owner->getName()) : $text;
-                return sprintf($link, esc_url(add_query_arg('edit', $id)), $title, $text);
+                return sprintf($link, esc_url(add_query_arg('edit', $id, remove_query_arg(array('action', 'ids', '_wpnonce', 'order', 'orderby')))), $title, $class, $text);
                 
             case 'trash':
                 $nonce =  wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_TRASH_GALLERY . $id);
-                $title = __('Move this photo set to the Trash', $this->owner->getName());
+                $title = __('Move this Photo Set to the Trash', $this->owner->getName());
                 $text  = (!$text) ? __('Trash', $this->owner->getName()) : $text;
                 break;
                 
             case 'delete':
                 $nonce = wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_DELETE_GALLERY . $id);
-                $title = __('Delete this item permanently', $this->owner->getName());
+                $title = __('Delete this Photo Set permanently', $this->owner->getName());
                 $text  = (!$text) ? __('Delete Permanently', $this->owner->getName()) : $text;
                 break;
             
             case 'restore':
                 $nonce = wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_RESTORE_GALLERY . $id);
-                $title = __('Restore this item from the Trash', $this->owner->getName());
+                $title = __('Restore this Photo Set from the Trash', $this->owner->getName());
                 $text  = (!$text) ? __('Restore', $this->owner->getName()) : $text;
                 break;
                 
@@ -349,18 +347,11 @@ class Galleries extends \WP_List_Table
                 return '';
         }
                 
-        return sprintf($link,
-            esc_url(add_query_arg(array(
-                'action'   => $action, 
-                'ids'      => $id,  
-                '_wpnonce' => $nonce,
-            ))),
-            $title,
-            $text
-        );
+        return sprintf($link, esc_url(add_query_arg(array('action' => $action, 'ids' => $id, '_wpnonce' => $nonce), remove_query_arg(array('edit')))), $title, $class, $text);
     }   
+    
     /** Displays the name and actions */
-    function column_name($item)
+    function column_title($item)
     {
         if (!$this->trash) {
             // Print the name of the gallery

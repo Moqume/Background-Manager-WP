@@ -1,15 +1,39 @@
 
-<form method="post" action="">
-    <label for="post_title">{{ __('Name') }}</label>
-    <input type="text" id="post_title" name="post_title" value="{{ gallery.post_title }}" />
-
-    <label for="post_content">{{ __('Description') }}</label>
-    <textarea id="post_content" name="post_content">{{ gallery.post_content }}</textarea>
-
-    <label for="meta_css">{{ __('Custom CSS to include') }}</label>
-    <textarea id="meta_css" name="meta_css">{{ gallery.meta_css }}</textarea>
-
+<form name="gallery" method="post" action="">
     <input type="hidden" name="edit" value="{{ edit }}" />
+    <input type="hidden" name="post_type" value="{{ post_type }}" />
     {{ nonce | raw }}
-    {{ submit_button | raw }}
+    {{ nonce_meta_order | raw }}
+    {{ nonce_meta_clsd | raw }}
+
+    <div id="poststuff" class="metabox-holder {{ has_right_sidebar }}">
+        <div id="side-info-column" class="inner-sidebar">
+            {{ meta_boxes_side | raw }}
+        </div>
+        <div id="post-body">
+            <div id="post-body-content">
+                <div id="titlediv">
+                    <div id="titlewrap">
+                        <label class="hide-if-no-js" style="visibility:hidden" id="title-prompt-text" for="title">{{ __('Enter title here') }}</label>
+                        <input id="title" type="text" autocomplete="off" value="{{ gallery.post_title }}" tabindex="1" size="30" name="post_title" />
+                    </div>
+                </div>
+
+                <div id="photodiv">
+                     PLACEHOLDER FOR PHOTOS
+                </div>
+
+                {{ meta_boxes_main | raw }}
+            </div>
+        </div>
+        <br class="clear" />
+    </div>
 </form>
+
+{% if gallery.post_title == '' %}
+<script type="text/javascript">
+//<![CDATA[
+try{document.gallery.title.focus();}catch(e){}
+//]]>
+</script>
+{% endif %}

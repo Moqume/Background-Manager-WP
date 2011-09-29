@@ -37,20 +37,26 @@ class Galleries
      * The possible actions are `trash`, `delete` or `restore` and their
      * bulk operation counterparts with the `_all` suffix.
      *
+     * When IDs are provided, there's no need to a specify bulk operation (_all),
+     * though if they are not provided, specifying whether it is a bulk operation 
+     * or not is used to determine the correct nonce.
+     *
      * @param string $action The action to perform
-     * @param mixed $ids A single ID or array of IDs to perform the action on (Optional, retrieved from $_REQUEST otherwise)
+     * @param mixed $ids A single ID, array of IDs or array of objects containing an 'id', to perform the action on (Optional, retrieved from $_REQUEST otherwise)
      * @return int|bool Returns an array with the IDs on which the actions were performed, or `false` if there was an error.
      */
-    public function doTDR($action, $ids = false)
+    protected function doTDR($action, $ids = false)
     {
         // Check for user capability and present nonce
         if (!current_user_can('edit_theme_options'))
             return false;
             
+        $action = strtolower(trim($action));
+            
         if (!$ids) {
             // If ids have not been specifically specified, we need to check the nonce first
             if (!isset($_REQUEST['ids']))
-                return false;
+                return true; // Nothing to do, all done succesfuly!
                 
             $ids = $_REQUEST['ids'];
             
@@ -78,27 +84,31 @@ class Galleries
             // Nonce passed, set ids
         }        
 
-        // Ensure the ids is always an array, and seperate multiple ids in their own array value
-        if (!is_array($ids))
-            $ids = explode(',', trim($ids));
+        if (is_array($ids) && isset($ids[0]) && is_object($ids[0])) {
+            foreach ($ids as $id_key => $id_obj)
+                $ids[$id_key] = $id_obj->id;
+        } else {
+            // Ensure the ids is always an array, and seperate multiple ids in their own array value
+            if (!is_array($ids))
+                $ids = explode(',', trim($ids));
 
-        // Sanitize $ids to integer values only
-        foreach ($ids as $id_key => $id_val)
-            if (!is_int($id_val)) {
-                if (!is_numeric($id_val)) {
-                    unset($ids[$id_key]);
-                } else {
-                    $ids[$id_key] = intval($id_val);
+            // Sanitize $ids to integer values only
+            foreach ($ids as $id_key => $id_val)
+                if (!is_int($id_val)) {
+                    if (!is_numeric($id_val)) {
+                        unset($ids[$id_key]);
+                    } else {
+                        $ids[$id_key] = intval($id_val);
+                    }
                 }
-            }
+        }
         
         // Check if there's something left to do after sanitizing the ids.
         if (empty($ids))
-            return false;
+            return true;
         
         // Initially set to false
-        $do_trash = false;
-        $result   = false;
+        $result = false;
         
         switch ($action) {
             case 'delete':
@@ -136,7 +146,7 @@ class Galleries
     /**
      * Sends one or more Galleries to the Trash
      *
-     * @param bool $bulk Set to `true` if this is a bulk action, `false` otherwise (Default, optional)
+     * @param bool $bulk Set to `true` if this is a bulk action, `false` otherwise (Default, optional used for nonce verification)
      * @param mixed $ids A single ID or array of IDs to perform the action on (Optional, retrieved from $_REQUEST otherwise)
      * @return int|bool Returns an array with the IDs on which the actions were performed, or `false` if there was an error.
      */
@@ -148,7 +158,7 @@ class Galleries
     /**
      * Restores one or more Galleries from the Trash
      *
-     * @param bool $bulk Set to `true` if this is a bulk action, `false` otherwise (Default, optional)
+     * @param bool $bulk Set to `true` if this is a bulk action, `false` otherwise (Default, optional used for nonce verification)
      * @param mixed $ids A single ID or array of IDs to perform the action on (Optional, retrieved from $_REQUEST otherwise)
      * @return int|bool Returns an array with the IDs on which the actions were performed, or `false` if there was an error.
      */
@@ -160,7 +170,7 @@ class Galleries
     /**
      * Permanently deletes one or more Galleries
      *
-     * @param bool $bulk Set to `true` if this is a bulk action, `false` otherwise (Default, optional)
+     * @param bool $bulk Set to `true` if this is a bulk action, `false` otherwise (Default, optional used for nonce verification)
      * @param int|bool $ids The IDs to perform the action on (Optional, retrieved from $_REQUEST otherwise)
      * @return int|bool Returns an array with the IDs on which the actions were performed, or `false` if there was an error.
      */
@@ -170,7 +180,7 @@ class Galleries
     }
     
     /**
-     * Adds a single meta value to a selected gallery (by ID)
+     * Sets a meta value to a selected gallery (by ID)
      *
      * This will replace an existing meta value with the same key
      * or delete the entry if the value is empty.
@@ -178,16 +188,17 @@ class Galleries
      * @param int $id The ID of the gallery
      * @param string $meta_key The meta key
      * @param string $meta_value The value for the meta key
+     * @param bool $unique Set to `true` if the meta key is unique (default), or `false` otherwise (optional)
      * @return bool Returns `true` if successful, `false` otherwise
      */
-    public function addSingleMeta($id, $meta_key, $meta_value)
+    public function setSingleMeta($id, $meta_key, $meta_value, $unique = true)
     {
         $result   = true;
-        $old_meta = get_post_meta($id, $meta_key, true);
+        $old_meta = get_post_meta($id, $meta_key, $unique);
        
         if (empty($old_meta)) {
             if (!empty($meta_value))
-                $result = add_post_meta($id, $meta_key, $meta_value, true);
+                $result = add_post_meta($id, $meta_key, $meta_value, $unique);
         } else {
             if (empty($meta_value)) {
                 $result = delete_post_meta($id, $meta_key);
@@ -212,7 +223,7 @@ class Galleries
      */
     public function save($id, $title, $description)
     {   
-        if ($title == '')
+        if (trim($title) == '')
             return false;
             
         // Save post
@@ -232,16 +243,49 @@ class Galleries
         return $result;
     }
    
-    
-    /** Helper function for Actions, to redirect the user back to the origin without exposing specific action details */
-    private function redirectOrigin()
+    /** 
+     * Helper function for Actions, to redirect the user back to the origin 
+     * without exposing specific action details (for the click- and refresh-happy
+     * users out there).
+     *
+     * @param bool|array An array to add using add_query_arg(), or `false` if not required.
+     */
+    private function redirectUserActionOrigin($add_arg = false)
     {
-        wp_redirect(remove_query_arg(array('action', 'ids', '_wpnonce')));
+        $origin = remove_query_arg(array('action', 'ids', '_wpnonce'));
+        
+        if (is_array($add_arg))
+            $origin = add_query_arg($add_arg, $origin);
+        
+        wp_redirect($origin);
         
         die(); 
     }
     
     /* ---------- User Actions ---------- */
+    
+    /**
+     * Empties the Trash
+     */
+    public function emptyTrashUserAction()
+    {
+       global $wpdb;
+       
+        if (!isset($_REQUEST['_wpnonce']) || !wp_verify_nonce($_REQUEST['_wpnonce'], 'bulk-galleries')) 
+            wp_die(__('You do not have permission to do that [nonce].', $this->owner->getName()));        
+       
+       $ids = $wpdb->get_results($wpdb->prepare("SELECT `id` FROM `{$wpdb->posts}` WHERE `post_type` = %s AND `post_status` = 'trash'", Main::PT_GALLERY));
+       
+       $result = $this->delete(true, $ids);
+       
+        if ($result !== false) {
+            $this->owner->addDelayedNotice(__('The Trash has been emptied.', $this->owner->getName()));
+        } else {
+            $this->owner->addDelayedNotice(__('There was a problem emptying the Trash.', $this->owner->getName()), true);
+        }        
+        
+        $this->redirectUserActionOrigin();        
+    }
     
     /**
      * Performs a Trash action (initiated by a link or list bulk action)
@@ -267,7 +311,7 @@ class Galleries
             
             $this->owner->addDelayedNotice(sprintf(
                 __('%s moved to the Trash. <a href="%s">Undo</a>', $this->owner->getName()),
-                ucfirst(_n('photo set', 'photo sets', count($result), $this->owner->getName())),
+                _n('Photo Set', 'Photo Sets', count($result), $this->owner->getName()),
                 esc_url(add_query_arg(
                     array(
                         'action'   => $action,
@@ -277,10 +321,10 @@ class Galleries
                 ))
             ));
         } else {
-           $this->owner->addDelayedNotice(__('There was a problem moving the photo set(s) to the Trash.', $this->owner->getName()), true);
+           $this->owner->addDelayedNotice(__('There was a problem moving the Photo Set(s) to the Trash.', $this->owner->getName()), true);
         }
         
-        $this->redirectOrigin();   
+        $this->redirectUserActionOrigin();   
     }
 
     /**
@@ -297,12 +341,12 @@ class Galleries
         $result = $this->restore($bulk);
         
         if ($result !== false) {
-            $this->owner->addDelayedNotice(sprintf(__('%s restored from the Trash.', $this->owner->getName()), ucfirst(_n('photo set', 'photo sets', count($result), $this->owner->getName()))));
+            $this->owner->addDelayedNotice(sprintf(__('%s restored from the Trash.', $this->owner->getName()), _n('Photo Set', 'Photo Sets', count($result), $this->owner->getName())));
         } else {
-            $this->owner->addDelayedNotice(__('There was a problem restoring the photo set(s) from the Trash.', $this->owner->getName()), true);
+            $this->owner->addDelayedNotice(__('There was a problem restoring the Photo Set(s) from the Trash.', $this->owner->getName()), true);
         }        
         
-        $this->redirectOrigin(); 
+        $this->redirectUserActionOrigin(); 
     }
     
     /**
@@ -319,12 +363,12 @@ class Galleries
         $result = $this->delete($bulk);
         
         if ($result !== false) {
-            $this->owner->addDelayedNotice(sprintf(__('%s permanently deleted.', $this->owner->getName()), ucfirst(_n('photo set', 'photo sets', count($result), $this->owner->getName()))));
+            $this->owner->addDelayedNotice(sprintf(__('%s permanently deleted.', $this->owner->getName()), _n('Photo Set', 'Photo Sets', count($result), $this->owner->getName())));
         } else {
-            $this->owner->addDelayedNotice(__('There was a problem deleting the photo set(s).', $this->owner->getName()), true);
+            $this->owner->addDelayedNotice(__('There was a problem deleting the Photo Set(s).', $this->owner->getName()), true);
         }        
         
-        $this->redirectOrigin();
+        $this->redirectUserActionOrigin();
     }
     
     /**
@@ -354,17 +398,12 @@ class Galleries
             AdminNotice::add(__('The Photo Set could not be saved.', $this->owner->getName()), true);
             return;
         }
-        
-        // Add meta(s)
-        if (!$this->addSingleMeta($saved_id, Main::MT_CSS, trim($_REQUEST['meta_css'])))
-            $this->owner->addDelayedNotice(__('There was a problem adding the custom CSS metadata.', $this->owner->getName()), true);
 
         // Let the user know if the photo set was successfuly added or saved.
         $did_what = ($id == 'new') ? __('added', $this->owner->getName()) : __('saved', $this->owner->getName());
-        $this->owner->addDelayedNotice(sprintf(__('The photo set was successfully %s.', $this->owner->getName()), $did_what));
-
-        wp_redirect(add_query_arg('edit', $saved_id));
-        die();
+        $this->owner->addDelayedNotice(sprintf(__('The Photo Set was successfully %s.', $this->owner->getName()), $did_what));
+        
+        $this->redirectUserActionOrigin(array('edit' => $saved_id));
     }
     
 }
