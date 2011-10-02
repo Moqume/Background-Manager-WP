@@ -1,7 +1,8 @@
 
-<p>
+<p id="custom_css_desc">
     <label for="custom_css">
-        {{ __('You can provide an additional Custom Stylesheet (CSS) that will only be loaded when this Photo Set is active. As an example, this could be used to color match your selected WordPress theme with the color schema of the photos.') }}
+        {{ __('You can provide an additional Custom Stylesheet (CSS) that will only be loaded when this Photo Set is active.') }}
+        {{ __('As an example, this could be used to match the colors of the ') }}<em>{{ theme_name }}</em>{{ __(' theme with those of the photos.') }}
     </label>
 </p>
 <textarea id="custom_css" name="custom_css" class="code" rows="3" cols="30" style="width:100%;" tabindex="3">{{ custom_css }}</textarea>

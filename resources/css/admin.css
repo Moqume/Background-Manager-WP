@@ -1,0 +1,41 @@
+#photodiv_nav {
+    float:right; 
+    margin: 0;
+}
+
+#editorcontainer {
+    position: relative;
+}
+
+#photo_iframe_overlay {
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    height: 100%; 
+    width: 100%; 
+    z-index: 99; 
+    background-color: #EEEEEE; 
+    opacity: 0.75; 
+    filter: alpha(opacity=75); 
+    display: none;
+}
+
+#photo_iframe_loader {
+    position: absolute; 
+    left: 38%; 
+    top: 50%;
+}
+
+#photos_iframe {
+    width: 100%; 
+    height: 300px;
+}
+
+
+#photo_container {
+    padding:10px;
+}
+
+.photo {
+    display: inline-block;
+}

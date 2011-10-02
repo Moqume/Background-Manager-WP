@@ -1,7 +1,9 @@
 
 <form name="gallery" method="post" action="">
-    <input type="hidden" name="edit" value="{{ edit }}" />
-    <input type="hidden" name="post_type" value="{{ post_type }}" />
+    <input type="hidden" id="edit_id" name="edit" value="{{ edit }}" />
+    <input type="hidden" id="post_type" name="post_type" value="{{ post_type }}" />
+    <input type="hidden" id="photos_hash" name="photos_hash" value="{{ photos_hash }}" />
+    <input type="hidden" id="photos_iframe_base" name="photos_iframe_base" value="{{ photos_iframe_src }}" />
     {{ nonce | raw }}
     {{ nonce_meta_order | raw }}
     {{ nonce_meta_clsd | raw }}
@@ -19,8 +21,37 @@
                     </div>
                 </div>
 
-                <div id="photodiv">
-                     PLACEHOLDER FOR PHOTOS
+                <div id="photodiv" class="postarea">
+                    <div id="editor-toolbar" class="hide-if-no-js">
+                        <div id="photodiv_nav" class="tablenav">
+                             <div class="tablenav-pages"></div>
+                        </div>
+                        <div id="media-buttons">
+                            {{ __('Upload/Insert') }}
+                            {% for button in media_buttons %}
+                            <a href="{{ button.url | raw }}" id="add_{{ button.id }}" class="thickbox" title="{{ button.title }}"><img src="{{ button.icon | raw }}" alt="{{ button.title }}" onclick="return false;"></a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                    <div id="editorcontainer">
+                        <div id="photo_iframe_overlay">
+                            <div id="photo_iframe_loader">
+                                <img src="{{ img_large_loader | raw }}" />
+                            </div>
+                        </div>
+                        <iframe id="photos_iframe" src="{{ photos_iframe_src | raw }}"></iframe>
+                    </div>
+                    <table id="post-status-info">
+                        <tbody>
+                            <tr>
+                                <td id="wp-word-count">
+                                    Photo count: <span class="word-count">{{ photos_count }}</span>
+                                </td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 {{ meta_boxes_main | raw }}

@@ -14,6 +14,19 @@ use Pf4wp\WordpressPlugin;
 /**
  * This class extends WP_List_Table to provide Gallery listings
  *
+ * It uses the following actions/filters:
+ *
+ * - `myatu_bgm_galleries_custom_column(object $item, string $column_name)`
+ *   Action; Displays (echoes) the contents of a custom column (see bgm_galleries_columns)
+ *
+ * - `myatu_bgm_galleries_columns(array $columns, object $item, bool $is_trash)`
+ *   Filters `columns`; `is_trash` if currently displaying the Trash.
+ *
+ * - `myatu_bgm_galleries_actions(array $actions, object $item, bool $is_trash)`
+ *   Filters `actions`; `is_trash` if currently displaying the Trash.
+ *
+ * It also uses the standard WordPress `the_title` filter.
+ *
  * @author Mike Green <myatus@gmail.com>
  * @package BackgroundManager
  * @subpackage Lists
@@ -116,15 +129,14 @@ class Galleries extends \WP_List_Table
             $total_pages = 1;
             
         // Get a sensible page number from the user selection
-        $paged = $this->get_pagenum();
-        if ($paged > $total_pages) {
+        $page_num = $this->get_pagenum();
+        if ($page_num > $total_pages) {
             $page_num = $total_pages;
-        } else if ($paged < 1) {
+        } else if ($page_num < 1) {
             $page_num = 1;
-        } else {
-            $page_num = $paged;
         }
         
+        // Get the photo sets
         $this->items = get_posts(array(
             'numberposts' => $this->per_page,
             'offset'      => ($page_num-1) * $this->per_page,
@@ -149,7 +161,7 @@ class Galleries extends \WP_List_Table
 	 */
 	function no_items()
     {
-		echo __('No photo sets found.', $this->owner->getName());
+		_e('No photo sets found.', $this->owner->getName());
 	}    
     
     /**
@@ -202,8 +214,10 @@ class Galleries extends \WP_List_Table
      */
     function get_column_info()
     {
+        $columns = apply_filters('myatu_bgm_galleries_columns', $this->get_columns(), $this->trash);
+        
         return array(
-            $this->get_columns(),
+            $columns,
             get_user_option('manage' . get_current_screen()->id . 'columnshidden'),
             $this->get_sortable_columns()
         );
@@ -271,6 +285,12 @@ class Galleries extends \WP_List_Table
 			$this->view_switcher($this->mode);
 	}
     
+    /** Default column display function */
+    function column_default($item, $column_name)
+    {
+        do_action('myatu_bgm_galleries_custom_column', $item, $column_name);
+    }
+    
     /** Displays a checkbox column */
     function column_cb($item)
     {
@@ -285,14 +305,10 @@ class Galleries extends \WP_List_Table
     
     /** 
      * Displays the photo count of the item
-     *
-     * @TODO: This will be retrieved from the Photos class.
      */
     function column_photos($item)
     {
-        $children = get_children(array('post_parent' => $item->ID));
-
-        echo count((array)$children);
+        echo $this->owner->photos->getCount($item->ID);
     }
     
     /** Displays the `Photos` column in the Trash */
@@ -312,34 +328,36 @@ class Galleries extends \WP_List_Table
      *
      * @param string $action Action to create the link for
      * @param int $id The item ID
-     * @param bool|string $text Optional text to display (automatically determined if set to `false`
+     * @param bool|string $text Optional text to display (automatically determined if set to `false`)
+     * @param bool|string $text Optional title (hint) to display (automatically determined if set to `false`)
+     * @param string $class Optional class to add to the action link
      * @return string
      */
-    public function actionLink($action, $id, $text = false, $class = '')
+    public function actionLink($action, $id, $text = false, $title = false, $class = '')
     {
         $link = '<a href="%s" title="%s" class="%s">%s</a>';
 
         switch ($action) {
             case 'edit':
-                $title = __('Edit this Photo Set', $this->owner->getName());
+                $title = (!$title) ? __('Edit this Photo Set', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Edit', $this->owner->getName()) : $text;
                 return sprintf($link, esc_url(add_query_arg('edit', $id, remove_query_arg(array('action', 'ids', '_wpnonce', 'order', 'orderby')))), $title, $class, $text);
                 
             case 'trash':
                 $nonce =  wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_TRASH_GALLERY . $id);
-                $title = __('Move this Photo Set to the Trash', $this->owner->getName());
+                $title = (!$title) ? __('Move this Photo Set to the Trash', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Trash', $this->owner->getName()) : $text;
                 break;
                 
             case 'delete':
                 $nonce = wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_DELETE_GALLERY . $id);
-                $title = __('Delete this Photo Set permanently', $this->owner->getName());
+                $title = (!$title) ? __('Delete this Photo Set permanently', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Delete Permanently', $this->owner->getName()) : $text;
                 break;
             
             case 'restore':
                 $nonce = wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_RESTORE_GALLERY . $id);
-                $title = __('Restore this Photo Set from the Trash', $this->owner->getName());
+                $title = (!$title) ? __('Restore this Photo Set from the Trash', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Restore', $this->owner->getName()) : $text;
                 break;
                 
@@ -355,7 +373,7 @@ class Galleries extends \WP_List_Table
     {
         if (!$this->trash) {
             // Print the name of the gallery
-            echo $this->actionLink('edit', $item->ID, sprintf('<strong>%s</strong>', htmlspecialchars($item->post_title)));
+            echo $this->actionLink('edit', $item->ID, sprintf('<strong>%s</strong>', htmlspecialchars($item->post_title)), sprintf(__('Edit &#8220;%s&#8221;', $this->owner->getName()), get_the_title($item->ID)));
             
             // Set the actions (start off with an `edit` link)
             $actions = array($this->actionLink('edit', $item->ID));
@@ -375,6 +393,8 @@ class Galleries extends \WP_List_Table
                 'delete'  => $this->actionLink('delete', $item->ID),
             );
         }
+        
+        $actions = apply_filters('myatu_bgm_galleries_actions', $actions, $item, $this->trash);
         
         echo $this->row_actions($actions);
     }

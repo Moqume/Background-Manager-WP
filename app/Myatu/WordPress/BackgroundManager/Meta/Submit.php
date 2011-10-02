@@ -31,20 +31,18 @@ class Submit extends PostMetabox
     public function __construct($owner, $auto_register = true) {
         parent::__construct($owner, false);
 
-        // We sneak our own name instead of the auto-generated one, so WP will apply its own CSS. Saves some CSS code.
+        // We sneak our own name instead of the auto-generated one, so WP will apply its own CSS.
         $this->name = 'submitdiv';
         
         if ($auto_register == true)
             $this->register();
     }
     
-    /** Renders a trash or delete link */
+    /** Returns an array containing details for the Trash/Delete link */
     protected function deleteLink($id)
     {
-        if ($id == 0)
-            return '';
-            
-        $link = '<a href="%s" title="%s" class="submitdelete deletion">%s</a>';
+        if ($id == 0 || get_post_status($id) == 'auto-draft')
+            return;
 
         if (EMPTY_TRASH_DAYS) {
             $action = 'trash';
@@ -58,7 +56,11 @@ class Submit extends PostMetabox
             $text   = __('Delete Photo Set', $this->owner->getName());
         }
                 
-        return sprintf($link, esc_url(add_query_arg(array('action' => $action, 'ids' => $id, '_wpnonce' => $nonce), remove_query_arg(array('edit')))), $title, $text);
+        return array(
+            'url'   => esc_url(add_query_arg(array('action' => $action, 'ids' => $id, '_wpnonce' => $nonce), remove_query_arg(array('edit')))),
+            'title' => $title,
+            'text'  => $text,
+        );
     }
     
     /**
@@ -69,10 +71,13 @@ class Submit extends PostMetabox
      */
     public function onRender($id, $gallery)
     {
+        $is_new = (get_post_status($id) == 'auto-draft');
+        
         $vars = array(
-            'gallery'        => ($gallery) ? $gallery : $_REQUEST,
-            'save_btn_title' => ($id != 0) ? __('Save Changes', $this->owner->getName()) : __('Add Photo Set', $this->owner->getName()),
-            'delete_action'  => $this->deleteLink($id),
+            'gallery'            => ($gallery) ? $gallery : $_REQUEST,
+            'save_btn_title'     => (!$is_new) ? __('Save Changes', $this->owner->getName()) : __('Add Photo Set', $this->owner->getName()),
+            'show_delete_action' => (!$is_new),
+            'delete_action'      => $this->deleteLink($id),
         );
         
         $this->owner->template->display('meta_gallery_submit.html.twig', $vars);    

@@ -18,7 +18,6 @@ use Pf4wp\Notification\AdminNotice;
  * This is a container class for basic Gallery functions
  *
  * @author Mike Green <myatus@gmail.com>
- * @version 0.0.0.2
  * @package BackgroundManager
  */
 class Galleries
@@ -219,18 +218,23 @@ class Galleries
      * @param int|string $id The id of the gallery to save, or `new` (or zero) if it is a new gallery
      * @param string $title The title of the gallery
      * @param string $description The description of the gallery
+     * @param bool $is_draft Whether this is a new (draft) entry
      * @return int|bool Returns the post ID if successful, `false` otherwise
      */
-    public function save($id, $title, $description)
+    public function save($id, $title, $description, $is_draft = false)
     {   
-        if (trim($title) == '')
-            return false;
-            
+        if (trim($title) == '') {
+            if (!$is_draft)
+                return false;
+         
+            $title = 'Auto Draft';
+        }
+        
         // Save post
         $post = array(
             'ID'           => ($id == 'new' || (int)$id == 0) ? false : (int)$id,
             'post_type'    => Main::PT_GALLERY,
-            'post_status'  => 'publish',
+            'post_status'  => ($is_draft) ? 'auto-draft' : 'publish',
             'post_title'   => $title,
             'post_content' => $description,
         );
@@ -379,7 +383,8 @@ class Galleries
      */
     public function saveUserAction()
     {
-        $id = strtolower(trim($_REQUEST['edit']));
+        $id     = (int)$_REQUEST['edit'];
+        $is_new = (get_post_status($id) == 'auto-draft');
         
         if (!isset($_REQUEST['_nonce']) && !wp_verify_nonce($_REQUEST['_nonce'], Main::NONCE_EDIT_GALLERY . $id))
             wp_die(__('You do not have permission to do that [nonce].', $this->owner->getName()));
@@ -389,18 +394,18 @@ class Galleries
         
         if ($post_title == '') {
             AdminNotice::add(__('Please specify a name for this Photo Set.', $this->owner->getName()), true);
-            return;
+            return false;
         }
                
         $saved_id = $this->save($id, $post_title, $_REQUEST['post_content']);
         
         if (!$saved_id) {
             AdminNotice::add(__('The Photo Set could not be saved.', $this->owner->getName()), true);
-            return;
+            return false;
         }
 
         // Let the user know if the photo set was successfuly added or saved.
-        $did_what = ($id == 'new') ? __('added', $this->owner->getName()) : __('saved', $this->owner->getName());
+        $did_what = ($is_new) ? __('added', $this->owner->getName()) : __('saved', $this->owner->getName());
         $this->owner->addDelayedNotice(sprintf(__('The Photo Set was successfully %s.', $this->owner->getName()), $did_what));
         
         $this->redirectUserActionOrigin(array('edit' => $saved_id));

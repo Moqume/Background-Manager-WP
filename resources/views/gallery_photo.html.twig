@@ -1,0 +1,16 @@
+<div id="photo_container">
+    {% for photo in photos %}
+    <div id="photo_{{ photo.ID }}" class="photo">
+        <img src="{{ photo.thumb.0 | raw }}" alt="{{ photo.meta_alt }}" title="{% if photo.post_excerpt %}{{ photo.post_excerpt }}{% else %}{{ photo.post_name }}{% endif %}" />
+    </div>
+    {% endfor %}
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready(function($){
+    mainWin = window.dialogArguments || opener || parent || top;
+    mainWin.onPhotosOverlayFinish({{ current_page }});
+});
+//]]>
+</script>

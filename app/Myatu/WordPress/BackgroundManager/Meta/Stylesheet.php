@@ -34,7 +34,7 @@ class Stylesheet extends PostMetabox
      */
     public function onRender($id, $gallery)
     {
-        $vars = array('custom_css' => get_post_meta($id, self::MT_CSS, true));
+        $vars = array('custom_css' => get_post_meta($id, self::MT_CSS, true), 'theme_name' => get_current_theme());
         
         $this->owner->template->display('meta_gallery_css.html.twig', $vars);    
     }
@@ -51,6 +51,7 @@ class Stylesheet extends PostMetabox
     public function onSave($id)
     {
         $data = (isset($_REQUEST['custom_css'])) ? $_REQUEST['custom_css'] : '';
+        
         $this->setSinglePostMeta($id, self::MT_CSS, $data);
     }
 }
