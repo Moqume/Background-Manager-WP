@@ -79,6 +79,8 @@ class Main extends \Pf4wp\WordpressPlugin
     /**
      * Returns whether we are currently in an edit mode
      *
+     * This will also provide a valid $this->gallery if it returns `true`
+     *
      * @return bool Returns `true` if we are in an edit mode, `false` otherwise
      */
     public function inEdit()
@@ -200,6 +202,13 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->photos = new Photos($this);
         
         switch ($function) {
+            case 'photo_ids' :
+                $id = (int)$data;
+                
+                // This returns the array as an object, where the object property names are the values (ids) of the photos
+                $this->ajaxResponse((object)array_flip($this->photos->getAllPhotoIds($id)));
+                break;
+            
             case 'photo_count' :
                 $id = (int)$data;
         
@@ -213,23 +222,49 @@ class Main extends \Pf4wp\WordpressPlugin
                 break;
                 
             case 'paginate_links' :
-                $id      = (int)$data['id'];
-                $base    = $data['base'];
-                $current = (int)$data['current'];
+                if (!is_admin())
+                    return;
+                    
+                $id       = (int)$data['id'];
+                $per_page = (int)$data['pp'];
+                $base     = $data['base'];
+                $current  = (int)$data['current'];
                 
                 if ($current == 0)
                     $current = 1;
                     
                 $page_links = paginate_links( array(
-                    'base'         => add_query_arg('pp', '%#%', $base),
+                    'base'         => add_query_arg('paged', '%#%', $base),
                     'format'       => '',
                     'prev_text'    => __('&laquo;'),
                     'next_text'    => __('&raquo;'),
-                    'total'        => ceil($this->photos->getCount($id) / 2),
+                    'total'        => ceil($this->photos->getCount($id) / $per_page),
                     'current'      => $current,
                 ));
                 
                 $this->ajaxResponse($page_links);
+                
+                break;
+                
+            case 'delete_photos' :
+                if (!is_admin())
+                    return;
+                    
+                $ids = explode(',', $data);
+                
+                $result = true;
+
+                foreach($ids as $id) {
+                    if (!empty($id))
+                        $result = wp_delete_attachment($id);
+                        
+                    if ($result === false)
+                        break;
+                        
+                    $result = true;
+                }
+                
+                $this->ajaxResponse($result);
                 
                 break;
                 
@@ -325,10 +360,11 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         $js_dir  = $this->getPluginUrl() . 'resources/js/';
         $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
+        $debug   = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
 
         wp_enqueue_script('post');
         wp_enqueue_script('media-upload');
-        wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions.js', array('jquery'), $version);
+        wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions' . $debug . '.js', array('jquery'), $version);
     }
     
     /**
@@ -338,8 +374,9 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         $css_dir = $this->getPluginUrl() . 'resources/css/';
         $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
+        $debug   = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
         
-        wp_enqueue_style($this->getName() . '-admin', $css_dir . '/admin.css', false, $version);
+        wp_enqueue_style($this->getName() . '-admin', $css_dir . 'admin.css', false, $version);
     }
     
     /**
@@ -405,7 +442,7 @@ class Main extends \Pf4wp\WordpressPlugin
             }                    
         }
         
-        // Edit actions
+        // Edit screen initialization
         if ($this->inEdit() && !$this->list->isTrash()) {
             /* Set the current screen to 'bgm_gallery' - a requirement for 
              * edit form meta boxes for this post type
@@ -416,20 +453,20 @@ class Main extends \Pf4wp\WordpressPlugin
             if (isset($_POST['submit']))
                 $this->galleries->saveUserAction();
 
-            // Add thickbox and edit scripts
-            $js_dir  = $this->getPluginUrl() . 'resources/js/';
-            $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
+            $menu                        = $this->getMenu();
+            $active_menu                 = $menu->getActiveMenu();
+            $active_menu->per_page       = 30;
+            $active_menu->per_page_label = __('photos per page', $this->getName());
+            $js_dir                      = $this->getPluginUrl() . 'resources/js/';
+            $version                     = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
+            $debug                       = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
 
+            // Add thickbox and scripts
             add_thickbox(); 
-            wp_enqueue_script($this->getName() . '-gallery-edit', $js_dir . 'gallery_edit.js', array('jquery', $this->getName() . '-functions'), $version);
+            wp_enqueue_script($this->getName() . '-gallery-edit', $js_dir . 'gallery_edit' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
             
             // Set the layout two 1 or 2 column width
             add_screen_option('layout_columns', array('max' => 2) );
-            
-            // Set per-page specifically for this screen
-            $menu = $this->getMenu();
-            $active_menu = $menu->getActiveMenu();
-            $active_menu->per_page = 30;
             
             // Perform last-moment meta box registrations
             do_action('add_meta_boxes', self::PT_GALLERY, $this->gallery);
@@ -454,9 +491,11 @@ class Main extends \Pf4wp\WordpressPlugin
         if (!isset($this->list) || !isset($this->galleries))
             return; 
             
-        // Show the editor instead of the list, provided editGallery() returns `true`
-        if ($this->inEdit() && $this->editGallery())
+        // Show the editor instead of the list
+        if ($this->inEdit()) {
+            $this->editGallery($per_page);
             return;
+        }
             
         $this->list->setPerPage($per_page);
         $this->list->prepare_items();
@@ -521,13 +560,8 @@ class Main extends \Pf4wp\WordpressPlugin
      *
      * @see onGalleriesMenu()
      */
-    public function editGallery()
+    public function editGallery($per_page)
     {
-        if (!current_user_can('edit_theme_options'))
-            return false;
-        
-        $not_saved = isset($_POST['submit']);
-        
         // Get the main meta box output (for Twig)
         ob_start();
         do_meta_boxes(self::PT_GALLERY, 'normal', $this->gallery);
@@ -555,14 +589,14 @@ class Main extends \Pf4wp\WordpressPlugin
         $media_buttons['image']['title'] = __('Add an Image', $this->getName());
         
         // Iframe source for Photos
-        $photos_iframe_src = add_query_arg(array('iframe'=>'photos', 'edit'=>$this->gallery->ID, 'orderby'=>false, 'order'=>false, 'paged'=>false));
+        $photos_iframe_src = add_query_arg(array('iframe'=>'photos', 'edit'=>$this->gallery->ID, 'orderby'=>false, 'order'=>false, 'pp'=>$per_page, 'paged'=>false));
         
         $vars = array(
             'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar' : '',
             'nonce'             => wp_nonce_field(self::NONCE_EDIT_GALLERY . $this->gallery->ID, '_nonce', true, false),
             'nonce_meta_order'  => wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false),
             'nonce_meta_clsd'   => wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false),
-            'gallery'           => ($not_saved) ? $_REQUEST : $this->gallery,
+            'gallery'           => $this->gallery,
             'post_type'         => self::PT_GALLERY,
             'meta_boxes_main'   => $meta_boxes_main,
             'meta_boxes_side'   => $meta_boxes_side,
@@ -570,14 +604,13 @@ class Main extends \Pf4wp\WordpressPlugin
             'is_new'            => $this->gallery->post_status != 'auto-draft',
             'edit'              => $this->gallery->ID,
             'photos_iframe_src' => $photos_iframe_src,
+            'photos_per_page'   => $per_page,
             'photos_count'      => $this->photos->getCount($this->gallery->ID),
             'photos_hash'       => $this->photos->getHash($this->gallery->ID),
             'img_large_loader'  => $this->getPluginUrl() . 'resources/images/large_loader.gif',
         );
         
         $this->template->display('edit_gallery.html.twig', $vars);
-        
-        return true;
     }
     
     /** Photos Iframe */
@@ -588,8 +621,8 @@ class Main extends \Pf4wp\WordpressPlugin
             
         iframe_header();
         
-        $items_per_page = 2;
-        $page_num       = isset($_GET['pp']) ? $_GET['pp'] : 1;
+        $items_per_page = isset($_GET['pp']) ? $_GET['pp'] : 30;
+        $page_num       = isset($_GET['paged']) ? $_GET['paged'] : 1;
         
         // Grab the total amount of items (photos) and figure out how many pages that is
         $total_items = $this->photos->getCount($this->gallery->ID);

@@ -4,6 +4,7 @@
     <input type="hidden" id="post_type" name="post_type" value="{{ post_type }}" />
     <input type="hidden" id="photos_hash" name="photos_hash" value="{{ photos_hash }}" />
     <input type="hidden" id="photos_iframe_base" name="photos_iframe_base" value="{{ photos_iframe_src }}" />
+    <input type="hidden" id="photos_per_page" name="photos_per_page" value="{{ photos_per_page }}" />
     {{ nonce | raw }}
     {{ nonce_meta_order | raw }}
     {{ nonce_meta_clsd | raw }}
@@ -33,10 +34,15 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="clear"></div>
+                    <div id="quicktags">
+                        <div id="ed_toolbar">
+                            <input id="ed_delete_selected" class="ed_button" type="button" value="Delete Selected" onclick="return false;" />
+                        </div>
+                    </div>
                     <div id="editorcontainer">
                         <div id="photo_iframe_overlay">
-                            <div id="photo_iframe_loader">
+                            <div id="overlay"></div>
+                            <div id="loader">
                                 <img src="{{ img_large_loader | raw }}" />
                             </div>
                         </div>
@@ -46,8 +52,8 @@
                         <tbody>
                             <tr>
                                 <td id="wp-word-count">
-                                    Photo count: <span class="word-count">{{ photos_count }}</span>
-                                </td>
+                                    {{ __('Photo count') }}: <span id="photo-count">{{ photos_count }}</span>
+                                    <span id="selected-count">(<span id="select-count">0</span> {{ __('selected') }})</span>
                                 <td>&nbsp;</td>
                             </tr>
                         </tbody>
