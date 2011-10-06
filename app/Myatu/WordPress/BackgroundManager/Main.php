@@ -419,6 +419,10 @@ class Main extends \Pf4wp\WordpressPlugin
                 case 'photos' :
                     $this->onIframePhotos();
                     break;
+                    
+                case 'edit_photo' :
+                    $this->onIframeEditPhoto();
+                    break;
             }
         }      
             
@@ -588,14 +592,17 @@ class Main extends \Pf4wp\WordpressPlugin
         $media_buttons['image']['icon']  = esc_url(admin_url('images/media-button-image.gif?ver=20100531'));
         $media_buttons['image']['title'] = __('Add an Image', $this->getName());
         
-        // Iframe source for Photos
+        // Iframes
         $photos_iframe_src = add_query_arg(array('iframe'=>'photos', 'edit'=>$this->gallery->ID, 'orderby'=>false, 'order'=>false, 'pp'=>$per_page, 'paged'=>false));
+        $photo_edit_src    = add_query_arg(array('iframe'=>'edit_photo', 'edit'=>false, 'orderby'=>false, 'order'=>false, 'post_id'=>0, self::SM => wp_create_nonce(Filter\MediaLibrary::FILTER_MEDIA_LIBRARY)));
         
         $vars = array(
             'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar' : '',
             'nonce'             => wp_nonce_field(self::NONCE_EDIT_GALLERY . $this->gallery->ID, '_nonce', true, false),
             'nonce_meta_order'  => wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false),
             'nonce_meta_clsd'   => wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false),
+            'photos_iframe_src' => $photos_iframe_src,
+            'photo_edit_src'    => $photo_edit_src,
             'gallery'           => $this->gallery,
             'post_type'         => self::PT_GALLERY,
             'meta_boxes_main'   => $meta_boxes_main,
@@ -603,11 +610,12 @@ class Main extends \Pf4wp\WordpressPlugin
             'media_buttons'     => $media_buttons,
             'is_new'            => $this->gallery->post_status != 'auto-draft',
             'edit'              => $this->gallery->ID,
-            'photos_iframe_src' => $photos_iframe_src,
             'photos_per_page'   => $per_page,
             'photos_count'      => $this->photos->getCount($this->gallery->ID),
             'photos_hash'       => $this->photos->getHash($this->gallery->ID),
             'img_large_loader'  => $this->getPluginUrl() . 'resources/images/large_loader.gif',
+            'photo_edit_img'    => includes_url('js/tinymce/plugins/wpeditimage/img/image.png'),        // Use familiar images
+            'photo_delete_img'  => includes_url('/js/tinymce/plugins/wpeditimage/img/delete.png'),
         );
         
         $this->template->display('edit_gallery.html.twig', $vars);
@@ -639,6 +647,8 @@ class Main extends \Pf4wp\WordpressPlugin
         // Grab the photos
         $photos = $this->photos->get($this->gallery->ID, 
             array(
+                'orderby'     => 'date',
+                'order'       => 'desc',
                 'numberposts' => $items_per_page,
                 'offset'      => ($page_num-1) * $items_per_page,
             )
@@ -651,6 +661,45 @@ class Main extends \Pf4wp\WordpressPlugin
         
         $this->template->display('gallery_photo.html.twig', $vars);
 
+        iframe_footer();
+        die();
+    }
+    
+    public function onIframeEditPhoto()
+    {
+        if (!isset($_GET['id']))
+            die; // How did you get here? Hmm!
+        
+        // Handle save request
+        if (isset($_REQUEST['save']))
+            $errors = media_upload_form_handler();
+            
+        $id   = (int)$_GET['id'];
+        $post = get_post($id);
+        $vars = array();
+        
+        // Queue additional scripts and styles
+        wp_enqueue_script('image-edit');
+        wp_enqueue_style('media');
+        
+        // Send iframe header
+        iframe_header();
+        
+        if ($id == 0 || $post == false || $post->post_type != 'attachment' || $post->post_status == 'trash') {
+            // Invalid ID or item was deleted
+            $vars = array('deleted'=>true);
+        } else {
+            $vars = array(
+                'nonce'      => wp_nonce_field('media-form', '_wpnonce', false, false),
+                'media_item' => get_media_item($id, array('toggle'=>false, 'show_title'=>false, 'send'=>false, 'delete'=>false, 'errors'=>(isset($errors[$id]) ? $errors[$id] : null))),
+                'submit'     => get_submit_button(__( 'Save all changes'), 'button', 'save', false),
+            );
+        }
+        
+        // Render template
+        $this->template->display('gallery_edit_photo.html.twig', $vars);
+
+        // Send iframe footer and then 'die'.
         iframe_footer();
         die();
     }

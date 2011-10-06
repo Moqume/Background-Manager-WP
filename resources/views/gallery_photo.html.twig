@@ -1,7 +1,14 @@
+{#
+    Copyright (c) 2011 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+
 <div id="photo_container">
     {% for photo in photos %}
     <div id="photo_{{ photo.ID }}" class="photo">
-        <img src="{{ photo.thumb.0 | raw }}" alt="{{ photo.meta_alt }}" title="{% if photo.post_excerpt %}{{ photo.post_excerpt }}{% else %}{{ photo.post_name }}{% endif %}" />
+        <img src="{{ photo.thumb.0 }}" alt="{{ photo.meta_alt }}" title="{% if photo.post_excerpt %}{{ photo.post_excerpt }}{% else %}{{ photo.post_name }}{% endif %}" />
     </div>
     {% endfor %}
 </div>

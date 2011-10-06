@@ -1,0 +1,30 @@
+{#
+    Copyright (c) 2011 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+
+{% if deleted %}
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready(function($){
+    mainWin = window.dialogArguments || opener || parent || top;
+    mainWin.tb_remove();
+});
+//]]>
+</script>
+{% else %}
+<form method="post" action="" class="media-upload-form type-form validate" style="margin:1em;">
+    {{ nonce | raw }}
+    <div id="media-items">
+        <div class="media-item preloaded">
+        {{ media_item | raw }}
+        </div>
+    </div>
+    <p class="savebutton ml-submit">
+        {{ submit | raw }}
+    </p>
+</form>
+
+{% endif %}

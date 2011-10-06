@@ -1,3 +1,9 @@
+{#
+    Copyright (c) 2011 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
 
 <p id="custom_css_desc">
     <label for="custom_css">
@@ -5,5 +11,5 @@
         {{ __('As an example, this could be used to match the colors of the ') }}<em>{{ theme_name }}</em>{{ __(' theme with those of the photos.') }}
     </label>
 </p>
-<textarea id="custom_css" name="custom_css" class="code" rows="3" cols="30" style="width:100%;" tabindex="3">{{ custom_css }}</textarea>
+<textarea id="custom_css" name="custom_css" class="code" rows="10" cols="200" style="width:100%;" tabindex="3" wrap="off">{{ custom_css }}</textarea>
 

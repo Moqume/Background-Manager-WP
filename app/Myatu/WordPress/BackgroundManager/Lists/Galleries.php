@@ -218,7 +218,7 @@ class Galleries extends \WP_List_Table
         
         return array(
             $columns,
-            get_user_option('manage' . get_current_screen()->id . 'columnshidden'),
+            (array)get_user_option('manage' . get_current_screen()->id . 'columnshidden'),
             $this->get_sortable_columns()
         );
     }
@@ -341,7 +341,7 @@ class Galleries extends \WP_List_Table
             case 'edit':
                 $title = (!$title) ? __('Edit this Photo Set', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Edit', $this->owner->getName()) : $text;
-                return sprintf($link, esc_url(add_query_arg('edit', $id, remove_query_arg(array('action', 'ids', '_wpnonce', 'order', 'orderby')))), $title, $class, $text);
+                return sprintf($link, esc_url(add_query_arg(array('edit'=>$id, 'action'=>false, 'ids'=>false, '_wpnonce'=>false, 'order'=>false, 'orderby'=>false))), $title, $class, $text);
                 
             case 'trash':
                 $nonce =  wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_TRASH_GALLERY . $id);
@@ -365,7 +365,7 @@ class Galleries extends \WP_List_Table
                 return '';
         }
                 
-        return sprintf($link, esc_url(add_query_arg(array('action' => $action, 'ids' => $id, '_wpnonce' => $nonce), remove_query_arg(array('edit')))), $title, $class, $text);
+        return sprintf($link, esc_url(add_query_arg(array('action' => $action, 'ids' => $id, '_wpnonce' => $nonce, 'edit'=>false))), $title, $class, $text);
     }   
     
     /** Displays the name and actions */

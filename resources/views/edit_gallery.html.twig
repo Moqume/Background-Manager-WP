@@ -1,8 +1,15 @@
+{#
+    Copyright (c) 2011 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
 
 <form name="gallery" method="post" action="">
     <input type="hidden" id="edit_id" name="edit" value="{{ edit }}" />
     <input type="hidden" id="post_type" name="post_type" value="{{ post_type }}" />
     <input type="hidden" id="photos_hash" name="photos_hash" value="{{ photos_hash }}" />
+    <input type="hidden" id="photo_iframe_edit_base" name="photo_iframe_edit_base" value="{{ photo_edit_src }}" />
     <input type="hidden" id="photos_iframe_base" name="photos_iframe_base" value="{{ photos_iframe_src }}" />
     <input type="hidden" id="photos_per_page" name="photos_per_page" value="{{ photos_per_page }}" />
     {{ nonce | raw }}
@@ -30,23 +37,28 @@
                         <div id="media-buttons">
                             {{ __('Upload/Insert') }}
                             {% for button in media_buttons %}
-                            <a href="{{ button.url | raw }}" id="add_{{ button.id }}" class="thickbox" title="{{ button.title }}"><img src="{{ button.icon | raw }}" alt="{{ button.title }}" onclick="return false;"></a>
+                            <a href="{{ button.url }}" id="add_{{ button.id }}" class="thickbox" title="{{ button.title }}"><img src="{{ button.icon }}" alt="{{ button.title }}" onclick="return false;" /></a>
                             {% endfor %}
                         </div>
                     </div>
                     <div id="quicktags">
                         <div id="ed_toolbar">
-                            <input id="ed_delete_selected" class="ed_button" type="button" value="Delete Selected" onclick="return false;" />
+                            <input id="ed_delete_selected" class="ed_button" type="button" value="{{ __('Delete Selected') }}" onclick="return false;" title="{{ __('Delete the selected photos') }}" accesskey="s" />
+                            <input id="ed_clear_selected" class="ed_button" type="button" value="{{ __('Clear') }}" onclick="return false;" title="{{ __('Clear selected photos') }}" accesskey="c" />
                         </div>
                     </div>
                     <div id="editorcontainer">
                         <div id="photo_iframe_overlay">
                             <div id="overlay"></div>
                             <div id="loader">
-                                <img src="{{ img_large_loader | raw }}" />
+                                <img src="{{ img_large_loader }}" alt="{{ __('Loading') }}..." />
                             </div>
                         </div>
-                        <iframe id="photos_iframe" src="{{ photos_iframe_src | raw }}"></iframe>
+                        <iframe id="photos_iframe" src="{{ photos_iframe_src }}" tabindex="2"></iframe>
+                        <div id="photo_buttons">
+                            <a href="" id="photo_edit_button" class="thickbox" title="{{ __('Edit Photo') }}"><img id="photo_edit_img_button" class="photo_img_button" src="{{ photo_edit_img }}" alt="{{ __('Edit Photo') }}" /></a>
+                            <img id="photo_del_img_button" class="photo_img_button" src="{{ photo_delete_img }}" title="{{ __('Delete Photo') }}" />
+                        </div>
                     </div>
                     <table id="post-status-info">
                         <tbody>
@@ -54,6 +66,7 @@
                                 <td id="wp-word-count">
                                     {{ __('Photo count') }}: <span id="photo-count">{{ photos_count }}</span>
                                     <span id="selected-count">(<span id="select-count">0</span> {{ __('selected') }})</span>
+                                </td>
                                 <td>&nbsp;</td>
                             </tr>
                         </tbody>
@@ -67,10 +80,8 @@
     </div>
 </form>
 
-{% if gallery.post_title == '' %}
 <script type="text/javascript">
 //<![CDATA[
 try{document.gallery.title.focus();}catch(e){}
 //]]>
 </script>
-{% endif %}

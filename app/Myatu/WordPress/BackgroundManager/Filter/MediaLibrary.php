@@ -50,6 +50,7 @@ class MediaLibrary
         add_action('get_media_item_args', array($this, 'onMediaItemArgs'), $order, 1);
         add_action('post_mime_types', array($this, 'onMediaMimeTypes'), $order, 1);
         add_action('media_upload_mime_type_links', array($this, 'onMediaTypeLinks'), $order, 1);
+        add_action('media_send_to_editor', array($this, 'onSendToEditor'), $order, 3);
     }
     
     /**
@@ -214,5 +215,13 @@ class MediaLibrary
         $this->media_item_args = $args;
 
         return $args;
-    }   
+    }
+    
+    /**
+     * What to send to the Gallery Editor if a photo needs to be attached
+     */
+    public function onSendToEditor($html, $send_id, $attachment)
+    {
+        return $send_id;
+    }
 }

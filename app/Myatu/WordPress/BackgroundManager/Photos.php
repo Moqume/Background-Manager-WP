@@ -52,7 +52,7 @@ class Photos
         $cache_id = 'myatu_bgm_all_photo_ids_'.$id;
         
         if (!isset($this->np_cache[$cache_id])) {
-            $ids = $wpdb->get_results($wpdb->prepare("SELECT ID FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_type` = %s", $id, 'attachment') . wp_post_mime_type_where('image'), OBJECT_K);
+            $ids = $wpdb->get_results($wpdb->prepare("SELECT ID FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_status` = %s AND `post_type` = %s", $id, 'inherit', 'attachment') . wp_post_mime_type_where('image'), OBJECT_K);
             
             if ($ids !== false)
                 $ids = array_keys($ids);

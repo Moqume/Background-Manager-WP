@@ -57,7 +57,7 @@ class Submit extends PostMetabox
         }
                 
         return array(
-            'url'   => esc_url(add_query_arg(array('action' => $action, 'ids' => $id, '_wpnonce' => $nonce), remove_query_arg(array('edit')))),
+            'url'   => esc_url(add_query_arg(array('action' => $action, 'ids' => $id, '_wpnonce' => $nonce, 'edit'=>false))),
             'title' => $title,
             'text'  => $text,
         );
