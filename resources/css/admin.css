@@ -16,20 +16,6 @@
     height: 300px;
 }
 
-#editorcontainer #photo_side {
-    width: 200px;
-    height: 100%;
-    float: left;
-}
-
-#editorcontainer #photo_main {
-    position: relative;
-    margin-left:201px;
-    height: 298px;
-    margin-top:2px;
-    clear:right;
-}
-
 #photo_iframe_overlay {
     display: none;
     position: absolute; 

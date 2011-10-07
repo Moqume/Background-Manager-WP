@@ -43,7 +43,7 @@
                     </div>
                     <div id="quicktags">
                         <div id="ed_toolbar">
-                            <input id="ed_delete_selected" class="ed_button" type="button" value="{{ __('Delete Selected') }}" onclick="return false;" title="{{ __('Delete the selected photos') }}" accesskey="s" />
+                            <input id="ed_delete_selected" class="ed_button" type="button" value="{{ __('Delete Selected') }}" onclick="return false;" title="{{ __('Delete the selected photos') }}" accesskey="l" />
                             <input id="ed_clear_selected" class="ed_button" type="button" value="{{ __('Clear') }}" onclick="return false;" title="{{ __('Clear selected photos') }}" accesskey="c" />
                         </div>
                     </div>
@@ -55,10 +55,6 @@
                             </div>
                         </div>
                         <iframe id="photos_iframe" src="{{ photos_iframe_src }}" tabindex="2"></iframe>
-                        <div id="photo_buttons">
-                            <a href="" id="photo_edit_button" class="thickbox" title="{{ __('Edit Photo') }}"><img id="photo_edit_img_button" class="photo_img_button" src="{{ photo_edit_img }}" alt="{{ __('Edit Photo') }}" /></a>
-                            <img id="photo_del_img_button" class="photo_img_button" src="{{ photo_delete_img }}" title="{{ __('Delete Photo') }}" />
-                        </div>
                     </div>
                     <table id="post-status-info">
                         <tbody>

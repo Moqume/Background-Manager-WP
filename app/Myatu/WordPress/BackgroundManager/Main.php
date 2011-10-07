@@ -614,8 +614,6 @@ class Main extends \Pf4wp\WordpressPlugin
             'photos_count'      => $this->photos->getCount($this->gallery->ID),
             'photos_hash'       => $this->photos->getHash($this->gallery->ID),
             'img_large_loader'  => $this->getPluginUrl() . 'resources/images/large_loader.gif',
-            'photo_edit_img'    => includes_url('js/tinymce/plugins/wpeditimage/img/image.png'),        // Use familiar images
-            'photo_delete_img'  => includes_url('/js/tinymce/plugins/wpeditimage/img/delete.png'),
         );
         
         $this->template->display('edit_gallery.html.twig', $vars);
@@ -626,7 +624,7 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         if (!isset($this->gallery->ID))
             die; // Something didn't go quite right
-            
+        
         iframe_header();
         
         $items_per_page = isset($_GET['pp']) ? $_GET['pp'] : 30;
@@ -655,8 +653,10 @@ class Main extends \Pf4wp\WordpressPlugin
         );
         
         $vars = array(
-            'photos'       => $photos,
-            'current_page' => $page_num,
+            'photos'            => $photos,
+            'current_page'      => $page_num,
+            'photo_edit_img'    => includes_url('js/tinymce/plugins/wpeditimage/img/image.png'),    // Use familiar images
+            'photo_delete_img'  => includes_url('/js/tinymce/plugins/wpeditimage/img/delete.png'),
         );
         
         $this->template->display('gallery_photo.html.twig', $vars);

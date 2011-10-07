@@ -13,6 +13,11 @@
     {% endfor %}
 </div>
 
+<div id="photo_buttons">
+    <a href="" id="photo_edit_button" title="{{ __('Edit Photo') }}" accesskey="e"><img id="photo_edit_img_button" class="photo_img_button" src="{{ photo_edit_img }}" alt="{{ __('Edit Photo') }}" /></a>
+    <a href="" id="photo_del_button" title="{{ __('Delete Photo') }}" accesskey="d"><img id="photo_del_img_button" class="photo_img_button" src="{{ photo_delete_img }}" alt="{{ __('Delete Photo') }}" /></a>
+</div>
+
 <script type="text/javascript">
 //<![CDATA[
 jQuery(document).ready(function($){
