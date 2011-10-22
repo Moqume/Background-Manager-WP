@@ -39,7 +39,6 @@ class Galleries extends \WP_List_Table
     /** Items per page to display */
     protected $per_page;
     
-    private $mode  = 'list';
     private $trash = false;
     
     /**
@@ -117,7 +116,6 @@ class Galleries extends \WP_List_Table
         // Grab the request data, if any
         $orderby    = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'date';
         $order      = (!empty($_REQUEST['order']))   ? $_REQUEST['order']   : 'desc';
-        $this->mode = (!empty($_REQUEST['mode']))    ? $_REQUEST['mode']    : 'list';
         
         // Ensure we have valid request values
         $orderby = (in_array($orderby, array('date', 'title'))) ? $orderby : 'date';
@@ -271,19 +269,6 @@ class Galleries extends \WP_List_Table
             }
         }
     }
-    
-    /**
-     * Add view switcher to pagination top row [Override]
-     *
-     * Switches between `list` or `excerpt`
-     */
-    function pagination($which)
-    {
-		parent::pagination($which);
-
-		if ($which == 'top' && !$this->trash)
-			$this->view_switcher($this->mode);
-	}
     
     /** Default column display function */
     function column_default($item, $column_name)

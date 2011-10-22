@@ -33,9 +33,6 @@ class Main extends \Pf4wp\WordpressPlugin
     const NONCE_RESTORE_GALLERY = 'restore-gallery';
     const NONCE_EDIT_GALLERY    = 'edit-gallery';
     
-    /* Special Method nonce identifiers */
-    const SM = 'myatu_bgm_sm';
-    
     /** Instance containing current gallery being edited (if any) */
     private $gallery = null;
     
@@ -98,6 +95,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $result = false;
 
         if ($edit == 'new') {
+            // Generate a temporary 'auto draft'
             $result = get_default_post_to_edit(self::PT_GALLERY, true);
 
             if ($result !== false) {
@@ -164,12 +162,30 @@ class Main extends \Pf4wp\WordpressPlugin
         /** @TODO: Attachement support */
         add_theme_support('custom-background');
         
-        // Check if there's a special method present
-        if (isset($_REQUEST[self::SM])) {
-            // Check for Media Library filter request
-            if (wp_verify_nonce($_REQUEST[self::SM], Filter\MediaLibrary::FILTER_MEDIA_LIBRARY))
-                new Filter\MediaLibrary($this);
+        // Check if there are any on-demand filters requested
+        $filters = array();
+        if (isset($_REQUEST['filter']))
+            $filters = explode(',', $_REQUEST['filter']);
+        
+        // And check the referer arguments as well if this is a POST request
+        if (isset($_POST) && isset($_SERVER['HTTP_REFERER'])) {
+            $referer_args = explode('&', ltrim(strstr($_SERVER['HTTP_REFERER'], '?'), '?'));
+            foreach ($referer_args as $referer_arg)
+                if (!empty($referer_arg)) {
+                    list($arg_name, $arg_value) = explode('=', $referer_arg);
+                    if ($arg_name == 'filter') {
+                        $filters = array_merge($filters, explode(',', $arg_value));
+                        break;
+                    }
+                }
         }
+        
+        foreach ($filters as $filter)
+            switch ($filter) {
+                case Filter\MediaLibrary::FILTER :
+                    new Filter\MediaLibrary($this);
+                    break;
+            }
     }
     
     /**
@@ -195,8 +211,6 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onAjaxRequest($function, $data)
     {
-        global $wpdb;
-        
         // as onAdminInit does not get called before Ajax requests, set up the Photos instance if needed
         if (!isset($this->photos))
             $this->photos = new Photos($this);
@@ -301,8 +315,6 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onBuildMenu()
     {
-        global $wp_post_types;
-        
         $mymenu = new \Pf4wp\Menu\SubHeadMenu($this->getName());
         
         // Add settings menu
@@ -374,7 +386,6 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         $css_dir = $this->getPluginUrl() . 'resources/css/';
         $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
-        $debug   = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
         
         wp_enqueue_style($this->getName() . '-admin', $css_dir . 'admin.css', false, $version);
     }
@@ -456,21 +467,33 @@ class Main extends \Pf4wp\WordpressPlugin
             // Respond to a save edit action (this will not return if the gallery was saved)
             if (isset($_POST['submit']))
                 $this->galleries->saveUserAction();
+            
+            // Add thickbox and other javascripts
+            $js_dir  = $this->getPluginUrl() . 'resources/js/';
+            $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
+            $debug   = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
 
+            add_thickbox(); 
+            wp_enqueue_script($this->getName() . '-gallery-edit', $js_dir . 'gallery_edit' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
+            wp_localize_script(
+                $this->getName() . '-gallery-edit', 'bgmL10n', array(
+                    'warn_delete_all_photos' => __('You are about to permanently delete the selected photos. Are you sure?', $this->getName()),
+                    'warn_delete_photo' => __('You are about to permanently delete this photo. Are you sure?', $this->getName()),
+                    'l10n_print_after' => 'try{convertEntities(bgmL10n);}catch(e){};'
+                ) 
+            );
+            
+            // Enqueue editor buttons
+            wp_enqueue_style('editor-buttons'); // Since WordPress 3.3
+
+            // Set the 'photos per page'
             $menu                        = $this->getMenu();
             $active_menu                 = $menu->getActiveMenu();
             $active_menu->per_page       = 30;
             $active_menu->per_page_label = __('photos per page', $this->getName());
-            $js_dir                      = $this->getPluginUrl() . 'resources/js/';
-            $version                     = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
-            $debug                       = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
-
-            // Add thickbox and scripts
-            add_thickbox(); 
-            wp_enqueue_script($this->getName() . '-gallery-edit', $js_dir . 'gallery_edit' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
             
             // Set the layout two 1 or 2 column width
-            add_screen_option('layout_columns', array('max' => 2) );
+            add_screen_option('layout_columns', array('max' => 2, 'default' => 2) );
             
             // Perform last-moment meta box registrations
             do_action('add_meta_boxes', self::PT_GALLERY, $this->gallery);
@@ -583,26 +606,35 @@ class Main extends \Pf4wp\WordpressPlugin
         if ($columns == 0)
             $columns = 2;
         
-        // Image upload button (adds Special Method)
+        // Image upload button iframe src (href)
         $image_media_library = add_query_arg(array('post_id' => ($this->gallery) ? $this->gallery->ID : '', 'type' => 'image'), admin_url('media-upload.php'));
-        $image_media_library = apply_filters('image_upload_iframe_src', $image_media_library);
+        $image_media_library = apply_filters('image_upload_iframe_src', $image_media_library); // As used by WordPress
         
         $media_buttons['image']['id']    = 'add_image';
-        $media_buttons['image']['url']   = esc_url(add_query_arg(array(self::SM => wp_create_nonce(Filter\MediaLibrary::FILTER_MEDIA_LIBRARY), 'TB_iframe' => true /* ALWAYS KEEP LAST! */), remove_query_arg(array('TB_iframe'), $image_media_library)));
-        $media_buttons['image']['icon']  = esc_url(admin_url('images/media-button-image.gif?ver=20100531'));
+        $media_buttons['image']['url']   = add_query_arg('filter', Filter\MediaLibrary::FILTER, $image_media_library); // Add filter
+        $media_buttons['image']['icon']  = admin_url('images/media-button-image.gif');
         $media_buttons['image']['title'] = __('Add an Image', $this->getName());
+        
+        // Allow additional media buttons to be specified
+        $media_buttons = apply_filters('myatu_bgm_media_buttons', $media_buttons);
+        
+        // Ensure that media buttons have a `TB_iframe` as the last query arg
+        foreach ($media_buttons as $media_button_key => $media_button_value) {
+            if (isset($media_button_value['url']))
+                $media_buttons[$media_button_key]['url'] = add_query_arg('TB_iframe', true, remove_query_arg('TB_iframe', $media_buttons[$media_button_key]['url']));
+        }
         
         // Iframes
         $photos_iframe_src = add_query_arg(array('iframe'=>'photos', 'edit'=>$this->gallery->ID, 'orderby'=>false, 'order'=>false, 'pp'=>$per_page, 'paged'=>false));
-        $photo_edit_src    = add_query_arg(array('iframe'=>'edit_photo', 'edit'=>false, 'orderby'=>false, 'order'=>false, 'post_id'=>0, self::SM => wp_create_nonce(Filter\MediaLibrary::FILTER_MEDIA_LIBRARY)));
+        $photo_edit_src    = add_query_arg(array('iframe'=>'edit_photo', 'edit'=>false, 'orderby'=>false, 'order'=>false, 'post_id'=>0, 'filter' => Filter\MediaLibrary::FILTER));
         
         $vars = array(
             'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar' : '',
             'nonce'             => wp_nonce_field(self::NONCE_EDIT_GALLERY . $this->gallery->ID, '_nonce', true, false),
             'nonce_meta_order'  => wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false),
             'nonce_meta_clsd'   => wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false),
-            'photos_iframe_src' => $photos_iframe_src,
-            'photo_edit_src'    => $photo_edit_src,
+            'photos_iframe_src' => $photos_iframe_src,  // iframe source
+            'photo_edit_src'    => $photo_edit_src,     // iframe source
             'gallery'           => $this->gallery,
             'post_type'         => self::PT_GALLERY,
             'meta_boxes_main'   => $meta_boxes_main,
@@ -614,6 +646,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'photos_count'      => $this->photos->getCount($this->gallery->ID),
             'photos_hash'       => $this->photos->getHash($this->gallery->ID),
             'img_large_loader'  => $this->getPluginUrl() . 'resources/images/large_loader.gif',
+            'photo_del_is_perm' => (!EMPTY_TRASH_DAYS || !MEDIA_TRASH) ? true : false,
         );
         
         $this->template->display('edit_gallery.html.twig', $vars);
@@ -656,7 +689,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'photos'            => $photos,
             'current_page'      => $page_num,
             'photo_edit_img'    => includes_url('js/tinymce/plugins/wpeditimage/img/image.png'),    // Use familiar images
-            'photo_delete_img'  => includes_url('/js/tinymce/plugins/wpeditimage/img/delete.png'),
+            'photo_delete_img'  => includes_url('js/tinymce/plugins/wpeditimage/img/delete.png'),
         );
         
         $this->template->display('gallery_photo.html.twig', $vars);

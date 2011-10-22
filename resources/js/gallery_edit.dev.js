@@ -105,7 +105,7 @@
         photo_buttons.css('left', photo_img.offset().left - overlay.scrollLeft() +  'px');
         photo_buttons.show();
 
-        // Set the correct href for the photo `edit` button
+        // Set the correct href for the photo `edit` and `delete` button
         $('#photo_edit_button', photo_buttons).attr("href", $('#photo_iframe_edit_base').val() + '&id=' + $(highlighted).attr('id').replace('photo_', '') + '&TB_iframe=true');
         $('#photo_del_button', photo_buttons).attr("href", '#' + $(highlighted).attr('id').replace('photo_', ''));
     }
@@ -147,6 +147,9 @@
 
     /** Event triggered when `Delete Selected` is clicked */
     onDeleteSelected = function(event) {
+        if ($('#photo_del_is_perm').val() == '1' && confirm(bgmL10n.warn_delete_all_photos) == false)
+            return false;
+
         var key, ids = '';
 
         for (key in photo_selection)
@@ -236,6 +239,9 @@
 
     /** Event triggered when the `delete` button is clicked */
     onPhotoDeleteButtonClick = function(event) {
+        if ($('#photo_del_is_perm').val() == '1' && confirm(bgmL10n.warn_delete_photo) == false)
+            return false;
+
         // Delete the photo from the DB
         getAjaxData('delete_photos', $(this).attr('href').replace('#', ''));
 

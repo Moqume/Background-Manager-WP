@@ -16,9 +16,7 @@ use Myatu\WordPress\BackgroundManager\Main;
  * 
  * This class modifies (filters) certain features or displayed information
  * provided by the 'Insert/Upload' Media Library screen (iframe), if it is
- * specifically shown on the Photo Set edit screen. This requires the
- * Special Method marker, using FILTER_MEDIA_LIBRARY, to avoid it filtering
- * on other screens (ie., a "post" type page).
+ * specifically shown on the Photo Set edit screen.
  *
  * @author Mike Green <myatus@gmail.com>
  * @package BackgroundManager
@@ -28,7 +26,7 @@ class MediaLibrary
 {
     protected $owner;
     
-    const FILTER_MEDIA_LIBRARY = 'filter_media_library';
+    const FILTER = 'media_library';
     
     /** Options that we use, passed by get_media_item_args action */
     private $media_item_args = array();
@@ -41,15 +39,17 @@ class MediaLibrary
     public function __construct(Main $owner)
     {
         $this->owner = $owner;
+        
+        unset($_POST['save']); // Prevents media_upload_gallery() from being called - see wp-admin/media.php
 
         $order = 50;
         
         add_action('attachment_fields_to_edit', array($this, 'onAttachmentFields'), $order, 2);
         add_action('media_upload_form_url', array($this, 'onUploadFormUrl'), $order, 2);
-        add_action('media_upload_tabs', array($this, 'onUploadTabs'), $order, 1);
-        add_action('get_media_item_args', array($this, 'onMediaItemArgs'), $order, 1);
-        add_action('post_mime_types', array($this, 'onMediaMimeTypes'), $order, 1);
-        add_action('media_upload_mime_type_links', array($this, 'onMediaTypeLinks'), $order, 1);
+        add_action('media_upload_tabs', array($this, 'onUploadTabs'), $order);
+        add_action('get_media_item_args', array($this, 'onMediaItemArgs'), $order);
+        add_action('post_mime_types', array($this, 'onMediaMimeTypes'), $order);
+        add_action('media_upload_mime_type_links', array($this, 'onMediaTypeLinks'), $order);
         add_action('media_send_to_editor', array($this, 'onSendToEditor'), $order, 3);
     }
     
@@ -77,7 +77,7 @@ class MediaLibrary
         if (isset($this->media_item_args['send']) && $this->media_item_args['send'])
             $send = get_submit_button( __('Add to Photo Set', $this->owner->getName()), 'button', "send[$attachment_id]", false);
         
-        // 'Delete' ot 'Trash' button
+        // 'Delete' or 'Trash' button
         $delete = '';
         if (isset($this->media_item_args['delete']) && $this->media_item_args['delete']) {
             if (!EMPTY_TRASH_DAYS) {
@@ -171,7 +171,7 @@ class MediaLibrary
     /**
      * Filters the 'All Types' from the type links
      *
-     * This also sneaks in a hidden field, that ensures our Special Method is 
+     * This also sneaks in a hidden field, that ensures our filter is 
      * retained on a Search or Filter request.
      *
      * @param array $type_links The type types as specified by WordPress
@@ -183,13 +183,13 @@ class MediaLibrary
         
         // Sneak in a hidden field
         if (count($type_links) > 0)
-            $type_links[0] .= sprintf('<input type="hidden" name="%s" value="%s" />', \Myatu\WordPress\BackgroundManager\Main::SM, wp_create_nonce(static::FILTER_MEDIA_LIBRARY));
+            $type_links[0] .= sprintf('<input type="hidden" name="filter" value="%s" />', static::FILTER);
         
         return $type_links;
     }    
     
     /**
-     * Filter that ensures we keep the right Attachment Fields, by adding the Special Method
+     * Filter that ensures we keep the right Attachment Fields, by adding the filter query arg
      *
      * See wp-admin/includes/media.php
      *
@@ -199,9 +199,9 @@ class MediaLibrary
      */
     public function onUploadFormUrl($form_action_url, $type)
     {
-        return add_query_arg(array(\Myatu\WordPress\BackgroundManager\Main::SM => wp_create_nonce(static::FILTER_MEDIA_LIBRARY)), $form_action_url);
+        return add_query_arg('filter', static::FILTER, $form_action_url);
     }
-    
+
     /**
      * Saves the arguments of the current media item being displayed as a local variable for later use
      *
