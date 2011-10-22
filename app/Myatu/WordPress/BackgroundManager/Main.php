@@ -33,6 +33,9 @@ class Main extends \Pf4wp\WordpressPlugin
     const NONCE_RESTORE_GALLERY = 'restore-gallery';
     const NONCE_EDIT_GALLERY    = 'edit-gallery';
     
+    /* Possible background positions */
+    private $bg_positions = array('top-left', 'top-center', 'top-right', 'center-left', 'center-center', 'center-right', 'bottom-left', 'bottom-center', 'bottom-right');
+    
     /** Instance containing current gallery being edited (if any) */
     private $gallery = null;
     
@@ -168,7 +171,7 @@ class Main extends \Pf4wp\WordpressPlugin
             $filters = explode(',', $_REQUEST['filter']);
         
         // And check the referer arguments as well if this is a POST request
-        if (isset($_POST) && isset($_SERVER['HTTP_REFERER'])) {
+        if (!empty($_POST) && isset($_SERVER['HTTP_REFERER'])) {
             $referer_args = explode('&', ltrim(strstr($_SERVER['HTTP_REFERER'], '?'), '?'));
             foreach ($referer_args as $referer_arg)
                 if (!empty($referer_arg)) {
@@ -390,21 +393,86 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_style($this->getName() . '-admin', $css_dir . 'admin.css', false, $version);
     }
     
+    
+    /**
+     * Handles pre-Settings Menu actions
+     *
+     * @see onSettingsMenu()
+     * @param object $current_screen The current screen object
+     */
+    public function onSettingsMenuLoad($current_screen)
+    {
+        wp_enqueue_script('farbtastic');        
+		wp_enqueue_style('farbtastic');
+        
+        if (!empty($_POST)) {
+            if (!wp_verify_nonce($_POST['_nonce'], 'onSettingsMenu'))
+                wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
+            
+            $this->options->active_gallery      = (int)$_POST['active_gallery'];            
+            $this->options->change_freq         = (in_array($_POST['change_freq'], array('session', 'load', 'custom'))) ? $_POST['change_freq'] : 'session';
+            $this->options->change_freq_custom  = (int)$_POST['change_freq_custom'];
+            $this->options->background_position = (in_array($_POST['background_position'], $this->bg_positions)) ? $_POST['background_position'] : $this->bg_positions[0];
+            
+            $background_color = ltrim($_POST['background_color'], '#');            
+            if (empty($background_color)) {
+                remove_theme_mod('background_color');
+            } else if (preg_match('/^([a-f]|[A-F]|[0-9]){3}(([a-f]|[A-F]|[0-9]){3})?$/', $background_color)) {
+                set_theme_mod('background_color', $background_color);
+            }
+            
+            AdminNotice::add(__('Settings have been saved', $this->getName()));
+        }
+    }
+    
     /**
      * Settings Menu
      */
     public function onSettingsMenu($data, $per_page)
     {
-        if (!empty($_POST) && !wp_verify_nonce($_POST['_nonce'], 'onSettingsMenu'))
-            wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
-            
-            
-        $test_val = isset($_POST['test']) ? $_POST['test'] : 'Default';
+        // Generate a list of galleries, including a default of "None"
+        $galleries = array(array(
+            'id' => 0, 
+            'name' => __('None (deactivated)', $this->getName()), 
+            'selected' => ($this->options->active_gallery == false),
+        ));
+        
+        $gallery_posts = get_posts(array(
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'numberposts' => 0, 
+            'post_type' => \Myatu\WordPress\BackgroundManager\Main::PT_GALLERY)
+        );
+        
+        foreach ($gallery_posts as $gallery_post) {
+            // Truncate the string, if neccesary
+            list($gallery_name) = explode("\n", wordwrap($gallery_post->post_title, 55));
+            if (strlen($gallery_name) < strlen($gallery_post->post_title))
+                $gallery_name .= ' ...';
+                
+            $galleries[] = array(
+                'id' => $gallery_post->ID,
+                'name' => $gallery_name,
+                'selected' => ($this->options->active_gallery == $gallery_post->ID),
+            );
+        }
+        
+        // Give the background positions a human readable name
+        $bg_position_titles = array(
+            __('Top Left', $this->getName()), __('Top Center', $this->getName()), __('Top Right', $this->getName()), 
+            __('Center Left', $this->getName()), __('Center', $this->getName()), __('Center Right', $this->getName()), 
+            __('Bottom Left', $this->getName()), __('Bottom Center', $this->getName()), __('Bottom Right', $this->getName())
+        );
         
         $vars = array(
             'nonce' => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
             'submit_button' => get_submit_button(),
-            'test_val' => $test_val,
+            'galleries' => $galleries,
+            'background_color' => get_background_color(),
+            'background_position' => ($this->options->background_position) ? $this->options->background_position : $this->bg_positions[0],
+            'change_freq_custom' => $this->options->change_freq_custom,
+            'change_freq' => ($this->options->change_freq) ? $this->options->change_freq : 'session',
+            'bg_positions' => array_combine($this->bg_positions, $bg_position_titles),
         );
         
         $this->template->display('settings.html.twig', $vars);
@@ -562,22 +630,6 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         $this->onGalleriesMenu($data, $per_page);
     }
-    
-    /**
-     * Called on wp_head, rendering the stylesheet as late as possible.
-     */
-    public function onWpHead()
-    {
-        if (is_admin())
-            return;
-            
-        $style = '';
-        
-        if ($color = get_background_color())
-            $style .= sprintf('background-color: #%s;', $color);
-        
-        printf('<style type="text/css" media="screen">body { %s }</style>'.PHP_EOL, $style);
-    }
        
     /**
      * Edit an existing or new gallery
@@ -625,8 +677,8 @@ class Main extends \Pf4wp\WordpressPlugin
         }
         
         // Iframes
-        $photos_iframe_src = add_query_arg(array('iframe'=>'photos', 'edit'=>$this->gallery->ID, 'orderby'=>false, 'order'=>false, 'pp'=>$per_page, 'paged'=>false));
-        $photo_edit_src    = add_query_arg(array('iframe'=>'edit_photo', 'edit'=>false, 'orderby'=>false, 'order'=>false, 'post_id'=>0, 'filter' => Filter\MediaLibrary::FILTER));
+        $photos_iframe_src = add_query_arg(array('iframe' => 'photos', 'edit' => $this->gallery->ID, 'orderby' => false, 'order' => false, 'pp' => $per_page, 'paged' => false));
+        $photo_edit_src    = add_query_arg(array('iframe' => 'edit_photo', 'edit' => false, 'orderby' => false, 'order' => false, 'post_id' => 0, 'filter' => Filter\MediaLibrary::FILTER));
         
         $vars = array(
             'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar' : '',
@@ -736,4 +788,45 @@ class Main extends \Pf4wp\WordpressPlugin
         iframe_footer();
         die();
     }
+    
+    /* ----------- Public ----------- */
+    
+    /**
+     * Called on wp_head, rendering the stylesheet as late as possible.
+     */
+    public function onWpHead()
+    {
+        if (is_admin())
+            return;
+        
+        $style = '';
+        $gallery_id = $this->options->active_gallery;
+        
+        if ($gallery_id && get_post($gallery_id) != false && $this->options->change_freq != 'custom') {
+            $this->photos = new Photos($this);
+            
+            // Fetch a random image (or from the session)
+            if ($this->options->change_freq == 'session') {
+                session_start();
+                
+                $random_image = (isset($_SESSION['myatu_bgm_bg'])) ? $_SESSION['myatu_bgm_bg'] : wp_get_attachment_image_src($this->photos->getRandomPhotoId($gallery_id), 'large');
+                
+                $_SESSION['myatu_bgm_bg'] = $random_image;
+            } else {
+                $random_image = wp_get_attachment_image_src($this->photos->getRandomPhotoId($gallery_id), 'large');
+            }
+            
+            if ($random_image) {
+                if (!defined('BACKGROUND_IMAGE'))
+                    define('BACKGROUND_IMAGE', $random_image[0]); // Set for themes that use get_background_image()
+                
+                $style .= sprintf('background-image: url(\'%s\');', $random_image[0]);
+            }
+        }
+            
+        if ($color = get_background_color())
+            $style .= sprintf('background-color: #%s;', $color);       
+        
+        printf('<style type="text/css" media="screen">body { %s }</style>'.PHP_EOL, $style);
+    }    
 }

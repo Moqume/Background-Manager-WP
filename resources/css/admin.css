@@ -67,7 +67,7 @@
 
 #photo_container .photo {
     display: inline-block;
-    border: 1px solid #CCCCCC;
+    border: 1px solid #CCC;
     padding: 8px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
@@ -101,8 +101,8 @@
 }
 
 #photo_buttons .photo_img_button {
-    background-color: #EEEEEE;
-    border-color: #999999;
+    background-color: #EEE;
+    border-color: #999;
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
@@ -115,6 +115,31 @@
 }
 
 #photo_buttons .photo_img_button:hover {
-    background-color: #CCCCCC;
-    border-color: #555555;
+    background-color: #CCC;
+    border-color: #555;
 }
+
+#color_picker {
+    z-index: 100;
+    background: #eeeeee;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border: 1px solid #ccc;
+    position: absolute;
+    display: none;
+    padding: 2px;
+    box-shadow: 5px 5px 5px #AAA;
+    -moz-box-shadow: 5px 5px 5px #AAA;
+    -webkit-box-shadow: 5px 5px 5px #AAA;
+}
+
+#bg_pos {
+    min-width: 400px;
+}
+
+.bg_pos {
+    display: inline-block;
+    width: 130px;
+}
+

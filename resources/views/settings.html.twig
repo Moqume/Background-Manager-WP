@@ -6,11 +6,96 @@
 #}
 
 <form method="post" action="">
-
-    <label for="test">{{ __('Test') }}</label>
-    <input type="text" id="test" name="test" value="{{ test_val }}" />
-
     {{ nonce | raw }}
+    
+    <h3>{{ __('Basic Settings') }}</h3>
+    <table class="form-table">
+        <tbody>
+            <tr valign="top">
+                <th scope="row">
+                    <label for="active_gallery">{{ __('Active Photo Set') }}</label>
+                </th>
+                <td>
+                    <select id="active_gallery" class="postform" name="active_gallery">
+                        {% for gallery in galleries %}
+                        <option {% if gallery.selected %}selected="selected"{% endif %} value="{{ gallery.id }}">{{ gallery.name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">
+                    {{ __('Select a random photo') }}
+                </th>
+                <td>
+                    <fieldset id="rand_sel">
+                        <legend class="screen-reader-text">
+                            <span>{{ __('Select a random photo') }}</span>
+                        </legend>
+                        <label>
+                            <input type="radio" value="session" name="change_freq" {% if change_freq == 'session' %}checked="checked"{% endif %} />
+                            <span>{{ __('At each browser session') }}</span>
+                        </label>
+                        <br />
+                        <label>
+                            <input type="radio" value="load" name="change_freq" {% if change_freq == 'load' %}checked="checked"{% endif %} />
+                            <span>{{ __('On a page (re)load') }}</span>
+                        </label>
+                        <br />
+                        <label>
+                            <input type="radio" value="custom" name="change_freq" {% if change_freq == 'custom' %}checked="checked"{% endif %} />
+                            <span>{{ __('Every') }}</span>
+                        </label>
+                        <input type="text" class="small-text" value="{{ change_freq_custom | default('10') }}" name="change_freq_custom" />
+                        <span>{{ __('seconds') }}</span>
+                    </fieldset>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">
+                    <label for="background_color">{{ __('Background Color') }}</label>
+                </th>
+                <td>
+                    <input type="text" value="#{{ background_color }}" name="background_color" id="background_color" />
+                    <div id="color_picker"></div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>{{ __('Layout') }}</h3>
+    <table class="form-table">
+        <tbody>
+            <tr valign="top">
+                <th scope="row">
+                   {{ __('Background Position') }}
+                </th>
+                <td>
+                    <fieldset id="bg_pos">
+                        {% for bg_position_key, bg_position_value in bg_positions %}
+                        <label class="bg_pos">
+                            <input type="radio" value="{{ bg_position_key }}" name="background_position" {% if background_position == bg_position_key %}checked="checked"{% endif %} />
+                            <span>{{ bg_position_value }}</span>
+                        </label>
+                        {% if loop.index is divisibleby(3) %}<br />{% endif %}
+                        {% endfor %}
+                    </fieldset>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    
     {{ submit_button | raw }}
 
 </form>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready(function($){
+    $('#background_color').focusin(function() { $('#color_picker').show(); }).focusout(function() { $('#color_picker').hide() }).keyup(function () { if (this.value.charAt(0) != '#') this.value = '#' + this.value; });
+
+    $('#color_picker').farbtastic('#background_color');
+});
+//]]>
+</script>

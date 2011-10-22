@@ -63,6 +63,22 @@ class Photos
         return $this->np_cache[$cache_id];
     }
     
+    /**
+     * Returns a random photo ID from all available photos in a gallery
+     *
+     * @param int $id ID of the Gallery (photo set)
+     * @return int|false Random photo ID, or `false` if no photos available
+     */
+    public function getRandomPhotoId($id)
+    {
+        $photo_ids = $this->getAllPhotoIds($id);
+        
+        if (empty($photo_ids))
+            return false;
+            
+        return $photo_ids[mt_rand(0, count($photo_ids)-1)];
+    }
+    
     
     /**
      * Obtains the Photos (images) in a Gallery
