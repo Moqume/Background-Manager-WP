@@ -33,6 +33,11 @@ class Main extends \Pf4wp\WordpressPlugin
     const NONCE_RESTORE_GALLERY = 'restore-gallery';
     const NONCE_EDIT_GALLERY    = 'edit-gallery';
     
+    /* Change Frequency Types */
+    const CF_LOAD    = 'load';
+    const CF_SESSION = 'session';
+    const CF_CUSTOM  = 'custom';
+    
     /* Enable public-side Ajax */
     public $public_ajax = true;
     
@@ -132,6 +137,70 @@ class Main extends \Pf4wp\WordpressPlugin
         $this->in_edit = $result; // Cache response (non-persistent)
         
         return $result;
+    }
+    
+    /**
+     * Helper to obtain the resource directory.
+     *
+     * @param bool $for_css If set to `true` obtain the resource directory for CSS, or for JS otherwise (default)
+     * @return array Array containing Directory, Version and Debug string.
+     */
+    public function getResourceDir($for_css = false)
+    {
+        $dir = $this->getPluginUrl() . 'resources/' . (($for_css) ? 'css/' : 'js/');
+        $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
+        $debug   = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
+        
+        return array($dir, $version, $debug);
+    }
+    
+    /**
+     * Helper that obtains a random image, including all details about it
+     *
+     * @param int $gallery_id Gallery ID to retrieve the image from
+     * @param string $previous_image The URL of the previous image, if any (to avoid duplicates)
+     * @return array Array containing Image ID, URL, Alt Text and Title.
+     */
+    public function getRandomImage($gallery_id, $previous_image = '')
+    {
+        $bailout      = 0; // Loop bailout
+        $random_id    = 0;
+        $random_image = '';
+        $alt          = '';
+        
+        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
+            if (!isset($this->photos))
+                $this->photos = new Photos($this);
+            
+            $only_one_available = ($this->photos->getCount($gallery_id) == 1);
+            
+            while (true) {
+                $bailout++;
+                
+                $random_id    = $this->photos->getRandomPhotoId($gallery_id);
+                $random_image = wp_get_attachment_image_src($random_id, 'large');
+                
+                if ($random_image) {
+                    $random_image = $random_image[0]; // URL
+                    
+                    // Make sure it isn't the same as the previous image, if specified
+                    if ((!empty($previous_image) && $random_image != $previous_image) || empty($previous_image))
+                        break;
+                }
+                
+                // Bailout clause
+                if ($bailout > 99 || $only_one_available) {
+                    $random_image = ''; // Invalidate result
+                    break;
+                }
+            }
+            
+            // Fetch additional details about the image
+            if ($random_image)
+                $alt = get_post_meta($random_id, '_wp_attachment_image_alt', true);
+        }
+        
+        return array($random_id, $random_image, $alt);
     }
     
     /* ----------- Events ----------- */
@@ -295,27 +364,9 @@ class Main extends \Pf4wp\WordpressPlugin
                 break;
                 
             case 'random_image' :
-                $current_image = $data;                
-                $random_image  = '';
-                $gallery_id    = $this->options->active_gallery;
-                $bailout       = 0;
+                list($random_id, $random_image, $alt) = $this->getRandomImage($this->options->active_gallery, $data);
                 
-                if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
-                    while (true) {
-                        $bailout++; // This is to prevent infinite loops - just in case.
-                        
-                        $random_image = wp_get_attachment_image_src($this->photos->getRandomPhotoId($gallery_id), 'large');
-                    
-                        if ($random_image)
-                            $random_image = $random_image[0]; // Select the first index (URL)
-                        
-                        // Ensure we have something different than the current image, unless there's only one image in the gallery
-                        if ($bailout > 99 || $this->photos->getCount($gallery_id) == 1 || $random_image != $current_image)
-                            break;
-                    }
-                }            
-            
-                $this->ajaxResponse($random_image);
+                $this->ajaxResponse((object)array('url'=>$random_image, 'alt'=>$alt), empty($random_image));
                 
                 break;
                 
@@ -403,13 +454,11 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Load Admin Scripts
+     * Loads Base Admin Scripts
      */
     public function onAdminScripts()
     {
-        $js_dir  = $this->getPluginUrl() . 'resources/js/';
-        $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
-        $debug   = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
+        list($js_dir, $version, $debug) = $this->getResourceDir();
 
         wp_enqueue_script('post');
         wp_enqueue_script('media-upload');
@@ -421,8 +470,7 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onAdminStyles()
     {
-        $css_dir = $this->getPluginUrl() . 'resources/css/';
-        $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
+        list($css_dir, $version, $debug) = $this->getResourceDir(true);
         
         wp_enqueue_style($this->getName() . '-admin', $css_dir . 'admin.css', false, $version);
     }
@@ -436,16 +484,20 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onSettingsMenuLoad($current_screen)
     {
-        // Also include color-picker style/script
+        // Extra scripts to include
+        list($js_dir, $version, $debug) = $this->getResourceDir();
+
         wp_enqueue_script('farbtastic');        
 		wp_enqueue_style('farbtastic');
+        wp_enqueue_script($this->getName() . '-settings', $js_dir . 'settings' . $debug . '.js', array($this->getName() . '-functions'), $version);        
         
+        // Save settings if POST is set
         if (!empty($_POST)) {
             if (!wp_verify_nonce($_POST['_nonce'], 'onSettingsMenu'))
                 wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
             
             $this->options->active_gallery      = (int)$_POST['active_gallery'];            
-            $this->options->change_freq         = (in_array($_POST['change_freq'], array('session', 'load', 'custom'))) ? $_POST['change_freq'] : 'session';
+            $this->options->change_freq         = (in_array($_POST['change_freq'], array(static::CF_SESSION, static::CF_LOAD, static::CF_CUSTOM))) ? $_POST['change_freq'] : 'session';
             $this->options->change_freq_custom  = (int)$_POST['change_freq_custom'];
             $this->options->background_position = (in_array($_POST['background_position'], $this->bg_positions)) ? $_POST['background_position'] : $this->bg_positions[0];
             $this->options->background_repeat   = (in_array($_POST['background_repeat'], $this->bg_repeats)) ? $_POST['background_repeat'] : $this->bg_repeats[0];
@@ -469,7 +521,7 @@ class Main extends \Pf4wp\WordpressPlugin
         // Generate a list of galleries, including a default of "None"
         $galleries = array(array(
             'id' => 0, 
-            'name' => __('None (deactivated)', $this->getName()), 
+            'name' => __('-- None (deactivated) --', $this->getName()), 
             'selected' => ($this->options->active_gallery == false),
         ));
         
@@ -514,7 +566,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'background_position' => ($this->options->background_position) ? $this->options->background_position : $this->bg_positions[0],
             'background_repeat'   => ($this->options->background_repeat) ? $this->options->background_repeat : $this->bg_repeats[0],
             'change_freq_custom'  => $this->options->change_freq_custom,
-            'change_freq'         => ($this->options->change_freq) ? $this->options->change_freq : 'session',
+            'change_freq'         => ($this->options->change_freq) ? $this->options->change_freq : static::CF_LOAD,
             'bg_positions'        => array_combine($this->bg_positions, $bg_position_titles),
             'bg_repeats'          => array_combine($this->bg_repeats, $bg_repeat_titles),
         );
@@ -581,11 +633,9 @@ class Main extends \Pf4wp\WordpressPlugin
                 $this->galleries->saveUserAction();
             
             // Add thickbox and other javascripts
-            $js_dir  = $this->getPluginUrl() . 'resources/js/';
-            $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
-            $debug   = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
+            list($js_dir, $version, $debug) = $this->getResourceDir();
 
-            add_thickbox(); 
+            add_thickbox();
             wp_enqueue_script($this->getName() . '-gallery-edit', $js_dir . 'gallery_edit' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
             wp_localize_script(
                 $this->getName() . '-gallery-edit', 'bgmL10n', array(
@@ -595,19 +645,18 @@ class Main extends \Pf4wp\WordpressPlugin
                 ) 
             );
             
-            // Enqueue editor buttons
-            wp_enqueue_style('editor-buttons'); // Since WordPress 3.3
+            // Enqueue editor buttons (since WordPress 3.3)
+            wp_enqueue_style('editor-buttons');
 
             // Set the 'photos per page'
-            $menu                        = $this->getMenu();
-            $active_menu                 = $menu->getActiveMenu();
+            $active_menu                 = $this->getMenu()->getActiveMenu();
             $active_menu->per_page       = 30;
             $active_menu->per_page_label = __('photos per page', $this->getName());
             
             // Set the layout two 1 or 2 column width
             add_screen_option('layout_columns', array('max' => 2, 'default' => 2) );
             
-            // Perform last-moment meta box registrations
+            // Perform last-moment meta box registrations a la WordPress
             do_action('add_meta_boxes', self::PT_GALLERY, $this->gallery);
             do_action('add_meta_boxes_' . self::PT_GALLERY, $this->gallery);
             
@@ -794,6 +843,7 @@ class Main extends \Pf4wp\WordpressPlugin
         die();
     }
     
+    /** Edit Photo iframe **/
     public function onIframeEditPhoto()
     {
         if (!isset($_GET['id']))
@@ -836,7 +886,10 @@ class Main extends \Pf4wp\WordpressPlugin
     /* ----------- Public ----------- */
     
     /**
-     * Called on wp_head, rendering the stylesheet as late as possible.
+     * Called on wp_head, rendering the stylesheet as late as possible
+     *
+     * This will provide a basic background image and colors, along with 
+     * tiling options that does not require any JavaScript. 
      */
     public function onWpHead()
     {
@@ -846,7 +899,8 @@ class Main extends \Pf4wp\WordpressPlugin
         $style = '';
         $gallery_id = $this->options->active_gallery;
         
-        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash' && $this->options->change_freq != 'custom') {
+        // Only add a background image here if we have a valid gallery and the change frequency isn't custom
+        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash' && $this->options->change_freq != static::CF_CUSTOM) {
             if (!isset($this->photos))
                 $this->photos = new Photos($this);
             
@@ -886,28 +940,27 @@ class Main extends \Pf4wp\WordpressPlugin
     
     /**
      * Load public scripts
+     *
+     * The scripts are only loaded if the change frequency is set to a custom value.
      */
     public function onPublicScripts()
     {
-        $js_dir  = $this->getPluginUrl() . 'resources/js/';
-        $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
-        $debug   = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
+        if ($this->options->change_freq != static::CF_CUSTOM)
+            return;
+
+        list($js_dir, $version, $debug) = $this->getResourceDir();
 
         wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions' . $debug . '.js', array('jquery'), $version);
         wp_enqueue_script($this->getName() . '-pub', $js_dir . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
-    }    
-    
-    /**
-     * Load public styles
-     */
-    public function onPublicStyles()
-    {
-        $css_dir = $this->getPluginUrl() . 'resources/css/';
-        $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
         
-        wp_enqueue_style($this->getName() . '-pub', $css_dir . 'pub.css', false, $version);
+        // Make the change frequency available to JavaScript
+        $gallery_id = $this->options->active_gallery;
+        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
+            $change_freq = ($this->options->change_freq_custom) ? $this->options->change_freq_custom : 10;
+        } else {
+            $change_freq = 0; // Disabled
+        }
         
-        $change_freq = ($this->options->change_freq_custom) ? $this->options->change_freq_custom : 10;        
         echo (
             '<script type="text/javascript">' . PHP_EOL .
             '//<![CDATA[' . PHP_EOL . 
@@ -918,26 +971,37 @@ class Main extends \Pf4wp\WordpressPlugin
     }    
     
     /**
+     * Load public styles
+     *
+     * The styles are only loaded if the change frequency is set to a custom value.
+     */
+    public function onPublicStyles()
+    {
+        if ($this->options->change_freq != static::CF_CUSTOM)
+            return;
+
+        list($css_dir, $version, $debug) = $this->getResourceDir(true);
+        
+        wp_enqueue_style($this->getName() . '-pub', $css_dir . 'pub.css', false, $version);     
+    }    
+    
+    /**
      * Add a footer to the public side
      *
      * This creates the initial fallback image, which at a later stage will be replaced
-     * based on the custom setting
+     * based on the custom setting if JavaScript is available (otherwise, the fallback image 
+     * is the only image to display)
      */
     public function onPublicFooter()
     {
-        $random_image = '';
-        $gallery_id = $this->options->active_gallery;
+        if ($this->options->change_freq != static::CF_CUSTOM)
+            return;
+            
+        list($random_id, $random_image, $alt) = $this->getRandomImage($this->options->active_gallery);
+
+        printf('<img id="myatu_bgm_top" class="myatu_bgm_img" src="%s" alt="%s" />', esc_url($random_image), htmlspecialchars($alt));
         
-        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
-            if (!isset($this->photos))
-                $this->photos = new Photos($this);
-                
-            $random_image = wp_get_attachment_image_src($this->photos->getRandomPhotoId($gallery_id), 'large');
-            
-            if ($random_image)
-                $random_image = $random_image[0]; // Select the first index (URL)
-        }
-            
-        printf('<img id="myatu_bgm_top" class="myatu_bgm_img top" src="%s" /><img id="myatu_bgm_prev" class="myatu_bgm_img prev" src="" />', esc_url($random_image));
+        // Initially hide the image if JS is enabled.
+        printf("<script type=\"text/javascript\">\r\n//<![CDATA[\r\njQuery('#myatu_bgm_top').hide();\r\n//]]>\r\n</script>");
     }
 }

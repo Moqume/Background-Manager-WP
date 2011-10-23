@@ -33,17 +33,17 @@
                             <span>{{ __('Select a random photo') }}</span>
                         </legend>
                         <label>
-                            <input type="radio" value="session" name="change_freq" {% if change_freq == 'session' %}checked="checked"{% endif %} />
+                            <input class="change_freq" type="radio" value="session" name="change_freq" {% if change_freq == 'session' %}checked="checked"{% endif %} />
                             <span>{{ __('At each browser session') }}</span>
                         </label>
                         <br />
                         <label>
-                            <input type="radio" value="load" name="change_freq" {% if change_freq == 'load' %}checked="checked"{% endif %} />
+                            <input class="change_freq" type="radio" value="load" name="change_freq" {% if change_freq == 'load' %}checked="checked"{% endif %} />
                             <span>{{ __('On a page (re)load') }}</span>
                         </label>
                         <br />
                         <label>
-                            <input type="radio" value="custom" name="change_freq" {% if change_freq == 'custom' %}checked="checked"{% endif %} />
+                            <input class="change_freq" type="radio" value="custom" name="change_freq" {% if change_freq == 'custom' %}checked="checked"{% endif %} />
                             <span>{{ __('Every') }}</span>
                         </label>
                         <input type="text" class="small-text" value="{{ change_freq_custom | default('10') }}" name="change_freq_custom" />
@@ -56,62 +56,60 @@
                     <label for="background_color">{{ __('Background Color') }}</label>
                 </th>
                 <td>
-                    <input type="text" value="#{{ background_color }}" name="background_color" id="background_color" />
+                    <input type="text" value="#{{ background_color }}" autocomplete="off" name="background_color" id="background_color" />
                     <div id="color_picker"></div>
                 </td>
             </tr>
         </tbody>
     </table>
 
-    <h3>{{ __('Layout') }}</h3>
-    <table class="form-table">
-        <tbody>
-            <tr valign="top">
-                <th scope="row">
-                   {{ __('Background Position') }}
-                </th>
-                <td>
-                    <fieldset id="bg_pos">
-                        {% for bg_position_key, bg_position_value in bg_positions %}
-                        <label class="bg_pos">
-                            <input type="radio" value="{{ bg_position_key }}" name="background_position" {% if background_position == bg_position_key %}checked="checked"{% endif %} />
-                            <span>{{ bg_position_value }}</span>
-                        </label>
-                        {% if loop.index is divisibleby(3) %}<br />{% endif %}
-                        {% endfor %}
-                    </fieldset>
-                </td>
-            </tr>
-            <tr valign="top">
-                <th scope="row">
-                   {{ __('Background Tiling') }}
-                </th>
-                <td>
-                    <fieldset id="bg_repeat">
-                        {% for bg_repeat_key, bg_repeat_value in bg_repeats %}
-                        <label class="bg_repeat">
-                            <input type="radio" value="{{ bg_repeat_key }}" name="background_repeat" {% if background_repeat == bg_repeat_key %}checked="checked"{% endif %} />
-                            <span>{{ bg_repeat_value }}</span>
-                        </label>
-                        <br />
-                        {% endfor %}
-                    </fieldset>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
+    <div id="bg_layout_table" class="hide-if-js">
+        <h3>{{ __('Background Layout') }}</h3>
+        <table class="form-table">
+            <tbody>
+                <tr valign="top">
+                    <th scope="row">
+                       {{ __('Position') }}
+                    </th>
+                    <td>
+                        <fieldset id="bg_pos">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Position') }}</span>
+                            </legend>
+                            {% for bg_position_key, bg_position_value in bg_positions %}
+                            <label class="bg_pos" id="pos-{{ bg_position_key }}">
+                                <input type="radio" value="{{ bg_position_key }}" name="background_position" {% if background_position == bg_position_key %}checked="checked"{% endif %} />
+                                <span>{{ bg_position_value }}</span>
+                            </label>
+                            {% if loop.index is divisibleby(3) %}<br />{% endif %}
+                            {% endfor %}
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">
+                       {{ __('Tiling') }}
+                    </th>
+                    <td>
+                        <fieldset id="bg_repeat">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Tiling') }}</span>
+                            </legend>
+                            {% for bg_repeat_key, bg_repeat_value in bg_repeats %}
+                            <label class="bg_repeat">
+                                <input type="radio" value="{{ bg_repeat_key }}" name="background_repeat" {% if background_repeat == bg_repeat_key %}checked="checked"{% endif %} />
+                                <span>{{ bg_repeat_value }}</span>
+                            </label>
+                            <br />
+                            {% endfor %}
+                        </fieldset>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     
     {{ submit_button | raw }}
 
 </form>
 
-<script type="text/javascript">
-//<![CDATA[
-jQuery(document).ready(function($){
-    $('#background_color').focusin(function() { $('#color_picker').show(); }).focusout(function() { $('#color_picker').hide() }).keyup(function () { if (this.value.charAt(0) != '#') this.value = '#' + this.value; });
-
-    $('#color_picker').farbtastic('#background_color');
-});
-//]]>
-</script>
