@@ -72,12 +72,12 @@ mainWin = window.dialogArguments || opener || parent || top;
         $.ajax({
             type     : 'POST',
             dataType : 'json',
-            url      : ajaxurl,
+            url      : background_manager_ajax.url,
             timeout  : 5000,
             async    : false,
-            data     : { action: ajaxaction, func: ajaxFunc, data: ajaxData, _ajax_nonce: ajaxnonce },
+            data     : { action: background_manager_ajax.action, func: ajaxFunc, data: ajaxData, _ajax_nonce: background_manager_ajax.nonce },
             success  : function(ajaxResp) {
-                if (ajaxResp.nonce == ajaxnonceresponse && ajaxResp.stat == 'ok')
+                if (ajaxResp.nonce == background_manager_ajax.nonceresponse && ajaxResp.stat == 'ok')
                     resp = ajaxResp.data;
             }
         });

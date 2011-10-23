@@ -13,7 +13,7 @@
         <tbody>
             <tr valign="top">
                 <th scope="row">
-                    <label for="active_gallery">{{ __('Active Photo Set') }}</label>
+                    <label for="active_gallery">{{ __('Background Photo Set') }}</label>
                 </th>
                 <td>
                     <select id="active_gallery" class="postform" name="active_gallery">
@@ -78,6 +78,22 @@
                             <span>{{ bg_position_value }}</span>
                         </label>
                         {% if loop.index is divisibleby(3) %}<br />{% endif %}
+                        {% endfor %}
+                    </fieldset>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">
+                   {{ __('Background Tiling') }}
+                </th>
+                <td>
+                    <fieldset id="bg_repeat">
+                        {% for bg_repeat_key, bg_repeat_value in bg_repeats %}
+                        <label class="bg_repeat">
+                            <input type="radio" value="{{ bg_repeat_key }}" name="background_repeat" {% if background_repeat == bg_repeat_key %}checked="checked"{% endif %} />
+                            <span>{{ bg_repeat_value }}</span>
+                        </label>
+                        <br />
                         {% endfor %}
                     </fieldset>
                 </td>

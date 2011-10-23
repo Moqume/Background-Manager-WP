@@ -33,8 +33,14 @@ class Main extends \Pf4wp\WordpressPlugin
     const NONCE_RESTORE_GALLERY = 'restore-gallery';
     const NONCE_EDIT_GALLERY    = 'edit-gallery';
     
+    /* Enable public-side Ajax */
+    public $public_ajax = true;
+    
     /* Possible background positions */
     private $bg_positions = array('top-left', 'top-center', 'top-right', 'center-left', 'center-center', 'center-right', 'bottom-left', 'bottom-center', 'bottom-right');
+    
+    /* Possible background tiling options */
+    private $bg_repeats = array('repeat', 'repeat-x', 'repeat-y', 'no-repeat');
     
     /** Instance containing current gallery being edited (if any) */
     private $gallery = null;
@@ -206,7 +212,7 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Respond to an AJAX requests
+     * Respond to AJAX requests
      *
      * @param string $function The function to perform
      * @param mixed $data The data passed by the Ajax call
@@ -219,7 +225,10 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->photos = new Photos($this);
         
         switch ($function) {
-            case 'photo_ids' :
+            case 'photo_ids' : // PRIVILEGED
+                if (!current_user_can('edit_theme_options'))
+                    return;
+                
                 $id = (int)$data;
                 
                 // This returns the array as an object, where the object property names are the values (ids) of the photos
@@ -238,8 +247,8 @@ class Main extends \Pf4wp\WordpressPlugin
                 $this->ajaxResponse($this->photos->getHash($id));
                 break;
                 
-            case 'paginate_links' :
-                if (!is_admin())
+            case 'paginate_links' : // PRIVILEGED
+                if (!current_user_can('edit_theme_options'))
                     return;
                     
                 $id       = (int)$data['id'];
@@ -263,8 +272,8 @@ class Main extends \Pf4wp\WordpressPlugin
                 
                 break;
                 
-            case 'delete_photos' :
-                if (!is_admin())
+            case 'delete_photos' : // PRIVILEGED
+                if (!current_user_can('edit_theme_options'))
                     return;
                     
                 $ids = explode(',', $data);
@@ -282,6 +291,31 @@ class Main extends \Pf4wp\WordpressPlugin
                 }
                 
                 $this->ajaxResponse($result);
+                
+                break;
+                
+            case 'random_image' :
+                $current_image = $data;                
+                $random_image  = '';
+                $gallery_id    = $this->options->active_gallery;
+                $bailout       = 0;
+                
+                if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
+                    while (true) {
+                        $bailout++; // This is to prevent infinite loops - just in case.
+                        
+                        $random_image = wp_get_attachment_image_src($this->photos->getRandomPhotoId($gallery_id), 'large');
+                    
+                        if ($random_image)
+                            $random_image = $random_image[0]; // Select the first index (URL)
+                        
+                        // Ensure we have something different than the current image, unless there's only one image in the gallery
+                        if ($bailout > 99 || $this->photos->getCount($gallery_id) == 1 || $random_image != $current_image)
+                            break;
+                    }
+                }            
+            
+                $this->ajaxResponse($random_image);
                 
                 break;
                 
@@ -402,6 +436,7 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onSettingsMenuLoad($current_screen)
     {
+        // Also include color-picker style/script
         wp_enqueue_script('farbtastic');        
 		wp_enqueue_style('farbtastic');
         
@@ -413,11 +448,12 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->change_freq         = (in_array($_POST['change_freq'], array('session', 'load', 'custom'))) ? $_POST['change_freq'] : 'session';
             $this->options->change_freq_custom  = (int)$_POST['change_freq_custom'];
             $this->options->background_position = (in_array($_POST['background_position'], $this->bg_positions)) ? $_POST['background_position'] : $this->bg_positions[0];
+            $this->options->background_repeat   = (in_array($_POST['background_repeat'], $this->bg_repeats)) ? $_POST['background_repeat'] : $this->bg_repeats[0];
             
             $background_color = ltrim($_POST['background_color'], '#');            
             if (empty($background_color)) {
                 remove_theme_mod('background_color');
-            } else if (preg_match('/^([a-f]|[A-F]|[0-9]){3}(([a-f]|[A-F]|[0-9]){3})?$/', $background_color)) {
+            } else if (preg_match('/^([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?$/', $background_color)) {
                 set_theme_mod('background_color', $background_color);
             }
             
@@ -457,22 +493,30 @@ class Main extends \Pf4wp\WordpressPlugin
             );
         }
         
-        // Give the background positions a human readable name
+        // Give the background positions a human readable titles
         $bg_position_titles = array(
             __('Top Left', $this->getName()), __('Top Center', $this->getName()), __('Top Right', $this->getName()), 
             __('Center Left', $this->getName()), __('Center', $this->getName()), __('Center Right', $this->getName()), 
             __('Bottom Left', $this->getName()), __('Bottom Center', $this->getName()), __('Bottom Right', $this->getName())
         );
         
+        // Give the background tiling options human readable titles
+        $bg_repeat_titles = array(
+            __('Tile horizontal and vertical', $this->getName()), __('Tile horizontal', $this->getName()), 
+            __('Tile vertical', $this->getName()), __('No Tiling', $this->getName()),
+        );
+        
         $vars = array(
-            'nonce' => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
-            'submit_button' => get_submit_button(),
-            'galleries' => $galleries,
-            'background_color' => get_background_color(),
+            'nonce'               => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
+            'submit_button'       => get_submit_button(),
+            'galleries'           => $galleries,
+            'background_color'    => get_background_color(),
             'background_position' => ($this->options->background_position) ? $this->options->background_position : $this->bg_positions[0],
-            'change_freq_custom' => $this->options->change_freq_custom,
-            'change_freq' => ($this->options->change_freq) ? $this->options->change_freq : 'session',
-            'bg_positions' => array_combine($this->bg_positions, $bg_position_titles),
+            'background_repeat'   => ($this->options->background_repeat) ? $this->options->background_repeat : $this->bg_repeats[0],
+            'change_freq_custom'  => $this->options->change_freq_custom,
+            'change_freq'         => ($this->options->change_freq) ? $this->options->change_freq : 'session',
+            'bg_positions'        => array_combine($this->bg_positions, $bg_position_titles),
+            'bg_repeats'          => array_combine($this->bg_repeats, $bg_repeat_titles),
         );
         
         $this->template->display('settings.html.twig', $vars);
@@ -802,8 +846,9 @@ class Main extends \Pf4wp\WordpressPlugin
         $style = '';
         $gallery_id = $this->options->active_gallery;
         
-        if ($gallery_id && get_post($gallery_id) != false && $this->options->change_freq != 'custom') {
-            $this->photos = new Photos($this);
+        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash' && $this->options->change_freq != 'custom') {
+            if (!isset($this->photos))
+                $this->photos = new Photos($this);
             
             // Fetch a random image (or from the session)
             if ($this->options->change_freq == 'session') {
@@ -822,11 +867,77 @@ class Main extends \Pf4wp\WordpressPlugin
                 
                 $style .= sprintf('background-image: url(\'%s\');', $random_image[0]);
             }
+            
+            // Set the background position
+            $bg_position = ($this->options->background_position) ? $this->options->background_position : $this->bg_positions[0];
+            $bg_position = explode('-', $bg_position);
+            
+            $style .= sprintf('background-position: %s %s;', $bg_position[0], $bg_position[1]);
+            
+            // Set the background tiling          
+            $style .= sprintf('background-repeat: %s;', ($this->options->background_repeat) ? $this->options->background_repeat : $this->bg_repeats[0]);
         }
             
         if ($color = get_background_color())
             $style .= sprintf('background-color: #%s;', $color);       
         
         printf('<style type="text/css" media="screen">body { %s }</style>'.PHP_EOL, $style);
+    }
+    
+    /**
+     * Load public scripts
+     */
+    public function onPublicScripts()
+    {
+        $js_dir  = $this->getPluginUrl() . 'resources/js/';
+        $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
+        $debug   = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
+
+        wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions' . $debug . '.js', array('jquery'), $version);
+        wp_enqueue_script($this->getName() . '-pub', $js_dir . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
     }    
+    
+    /**
+     * Load public styles
+     */
+    public function onPublicStyles()
+    {
+        $css_dir = $this->getPluginUrl() . 'resources/css/';
+        $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
+        
+        wp_enqueue_style($this->getName() . '-pub', $css_dir . 'pub.css', false, $version);
+        
+        $change_freq = ($this->options->change_freq_custom) ? $this->options->change_freq_custom : 10;        
+        echo (
+            '<script type="text/javascript">' . PHP_EOL .
+            '//<![CDATA[' . PHP_EOL . 
+            'var myatu_bgm_change_freq = ' . $change_freq . '; ' . PHP_EOL .
+            '//]]>' . PHP_EOL .
+            '</script>' . PHP_EOL
+        );        
+    }    
+    
+    /**
+     * Add a footer to the public side
+     *
+     * This creates the initial fallback image, which at a later stage will be replaced
+     * based on the custom setting
+     */
+    public function onPublicFooter()
+    {
+        $random_image = '';
+        $gallery_id = $this->options->active_gallery;
+        
+        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
+            if (!isset($this->photos))
+                $this->photos = new Photos($this);
+                
+            $random_image = wp_get_attachment_image_src($this->photos->getRandomPhotoId($gallery_id), 'large');
+            
+            if ($random_image)
+                $random_image = $random_image[0]; // Select the first index (URL)
+        }
+            
+        printf('<img id="myatu_bgm_top" class="myatu_bgm_img top" src="%s" /><img id="myatu_bgm_prev" class="myatu_bgm_img prev" src="" />', esc_url($random_image));
+    }
 }
