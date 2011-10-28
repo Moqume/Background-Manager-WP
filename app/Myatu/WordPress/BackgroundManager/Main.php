@@ -38,6 +38,10 @@ class Main extends \Pf4wp\WordpressPlugin
     const CF_SESSION = 'session';
     const CF_CUSTOM  = 'custom';
     
+    /* Background Sizes */
+    const BS_FULL = 'full';
+    const BS_ASIS = 'as-is';
+    
     /* Enable public-side Ajax */
     public $public_ajax = true;
     
@@ -155,11 +159,11 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Helper that obtains a random image, including all details about it
+     * Helper that obtains a random image (photo), including all details about it
      *
      * @param int $gallery_id Gallery ID to retrieve the image from
      * @param string $previous_image The URL of the previous image, if any (to avoid duplicates)
-     * @return array Array containing Image ID, URL, Alt Text and Title.
+     * @return array Array containing Image ID, URL and Alt Text
      */
     public function getRandomImage($gallery_id, $previous_image = '')
     {
@@ -172,37 +176,73 @@ class Main extends \Pf4wp\WordpressPlugin
             if (!isset($this->photos))
                 $this->photos = new Photos($this);
             
-            $only_one_available = ($this->photos->getCount($gallery_id) == 1);
-            
-            while (true) {
-                $bailout++;
-                
-                $random_id    = $this->photos->getRandomPhotoId($gallery_id);
-                $random_image = wp_get_attachment_image_src($random_id, 'large');
-                
-                if ($random_image) {
-                    $random_image = $random_image[0]; // URL
+            switch ($this->options->change_freq) {
+                case static::CF_SESSION:
+                    session_start();
                     
-                    // Make sure it isn't the same as the previous image, if specified
-                    if ((!empty($previous_image) && $random_image != $previous_image) || empty($previous_image))
-                        break;
-                }
-                
-                // Bailout clause
-                if ($bailout > 99 || $only_one_available) {
-                    $random_image = ''; // Invalidate result
+                    $random_id    = $this->photos->getRandomPhotoId($gallery_id);
+                    
+                    // Grab the random image from the session, or new random one if nothing found in saved session
+                    $random_image = (isset($_SESSION['myatu_bgm_bg'])) ? $_SESSION['myatu_bgm_bg'] : wp_get_attachment_image_src($random_id, 'large');
+                    
+                    // We only need the URL
+                    if ($random_image && is_array($random_image))
+                        $random_image = $random_image[0];
+                    
+                    // Save random image in session
+                    $_SESSION['myatu_bgm_bg'] = $random_image;
+                    
                     break;
-                }
+                    
+                case static::CF_CUSTOM:
+                    $only_one_available = ($this->photos->getCount($gallery_id) == 1);
+                    
+                    while (true) {
+                        $bailout++;
+                        
+                        $random_id    = $this->photos->getRandomPhotoId($gallery_id);
+                        $random_image = wp_get_attachment_image_src($random_id, 'large');
+                        
+                        if ($random_image) {
+                            $random_image = $random_image[0]; // URL
+                            
+                            // Make sure it isn't the same as the previous image, if specified
+                            if ((!empty($previous_image) && $random_image != $previous_image) || empty($previous_image))
+                                break;
+                        }
+                        
+                        // Bailout clause
+                        if ($bailout > 99 || $only_one_available) {
+                            $random_image = ''; // Invalidate result
+                            break;
+                        }
+                    }
+                    
+                    break;
+                    
+                default: // CF_LOAD
+                    $random_id    = $this->photos->getRandomPhotoId($gallery_id);
+                    $random_image = wp_get_attachment_image_src($random_id, 'large');
+                    
+                    // All we need is the URL here
+                    if ($random_image)
+                        $random_image = $random_image[0];
+                    
+                    break;
             }
-            
-            // Fetch additional details about the image
-            if ($random_image)
-                $alt = get_post_meta($random_id, '_wp_attachment_image_alt', true);
         }
         
-        return array($random_id, $random_image, $alt);
+        // Set the BACKGROUND_IMAGE define and fetch additional details about the image
+        if ($random_image) {
+            if (!defined('BACKGROUND_IMAGE'))
+                define('BACKGROUND_IMAGE', $random_image[0]);
+                
+            $alt = get_post_meta($random_id, '_wp_attachment_image_alt', true);
+        }
+
+        return array('id' => $random_id, 'url' => $random_image, 'alt' => $alt);
     }
-    
+        
     /* ----------- Events ----------- */
     
     /**
@@ -364,9 +404,14 @@ class Main extends \Pf4wp\WordpressPlugin
                 break;
                 
             case 'random_image' :
-                list($random_id, $random_image, $alt) = $this->getRandomImage($this->options->active_gallery, $data);
+                // Extract the URL of the previous image
+                if (!preg_match('#^(?:url\(\\\\?[\'\"])?(.+?)(?:\\\\?[\'\"]\))?$#i', $data, $matches))
+                    break;
                 
-                $this->ajaxResponse((object)array('url'=>$random_image, 'alt'=>$alt), empty($random_image));
+                $prev_image = $matches[1];
+                $random_image = $this->getRandomImage($this->options->active_gallery, $prev_image);
+
+                $this->ajaxResponse((object)$random_image, empty($random_image['url']));
                 
                 break;
                 
@@ -499,6 +544,7 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->active_gallery      = (int)$_POST['active_gallery'];            
             $this->options->change_freq         = (in_array($_POST['change_freq'], array(static::CF_SESSION, static::CF_LOAD, static::CF_CUSTOM))) ? $_POST['change_freq'] : 'session';
             $this->options->change_freq_custom  = (int)$_POST['change_freq_custom'];
+            $this->options->background_size     = (in_array($_POST['background_size'], array(static::BS_FULL, static::BS_ASIS))) ? $_POST['background_size'] : static::BS_ASIS;
             $this->options->background_position = (in_array($_POST['background_position'], $this->bg_positions)) ? $_POST['background_position'] : $this->bg_positions[0];
             $this->options->background_repeat   = (in_array($_POST['background_repeat'], $this->bg_repeats)) ? $_POST['background_repeat'] : $this->bg_repeats[0];
             
@@ -563,6 +609,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'submit_button'       => get_submit_button(),
             'galleries'           => $galleries,
             'background_color'    => get_background_color(),
+            'background_size'     => ($this->options->background_size) ? $this->options->background_size : static::BS_ASIS,
             'background_position' => ($this->options->background_position) ? $this->options->background_position : $this->bg_positions[0],
             'background_repeat'   => ($this->options->background_repeat) ? $this->options->background_repeat : $this->bg_repeats[0],
             'change_freq_custom'  => $this->options->change_freq_custom,
@@ -889,7 +936,7 @@ class Main extends \Pf4wp\WordpressPlugin
      * Called on wp_head, rendering the stylesheet as late as possible
      *
      * This will provide a basic background image and colors, along with 
-     * tiling options that does not require any JavaScript. 
+     * tiling options.
      */
     public function onWpHead()
     {
@@ -899,28 +946,15 @@ class Main extends \Pf4wp\WordpressPlugin
         $style = '';
         $gallery_id = $this->options->active_gallery;
         
-        // Only add a background image here if we have a valid gallery and the change frequency isn't custom
-        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash' && $this->options->change_freq != static::CF_CUSTOM) {
+        // Only add a background image here if we have a valid gallery and we're not using a full-screen image
+        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash' && $this->options->background_size != static::BS_FULL) {
             if (!isset($this->photos))
                 $this->photos = new Photos($this);
+                
+            $random_image = $this->getRandomImage($this->options->active_gallery);
             
-            // Fetch a random image (or from the session)
-            if ($this->options->change_freq == 'session') {
-                session_start();
-                
-                $random_image = (isset($_SESSION['myatu_bgm_bg'])) ? $_SESSION['myatu_bgm_bg'] : wp_get_attachment_image_src($this->photos->getRandomPhotoId($gallery_id), 'large');
-                
-                $_SESSION['myatu_bgm_bg'] = $random_image;
-            } else {
-                $random_image = wp_get_attachment_image_src($this->photos->getRandomPhotoId($gallery_id), 'large');
-            }
-            
-            if ($random_image) {
-                if (!defined('BACKGROUND_IMAGE'))
-                    define('BACKGROUND_IMAGE', $random_image[0]); // Set for themes that use get_background_image()
-                
-                $style .= sprintf('background-image: url(\'%s\');', $random_image[0]);
-            }
+            if ($random_image['url'])
+                $style .= sprintf('background-image: url(\'%s\');', $random_image['url']);
             
             // Set the background position
             $bg_position = ($this->options->background_position) ? $this->options->background_position : $this->bg_positions[0];
@@ -940,46 +974,52 @@ class Main extends \Pf4wp\WordpressPlugin
     
     /**
      * Load public scripts
-     *
-     * The scripts are only loaded if the change frequency is set to a custom value.
      */
     public function onPublicScripts()
     {
-        if ($this->options->change_freq != static::CF_CUSTOM)
-            return;
+        // Only load the scripts if it's either full screen (jQuery and custom functions) and/or a custom change frequency
+        if ($this->options->change_freq == static::CF_CUSTOM || $this->options->background_size == static::BS_FULL) {
+            list($js_dir, $version, $debug) = $this->getResourceDir();
+            
+            wp_enqueue_script("jquery");
+            wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions' . $debug . '.js', array('jquery'), $version);
+            
+            // Don't worry about the rest of the change frequency isn't custom
+            if ($this->options->change_freq != static::CF_CUSTOM)
+                return;
+            
+            wp_enqueue_script($this->getName() . '-pub', $js_dir . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
+            
+            // Make the change frequency available to JavaScript
+            $gallery_id = $this->options->active_gallery;
+            if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
+                $change_freq = ($this->options->change_freq_custom) ? $this->options->change_freq_custom : 10;
+            } else {
+                $change_freq = 0; // Disabled
+            }
 
-        list($js_dir, $version, $debug) = $this->getResourceDir();
-
-        wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions' . $debug . '.js', array('jquery'), $version);
-        wp_enqueue_script($this->getName() . '-pub', $js_dir . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
-        
-        // Make the change frequency available to JavaScript
-        $gallery_id = $this->options->active_gallery;
-        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
-            $change_freq = ($this->options->change_freq_custom) ? $this->options->change_freq_custom : 10;
-        } else {
-            $change_freq = 0; // Disabled
+            // Spit out variables for JavaScript to use
+            wp_localize_script(
+                $this->getName() . '-pub', 'background_manager_vars', array(
+                    'change_freq' => $change_freq,
+                    'is_fullsize' => ($this->options->background_size == static::BS_FULL) ? 'true' : 'false',
+                ) 
+            );
         }
-        
-        echo (
-            '<script type="text/javascript">' . PHP_EOL .
-            '//<![CDATA[' . PHP_EOL . 
-            'var myatu_bgm_change_freq = ' . $change_freq . '; ' . PHP_EOL .
-            '//]]>' . PHP_EOL .
-            '</script>' . PHP_EOL
-        );        
     }    
     
     /**
      * Load public styles
-     *
-     * The styles are only loaded if the change frequency is set to a custom value.
      */
     public function onPublicStyles()
     {
-        if ($this->options->change_freq != static::CF_CUSTOM)
-            return;
+        $overlay_dir = $this->getPluginUrl() . 'resources/images/overlays/';
+        
+        $style  = '.myatu_bgm_overlay_white_dot { background: url(\'' . $overlay_dir . 'white_dot.png\') repeat top left; } ';
+        $style .= '.myatu_bgm_overlay_black_dot { background: url(\'' . $overlay_dir . 'black_dot.png\') repeat top left; } ';
 
+        printf('<style type="text/css" media="screen">%s</style>'.PHP_EOL, $style);
+ 
         list($css_dir, $version, $debug) = $this->getResourceDir(true);
         
         wp_enqueue_style($this->getName() . '-pub', $css_dir . 'pub.css', false, $version);     
@@ -988,20 +1028,17 @@ class Main extends \Pf4wp\WordpressPlugin
     /**
      * Add a footer to the public side
      *
-     * This creates the initial fallback image, which at a later stage will be replaced
-     * based on the custom setting if JavaScript is available (otherwise, the fallback image 
-     * is the only image to display)
+     * Instead of using a BODY background, this will use an IMG to generate a full
+     * screen rendering of a random image (photo) and an overlay, provided either of
+     * these options have been enabled by the user
      */
     public function onPublicFooter()
     {
-        if ($this->options->change_freq != static::CF_CUSTOM)
-            return;
-            
-        list($random_id, $random_image, $alt) = $this->getRandomImage($this->options->active_gallery);
-
-        printf('<img id="myatu_bgm_top" class="myatu_bgm_img" src="%s" alt="%s" />', esc_url($random_image), htmlspecialchars($alt));
+        $vars = array(
+            'is_fullsize' => $this->options->background_size == static::BS_FULL,
+            'random_image' => $this->getRandomImage($this->options->active_gallery),
+        );
         
-        // Initially hide the image if JS is enabled.
-        printf("<script type=\"text/javascript\">\r\n//<![CDATA[\r\njQuery('#myatu_bgm_top').hide();\r\n//]]>\r\n</script>");
+        $this->template->display('pub_footer.html.twig', $vars);
     }
 }

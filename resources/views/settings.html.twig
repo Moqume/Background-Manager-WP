@@ -63,10 +63,31 @@
         </tbody>
     </table>
 
-    <div id="bg_layout_table" class="hide-if-js">
+    <div id="bg_layout_table">
         <h3>{{ __('Background Layout') }}</h3>
         <table class="form-table">
             <tbody>
+                <tr valign="top">
+                    <th scope="row">
+                       {{ __('Size') }}
+                    </th>
+                    <td>
+                        <fieldset id="bg_size">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Size') }}</span>
+                            </legend>
+                           <label class="bg_size">
+                                <input type="radio" value="as-is" name="background_size" {% if background_size == 'as-is' %}checked="checked"{% endif %} />
+                                <span>{{ __('Normal') }}</span>
+                            </label>
+                            <br />
+                            <label class="bg_size">
+                                <input type="radio" value="full" name="background_size" {% if background_size == 'full' %}checked="checked"{% endif %} />
+                                <span>{{ __('Full Screen') }}</span>
+                            </label>
+                        </fieldset>
+                    </td>
+                </tr>
                 <tr valign="top">
                     <th scope="row">
                        {{ __('Position') }}

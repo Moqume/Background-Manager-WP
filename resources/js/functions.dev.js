@@ -4,6 +4,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
+ * Portions Copyright (c) 2010 Paul Irish & Andreé Hansson (imgLoaded jQuery extension, released under MIT license)
  */
 
 mainWin = window.dialogArguments || opener || parent || top;
@@ -17,71 +18,70 @@ mainWin = window.dialogArguments || opener || parent || top;
          * @param object scrollTo The object to scroll to (top)
          * @return object Calling object (chainable)
          */
-        scrollTo : function(obj){ $(this).clearQueue().animate({scrollTop: $(obj).offset().top}, 'fast'); return $(this); }
+        scrollTo : function(obj){ $(this).clearQueue().animate({scrollTop: $(obj).offset().top}, 'fast'); return $(this); },
+        
+        /**
+         * Provided by Paul Irish
+         *
+         * Same as load(), but supports cached images
+         *
+         * @link https://github.com/paulirish/jquery.imgloaded
+         */
+        imgLoaded : function(callback, fireOne) {
+            var args = arguments, elems = this.filter('img'), elemsLen = elems.length - 1;
+
+            elems.bind('load', function(e) {
+                if (fireOne) {
+                    !elemsLen-- && callback.call(elems, e);
+                } else {
+                    callback.call(this, e);
+                }
+            }).each(function() {
+                if (this.complete || this.complete === undefined) {
+                    this.src = this.src;
+                }
+            });
+        }
     });
 
-    /** Selector `:above` selects all items above location X,Y within a certan width */
-    $.expr[':'].above = function(obj, index, meta, stack) {
-        var args = eval('([' + meta[3] + '])'), x = args[0], y = args[1], w = args[2]; //(x, y, w)
+    /* Within our own namespace, we define some frequently used functions */
+    myatu_bgm = {
+        /** Gets the count of named properties */
+        GetObjSize: function(obj) {
+            var size = 0, key;
 
-        return ($(obj).offset().top < y && $(obj).offset().left >= x && $(obj).offset().left <= (x+w));
-    }
+            for (key in obj)
+                if (obj.hasOwnProperty(key))
+                    size++;
 
-    /** Selector `:below` selects all items below location X,Y within a certan width */
-     $.expr[':'].below = function(obj, index, meta, stack) {
-        var args = eval('([' + meta[3] + '])'), x = args[0], y = args[1], w = args[2]; //(x, y, w)
+            return size;
+        },
 
-        return ($(obj).offset().top > y && $(obj).offset().left >= x && $(obj).offset().left <= (x+w));
-    }
+        /** 
+         * This is a simple wrapper for calling an Ajax function and obtaining its response
+         *
+         * @param string ajaxFunc The Ajax function to perform
+         * @param mixed ajaxData the data to send along with the function
+         * @return mixed Returns the response from the Ajax function, or `false` if there was an error
+         */
+        GetAjaxData: function(ajaxFunc, ajaxData) {
+            var resp = false;
 
-    /** Selector `:right` selects all items to the right of location X,Y within a certan height */
-    $.expr[':'].right = function(obj, index, meta, stack) {
-        var args = eval('([' + meta[3] + '])'), x = args[0], y = args[1], h = args[2]; //(x, y, h)
+            $.ajax({
+                type     : 'POST',
+                dataType : 'json',
+                url      : background_manager_ajax.url,
+                timeout  : 5000,
+                async    : false,
+                data     : { action: background_manager_ajax.action, func: ajaxFunc, data: ajaxData, _ajax_nonce: background_manager_ajax.nonce },
+                success  : function(ajaxResp) {
+                    if (ajaxResp.nonce == background_manager_ajax.nonceresponse && ajaxResp.stat == 'ok')
+                        resp = ajaxResp.data;
+                }
+            });
 
-        return ($(obj).offset().top >= y && $(obj).offset().top <= (y+h) && $(obj).offset().left > x);
-    }
+            return resp;
+        }
 
-    /** Selector `:left` selects all items to the left of location X,Y within a certan height */
-    $.expr[':'].left = function(obj, index, meta, stack) {
-        var args = eval('([' + meta[3] + '])'), x = args[0], y = args[1], h = args[2]; //(x, y, h)
-
-        return ($(obj).offset().top >= y && $(obj).offset().top <= (y+h) && $(obj).offset().left < x);
-    }
-
-    /** Gets the count of named properties */
-    getObjSize = function(obj) {
-        var size = 0, key;
-
-        for (key in obj)
-            if (obj.hasOwnProperty(key))
-                size++;
-
-        return size;
-    }
-
-    /** 
-     * This is a simple wrapper for calling an Ajax function and obtaining its response
-     *
-     * @param string ajaxFunc The Ajax function to perform
-     * @param mixed ajaxData the data to send along with the function
-     * @return mixed Returns the response from the Ajax function, or `false` if there was an error
-     */
-    getAjaxData = function(ajaxFunc, ajaxData) {
-        var resp = false;
-
-        $.ajax({
-            type     : 'POST',
-            dataType : 'json',
-            url      : background_manager_ajax.url,
-            timeout  : 5000,
-            async    : false,
-            data     : { action: background_manager_ajax.action, func: ajaxFunc, data: ajaxData, _ajax_nonce: background_manager_ajax.nonce },
-            success  : function(ajaxResp) {
-                if (ajaxResp.nonce == background_manager_ajax.nonceresponse && ajaxResp.stat == 'ok')
-                    resp = ajaxResp.data;
-            }
-        });
-
-        return resp;
     }
 })(jQuery);
