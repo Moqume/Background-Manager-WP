@@ -48,6 +48,7 @@
                         </label>
                         <input type="text" class="small-text" value="{{ change_freq_custom | default('10') }}" name="change_freq_custom" />
                         <span>{{ __('seconds') }}</span>
+                        <span class="description">({{ __('Requires Javascript by the visitor, but will gracefully degrade if not available') }})</span>
                     </fieldset>
                 </td>
             </tr>
@@ -85,6 +86,7 @@
                                 <input type="radio" value="full" name="background_size" {% if background_size == 'full' %}checked="checked"{% endif %} />
                                 <span>{{ __('Full Screen') }}</span>
                             </label>
+                            <span class="description">({{ __('This will retain the aspect ratio of the image') }})</span>
                         </fieldset>
                     </td>
                 </tr>
@@ -123,6 +125,48 @@
                             </label>
                             <br />
                             {% endfor %}
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">
+                       {{ __('Scrolling') }}
+                    </th>
+                    <td>
+                        <fieldset id="bg_scroll">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Scrolling') }}</span>
+                            </legend>
+                           <label class="bg_scroll">
+                                <input type="radio" value="scroll" name="background_scroll" {% if background_scroll == 'scroll' %}checked="checked"{% endif %} />
+                                <span>{{ __('Scroll with the screen') }}</span>
+                            </label>
+                            <br />
+                            <label class="bg_scroll">
+                                <input type="radio" value="fixed" name="background_scroll" {% if background_scroll == 'fixed' %}checked="checked"{% endif %} />
+                                <span>{{ __('Fixed') }}</span>
+                            </label>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">
+                       {{ __('Stretching') }}
+                    </th>
+                    <td>
+                        <fieldset id="bg_stretch">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Stretching') }}</span>
+                            </legend>
+                           <label class="bg_stretch">
+                                <input type="checkbox" value="1" name="background_stretch_vertical" {% if background_stretch_vertical %}checked="checked"{% endif %} />
+                                <span>{{ __('Vertical') }}</span>
+                            </label>
+                            <br />
+                            <label class="bg_stretch">
+                                <input type="checkbox" value="1" name="background_stretch_horizontal" {% if background_stretch_horizontal %}checked="checked"{% endif %} />
+                                <span>{{ __('Horizontal') }}</span>
+                            </label>
                         </fieldset>
                     </td>
                 </tr>

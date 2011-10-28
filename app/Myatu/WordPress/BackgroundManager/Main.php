@@ -42,6 +42,10 @@ class Main extends \Pf4wp\WordpressPlugin
     const BS_FULL = 'full';
     const BS_ASIS = 'as-is';
     
+    /* Background Scroll Types */
+    const BST_FIXED  = 'fixed';
+    const BST_SCROLL = 'scroll';
+    
     /* Enable public-side Ajax */
     public $public_ajax = true;
     
@@ -232,7 +236,7 @@ class Main extends \Pf4wp\WordpressPlugin
             }
         }
         
-        // Set the BACKGROUND_IMAGE define and fetch additional details about the image
+        // Set the BACKGROUND_IMAGE definition and fetch additional details about the image
         if ($random_image) {
             if (!defined('BACKGROUND_IMAGE'))
                 define('BACKGROUND_IMAGE', $random_image[0]);
@@ -406,7 +410,7 @@ class Main extends \Pf4wp\WordpressPlugin
             case 'random_image' :
                 // Extract the URL of the previous image
                 if (!preg_match('#^(?:url\(\\\\?[\'\"])?(.+?)(?:\\\\?[\'\"]\))?$#i', $data, $matches))
-                    break;
+                    return;
                 
                 $prev_image = $matches[1];
                 $random_image = $this->getRandomImage($this->options->active_gallery, $prev_image);
@@ -541,12 +545,15 @@ class Main extends \Pf4wp\WordpressPlugin
             if (!wp_verify_nonce($_POST['_nonce'], 'onSettingsMenu'))
                 wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
             
-            $this->options->active_gallery      = (int)$_POST['active_gallery'];            
-            $this->options->change_freq         = (in_array($_POST['change_freq'], array(static::CF_SESSION, static::CF_LOAD, static::CF_CUSTOM))) ? $_POST['change_freq'] : 'session';
-            $this->options->change_freq_custom  = (int)$_POST['change_freq_custom'];
-            $this->options->background_size     = (in_array($_POST['background_size'], array(static::BS_FULL, static::BS_ASIS))) ? $_POST['background_size'] : static::BS_ASIS;
-            $this->options->background_position = (in_array($_POST['background_position'], $this->bg_positions)) ? $_POST['background_position'] : $this->bg_positions[0];
-            $this->options->background_repeat   = (in_array($_POST['background_repeat'], $this->bg_repeats)) ? $_POST['background_repeat'] : $this->bg_repeats[0];
+            $this->options->active_gallery                = (int)$_POST['active_gallery'];            
+            $this->options->change_freq                   = (in_array($_POST['change_freq'], array(static::CF_SESSION, static::CF_LOAD, static::CF_CUSTOM))) ? $_POST['change_freq'] : static::CF_SESSION;
+            $this->options->change_freq_custom            = (int)$_POST['change_freq_custom'];
+            $this->options->background_size               = (in_array($_POST['background_size'], array(static::BS_FULL, static::BS_ASIS))) ? $_POST['background_size'] : static::BS_ASIS;
+            $this->options->background_scroll             = (in_array($_POST['background_scroll'], array(static::BST_FIXED, static::BST_SCROLL))) ? $_POST['background_scroll'] : static::BST_SCROLL;
+            $this->options->background_position           = (in_array($_POST['background_position'], $this->bg_positions)) ? $_POST['background_position'] : $this->bg_positions[0];
+            $this->options->background_repeat             = (in_array($_POST['background_repeat'], $this->bg_repeats)) ? $_POST['background_repeat'] : $this->bg_repeats[0];
+            $this->options->background_stretch_vertical   = (!empty($_POST['background_stretch_vertical']));
+            $this->options->background_stretch_horizontal = (!empty($_POST['background_stretch_horizontal']));
             
             $background_color = ltrim($_POST['background_color'], '#');            
             if (empty($background_color)) {
@@ -605,17 +612,20 @@ class Main extends \Pf4wp\WordpressPlugin
         );
         
         $vars = array(
-            'nonce'               => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
-            'submit_button'       => get_submit_button(),
-            'galleries'           => $galleries,
-            'background_color'    => get_background_color(),
-            'background_size'     => ($this->options->background_size) ? $this->options->background_size : static::BS_ASIS,
-            'background_position' => ($this->options->background_position) ? $this->options->background_position : $this->bg_positions[0],
-            'background_repeat'   => ($this->options->background_repeat) ? $this->options->background_repeat : $this->bg_repeats[0],
-            'change_freq_custom'  => $this->options->change_freq_custom,
-            'change_freq'         => ($this->options->change_freq) ? $this->options->change_freq : static::CF_LOAD,
-            'bg_positions'        => array_combine($this->bg_positions, $bg_position_titles),
-            'bg_repeats'          => array_combine($this->bg_repeats, $bg_repeat_titles),
+            'nonce'                         => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
+            'submit_button'                 => get_submit_button(),
+            'galleries'                     => $galleries,
+            'background_color'              => get_background_color(),
+            'background_size'               => ($this->options->background_size) ? $this->options->background_size : static::BS_ASIS,
+            'background_scroll'             => ($this->options->background_scroll) ? $this->options->background_scroll : static::BST_SCROLL,
+            'background_position'           => ($this->options->background_position) ? $this->options->background_position : $this->bg_positions[0],
+            'background_repeat'             => ($this->options->background_repeat) ? $this->options->background_repeat : $this->bg_repeats[0],
+            'background_stretch_vertical'   => $this->options->background_stretch_vertical,
+            'background_stretch_horizontal' => $this->options->background_stretch_horizontal,
+            'change_freq_custom'            => $this->options->change_freq_custom,
+            'change_freq'                   => ($this->options->change_freq) ? $this->options->change_freq : static::CF_LOAD,
+            'bg_positions'                  => array_combine($this->bg_positions, $bg_position_titles),
+            'bg_repeats'                    => array_combine($this->bg_repeats, $bg_repeat_titles),
         );
         
         $this->template->display('settings.html.twig', $vars);
@@ -964,6 +974,17 @@ class Main extends \Pf4wp\WordpressPlugin
             
             // Set the background tiling          
             $style .= sprintf('background-repeat: %s;', ($this->options->background_repeat) ? $this->options->background_repeat : $this->bg_repeats[0]);
+            
+            // Set background scrolling
+            $style .= sprintf('background-attachment: %s;', ($this->options->background_scroll) ? $this->options->background_scroll : static::BST_SCROLL);
+            
+            // Set background sizing (stretching)
+            if ($this->options->background_stretch_vertical || $this->options->background_stretch_horizontal) {
+                $style .= sprintf('background-size: %s %s;',
+                    ($this->options->background_stretch_horizontal) ? '100%' : 'auto',
+                    ($this->options->background_stretch_vertical) ? '100%' : 'auto'
+                );
+            }
         }
             
         if ($color = get_background_color())
@@ -995,7 +1016,7 @@ class Main extends \Pf4wp\WordpressPlugin
             if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
                 $change_freq = ($this->options->change_freq_custom) ? $this->options->change_freq_custom : 10;
             } else {
-                $change_freq = 0; // Disabled
+                $change_freq = 0; // Disabled (no valid gallery)
             }
 
             // Spit out variables for JavaScript to use
