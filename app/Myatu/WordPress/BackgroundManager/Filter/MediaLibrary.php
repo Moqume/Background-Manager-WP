@@ -44,13 +44,13 @@ class MediaLibrary
 
         $order = 50;
         
-        add_action('attachment_fields_to_edit', array($this, 'onAttachmentFields'), $order, 2);
-        add_action('media_upload_form_url', array($this, 'onUploadFormUrl'), $order, 2);
-        add_action('media_upload_tabs', array($this, 'onUploadTabs'), $order);
-        add_action('get_media_item_args', array($this, 'onMediaItemArgs'), $order);
-        add_action('post_mime_types', array($this, 'onMediaMimeTypes'), $order);
-        add_action('media_upload_mime_type_links', array($this, 'onMediaTypeLinks'), $order);
-        add_action('media_send_to_editor', array($this, 'onSendToEditor'), $order, 3);
+        add_filter('attachment_fields_to_edit', array($this, 'onAttachmentFields'), $order, 2);
+        add_filter('media_upload_form_url', array($this, 'onUploadFormUrl'), $order, 2);
+        add_filter('media_upload_tabs', array($this, 'onUploadTabs'), $order);
+        add_filter('get_media_item_args', array($this, 'onMediaItemArgs'), $order);
+        add_filter('post_mime_types', array($this, 'onMediaMimeTypes'), $order);
+        add_filter('media_upload_mime_type_links', array($this, 'onMediaTypeLinks'), $order);
+        add_filter('media_send_to_editor', array($this, 'onSendToEditor'), $order, 3);
     }
     
     /**

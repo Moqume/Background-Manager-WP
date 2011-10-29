@@ -1,0 +1,22 @@
+{#
+    Copyright (c) 2011 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+
+{% if has_overlay %}<div id="myatu_bgm_overlay" class="myatu_bgm_fs"></div>{% endif %}
+
+{% if is_fullsize %}
+<img id="myatu_bgm_top" class="myatu_bgm_fs" src="{{ random_image.url }}" alt="{{ random_image.alt }}" />
+
+<script type="text/javascript">
+//<![CDATA[
+(function($){
+    $('#myatu_bgm_top').hide().imgLoaded(function() {
+        $(this).fadeIn('slow');
+    });
+})(jQuery);
+//]]>
+</script>
+{% endif %}

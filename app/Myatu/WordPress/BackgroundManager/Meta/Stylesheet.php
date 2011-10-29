@@ -26,10 +26,22 @@ class Stylesheet extends PostMetabox
     protected $pages    = array(\Myatu\WordPress\BackgroundManager\Main::PT_GALLERY);
     protected $context  = 'normal';
     
+    /** 
+     * Constructor 
+     *
+     * Adds a filter, to display the custom CSS
+     */
+    public function __construct($owner, $auto_register = true)
+    {
+        add_filter('myatu_bgm_custom_styles', array($this, 'onCustomStyles'), 15, 2);
+        
+        parent::__construct($owner, $auto_register);
+    }
+    
     /**
      * Event called when ready to render the Metabox contents 
      *
-     * @param string $id ID of the post or link being edited
+     * @param int $id ID of the post or link being edited
      * @param object $gallery The gallery object, or post data.
      */
     public function onRender($id, $gallery)
@@ -46,12 +58,26 @@ class Stylesheet extends PostMetabox
      * there is no need for an onDelete(), unless we do fancy stuff with
      * meta data.
      *
-     * @param string $id ID of the gallery being saved
+     * @param int $id ID of the gallery being saved
      */
     public function onSave($id)
     {
         $data = (isset($_REQUEST['custom_css'])) ? $_REQUEST['custom_css'] : '';
         
         $this->setSinglePostMeta($id, self::MT_CSS, $data);
+    }
+    
+    /**
+     * Event called when Background Manager is ready to print custom styles
+     *
+     * @param int $id ID of the gallery
+     * @param string $styles Current styles (excluding 'body')
+     * @return string 
+     */
+    public function onCustomStyles($id, $styles)
+    {
+        $styles .= get_post_meta($id, self::MT_CSS, true);
+        
+        return $styles;
     }
 }

@@ -189,6 +189,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $alt          = '';
         
         if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
+            // Create an instance of Photos, if needed
             if (!isset($this->photos))
                 $this->photos = new Photos($this);
             
@@ -337,6 +338,15 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // Initialize meta boxes
         new Meta\Submit($this);
+        new Meta\Stylesheet($this);
+    }
+    
+    /**
+     * Initialize the Public side
+     */
+    public function onPublicInit()
+    {
+        // This activates the filter provided by the Meta\Stylesheets
         new Meta\Stylesheet($this);
     }
     
@@ -657,7 +667,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $overlays = apply_filters('myatu_bgm_overlays', $overlays);
         
         // Sort overlays
-        usort($overlays, function($a, $b){ return strcmp($a["desc"], $b["desc"]); });
+        usort($overlays, function($a, $b){ return strcmp($a['desc'], $b['desc']); });
         
         // Add default overlay ("None") to the top
         array_unshift($overlays, array(
@@ -1004,6 +1014,8 @@ class Main extends \Pf4wp\WordpressPlugin
      *
      * This will provide a basic background image and colors, along with 
      * tiling options.
+     *
+     * @filter myatu_bgm_custom_styles
      */
     public function onWpHead()
     {
@@ -1015,9 +1027,6 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // Only add a background image here if we have a valid gallery and we're not using a full-screen image
         if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash' && $this->options->background_size != static::BS_FULL) {
-            if (!isset($this->photos))
-                $this->photos = new Photos($this);
-                
             $random_image = $this->getRandomImage($this->options->active_gallery);
             
             if ($random_image['url'])
@@ -1045,9 +1054,12 @@ class Main extends \Pf4wp\WordpressPlugin
         }
             
         if ($color = get_background_color())
-            $style .= sprintf('background-color: #%s;', $color);       
+            $style .= sprintf('background-color: #%s;', $color);
+            
+        $custom_styles = apply_filters('myatu_bgm_custom_styles', $gallery_id, '');
         
-        printf('<style type="text/css" media="screen">body { %s }</style>'.PHP_EOL, $style);
+        if ($style || $custom_styles )
+            printf('<style type="text/css" media="screen">body { %s } %s</style>'.PHP_EOL, $style, $custom_styles);
     }
     
     /**
@@ -1059,7 +1071,7 @@ class Main extends \Pf4wp\WordpressPlugin
         if ($this->options->change_freq == static::CF_CUSTOM || $this->options->background_size == static::BS_FULL) {
             list($js_dir, $version, $debug) = $this->getResourceDir();
             
-            wp_enqueue_script("jquery");
+            wp_enqueue_script('jquery');
             wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions' . $debug . '.js', array('jquery'), $version);
             
             // Don't worry about the rest if the change frequency isn't custom
