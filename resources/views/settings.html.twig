@@ -8,7 +8,6 @@
 <form method="post" action="">
     {{ nonce | raw }}
     
-    <h3>{{ __('Basic Settings') }}</h3>
     <table class="form-table">
         <tbody>
             <tr valign="top">
@@ -64,116 +63,131 @@
         </tbody>
     </table>
 
-    <div id="bg_layout_table">
-        <h3>{{ __('Background Layout') }}</h3>
-        <table class="form-table">
-            <tbody>
-                <tr valign="top">
-                    <th scope="row">
-                       {{ __('Size') }}
-                    </th>
-                    <td>
-                        <fieldset id="bg_size">
-                            <legend class="screen-reader-text">
-                                <span>{{ __('Size') }}</span>
-                            </legend>
-                           <label class="bg_size">
-                                <input type="radio" value="as-is" name="background_size" {% if background_size == 'as-is' %}checked="checked"{% endif %} />
-                                <span>{{ __('Normal') }}</span>
-                            </label>
-                            <br />
-                            <label class="bg_size">
-                                <input type="radio" value="full" name="background_size" {% if background_size == 'full' %}checked="checked"{% endif %} />
-                                <span>{{ __('Full Screen') }}</span>
-                            </label>
-                            <span class="description">({{ __('This will retain the aspect ratio of the image') }})</span>
-                        </fieldset>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">
-                       {{ __('Position') }}
-                    </th>
-                    <td>
-                        <fieldset id="bg_pos">
-                            <legend class="screen-reader-text">
-                                <span>{{ __('Position') }}</span>
-                            </legend>
-                            {% for bg_position_key, bg_position_value in bg_positions %}
-                            <label class="bg_pos" id="pos-{{ bg_position_key }}">
-                                <input type="radio" value="{{ bg_position_key }}" name="background_position" {% if background_position == bg_position_key %}checked="checked"{% endif %} />
-                                <span>{{ bg_position_value }}</span>
-                            </label>
-                            {% if loop.index is divisibleby(3) %}<br />{% endif %}
-                            {% endfor %}
-                        </fieldset>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">
-                       {{ __('Tiling') }}
-                    </th>
-                    <td>
-                        <fieldset id="bg_repeat">
-                            <legend class="screen-reader-text">
-                                <span>{{ __('Tiling') }}</span>
-                            </legend>
-                            {% for bg_repeat_key, bg_repeat_value in bg_repeats %}
-                            <label class="bg_repeat">
-                                <input type="radio" value="{{ bg_repeat_key }}" name="background_repeat" {% if background_repeat == bg_repeat_key %}checked="checked"{% endif %} />
-                                <span>{{ bg_repeat_value }}</span>
-                            </label>
-                            <br />
-                            {% endfor %}
-                        </fieldset>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">
-                       {{ __('Scrolling') }}
-                    </th>
-                    <td>
-                        <fieldset id="bg_scroll">
-                            <legend class="screen-reader-text">
-                                <span>{{ __('Scrolling') }}</span>
-                            </legend>
-                           <label class="bg_scroll">
-                                <input type="radio" value="scroll" name="background_scroll" {% if background_scroll == 'scroll' %}checked="checked"{% endif %} />
-                                <span>{{ __('Scroll with the screen') }}</span>
-                            </label>
-                            <br />
-                            <label class="bg_scroll">
-                                <input type="radio" value="fixed" name="background_scroll" {% if background_scroll == 'fixed' %}checked="checked"{% endif %} />
-                                <span>{{ __('Fixed') }}</span>
-                            </label>
-                        </fieldset>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">
-                       {{ __('Stretching') }}
-                    </th>
-                    <td>
-                        <fieldset id="bg_stretch">
-                            <legend class="screen-reader-text">
-                                <span>{{ __('Stretching') }}</span>
-                            </legend>
-                           <label class="bg_stretch">
-                                <input type="checkbox" value="1" name="background_stretch_vertical" {% if background_stretch_vertical %}checked="checked"{% endif %} />
-                                <span>{{ __('Vertical') }}</span>
-                            </label>
-                            <br />
-                            <label class="bg_stretch">
-                                <input type="checkbox" value="1" name="background_stretch_horizontal" {% if background_stretch_horizontal %}checked="checked"{% endif %} />
-                                <span>{{ __('Horizontal') }}</span>
-                            </label>
-                        </fieldset>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <h3>{{ __('Background Layout') }}</h3>
+    <table class="form-table">
+        <tbody>
+            <tr valign="top">
+                <th scope="row">
+                   {{ __('Size') }}
+                </th>
+                <td>
+                    <fieldset id="bg_size">
+                        <legend class="screen-reader-text">
+                            <span>{{ __('Size') }}</span>
+                        </legend>
+                       <label class="bg_size">
+                            <input type="radio" value="as-is" name="background_size" {% if background_size == 'as-is' %}checked="checked"{% endif %} />
+                            <span>{{ __('Normal') }}</span>
+                        </label>
+                        <br />
+                        <label class="bg_size">
+                            <input type="radio" value="full" name="background_size" {% if background_size == 'full' %}checked="checked"{% endif %} />
+                            <span>{{ __('Full Screen') }}</span>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+            <tr valign="top" class="bg_extra_layout">
+                <th scope="row">
+                   {{ __('Position') }}
+                </th>
+                <td>
+                    <fieldset id="bg_pos">
+                        <legend class="screen-reader-text">
+                            <span>{{ __('Position') }}</span>
+                        </legend>
+                        {% for bg_position_key, bg_position_value in bg_positions %}
+                        <label class="bg_pos" id="pos-{{ bg_position_key }}">
+                            <input type="radio" value="{{ bg_position_key }}" name="background_position" {% if background_position == bg_position_key %}checked="checked"{% endif %} />
+                            <span>{{ bg_position_value }}</span>
+                        </label>
+                        {% if loop.index is divisibleby(3) %}<br />{% endif %}
+                        {% endfor %}
+                    </fieldset>
+                </td>
+            </tr>
+            <tr valign="top" class="bg_extra_layout">
+                <th scope="row">
+                   {{ __('Tiling') }}
+                </th>
+                <td>
+                    <fieldset id="bg_repeat">
+                        <legend class="screen-reader-text">
+                            <span>{{ __('Tiling') }}</span>
+                        </legend>
+                        {% for bg_repeat_key, bg_repeat_value in bg_repeats %}
+                        <label class="bg_repeat">
+                            <input type="radio" value="{{ bg_repeat_key }}" name="background_repeat" {% if background_repeat == bg_repeat_key %}checked="checked"{% endif %} />
+                            <span>{{ bg_repeat_value }}</span>
+                        </label>
+                        <br />
+                        {% endfor %}
+                    </fieldset>
+                </td>
+            </tr>
+            <tr valign="top" class="bg_extra_layout">
+                <th scope="row">
+                   {{ __('Scrolling') }}
+                </th>
+                <td>
+                    <fieldset id="bg_scroll">
+                        <legend class="screen-reader-text">
+                            <span>{{ __('Scrolling') }}</span>
+                        </legend>
+                       <label class="bg_scroll">
+                            <input type="radio" value="scroll" name="background_scroll" {% if background_scroll == 'scroll' %}checked="checked"{% endif %} />
+                            <span>{{ __('Scroll with the screen') }}</span>
+                        </label>
+                        <br />
+                        <label class="bg_scroll">
+                            <input type="radio" value="fixed" name="background_scroll" {% if background_scroll == 'fixed' %}checked="checked"{% endif %} />
+                            <span>{{ __('Fixed') }}</span>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+            <tr valign="top" class="bg_extra_layout">
+                <th scope="row">
+                   {{ __('Stretching') }}
+                </th>
+                <td>
+                    <fieldset id="bg_stretch">
+                        <legend class="screen-reader-text">
+                            <span>{{ __('Stretching') }}</span>
+                        </legend>
+                       <label class="bg_stretch">
+                            <input type="checkbox" value="1" name="background_stretch_vertical" {% if background_stretch_vertical %}checked="checked"{% endif %} />
+                            <span>{{ __('Vertical') }}</span>
+                        </label>
+                        <br />
+                        <label class="bg_stretch">
+                            <input type="checkbox" value="1" name="background_stretch_horizontal" {% if background_stretch_horizontal %}checked="checked"{% endif %} />
+                            <span>{{ __('Horizontal') }}</span>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     
+
+    <h3>{{ __('Background Overlay') }}</h3>
+    <table class="form-table">
+        <tbody>
+            <tr valign="top">
+                <th scope="row">
+                    <label for="active_overlay">{{ __('Overlay') }}</label>
+                </th>
+                <td>
+                    <select id="active_overlay" class="postform" name="active_overlay">
+                        {% for overlay in overlays %}
+                        <option {% if overlay.selected %}selected="selected"{% endif %} value="{{ overlay.value }}">{{ overlay.desc }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     {{ submit_button | raw }}
 
 </form>
