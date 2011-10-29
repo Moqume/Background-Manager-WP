@@ -19,7 +19,7 @@
         SwitchBackground: function() {
             var is_fullsize = (background_manager_vars.is_fullsize == 'true'),
                 prev_img = (is_fullsize) ? $('#myatu_bgm_top').attr('src') : $('body').css('background-image'),
-                new_image = myatu_bgm.GetAjaxData('random_image', prev_img);
+                new_image = myatu_bgm.GetAjaxData('random_image', { 'prev_img' : prev_img, 'active_gallery': background_manager_vars.active_gallery });
 
             if (!new_image)
                 return;

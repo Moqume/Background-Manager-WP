@@ -41,7 +41,7 @@ class Stylesheet extends PostMetabox
     /**
      * Event called when ready to render the Metabox contents 
      *
-     * @param int $id ID of the post or link being edited
+     * @param int $id ID of the gallery
      * @param object $gallery The gallery object, or post data.
      */
     public function onRender($id, $gallery)

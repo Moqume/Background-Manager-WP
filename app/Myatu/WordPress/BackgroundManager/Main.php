@@ -74,7 +74,7 @@ class Main extends \Pf4wp\WordpressPlugin
     /** Instance of Galleries - @see onAdminInit() */
     public $galleries;
     
-    /** The default options (saved in the WP database) */
+    /** The default options */
     protected $default_options = array(
         'change_freq'                   => 'load',      // static::CF_LOAD
         'change_freq_custom'            => 10,
@@ -184,18 +184,25 @@ class Main extends \Pf4wp\WordpressPlugin
     /**
      * Helper that obtains a random image (photo), including all details about it
      *
-     * @param int $gallery_id Gallery ID to retrieve the image from
+     * @filter myatu_bgm_active_gallery
      * @param string $previous_image The URL of the previous image, if any (to avoid duplicates)
+     * @param id $active_id Active gallery, or `false` if to be determined automatically (default)
      * @return array Array containing URL and Alt Text
      */
-    public function getRandomImage($gallery_id, $previous_image = '')
+    public function getRandomImage($previous_image = '', $active_id = false)
     {
         $bailout      = 0; // Loop bailout
         $random_id    = 0;
         $random_image = '';
         $alt          = '';
         
-        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
+        if ($active_id === false) {
+            $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
+        } else {
+            $gallery_id = $active_id;
+        }
+        
+        if ($this->getGallery($gallery_id) != false) {
             // Create an instance of Photos, if needed
             if (!isset($this->photos))
                 $this->photos = new Photos($this);
@@ -279,14 +286,102 @@ class Main extends \Pf4wp\WordpressPlugin
     public function canDisplayBackground()
     {
         return (
-            ($this->options->display_on_front_page && is_front_page()) ||
-            ($this->options->display_on_single_post && is_single()) ||
-            ($this->options->display_on_single_page && is_page()) ||
-            ($this->options->display_on_archive && is_archive()) ||
-            ($this->options->display_on_search && is_search()) ||
-            ($this->options->display_on_error && is_404())
+            ($this->options->display_on_front_page  && is_front_page()) ||
+            ($this->options->display_on_single_post && is_single())     ||
+            ($this->options->display_on_single_page && is_page())       ||
+            ($this->options->display_on_archive     && is_archive())    ||
+            ($this->options->display_on_search      && is_search())     ||
+            ($this->options->display_on_error       && is_404())
         );
-    }    
+    }
+    
+    /**
+     * Returns the gallery (post) object
+     *
+     * @param int $gallery_id The gallery ID
+     * @return object The gallery (post) object, or `false` if the gallery ID was invalid
+     */
+    public function getGallery($gallery_id)
+    {
+        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash' && $gallery->post_type == static::PT_GALLERY)
+            return $gallery;
+            
+        return false;
+    }
+    
+    /**
+     * Returns a list of galleries, for settings
+     *
+     * @param int $active_gallery The ID of the active gallery (to set 'select')
+     * @return array Array containing the galleries, by ID, Name and Selected
+     */
+    public function getSettingGalleries($active_gallery)
+    {
+        $galleries = array();
+        
+        $gallery_posts = get_posts(array(
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'numberposts' => 0, 
+            'post_type' => \Myatu\WordPress\BackgroundManager\Main::PT_GALLERY)
+        );
+        
+        foreach ($gallery_posts as $gallery_post) {
+            // Truncate the string, if neccesary
+            list($gallery_name) = explode("\n", wordwrap($gallery_post->post_title, 55));
+            if (strlen($gallery_name) < strlen($gallery_post->post_title))
+                $gallery_name .= ' ...';
+                
+            $galleries[] = array(
+                'id' => $gallery_post->ID,
+                'name' => $gallery_name,
+                'selected' => ($active_gallery == $gallery_post->ID),
+            );
+        }
+        
+        return $galleries;
+    }
+    
+    /**
+     * Returns a list of overlays, for settings
+     *
+     * @filter myatu_bgm_overlays
+     * @param string $active_overlays The active overlay (to set 'select')
+     * @return array Array containing the overlays, by Value, Description and Selected
+     */    
+    public function getSettingOverlays($active_overlay)
+    {
+        $overlays = array();
+        $iterator = new \RecursiveIteratorIterator(new \Pf4wp\Storage\IgnorantRecursiveDirectoryIterator($this->getPluginDir() . static::DIR_OVERLAYS, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ($iterator as $fileinfo) {
+            if ($fileinfo->isFile() && file_is_displayable_image($fileinfo->getPathname())) {
+                $img_file  = $fileinfo->getPathname();
+                $desc      = basename($img_file);
+                $desc_file = dirname($img_file) . '/' . basename($img_file, '.' . pathinfo($img_file, PATHINFO_EXTENSION)) . '.txt';
+               
+                // Grab the description from an accompanying file, if possible
+                if (@file_exists($desc_file) && ($handle = @fopen($desc_file, 'r')) != false) {
+                    $desc = fgetss($handle);
+                    fclose($handle);
+                }
+                
+                $overlays[] = array(
+                    'value'    => $img_file,
+                    'desc'     => $desc,
+                    'selected' => ($active_overlay == $img_file),
+                );
+            }
+        }
+        
+        // Allow WP filtering of overlays
+        $overlays = apply_filters('myatu_bgm_overlays', $overlays);
+        
+        // Sort overlays
+        usort($overlays, function($a, $b){ return strcmp($a['desc'], $b['desc']); });
+        
+        return $overlays;
+    }
+    
     /* ----------- Events ----------- */
     
     /**
@@ -360,8 +455,11 @@ class Main extends \Pf4wp\WordpressPlugin
         $this->photos = new Photos($this);
         
         // Initialize meta boxes
-        new Meta\Submit($this);
-        new Meta\Stylesheet($this);
+        if (current_user_can('edit_theme_options')) {
+            new Meta\Submit($this);
+            new Meta\Stylesheet($this);
+            new Meta\Single($this); // for Posts and Pages
+        }
     }
     
     /**
@@ -369,8 +467,9 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onPublicInit()
     {
-        // This activates the filter provided by the Meta\Stylesheets
+        // This activates the filters provided by the Meta Boxes
         new Meta\Stylesheet($this);
+        new Meta\Single($this);
     }
     
     /**
@@ -458,11 +557,11 @@ class Main extends \Pf4wp\WordpressPlugin
                 
             case 'random_image' : // PUBLIC
                 // Extract the URL of the previous image
-                if (!preg_match('#^(?:url\(\\\\?[\'\"])?(.+?)(?:\\\\?[\'\"]\))?$#i', $data, $matches))
+                if (!preg_match('#^(?:url\(\\\\?[\'\"])?(.+?)(?:\\\\?[\'\"]\))?$#i', $data['prev_img'], $matches))
                     return;
                 
-                $prev_image = $matches[1];
-                $random_image = $this->getRandomImage($this->options->active_gallery, $prev_image);
+                $prev_image   = $matches[1];
+                $random_image = $this->getRandomImage($prev_image, (int)$data['active_gallery']);
 
                 $this->ajaxResponse((object)$random_image, empty($random_image['url']));
                 
@@ -624,37 +723,18 @@ class Main extends \Pf4wp\WordpressPlugin
     
     /**
      * Settings Menu
-     *
-     * @filter myatu_bgm_overlays
      */
     public function onSettingsMenu($data, $per_page)
     {
         // Generate a list of galleries, including a default of "None"
-        $galleries = array(array(
-            'id' => 0, 
-            'name' => __('-- None (deactivated) --', $this->getName()), 
-            'selected' => ($this->options->active_gallery == false),
-        ));
+        $galleries = array_merge(array(
+            array(
+                'id' => 0, 
+                'name' => __('-- None (deactivated) --', $this->getName()), 
+                'selected' => ($this->options->active_gallery == false),
+            )
+        ), $this->getSettingGalleries($this->options->active_gallery));
         
-        $gallery_posts = get_posts(array(
-            'orderby' => 'title',
-            'order' => 'ASC',
-            'numberposts' => 0, 
-            'post_type' => \Myatu\WordPress\BackgroundManager\Main::PT_GALLERY)
-        );
-        
-        foreach ($gallery_posts as $gallery_post) {
-            // Truncate the string, if neccesary
-            list($gallery_name) = explode("\n", wordwrap($gallery_post->post_title, 55));
-            if (strlen($gallery_name) < strlen($gallery_post->post_title))
-                $gallery_name .= ' ...';
-                
-            $galleries[] = array(
-                'id' => $gallery_post->ID,
-                'name' => $gallery_name,
-                'selected' => ($this->options->active_gallery == $gallery_post->ID),
-            );
-        }
         
         // Give the background positions a human readable titles
         $bg_position_titles = array(
@@ -669,41 +749,14 @@ class Main extends \Pf4wp\WordpressPlugin
             __('Tile vertical', $this->getName()), __('No Tiling', $this->getName()),
         );
         
-        // Get a list of overlays
-        $overlays = array();
-        $iterator = new \RecursiveIteratorIterator(new \Pf4wp\Storage\IgnorantRecursiveDirectoryIterator($this->getPluginDir() . static::DIR_OVERLAYS, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
-        foreach ($iterator as $fileinfo) {
-            if ($fileinfo->isFile() && file_is_displayable_image($fileinfo->getPathname())) {
-                $img_file  = $fileinfo->getPathname();
-                $desc      = basename($img_file);
-                $desc_file = dirname($img_file) . '/' . basename($img_file, '.' . pathinfo($img_file, PATHINFO_EXTENSION)) . '.txt';
-               
-                // Grab the description from an accompanying file, if possible
-                if (@file_exists($desc_file) && ($handle = @fopen($desc_file, 'r')) != false) {
-                    $desc = fgetss($handle);
-                    fclose($handle);
-                }
-                
-                $overlays[] = array(
-                    'value'    => $img_file,
-                    'desc'     => $desc,
-                    'selected' => ($this->options->active_overlay == $img_file),
-                );
-            }
-        }
-        
-        // Allow WP filtering of overlays
-        $overlays = apply_filters('myatu_bgm_overlays', $overlays);
-        
-        // Sort overlays
-        usort($overlays, function($a, $b){ return strcmp($a['desc'], $b['desc']); });
-        
-        // Add default overlay ("None") to the top
-        array_unshift($overlays, array(
-            'value'    => '',
-            'desc'     => __('-- None (deactivated) --', $this->getName()),
-            'selected' => ($this->options->active_overlay == false),
-        ));
+        // Grab the overlays and add a default of "None"
+        $overlays = array_merge(array(
+            array(
+                'value'    => '',
+                'desc'     => __('-- None (deactivated) --', $this->getName()),
+                'selected' => ($this->options->active_overlay == false),
+            ),
+        ), $this->getSettingOverlays($this->options->active_overlay));
         
         $vars = array(
             'nonce'                         => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
@@ -1050,19 +1103,19 @@ class Main extends \Pf4wp\WordpressPlugin
      * This will provide a basic background image and colors, along with 
      * tiling options.
      *
-     * @filter myatu_bgm_custom_styles
+     * @filter myatu_bgm_custom_styles, myatu_bgm_active_gallery
      */
     public function onWpHead()
     {
         if (is_admin() || !$this->canDisplayBackground())
             return;
         
-        $style = '';
-        $gallery_id = $this->options->active_gallery;
+        $style                   = '';
+        $gallery_id              = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
         
         // Only add a background image here if we have a valid gallery and we're not using a full-screen image
-        if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash' && $this->options->background_size != static::BS_FULL) {
-            $random_image = $this->getRandomImage($this->options->active_gallery);
+        if ($this->getGallery($gallery_id) != false && $this->options->background_size != static::BS_FULL) {
+            $random_image = $this->getRandomImage();
             
             if ($random_image['url'])
                 $style .= sprintf('background-image: url(\'%s\');', $random_image['url']);
@@ -1086,6 +1139,8 @@ class Main extends \Pf4wp\WordpressPlugin
                     ($this->options->background_stretch_vertical) ? '100%' : 'auto'
                 );
             }
+        } else {
+            $style .= sprintf('background-image: none !important;');
         }
             
         if ($color = get_background_color())
@@ -1099,46 +1154,52 @@ class Main extends \Pf4wp\WordpressPlugin
     
     /**
      * Load public scripts
+     *
+     * @filter myatu_bgm_active_gallery
      */
     public function onPublicScripts()
     {
         if (!$this->canDisplayBackground())
             return;
-        
-        // Only load the scripts if it's either full screen (jQuery and custom functions) and/or a custom change frequency
-        if ($this->options->change_freq == static::CF_CUSTOM || $this->options->background_size == static::BS_FULL) {
-            list($js_dir, $version, $debug) = $this->getResourceDir();
-            
-            wp_enqueue_script('jquery');
-            wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions' . $debug . '.js', array('jquery'), $version);
-            
-            // Don't worry about the rest if the change frequency isn't custom
-            if ($this->options->change_freq != static::CF_CUSTOM)
-                return;
-            
-            // (the rest)
-            wp_enqueue_script($this->getName() . '-pub', $js_dir . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
-            
-            // Make the change frequency available to JavaScript
-            $gallery_id = $this->options->active_gallery;
-            if ($gallery_id && ($gallery = get_post($gallery_id)) != false && $gallery->post_status != 'trash') {
-                $change_freq = ($this->options->change_freq_custom) ? $this->options->change_freq_custom : 10;
-            } else {
-                $change_freq = 0; // Disabled (no valid gallery)
-            }
 
-            // Spit out variables for JavaScript to use
-            wp_localize_script(
-                $this->getName() . '-pub', 'background_manager_vars', array(
-                    'change_freq' => $change_freq,
-                    'is_fullsize' => ($this->options->background_size == static::BS_FULL) ? 'true' : 'false',
-                ) 
-            );
+        // Only load the scripts if it's either full screen (jQuery and custom functions) and/or a custom change frequency
+        if ($this->options->change_freq != static::CF_CUSTOM && $this->options->background_size != static::BS_FULL)
+            return;
+            
+        list($js_dir, $version, $debug) = $this->getResourceDir();
+        
+        wp_enqueue_script('jquery');
+        wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions' . $debug . '.js', array('jquery'), $version);
+        
+        // Don't worry about the rest if the change frequency isn't custom
+        if ($this->options->change_freq != static::CF_CUSTOM)
+            return;
+        
+        // (the rest)
+        wp_enqueue_script($this->getName() . '-pub', $js_dir . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
+        
+        // Make the change frequency available to JavaScript
+        $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
+        if ($this->getGallery($gallery_id) != false) {
+            $change_freq = ($this->options->change_freq_custom) ? $this->options->change_freq_custom : 10;
+        } else {
+            $change_freq = 0; // Disabled (no valid gallery)
         }
+
+        // Spit out variables for JavaScript to use
+        wp_localize_script(
+            $this->getName() . '-pub', 'background_manager_vars', array(
+                'change_freq'    => $change_freq,
+                'active_gallery' => $gallery_id,
+                'is_fullsize'    => ($this->options->background_size == static::BS_FULL) ? 'true' : 'false',
+            ) 
+        );
     }    
     
     /**
      * Load public styles
+     *
+     * @filter myatu_bgm_active_overlay
      */
     public function onPublicStyles()
     {
@@ -1149,7 +1210,9 @@ class Main extends \Pf4wp\WordpressPlugin
         
         wp_enqueue_style($this->getName() . '-pub', $css_dir . 'pub.css', false, $version);
         
-        if ($this->options->active_overlay && ($data = Helpers::embedDataUri($this->options->active_overlay, false, (defined('WP_DEBUG') && WP_DEBUG))) != false)
+        $overlay = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
+        
+        if ($overlay && ($data = Helpers::embedDataUri($overlay, false, (defined('WP_DEBUG') && WP_DEBUG))) != false)
             printf('<style type="text/css" media="screen">#myatu_bgm_overlay { background: url(\'%s\') repeat fixed top left transparent; }</style>'.PHP_EOL, $data);
     }    
     
@@ -1159,13 +1222,17 @@ class Main extends \Pf4wp\WordpressPlugin
      * Instead of using a BODY background, this will use an IMG to generate a full
      * screen rendering of a random image (photo) and an overlay, provided either of
      * these options have been enabled by the user
+     *
+     * @filter myatu_bgm_active_overlay
      */
     public function onPublicFooter()
     {
+        $overlay = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
+        
         $vars = array(
-            'has_overlay'  => ($this->options->active_overlay != false),
+            'has_overlay'  => ($overlay != false),
             'is_fullsize'  => $this->options->background_size == static::BS_FULL,
-            'random_image' => $this->getRandomImage($this->options->active_gallery),
+            'random_image' => $this->getRandomImage(),
         );
         
         $this->template->display('pub_footer.html.twig', $vars);
