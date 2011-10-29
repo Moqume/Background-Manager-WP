@@ -60,6 +60,47 @@
                     <div id="color_picker"></div>
                 </td>
             </tr>
+            <tr valign="top">
+                <th scope="row">
+                   {{ __('Active on') }}
+                </th>
+                <td>
+                    <fieldset id="bg_display_on">
+                        <legend class="screen-reader-text">
+                            <span>{{ __('Active on') }}</span>
+                        </legend>
+                       <label class="bg_display_on">
+                            <input type="checkbox" value="1" name="display_on_front_page" {% if display_on_front_page %}checked="checked"{% endif %} />
+                            <span>{{ __('Front page') }}</span>
+                        </label>
+                        <br />
+                        <label class="bg_display_on">
+                            <input type="checkbox" value="1" name="display_on_single_post" {% if display_on_single_post %}checked="checked"{% endif %} />
+                            <span>{{ __('Single post') }}</span>
+                        </label>
+                        <br />
+                        <label class="bg_display_on">
+                            <input type="checkbox" value="1" name="display_on_single_page" {% if display_on_single_page %}checked="checked"{% endif %} />
+                            <span>{{ __('Single page') }}</span>
+                        </label>
+                        <br />
+                        <label class="bg_display_on">
+                            <input type="checkbox" value="1" name="display_on_archive" {% if display_on_archive %}checked="checked"{% endif %} />
+                            <span>{{ __('Archive pages') }}</span>
+                        </label>
+                        <br />
+                        <label class="bg_display_on">
+                            <input type="checkbox" value="1" name="display_on_search" {% if display_on_search %}checked="checked"{% endif %} />
+                            <span>{{ __('Search results') }}</span>
+                        </label>
+                        <br />
+                        <label class="bg_display_on">
+                            <input type="checkbox" value="1" name="display_on_error" {% if display_on_error %}checked="checked"{% endif %} />
+                            <span>{{ __('Error page') }}</span>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
         </tbody>
     </table>
 

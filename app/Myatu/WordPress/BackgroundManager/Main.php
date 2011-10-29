@@ -47,6 +47,7 @@ class Main extends \Pf4wp\WordpressPlugin
     const BST_SCROLL = 'scroll';
     
     /* Directory/URL defines */
+    const DIR_IMAGES   = 'resources/images/';
     const DIR_OVERLAYS = 'resources/images/overlays/';
     
     /* Possible background positions */
@@ -81,6 +82,12 @@ class Main extends \Pf4wp\WordpressPlugin
         'background_scroll'             => 'scroll',    // static::BST_SCROLL
         'background_position'           => 'top-left',
         'background_repeat'             => 'repeat',
+        'display_on_front_page'         => true,
+        'display_on_single_post'        => true,
+        'display_on_single_page'        => true,
+        'display_on_archive'            => true,
+        'display_on_search'             => true,
+        'display_on_error'              => true,
     );
    
         
@@ -263,7 +270,23 @@ class Main extends \Pf4wp\WordpressPlugin
 
         return array('id' => $random_id, 'url' => $random_image, 'alt' => $alt);
     }
-        
+    
+    /**
+     * Determines, based on user settings, if the background can be displayed
+     *
+     * @return bool Returns `true` if the background can be displayed, false otherwise
+     */
+    public function canDisplayBackground()
+    {
+        return (
+            ($this->options->display_on_front_page && is_front_page()) ||
+            ($this->options->display_on_single_post && is_single()) ||
+            ($this->options->display_on_single_page && is_page()) ||
+            ($this->options->display_on_archive && is_archive()) ||
+            ($this->options->display_on_search && is_search()) ||
+            ($this->options->display_on_error && is_404())
+        );
+    }    
     /* ----------- Events ----------- */
     
     /**
@@ -550,7 +573,6 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_style($this->getName() . '-admin', $css_dir . 'admin.css', false, $version);
     }
     
-    
     /**
      * Handles pre-Settings Menu actions
      *
@@ -581,7 +603,14 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->background_stretch_vertical   = (!empty($_POST['background_stretch_vertical']));
             $this->options->background_stretch_horizontal = (!empty($_POST['background_stretch_horizontal']));
             $this->options->active_overlay                = $_POST['active_overlay'];
+            $this->options->display_on_front_page         = (!empty($_POST['display_on_front_page']));
+            $this->options->display_on_single_post        = (!empty($_POST['display_on_single_post']));
+            $this->options->display_on_single_page        = (!empty($_POST['display_on_single_page']));
+            $this->options->display_on_archive            = (!empty($_POST['display_on_archive']));
+            $this->options->display_on_search             = (!empty($_POST['display_on_search']));
+            $this->options->display_on_error              = (!empty($_POST['display_on_error']));
             
+            // Slightly different, the background color is saved as a theme mod only.
             $background_color = ltrim($_POST['background_color'], '#');            
             if (empty($background_color)) {
                 remove_theme_mod('background_color');
@@ -690,6 +719,12 @@ class Main extends \Pf4wp\WordpressPlugin
             'background_stretch_horizontal' => $this->options->background_stretch_horizontal,
             'change_freq_custom'            => $this->options->change_freq_custom,
             'change_freq'                   => $this->options->change_freq,
+            'display_on_front_page'         => $this->options->display_on_front_page,
+            'display_on_single_post'        => $this->options->display_on_single_post,
+            'display_on_single_page'        => $this->options->display_on_single_page,
+            'display_on_archive'            => $this->options->display_on_archive,
+            'display_on_search'             => $this->options->display_on_search,
+            'display_on_error'              => $this->options->display_on_error,
             'bg_positions'                  => array_combine($this->bg_positions, $bg_position_titles),
             'bg_repeats'                    => array_combine($this->bg_repeats, $bg_repeat_titles),
         );
@@ -914,7 +949,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'photos_per_page'   => $per_page,
             'photos_count'      => $this->photos->getCount($this->gallery->ID),
             'photos_hash'       => $this->photos->getHash($this->gallery->ID),
-            'img_large_loader'  => $this->getPluginUrl() . 'resources/images/large_loader.gif',
+            'img_large_loader'  => $this->getPluginUrl() . static::DIR_IMAGES . 'large_loader.gif',
             'photo_del_is_perm' => (!EMPTY_TRASH_DAYS || !MEDIA_TRASH) ? true : false,
         );
         
@@ -1019,7 +1054,7 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onWpHead()
     {
-        if (is_admin())
+        if (is_admin() || !$this->canDisplayBackground())
             return;
         
         $style = '';
@@ -1067,6 +1102,9 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onPublicScripts()
     {
+        if (!$this->canDisplayBackground())
+            return;
+        
         // Only load the scripts if it's either full screen (jQuery and custom functions) and/or a custom change frequency
         if ($this->options->change_freq == static::CF_CUSTOM || $this->options->background_size == static::BS_FULL) {
             list($js_dir, $version, $debug) = $this->getResourceDir();
@@ -1104,6 +1142,9 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onPublicStyles()
     {
+        if (!$this->canDisplayBackground())
+            return;
+        
         list($css_dir, $version, $debug) = $this->getResourceDir(true);
         
         wp_enqueue_style($this->getName() . '-pub', $css_dir . 'pub.css', false, $version);
