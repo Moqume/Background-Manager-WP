@@ -51,8 +51,23 @@
     height: 100%;
 }
 
+#photo_upload_html {
+    float: left;
+    margin-left: 10px;
+}
+
+#photo_nav {
+    border-bottom: 1px solid #DDD;
+    padding-bottom: 5px;
+    clear: both;
+}
+
+#photo_nav_page_links {
+    margin-right: 10px;
+}
+
 #photo_container {
-    padding:10px;
+    padding: 10px;
 }
 
 #photo_container .photo img {
@@ -142,4 +157,14 @@
     display: inline-block;
     width: 130px;
 }
+
+#bg_preview {
+    border: 1px solid #DFDFDF;
+    min-height: 100px;
+}
+
+#bg_preview_overlay {
+    min-height: 100px;
+}
+
 

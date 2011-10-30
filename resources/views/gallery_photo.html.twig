@@ -5,6 +5,18 @@
     file that was distributed with this source code.
 #}
 
+<div id="photo_nav" class="tablenav hide-if-js">
+    <div id="photo_upload_html">
+        <form action="" method="post" enctype="multipart/form-data">
+            {{ nonce | raw }}
+            <label class="screen-reader-text" for="upload_file">{{ __('Add Photo') }}</label>
+            <input type="file" name="upload_file" id="upload_file /">
+            <input type="submit" name="upload" id="upload" class="button" value="{{ __('Add Photo') }}" />
+        </form>
+    </div>
+    <div id="photo_nav_page_links" class="tablenav-pages">{{ page_links | raw }}</div>
+</div>
+
 <div id="photo_container">
     {% for photo in photos %}
     <div id="photo_{{ photo.ID }}" class="photo">

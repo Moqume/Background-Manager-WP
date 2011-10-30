@@ -10,6 +10,14 @@
     
     <table class="form-table">
         <tbody>
+            <tr valign="top" class="hide-if-no-js">
+                <th scope="row">
+                    {{ __('Preview') }}
+                </th>
+                <td>
+                    <div id="bg_preview"><div id="bg_preview_overlay"></div></div>
+                </td>
+            </tr>
             <tr valign="top">
                 <th scope="row">
                     <label for="active_gallery">{{ __('Background Photo Set') }}</label>
@@ -57,7 +65,7 @@
                 </th>
                 <td>
                     <input type="text" value="#{{ background_color }}" autocomplete="off" name="background_color" id="background_color" />
-                    <div id="color_picker"></div>
+                    <div id="color_picker" class="hide-if-no-js"></div>
                 </td>
             </tr>
             <tr valign="top">
@@ -197,12 +205,12 @@
                             <span>{{ __('Stretching') }}</span>
                         </legend>
                        <label class="bg_stretch">
-                            <input type="checkbox" value="1" name="background_stretch_vertical" {% if background_stretch_vertical %}checked="checked"{% endif %} />
+                            <input type="checkbox" value="1" id="background_stretch_vertical" name="background_stretch_vertical" {% if background_stretch_vertical %}checked="checked"{% endif %} />
                             <span>{{ __('Vertical') }}</span>
                         </label>
                         <br />
                         <label class="bg_stretch">
-                            <input type="checkbox" value="1" name="background_stretch_horizontal" {% if background_stretch_horizontal %}checked="checked"{% endif %} />
+                            <input type="checkbox" value="1" id="background_stretch_horizontal" name="background_stretch_horizontal" {% if background_stretch_horizontal %}checked="checked"{% endif %} />
                             <span>{{ __('Horizontal') }}</span>
                         </label>
                     </fieldset>

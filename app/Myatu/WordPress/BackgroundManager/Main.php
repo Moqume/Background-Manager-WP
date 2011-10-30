@@ -187,9 +187,10 @@ class Main extends \Pf4wp\WordpressPlugin
      * @filter myatu_bgm_active_gallery
      * @param string $previous_image The URL of the previous image, if any (to avoid duplicates)
      * @param id $active_id Active gallery, or `false` if to be determined automatically (default)
+     * @param string $size The size of the image to return ('large' by default)
      * @return array Array containing URL and Alt Text
      */
-    public function getRandomImage($previous_image = '', $active_id = false)
+    public function getRandomImage($previous_image = '', $active_id = false, $size = 'large')
     {
         $bailout      = 0; // Loop bailout
         $random_id    = 0;
@@ -217,7 +218,7 @@ class Main extends \Pf4wp\WordpressPlugin
                     } else {
                         $random_id = $this->photos->getRandomPhotoId($gallery_id);
                     }
-                    $random_image = wp_get_attachment_image_src($random_id, 'large');
+                    $random_image = wp_get_attachment_image_src($random_id, $size);
                     
                     if ($random_image && is_array($random_image)) {
                         // We only need the URL
@@ -236,7 +237,7 @@ class Main extends \Pf4wp\WordpressPlugin
                         $bailout++;
                         
                         $random_id    = $this->photos->getRandomPhotoId($gallery_id);
-                        $random_image = wp_get_attachment_image_src($random_id, 'large');
+                        $random_image = wp_get_attachment_image_src($random_id, $size);
                         
                         if ($random_image) {
                             $random_image = $random_image[0]; // URL
@@ -257,7 +258,7 @@ class Main extends \Pf4wp\WordpressPlugin
                     
                 default: // CF_LOAD
                     $random_id    = $this->photos->getRandomPhotoId($gallery_id);
-                    $random_image = wp_get_attachment_image_src($random_id, 'large');
+                    $random_image = wp_get_attachment_image_src($random_id, $size);
                     
                     // All we need is the URL here
                     if ($random_image)
@@ -486,6 +487,7 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->photos = new Photos($this);
         
         switch ($function) {
+            /** Returns all the Photo IDs within a gallery */
             case 'photo_ids' : // PRIVILEGED
                 if (!current_user_can('edit_theme_options'))
                     return;
@@ -496,18 +498,21 @@ class Main extends \Pf4wp\WordpressPlugin
                 $this->ajaxResponse((object)array_flip($this->photos->getAllPhotoIds($id)));
                 break;
             
+            /** Returns the number of photos in the gallery */
             case 'photo_count' : // PUBLIC
                 $id = (int)$data;
         
                 $this->ajaxResponse($this->photos->getCount($id));
                 break;
             
+            /** Returns the hash of the photos in a gallery */
             case 'photos_hash' : // PUBLIC
                 $id = (int)$data;
                 
                 $this->ajaxResponse($this->photos->getHash($id));
                 break;
-                
+            
+            /** Returns HTML containing pagination links */
             case 'paginate_links' : // PRIVILEGED
                 if (!current_user_can('edit_theme_options'))
                     return;
@@ -532,7 +537,8 @@ class Main extends \Pf4wp\WordpressPlugin
                 $this->ajaxResponse($page_links);
                 
                 break;
-                
+            
+            /** Deletes one or more photos from a gallery */
             case 'delete_photos' : // PRIVILEGED
                 if (!current_user_can('edit_theme_options'))
                     return;
@@ -554,7 +560,8 @@ class Main extends \Pf4wp\WordpressPlugin
                 $this->ajaxResponse($result);
                 
                 break;
-                
+            
+            /** Returns a randomly selected image (photo) from the active gallery */
             case 'random_image' : // PUBLIC
                 // Extract the URL of the previous image
                 if (!preg_match('#^(?:url\(\\\\?[\'\"])?(.+?)(?:\\\\?[\'\"]\))?$#i', $data['prev_img'], $matches))
@@ -563,6 +570,29 @@ class Main extends \Pf4wp\WordpressPlugin
                 $prev_image   = $matches[1];
                 $random_image = $this->getRandomImage($prev_image, (int)$data['active_gallery']);
 
+                $this->ajaxResponse((object)$random_image, empty($random_image['url']));
+                
+                break;
+            
+            /** Returns the embedded data for a given overlay */
+            case 'overlay_data' : // PRIVILEGED
+                if (!current_user_can('edit_theme_options'))
+                    return;
+                    
+                if (($embed_data = Helpers::embedDataUri($data, false, (defined('WP_DEBUG') && WP_DEBUG))) != false)
+                    $this->ajaxResponse($embed_data);
+                
+                break;
+                
+            /** Returns a small, randomly selected image from a gallery for preview purposes */
+            case 'preview_image' : // PRIVILEGED
+                $id = (int)$data;
+                
+                if (!current_user_can('edit_theme_options') || !($id))
+                    return;
+                
+                $random_image = $this->getRandomImage(false, $id, 'thumbnail');
+                
                 $this->ajaxResponse((object)$random_image, empty($random_image['url']));
                 
                 break;
@@ -688,7 +718,7 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_script($this->getName() . '-settings', $js_dir . 'settings' . $debug . '.js', array($this->getName() . '-functions'), $version);        
         
         // Save settings if POST is set
-        if (!empty($_POST)) {
+        if (!empty($_POST) && isset($_POST['_nonce'])) {
             if (!wp_verify_nonce($_POST['_nonce'], 'onSettingsMenu'))
                 wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
             
@@ -1015,6 +1045,16 @@ class Main extends \Pf4wp\WordpressPlugin
         if (!isset($this->gallery->ID))
             die; // Something didn't go quite right
         
+        // Only if Javascript is disabled will we get here, which adds a photo to the gallery directly
+        if (!empty($_POST) && isset($_POST['_nonce'])) {
+            if (!wp_verify_nonce($_POST['_nonce'], 'photo-upload'))
+                wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
+            
+            // Check if there's a valid image, and if so, let the Media Library handle the upload
+            if (!empty($_FILES) && $_FILES['upload_file']['error'] == 0 && file_is_valid_image($_FILES['upload_file']['tmp_name']))
+                media_handle_upload('upload_file', $this->gallery->ID);
+        }
+        
         iframe_header();
         
         $items_per_page = isset($_GET['pp']) ? $_GET['pp'] : 30;
@@ -1042,11 +1082,23 @@ class Main extends \Pf4wp\WordpressPlugin
             )
         );
         
+        $page_links = paginate_links(array(
+            'base'         => add_query_arg('paged', '%#%'),
+            'format'       => '',
+            'prev_text'    => __('&laquo;'),
+            'next_text'    => __('&raquo;'),
+            'total'        => $total_pages,
+            'current'      => $page_num,
+        ));      
+        
         $vars = array(
             'photos'            => $photos,
             'current_page'      => $page_num,
             'photo_edit_img'    => includes_url('js/tinymce/plugins/wpeditimage/img/image.png'),    // Use familiar images
             'photo_delete_img'  => includes_url('js/tinymce/plugins/wpeditimage/img/delete.png'),
+            /* For non-JS: */
+            'page_links'        => $page_links,
+            'nonce'             => wp_nonce_field('photo-upload', '_nonce', false, false),
         );
         
         $this->template->display('gallery_photo.html.twig', $vars);
