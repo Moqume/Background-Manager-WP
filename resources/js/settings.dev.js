@@ -15,8 +15,16 @@
             }
         },
 
+        showHideInfoExtra: function() {
+            if ($('#info_tab:checked').length) {
+                $('.info_tab_extra').show();
+            } else {
+                $('.info_tab_extra').hide();
+            }
+        },
+
         updatePreviewColor: function() {
-            var color = $('#background_color').attr('value');
+            var color = $('#background_color').val();
 
             if (color && color.charAt(0) == '#') {
                 if (color.length > 1) {
@@ -28,7 +36,7 @@
         },
 
         updatePreviewOverlay: function() {
-            var data = myatu_bgm.GetAjaxData('overlay_data', $('#active_overlay option:selected').attr('value'));
+            var data = myatu_bgm.GetAjaxData('overlay_data', $('#active_overlay option:selected').val());
 
             if (data) {
                 $('#bg_preview_overlay').css('background', 'url(\'' + data + '\') repeat fixed top left transparent');
@@ -38,7 +46,7 @@
         },
 
         updatePreviewGallery: function() {
-            var id = $('#active_gallery option:selected').attr('value'), img = myatu_bgm.GetAjaxData('preview_image', id);
+            var id = $('#active_gallery option:selected').val(), img = myatu_bgm.GetAjaxData('preview_image', id);
 
             if (img) {
                 $('#bg_preview').css('background-image', 'url(\'' + img.url + '\')');
@@ -48,9 +56,9 @@
         },
 
         updatePreviewLayout: function() {
-            var screen_size = $('input[name="background_size"]:checked').attr('value'),
-                position    = $('input[name="background_position"]:checked').attr('value').replace('-', ' '),
-                repeat      = $('input[name="background_repeat"]:checked').attr('value'),
+            var screen_size = $('input[name="background_size"]:checked').val(),
+                position    = $('input[name="background_position"]:checked').val().replace('-', ' '),
+                repeat      = $('input[name="background_repeat"]:checked').val(),
                 stretch_h   = ($('#background_stretch_horizontal:checked').length == 1),
                 stretch_v   = ($('#background_stretch_vertical:checked').length == 1);
 
@@ -78,7 +86,8 @@
         myatu_bgm.updatePreviewGallery();
         myatu_bgm.updatePreviewLayout();
         myatu_bgm.updatePreviewOverlay();
-        myatu_bgm.showHideLayoutTable($('input[name="background_size"]:checked').attr('value'));
+        myatu_bgm.showHideInfoExtra();
+        myatu_bgm.showHideLayoutTable($('input[name="background_size"]:checked').val());
 
         // Background Color field
         $('#background_color').focusin(function() { 
@@ -88,13 +97,13 @@
             myatu_bgm.updatePreviewColor();
         }).keyup(function () { 
             if (this.value.charAt(0) != '#') this.value = '#' + this.value; 
-            $.farbtastic('#color_picker').setColor($('#background_color').attr('value')); 
+            $.farbtastic('#color_picker').setColor($('#background_color').val()); 
             myatu_bgm.updatePreviewColor();
         });
 
         // Color picker
         $('#color_picker').farbtastic(function(color) { $('#background_color').attr('value', color); $('#bg_preview').css('background-color', color) });
-        $.farbtastic('#color_picker').setColor($('#background_color').attr('value'));
+        $.farbtastic('#color_picker').setColor($('#background_color').val());
 
         // Set events
         $('input[name="background_size"]').change(myatu_bgm.showHideLayoutTable);
@@ -105,5 +114,6 @@
         $('input[name="background_repeat"]').change(myatu_bgm.updatePreviewLayout);
         $('#background_stretch_horizontal').click(myatu_bgm.updatePreviewLayout);
         $('#background_stretch_vertical').click(myatu_bgm.updatePreviewLayout);
+        $('#info_tab').click(myatu_bgm.showHideInfoExtra);
     });
 })(jQuery);

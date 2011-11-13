@@ -56,6 +56,9 @@ class Main extends \Pf4wp\WordpressPlugin
     /* Possible background tiling options */
     private $bg_repeats = array('repeat', 'repeat-x', 'repeat-y', 'no-repeat');
     
+    /* Possible info tab locations */
+    private $info_tab_locations = array('top-left', 'top-right', 'bottom-left', 'bottom-right');
+    
     /** Instance containing current gallery being edited (if any) */
     private $gallery = null;
     
@@ -76,20 +79,22 @@ class Main extends \Pf4wp\WordpressPlugin
     
     /** The default options */
     protected $default_options = array(
-        'change_freq'                   => 'load',      // static::CF_LOAD
-        'change_freq_custom'            => 10,
-        'background_size'               => 'as-is',     // static::BS_ASIS
-        'background_scroll'             => 'scroll',    // static::BST_SCROLL
-        'background_position'           => 'top-left',
-        'background_repeat'             => 'repeat',
-        'display_on_front_page'         => true,
-        'display_on_single_post'        => true,
-        'display_on_single_page'        => true,
-        'display_on_archive'            => true,
-        'display_on_search'             => true,
-        'display_on_error'              => true,
+        'change_freq'            => 'load',      // static::CF_LOAD
+        'change_freq_custom'     => 10,
+        'background_size'        => 'as-is',     // static::BS_ASIS
+        'background_scroll'      => 'scroll',    // static::BST_SCROLL
+        'background_position'    => 'top-left',
+        'background_repeat'      => 'repeat',
+        'display_on_front_page'  => true,
+        'display_on_single_post' => true,
+        'display_on_single_page' => true,
+        'display_on_archive'     => true,
+        'display_on_search'      => true,
+        'display_on_error'       => true,
+        'info_tab_location'      => 'bottom-left',
+        'info_tab_thumb'         => true,
+        'info_tab_desc'          => true,
     );
-   
         
     /* Enable public-side Ajax - @see onAjaxRequest() */
     public $public_ajax = true;
@@ -174,7 +179,7 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function getResourceDir($for_css = false)
     {
-        $dir = $this->getPluginUrl() . 'resources/' . (($for_css) ? 'css/' : 'js/');
+        $dir     = $this->getPluginUrl() . 'resources/' . (($for_css) ? 'css/' : 'js/');
         $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
         $debug   = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
         
@@ -188,14 +193,19 @@ class Main extends \Pf4wp\WordpressPlugin
      * @param string $previous_image The URL of the previous image, if any (to avoid duplicates)
      * @param id $active_id Active gallery, or `false` if to be determined automatically (default)
      * @param string $size The size of the image to return ('large' by default)
-     * @return array Array containing URL and Alt Text
+     * @return array
      */
     public function getRandomImage($previous_image = '', $active_id = false, $size = 'large')
     {
         $bailout      = 0; // Loop bailout
         $random_id    = 0;
         $random_image = '';
+        $desc         = '';
+        $caption      = '';
         $alt          = '';
+        $link         = '';
+        $thumb        = '';
+        $meta         = '';
         
         if ($active_id === false) {
             $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
@@ -220,12 +230,14 @@ class Main extends \Pf4wp\WordpressPlugin
                     }
                     $random_image = wp_get_attachment_image_src($random_id, $size);
                     
-                    if ($random_image && is_array($random_image)) {
+                    if ($random_image) {
                         // We only need the URL
                         $random_image = $random_image[0];
                     
                         // Save random image in session
                         $_SESSION['myatu_bgm_bg_id'] = $random_id;
+                    } else {
+                        unset($_SESSION['myatu_bgm_bg_id']); // In case it came form the session
                     }
                     
                     break;
@@ -271,12 +283,45 @@ class Main extends \Pf4wp\WordpressPlugin
         // Set the BACKGROUND_IMAGE definition and fetch additional details about the image
         if ($random_image) {
             if (!defined('BACKGROUND_IMAGE'))
-                define('BACKGROUND_IMAGE', $random_image[0]);
-                
-            $alt = get_post_meta($random_id, '_wp_attachment_image_alt', true);
+                define('BACKGROUND_IMAGE', $random_image);
+            
+            // Get the ALT image meta
+            $alt  = get_post_meta($random_id, '_wp_attachment_image_alt', true);
+            $link = post_permalink($random_id);
+            
+            // Get the image metadata
+            $meta = get_post_meta($random_id, '_wp_attachment_metadata', true);
+            if ($meta && is_array($meta)) {
+                $meta = $meta['image_meta']; // All we grab is the EXIF/IPTC meta
+            } else {
+                $meta = '';
+            }
+            
+            // Get a thumbnail image link
+            $thumb = wp_get_attachment_image_src($random_id, 'thumbnail');
+            if ($thumb) {
+                $thumb = $thumb[0];
+            } else {
+                $thumb = '';
+            }
+            
+            // Get the photo caption and description
+            if (($photo = get_post($random_id))) {
+                $desc    = $photo->post_content;
+                $caption = $photo->post_excerpt;
+            }               
         }
 
-        return array('id' => $random_id, 'url' => $random_image, 'alt' => $alt);
+        return array(
+            'id' => $random_id, 
+            'url' => $random_image, 
+            'alt' => $alt, 
+            'desc' => wpautop($desc), 
+            'caption' => $caption, 
+            'link' => $link, 
+            'thumb' => $thumb,
+            'meta' => $meta,
+        );
     }
     
     /**
@@ -334,8 +379,8 @@ class Main extends \Pf4wp\WordpressPlugin
                 $gallery_name .= ' ...';
                 
             $galleries[] = array(
-                'id' => $gallery_post->ID,
-                'name' => $gallery_name,
+                'id'       => $gallery_post->ID,
+                'name'     => $gallery_name,
                 'selected' => ($active_gallery == $gallery_post->ID),
             );
         }
@@ -345,6 +390,15 @@ class Main extends \Pf4wp\WordpressPlugin
     
     /**
      * Returns a list of overlays, for settings
+     *
+     * This iterates through the plugin sub-directory specified in DIR_OVERLAYS
+     * and for each disiplayable image it finds, it will try to find an accompanying
+     * .txt file containing a short, one-line description.
+     *
+     * The filter `myatu_bgm_overlays` allows more overlays to be added by 3rd parties. All that
+     * would be required for this, is to add an array to the existing array with a `value`
+     * containing the full pathname (not URL!) to the overlay image and a short one-line description
+     * in `desc`. A `selected` key will be handled by this function.
      *
      * @filter myatu_bgm_overlays
      * @param string $active_overlays The active overlay (to set 'select')
@@ -369,7 +423,6 @@ class Main extends \Pf4wp\WordpressPlugin
                 $overlays[] = array(
                     'value'    => $img_file,
                     'desc'     => $desc,
-                    'selected' => ($active_overlay == $img_file),
                 );
             }
         }
@@ -377,9 +430,17 @@ class Main extends \Pf4wp\WordpressPlugin
         // Allow WP filtering of overlays
         $overlays = apply_filters('myatu_bgm_overlays', $overlays);
         
+        // Ensure we have a 'selected' item.
+        foreach ($overlays as $overlay_key => $overlay)
+            if (!isset($overlay['value']) || !isset($overlay['desc'])) {
+                unset($overlays[$overlay_key]);
+            } else {
+                $overlays[$overlay_key]['selected'] = ($active_overlay == $overlay['value']);
+            }
+            
         // Sort overlays
         usort($overlays, function($a, $b){ return strcmp($a['desc'], $b['desc']); });
-        
+
         return $overlays;
     }
     
@@ -453,7 +514,7 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         // Create an public instances
         $this->galleries = new Galleries($this);
-        $this->photos = new Photos($this);
+        $this->photos    = new Photos($this);
         
         // Initialize meta boxes
         if (current_user_can('edit_theme_options')) {
@@ -468,7 +529,7 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onPublicInit()
     {
-        // This activates the filters provided by the Meta Boxes
+        // This activates the *filters* provided by the Meta Boxes
         new Meta\Stylesheet($this);
         new Meta\Single($this);
     }
@@ -492,22 +553,22 @@ class Main extends \Pf4wp\WordpressPlugin
                 if (!current_user_can('edit_theme_options'))
                     return;
                 
-                $id = (int)$data;
+                $id = (int)$data; // Gallery ID
                 
                 // This returns the array as an object, where the object property names are the values (ids) of the photos
                 $this->ajaxResponse((object)array_flip($this->photos->getAllPhotoIds($id)));
                 break;
             
             /** Returns the number of photos in the gallery */
-            case 'photo_count' : // PUBLIC
-                $id = (int)$data;
+            case 'photo_count' :
+                $id = (int)$data; // Gallery ID
         
                 $this->ajaxResponse($this->photos->getCount($id));
                 break;
             
             /** Returns the hash of the photos in a gallery */
-            case 'photos_hash' : // PUBLIC
-                $id = (int)$data;
+            case 'photos_hash' :
+                $id = (int)$data; // Gallery ID
                 
                 $this->ajaxResponse($this->photos->getHash($id));
                 break;
@@ -517,9 +578,9 @@ class Main extends \Pf4wp\WordpressPlugin
                 if (!current_user_can('edit_theme_options'))
                     return;
                     
-                $id       = (int)$data['id'];
+                $id       = (int)$data['id']; // Gallery ID
                 $per_page = (int)$data['pp'];
-                $base     = $data['base'];
+                $base     = $data['base']; // "Base" directory (rather than taking the AJAX url as base)
                 $current  = (int)$data['current'];
                 
                 if ($current == 0)
@@ -543,8 +604,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 if (!current_user_can('edit_theme_options'))
                     return;
                     
-                $ids = explode(',', $data);
-                
+                $ids    = explode(',', $data); // Photo (post/attachment) IDs
                 $result = true;
 
                 foreach($ids as $id) {
@@ -562,7 +622,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 break;
             
             /** Returns a randomly selected image (photo) from the active gallery */
-            case 'random_image' : // PUBLIC
+            case 'random_image' :
                 // Extract the URL of the previous image
                 if (!preg_match('#^(?:url\(\\\\?[\'\"])?(.+?)(?:\\\\?[\'\"]\))?$#i', $data['prev_img'], $matches))
                     return;
@@ -586,7 +646,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 
             /** Returns a small, randomly selected image from a gallery for preview purposes */
             case 'preview_image' : // PRIVILEGED
-                $id = (int)$data;
+                $id = (int)$data; // Gallery ID
                 
                 if (!current_user_can('edit_theme_options') || !($id))
                     return;
@@ -731,13 +791,18 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->background_repeat             = (in_array($_POST['background_repeat'], $this->bg_repeats)) ? $_POST['background_repeat'] : null;
             $this->options->background_stretch_vertical   = (!empty($_POST['background_stretch_vertical']));
             $this->options->background_stretch_horizontal = (!empty($_POST['background_stretch_horizontal']));
-            $this->options->active_overlay                = $_POST['active_overlay'];
+            $this->options->active_overlay                = (string)$_POST['active_overlay'];
             $this->options->display_on_front_page         = (!empty($_POST['display_on_front_page']));
             $this->options->display_on_single_post        = (!empty($_POST['display_on_single_post']));
             $this->options->display_on_single_page        = (!empty($_POST['display_on_single_page']));
             $this->options->display_on_archive            = (!empty($_POST['display_on_archive']));
             $this->options->display_on_search             = (!empty($_POST['display_on_search']));
             $this->options->display_on_error              = (!empty($_POST['display_on_error']));
+            $this->options->info_tab                      = (!empty($_POST['info_tab']));
+            $this->options->info_tab_location             = (in_array($_POST['info_tab_location'], $this->info_tab_locations)) ? $_POST['info_tab_location'] : null;
+            $this->options->info_tab_thumb                = (!empty($_POST['info_tab_thumb']));
+            $this->options->info_tab_link                 = (!empty($_POST['info_tab_link']));
+            $this->options->info_tab_desc                 = (!empty($_POST['info_tab_desc']));
             
             // Slightly different, the background color is saved as a theme mod only.
             $background_color = ltrim($_POST['background_color'], '#');            
@@ -765,6 +830,15 @@ class Main extends \Pf4wp\WordpressPlugin
             )
         ), $this->getSettingGalleries($this->options->active_gallery));
         
+        // Grab the overlays and add a default of "None"
+        $overlays = array_merge(array(
+            array(
+                'value'    => '',
+                'desc'     => __('-- None (deactivated) --', $this->getName()),
+                'selected' => ($this->options->active_overlay == false),
+            ),
+        ), $this->getSettingOverlays($this->options->active_overlay));
+        
         
         // Give the background positions a human readable titles
         $bg_position_titles = array(
@@ -779,15 +853,13 @@ class Main extends \Pf4wp\WordpressPlugin
             __('Tile vertical', $this->getName()), __('No Tiling', $this->getName()),
         );
         
-        // Grab the overlays and add a default of "None"
-        $overlays = array_merge(array(
-            array(
-                'value'    => '',
-                'desc'     => __('-- None (deactivated) --', $this->getName()),
-                'selected' => ($this->options->active_overlay == false),
-            ),
-        ), $this->getSettingOverlays($this->options->active_overlay));
+        // Give the info tab locations titles
+        $info_tab_location_titles = array(
+            __('Top Left', $this->getName()), __('Top Right', $this->getName()), 
+            __('Bottom Left', $this->getName()), __('Bottom Right', $this->getName())
+        );
         
+        // Template exports:
         $vars = array(
             'nonce'                         => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
             'submit_button'                 => get_submit_button(),
@@ -808,8 +880,14 @@ class Main extends \Pf4wp\WordpressPlugin
             'display_on_archive'            => $this->options->display_on_archive,
             'display_on_search'             => $this->options->display_on_search,
             'display_on_error'              => $this->options->display_on_error,
+            'info_tab'                      => $this->options->info_tab,
+            'info_tab_location'             => $this->options->info_tab_location,
+            'info_tab_thumb'                => $this->options->info_tab_thumb,
+            'info_tab_link'                 => $this->options->info_tab_link,
+            'info_tab_desc'                 => $this->options->info_tab_desc,
             'bg_positions'                  => array_combine($this->bg_positions, $bg_position_titles),
             'bg_repeats'                    => array_combine($this->bg_repeats, $bg_repeat_titles),
+            'info_tab_locations'            => array_combine($this->info_tab_locations, $info_tab_location_titles),
         );
         
         $this->template->display('settings.html.twig', $vars);
@@ -881,8 +959,8 @@ class Main extends \Pf4wp\WordpressPlugin
             wp_localize_script(
                 $this->getName() . '-gallery-edit', 'bgmL10n', array(
                     'warn_delete_all_photos' => __('You are about to permanently delete the selected photos. Are you sure?', $this->getName()),
-                    'warn_delete_photo' => __('You are about to permanently delete this photo. Are you sure?', $this->getName()),
-                    'l10n_print_after' => 'try{convertEntities(bgmL10n);}catch(e){};'
+                    'warn_delete_photo'      => __('You are about to permanently delete this photo. Are you sure?', $this->getName()),
+                    'l10n_print_after'       => 'try{convertEntities(bgmL10n);}catch(e){};'
                 ) 
             );
             
@@ -1082,6 +1160,7 @@ class Main extends \Pf4wp\WordpressPlugin
             )
         );
         
+        // The page links (for non-JS browsers)
         $page_links = paginate_links(array(
             'base'         => add_query_arg('paged', '%#%'),
             'format'       => '',
@@ -1113,13 +1192,16 @@ class Main extends \Pf4wp\WordpressPlugin
         if (!isset($_GET['id']))
             die; // How did you get here? Hmm!
         
+        $id       = (int)$_GET['id'];
+        $post     = get_post($id);
+        $vars     = array();
+        $did_save = false;
+        
         // Handle save request
-        if (isset($_REQUEST['save']))
-            $errors = media_upload_form_handler();
-            
-        $id   = (int)$_GET['id'];
-        $post = get_post($id);
-        $vars = array();
+        if (isset($_REQUEST['save'])) {
+            $errors   = media_upload_form_handler();
+            $did_save = true;
+        }
         
         // Queue additional scripts and styles
         wp_enqueue_script('image-edit');
@@ -1133,7 +1215,9 @@ class Main extends \Pf4wp\WordpressPlugin
             $vars = array('deleted'=>true);
         } else {
             $vars = array(
-                'nonce'      => wp_nonce_field('media-form', '_wpnonce', false, false),
+                'did_save'   => $did_save,
+                'has_error'  => isset($errors[$id]),
+                'nonce'      => wp_nonce_field('media-form', '_wpnonce', false, false), // Same as used by media_upload_form_handler()
                 'media_item' => get_media_item($id, array('toggle'=>false, 'show_title'=>false, 'send'=>false, 'delete'=>false, 'errors'=>(isset($errors[$id]) ? $errors[$id] : null))),
                 'submit'     => get_submit_button(__( 'Save all changes'), 'button', 'save', false),
             );
@@ -1214,17 +1298,32 @@ class Main extends \Pf4wp\WordpressPlugin
         if (!$this->canDisplayBackground())
             return;
 
-        // Only load the scripts if it's either full screen (jQuery and custom functions) and/or a custom change frequency
-        if ($this->options->change_freq != static::CF_CUSTOM && $this->options->background_size != static::BS_FULL)
+        /* Only load the scripts if: 
+         * - there's custom change frequency
+         * - the background is full screen 
+         * - or, there's an info tab with a short description
+         */
+        if ($this->options->change_freq != static::CF_CUSTOM && 
+            $this->options->background_size != static::BS_FULL && 
+            !($this->options->info_tab && $this->options->info_tab_desc))
             return;
-            
+        
+        // Enqueue jQuery and base functions
         list($js_dir, $version, $debug) = $this->getResourceDir();
         
         wp_enqueue_script('jquery');
         wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions' . $debug . '.js', array('jquery'), $version);
         
-        // Don't worry about the rest if the change frequency isn't custom
-        if ($this->options->change_freq != static::CF_CUSTOM)
+        // If the info tab is enabled along with the short description, also include jQuery.bt (balloon tips)
+        if ($this->options->info_tab && $this->options->info_tab_desc) {
+            // Include for MSIE only
+            printf('<!--[if IE]><script src="%s/vendor/excanvas/excanvas.compiled.js"></script><![endif]-->'.PHP_EOL, $js_dir);
+
+            wp_enqueue_script('jquery.bt', $js_dir . 'vendor/bt/jquery.bt.min.js', array('jquery'), '0.9.5-rc1');
+        }
+        
+        // Don't worry about the rest if the change frequency isn't custom or there's no short description for the info tab
+        if ($this->options->change_freq != static::CF_CUSTOM && !$this->options->info_tab_desc)
             return;
         
         // (the rest)
@@ -1232,10 +1331,10 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // Make the change frequency available to JavaScript
         $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
-        if ($this->getGallery($gallery_id) != false) {
+        if ($this->options->change_freq == static::CF_CUSTOM && $this->getGallery($gallery_id) != false) {
             $change_freq = ($this->options->change_freq_custom) ? $this->options->change_freq_custom : 10;
         } else {
-            $change_freq = 0; // Disabled (no valid gallery)
+            $change_freq = 0; // Disabled
         }
 
         // Spit out variables for JavaScript to use
@@ -1260,12 +1359,32 @@ class Main extends \Pf4wp\WordpressPlugin
         
         list($css_dir, $version, $debug) = $this->getResourceDir(true);
         
+        // Default CSS for the public side
         wp_enqueue_style($this->getName() . '-pub', $css_dir . 'pub.css', false, $version);
         
+        $style   = '';
         $overlay = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
         
+        // The image for the overlay, as CSS embedded data
         if ($overlay && ($data = Helpers::embedDataUri($overlay, false, (defined('WP_DEBUG') && WP_DEBUG))) != false)
-            printf('<style type="text/css" media="screen">#myatu_bgm_overlay { background: url(\'%s\') repeat fixed top left transparent; }</style>'.PHP_EOL, $data);
+            $style .= sprintf('#myatu_bgm_overlay { background: url(\'%s\') repeat fixed top left transparent; }', $data);
+        
+        // The info icon
+        if ($this->options->info_tab) {
+            $location = '';
+            $spacer = 5; // Distance from the corners, in pixels, to display the info 'tab'
+            
+            switch ($this->options->info_tab_location) {
+                case 'top-left'     : $location = sprintf('left: %dpx !important; top: %1$dpx !important;', $spacer); break;
+                case 'top-right'    : $location = sprintf('right: %dpx !important; top: %1$dpx !important;', $spacer); break;
+                case 'bottom-left'  : $location = sprintf('left: %dpx !important; bottom: %1$dpx !important;', $spacer); break;
+                case 'bottom-right' : $location = sprintf('right: %dpx !important; bottom: %1$dpx !important;', $spacer); break;
+            }
+            $style .= sprintf('#myatu_bgm_info_tab { %s }', $location);
+        }
+        
+        if ($style)
+            printf('<style type="text/css" media="screen">%s</style>' . PHP_EOL, $style);
     }    
     
     /**
@@ -1279,12 +1398,19 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onPublicFooter()
     {
+        if (!$this->canDisplayBackground())
+            return;
+            
         $overlay = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
         
         $vars = array(
-            'has_overlay'  => ($overlay != false),
-            'is_fullsize'  => $this->options->background_size == static::BS_FULL,
-            'random_image' => $this->getRandomImage(),
+            'has_info_tab'   => $this->options->info_tab,
+            'info_tab_thumb' => $this->options->info_tab_thumb,
+            'info_tab_link'  => $this->options->info_tab_link,
+            'info_tab_desc'  => $this->options->info_tab_desc,
+            'has_overlay'    => ($overlay != false),
+            'is_fullsize'    => $this->options->background_size == static::BS_FULL,
+            'random_image'   => $this->getRandomImage(),
         );
         
         $this->template->display('pub_footer.html.twig', $vars);

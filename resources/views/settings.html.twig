@@ -237,6 +237,69 @@
             </tr>
         </tbody>
     </table>
+
+
+    <h3>{{ __('Background Information') }}</h3>
+    <table class="form-table">
+        <tbody>
+            <tr valign="top">
+                <th scope="row">
+                    {{ __('Information Icon') }}
+                </th>
+                <td>
+                    <fieldset id="info_tab_fs">
+                        <label class="info_tab">
+                            <input type="checkbox" value="1" id="info_tab" name="info_tab" {% if info_tab %}checked="checked"{% endif %} />
+                            <span>{{ __('Enabled') }}</span>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+            <tr valign="top" class="info_tab_extra">
+                <th scope="row">
+                    {{ __('Options') }}
+                </th>
+                <td>
+                    <fieldset id="info_tab_ops">
+                        <label class="info_tab_ops">
+                            <input type="checkbox" value="1" id="info_tab_desc" name="info_tab_desc" {% if info_tab_desc %}checked="checked"{% endif %} />
+                            <span>{{ __('Display a short description when the mouse is hovered over the icon') }}</span>
+                            <span class="description">({{ __('Requires Javascript by the visitor') }})</span>
+                        </label>
+                        <br />
+                        <label class="info_tab_ops">
+                            <input type="checkbox" value="1" id="info_tab_thumb" name="info_tab_thumb" {% if info_tab_thumb %}checked="checked"{% endif %} />
+                            <span>{{ __('Include a thumbnail in the short description') }}</span>
+                        </label>
+                        <br />
+                        <label class="info_tab_ops">
+                            <input type="checkbox" value="1" id="info_tab_link" name="info_tab_link" {% if info_tab_link %}checked="checked"{% endif %} />
+                            <span>{{ __('Icon is linked to a seperate page containing more information about the displayed background') }}</span>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+            <tr valign="top" class="info_tab_extra">
+                <th scope="row">
+                   {{ __('Location') }}
+                </th>
+                <td>
+                    <fieldset id="info_tab_location">
+                        <legend class="screen-reader-text">
+                            <span>{{ __('Location') }}</span>
+                        </legend>
+                        {% for info_tab_location_key, info_tab_location_value in info_tab_locations %}
+                        <label class="info_tab_location" id="info-tab-pos-{{ info_tab_location_key }}">
+                            <input type="radio" value="{{ info_tab_location_key }}" name="info_tab_location" {% if info_tab_location == info_tab_location_key %}checked="checked"{% endif %} />
+                            <span>{{ info_tab_location_value }}</span>
+                        </label>
+                        {% if loop.index is divisibleby(2) %}<br />{% endif %}
+                        {% endfor %}
+                    </fieldset>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     {{ submit_button | raw }}
 
 </form>

@@ -21,7 +21,7 @@ mainWin = window.dialogArguments || opener || parent || top;
         scrollTo : function(obj){ $(this).clearQueue().animate({scrollTop: $(obj).offset().top}, 'fast'); return $(this); },
         
         /**
-         * Provided by Paul Irish
+         * Provided by Paul Irish (MIT License)
          *
          * Same as load(), but supports cached images
          *
@@ -81,7 +81,8 @@ mainWin = window.dialogArguments || opener || parent || top;
             });
 
             return resp;
-        }
+        },
 
-    }
+    } // myatu_bgm NS
+
 })(jQuery);

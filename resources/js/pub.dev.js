@@ -12,7 +12,8 @@
             if (background_manager_vars.change_freq <= 0)
                 return;
 
-            clearTimeout(myatu_bgm.timer);
+            if (myatu_bgm.timer) clearTimeout(myatu_bgm.timer);
+
             myatu_bgm.timer = setTimeout('myatu_bgm.SwitchBackground()', background_manager_vars.change_freq * 1000);
         },
 
@@ -46,10 +47,55 @@
                 $('body').css('background-image', 'url("' + new_image.url + '")');
                 myatu_bgm.SetTimer();
             }
+
+            // Close the tip, if it is showing.
+            $('#myatu_bgm_info_tab').btOff();
+
+            // Set info tab content and link
+            $('#myatu_bgm_info_tab a').attr('href', new_image.link);
+            $('#myatu_bgm_info_tab_content img').attr('src', new_image.thumb);
+            $('#myatu_bgm_info_tab_content h3').text(new_image.caption);
+            $('#myatu_bgm_info_tab_desc').html(new_image.desc);
         }
     });
 
     $(document).ready(function($){
         myatu_bgm.SetTimer();
+        
+        $('#myatu_bgm_info_tab').bt({
+            contentSelector: "$('#myatu_bgm_info_tab_content')",
+            killTitle: false,
+            trigger: ['mouseover focus', 'mouseout blur'],
+            positions: ['right', 'left'],
+            fill: '#333',
+            strokeStyle: '#666', 
+            spikeLength: 20,
+            spikeGirth: 20,
+            overlap: 0,
+            shrinkToFit: true,
+            width: '450px',
+            windowMargin: 20,
+            cssStyles: {
+                fontFamily: '"Lucida Grande",Helvetica,Arial,Verdana,sans-serif', 
+                fontSize: '12px',
+                padding: '14px 4px 9px 14px',
+                color: '#eee'
+            },
+            shadow: true,
+            shadowColor: 'rgba(0,0,0,.5)',
+            shadowBlur: 8,
+            shadowOffsetX: 4,
+            shadowOffsetY: 4,
+            showTip: function(box){
+                /* Only set to width to 'auto' if there's no description. This maintains the
+                 * width (and float of image) if there's something present and prevents overflow if shrunk.
+                 */
+                if ($('#myatu_bgm_info_tab_desc').text() == '')
+                    $(box).css('width', 'auto');
+
+                $(box).show();
+            },
+        });
+
     });
 })(jQuery);

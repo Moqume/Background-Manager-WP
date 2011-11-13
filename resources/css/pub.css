@@ -26,6 +26,48 @@
     }
 }
 
+#myatu_bgm_info_tab {
+    color: #fff;
+    font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+    font-size: 12px;
+    text-align: center;
+    text-shadow: 0.1em 0.1em 0.2em black;
+    display: block !important;
+    height: 25px !important;
+    width: 25px !important;
+    padding: 0 !important;
+    position: fixed !important;
+    z-index: 9999 !important;
+}
+
+#myatu_bgm_info_tab a {
+    color: #fff;
+    text-decoration: none;
+}
+
+#myatu_bgm_info_tab_content {
+    display: none;
+}
+
+#myatu_bgm_info_tab_content img {
+    float: left;
+    width: 150px;
+    height: 150px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    border: 1px solid #666;
+}
+
+#myatu_bgm_info_tab_content h3 {
+    font-weight: bold;
+    clear: none;
+    text-transform: uppercase;
+}
+
+#myatu_bgm_info_tab_desc {
+    margin-right: 10px;
+}
+
 #myatu_bgm_overlay {
     z-index: -1997;
 }
