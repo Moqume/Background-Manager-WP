@@ -8,11 +8,11 @@
 <form name="gallery" method="post" action="">
     <input type="hidden" id="edit_id" name="edit" value="{{ edit }}" />
     <input type="hidden" id="post_type" name="post_type" value="{{ post_type }}" />
-    <input type="hidden" id="photos_hash" name="photos_hash" value="{{ photos_hash }}" />
-    <input type="hidden" id="photos_iframe_base" name="photos_iframe_base" value="{{ photos_iframe_src }}" />
-    <input type="hidden" id="photos_per_page" name="photos_per_page" value="{{ photos_per_page }}" />
-    <input type="hidden" id="photo_iframe_edit_base" name="photo_iframe_edit_base" value="{{ photo_edit_src }}" />
-    <input type="hidden" id="photo_del_is_perm" name="photo_del_is_perm" value="{{ photo_del_is_perm }}" />
+    <input type="hidden" id="images_hash" name="images_hash" value="{{ images_hash }}" />
+    <input type="hidden" id="images_iframe_base" name="images_iframe_base" value="{{ images_iframe_src }}" />
+    <input type="hidden" id="images_per_page" name="images_per_page" value="{{ images_per_page }}" />
+    <input type="hidden" id="image_iframe_edit_base" name="image_iframe_edit_base" value="{{ image_edit_src }}" />
+    <input type="hidden" id="image_del_is_perm" name="image_del_is_perm" value="{{ image_del_is_perm }}" />
     {{ nonce | raw }}
     {{ nonce_meta_order | raw }}
     {{ nonce_meta_clsd | raw }}
@@ -30,9 +30,9 @@
                     </div>
                 </div>
 
-                <div id="photodiv" class="postarea">
+                <div id="imagediv" class="postarea">
                     <div id="editor-toolbar" class="hide-if-no-js">
-                        <div id="photodiv_nav" class="tablenav">
+                        <div id="imagediv_nav" class="tablenav">
                              <div class="tablenav-pages"></div>
                         </div>
                         <div id="media-buttons">
@@ -42,28 +42,28 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div id="photo_editor_container" class="wp-editor-container">
+                    <div id="image_editor_container" class="wp-editor-container">
                         <div id="quicktags" class="quicktags-toolbar">
                             <div id="ed_toolbar">
-                                <input id="ed_delete_selected" class="ed_button" type="button" value="{{ __('Delete Selected') }}" onclick="return false;" title="{{ __('Delete the selected photos') }}" accesskey="l" />
-                                <input id="ed_clear_selected" class="ed_button" type="button" value="{{ __('Clear') }}" onclick="return false;" title="{{ __('Clear selected photos') }}" accesskey="c" />
+                                <input id="ed_delete_selected" class="ed_button" type="button" value="{{ __('Delete Selected') }}" onclick="return false;" title="{{ __('Delete the selected images') }}" accesskey="l" />
+                                <input id="ed_clear_selected" class="ed_button" type="button" value="{{ __('Clear') }}" onclick="return false;" title="{{ __('Clear selected images') }}" accesskey="c" />
                             </div>
                         </div>
                         <div id="editorcontainer">
-                            <div id="photo_iframe_overlay">
+                            <div id="image_iframe_overlay">
                                 <div id="overlay"></div>
                                 <div id="loader">
                                     <img src="{{ img_large_loader }}" alt="{{ __('Loading') }}..." />
                                 </div>
                             </div>
-                            <iframe id="photos_iframe" src="{{ photos_iframe_src }}" tabindex="2"></iframe>
+                            <iframe id="images_iframe" src="{{ images_iframe_src }}" tabindex="2"></iframe>
                         </div>
                     </div>
                     <table id="post-status-info">
                         <tbody>
                             <tr>
                                 <td id="wp-word-count">
-                                    {{ __('Photo count') }}: <span id="photo-count">{{ photos_count }}</span>
+                                    {{ __('Image count') }}: <span id="image-count">{{ images_count }}</span>
                                     <span id="selected-count">(<span id="select-count">0</span> {{ __('selected') }})</span>
                                 </td>
                                 <td>&nbsp;</td>

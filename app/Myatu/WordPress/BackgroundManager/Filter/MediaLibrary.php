@@ -16,7 +16,7 @@ use Myatu\WordPress\BackgroundManager\Main;
  * 
  * This class modifies (filters) certain features or displayed information
  * provided by the 'Insert/Upload' Media Library screen (iframe), if it is
- * specifically shown on the Photo Set edit screen.
+ * specifically shown on the Image Set edit screen.
  *
  * @author Mike Green <myatus@gmail.com>
  * @package BackgroundManager
@@ -75,7 +75,7 @@ class MediaLibrary
         // 'Add to' button
         $send = '';
         if (isset($this->media_item_args['send']) && $this->media_item_args['send'])
-            $send = get_submit_button( __('Add to Photo Set', $this->owner->getName()), 'button', "send[$attachment_id]", false);
+            $send = get_submit_button( __('Add to Image Set', $this->owner->getName()), 'button', "send[$attachment_id]", false);
         
         // 'Delete' or 'Trash' button
         $delete = '';
@@ -155,7 +155,7 @@ class MediaLibrary
     }
     
     /**
-     * Filters the allowed mime types for the Photo Set to images only
+     * Filters the allowed mime types for the Image Set to images only
      *
      * @param array $mime_types The mime types as specified by WordPress
      * @return array The (modified) array of mime types
@@ -218,7 +218,7 @@ class MediaLibrary
     }
     
     /**
-     * What to send to the Gallery Editor if a photo needs to be attached
+     * What to send to the Gallery Editor if a image needs to be attached
      */
     public function onSendToEditor($html, $send_id, $attachment)
     {

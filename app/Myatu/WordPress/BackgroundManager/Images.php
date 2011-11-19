@@ -12,14 +12,14 @@ namespace Myatu\WordPress\BackgroundManager;
 use Myatu\WordPress\BackgroundManager\Main;
 
 /**
- * The Photos class for the BackgroundManager
+ * The Images class for the BackgroundManager
  *
- * This is a container class for basic Photo functions
+ * This is a container class for basic Image functions
  *
  * @author Mike Green <myatus@gmail.com>
  * @package BackgroundManager
  */
-class Photos
+class Images
 {
     protected $owner;
     protected $np_cache = array();
@@ -35,12 +35,12 @@ class Photos
     }
     
     /**
-     * Returns all the IDs of Photos in a Gallery
+     * Returns all the IDs of Images in a Gallery
      *
-     * @param int $id ID of the Gallery (photo set)
+     * @param int $id ID of the Gallery (image set)
      * @return array An array containing the IDs
      */
-    public function getAllPhotoIds($id)
+    public function getAllImageIds($id)
     {
         global $wpdb;
         
@@ -49,7 +49,7 @@ class Photos
         if ($id == 0)
             return array();
         
-        $cache_id = 'myatu_bgm_all_photo_ids_'.$id;
+        $cache_id = 'myatu_bgm_all_image_ids_'.$id;
         
         if (!isset($this->np_cache[$cache_id])) {
             $ids = $wpdb->get_results($wpdb->prepare("SELECT ID FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_status` = %s AND `post_type` = %s", $id, 'inherit', 'attachment') . wp_post_mime_type_where('image'), OBJECT_K);
@@ -64,28 +64,28 @@ class Photos
     }
     
     /**
-     * Returns a random photo ID from all available photos in a gallery
+     * Returns a random image ID from all available images in a gallery
      *
-     * @param int $id ID of the Gallery (photo set)
-     * @return int|false Random photo ID, or `false` if no photos available
+     * @param int $id ID of the Gallery (image set)
+     * @return int|false Random image ID, or `false` if no images available
      */
-    public function getRandomPhotoId($id)
+    public function getRandomImageId($id)
     {
-        $photo_ids = $this->getAllPhotoIds($id);
+        $image_ids = $this->getAllImageIds($id);
         
-        if (empty($photo_ids))
+        if (empty($image_ids))
             return false;
             
-        return $photo_ids[mt_rand(0, count($photo_ids)-1)];
+        return $image_ids[mt_rand(0, count($image_ids)-1)];
     }
     
     
     /**
-     * Obtains the Photos (images) in a Gallery
+     * Obtains the Images (images) in a Gallery
      *
-     * @param int $id ID of the Gallery (photo set)
+     * @param int $id ID of the Gallery (image set)
      * @param array $args Additional arguments to pass to the query (Optional)
-     * @return array An array containing the photo objects
+     * @return array An array containing the image objects
      */
     public function get($id, $args = false)
     {
@@ -94,10 +94,10 @@ class Photos
         if ($id == 0)
             return array();
         
-        $cache_id = 'myatu_bgm_photos_' . $id;
+        $cache_id = 'myatu_bgm_images_' . $id;
         
         if (is_array($args)) {
-            $cache_id = 'myatu_bgm_photos_' . md5($id . implode(array_keys($args)) . implode(array_values($args)));
+            $cache_id = 'myatu_bgm_images_' . md5($id . implode(array_keys($args)) . implode(array_values($args)));
         } else {
             $args = array();
         }
@@ -117,9 +117,9 @@ class Photos
     }
     
     /**
-     * Obtains a hash based on the Photos (images) in a Gallery
+     * Obtains a hash based on the Images (images) in a Gallery
      *
-     * @param int $id ID of the Gallery (photo set)
+     * @param int $id ID of the Gallery (image set)
      * @return string A string containing the hash
      */
     public function getHash($id)
@@ -129,17 +129,17 @@ class Photos
         if ($id == 0)
             return '';
             
-        return md5(implode($this->getAllPhotoIds($id)));
+        return md5(implode($this->getAllImageIds($id)));
     }
 
     /**
-     * Obtains the number of Photos (images) in a Gallery
+     * Obtains the number of Images (images) in a Gallery
      *
-     * @param int $id ID of the Gallery (photo set)
-     * @return int Number of photos in the gallery
+     * @param int $id ID of the Gallery (image set)
+     * @return int Number of images in the gallery
      */
     public function getCount($id)
     {
-        return count($this->getAllPhotoIds($id));
+        return count($this->getAllImageIds($id));
     }    
 }

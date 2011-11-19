@@ -61,7 +61,7 @@ class Single extends PostMetabox
             ),
             array(
                 'id' => 0, 
-                'name' => __('Default Photo Set', $this->owner->getName()), 
+                'name' => __('Default Image Set', $this->owner->getName()), 
                 'selected' => ($active_gallery == false),
             )            
         ), $this->owner->getSettingGalleries($active_gallery));

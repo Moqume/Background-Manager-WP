@@ -1,0 +1,40 @@
+{#
+    Copyright (c) 2011 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+
+<div id="image_nav" class="tablenav hide-if-js">
+    <div id="image_upload_html">
+        <form action="" method="post" enctype="multipart/form-data">
+            {{ nonce | raw }}
+            <label class="screen-reader-text" for="upload_file">{{ __('Add Image') }}</label>
+            <input type="file" name="upload_file" id="upload_file /">
+            <input type="submit" name="upload" id="upload" class="button" value="{{ __('Add Image') }}" />
+        </form>
+    </div>
+    <div id="image_nav_page_links" class="tablenav-pages">{{ page_links | raw }}</div>
+</div>
+
+<div id="image_container">
+    {% for image in images %}
+    <div id="image_{{ image.ID }}" class="image">
+        <img src="{{ image.thumb.0 }}" alt="{{ image.meta_alt }}" title="{% if image.post_excerpt %}{{ image.post_excerpt }}{% else %}{{ image.post_name }}{% endif %}" />
+    </div>
+    {% endfor %}
+</div>
+
+<div id="image_buttons">
+    <a href="" id="image_edit_button" title="{{ __('Edit Image') }}" accesskey="e"><img id="image_edit_img_button" class="image_img_button" src="{{ image_edit_img }}" alt="{{ __('Edit Image') }}" /></a>
+    <a href="" id="image_del_button" title="{{ __('Delete Image') }}" accesskey="d"><img id="image_del_img_button" class="image_img_button" src="{{ image_delete_img }}" alt="{{ __('Delete Image') }}" /></a>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready(function($){
+    mainWin = window.dialogArguments || opener || parent || top;
+    mainWin.myatu_bgm.onImagesIframeFinish({{ current_page }});
+});
+//]]>
+</script>

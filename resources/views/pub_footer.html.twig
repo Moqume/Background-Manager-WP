@@ -15,11 +15,13 @@
 
 <script type="text/javascript">
 //<![CDATA[
-(function($){
-    $('#myatu_bgm_top').hide().imgLoaded(function() {
-        $(this).fadeIn('slow');
-    });
-})(jQuery);
+try {
+    (function($){
+        $('#myatu_bgm_top').hide().imgLoaded(function() {
+            $(this).fadeIn('slow');
+        });
+    })(jQuery);
+} catch(e) {};
 //]]>
 </script>
 {% endif %}

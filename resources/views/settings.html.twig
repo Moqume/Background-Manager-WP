@@ -20,7 +20,7 @@
             </tr>
             <tr valign="top">
                 <th scope="row">
-                    <label for="active_gallery">{{ __('Background Photo Set') }}</label>
+                    <label for="active_gallery">{{ __('Background Image Set') }}</label>
                 </th>
                 <td>
                     <select id="active_gallery" class="postform" name="active_gallery">
@@ -32,12 +32,12 @@
             </tr>
             <tr valign="top">
                 <th scope="row">
-                    {{ __('Select a random photo') }}
+                    {{ __('Select a random image') }}
                 </th>
                 <td>
                     <fieldset id="rand_sel">
                         <legend class="screen-reader-text">
-                            <span>{{ __('Select a random photo') }}</span>
+                            <span>{{ __('Select a random image') }}</span>
                         </legend>
                         <label>
                             <input class="change_freq" type="radio" value="session" name="change_freq" {% if change_freq == 'session' %}checked="checked"{% endif %} />

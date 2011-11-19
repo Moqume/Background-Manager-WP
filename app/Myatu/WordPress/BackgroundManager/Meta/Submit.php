@@ -22,7 +22,7 @@ use Pf4wp\Meta\PostMetabox;
  */
 class Submit extends PostMetabox
 {
-    protected $title    = 'Save Photo Set';
+    protected $title    = 'Save Image Set';
     protected $pages    = array(\Myatu\WordPress\BackgroundManager\Main::PT_GALLERY);
     protected $context  = 'side';
     protected $priority = 'core';
@@ -47,13 +47,13 @@ class Submit extends PostMetabox
         if (EMPTY_TRASH_DAYS) {
             $action = 'trash';
             $nonce  =  wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_TRASH_GALLERY . $id);
-            $title  = __('Move this Photo Set to the Trash', $this->owner->getName());
-            $text   = __('Trash Photo Set', $this->owner->getName());
+            $title  = __('Move this Image Set to the Trash', $this->owner->getName());
+            $text   = __('Trash Image Set', $this->owner->getName());
         } else {
             $action = 'delete';
             $nonce  = wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_DELETE_GALLERY . $id);
-            $title  = __('Delete this Photo Set permanently', $this->owner->getName());
-            $text   = __('Delete Photo Set', $this->owner->getName());
+            $title  = __('Delete this Image Set permanently', $this->owner->getName());
+            $text   = __('Delete Image Set', $this->owner->getName());
         }
                 
         return array(
@@ -75,7 +75,7 @@ class Submit extends PostMetabox
         
         $vars = array(
             'gallery'            => ($gallery) ? $gallery : $_REQUEST,
-            'save_btn_title'     => (!$is_new) ? __('Save Changes', $this->owner->getName()) : __('Add Photo Set', $this->owner->getName()),
+            'save_btn_title'     => (!$is_new) ? __('Save Changes', $this->owner->getName()) : __('Add Image Set', $this->owner->getName()),
             'show_delete_action' => (!$is_new),
             'delete_action'      => $this->deleteLink($id),
         );

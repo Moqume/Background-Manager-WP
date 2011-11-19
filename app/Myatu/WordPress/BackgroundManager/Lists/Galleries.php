@@ -134,7 +134,7 @@ class Galleries extends \WP_List_Table
             $page_num = 1;
         }
         
-        // Get the photo sets
+        // Get the image sets
         $this->items = get_posts(array(
             'numberposts' => $this->per_page,
             'offset'      => ($page_num-1) * $this->per_page,
@@ -159,7 +159,7 @@ class Galleries extends \WP_List_Table
 	 */
 	function no_items()
     {
-		_e('No photo sets found.', $this->owner->getName());
+		_e('No image sets found.', $this->owner->getName());
 	}    
     
     /**
@@ -185,7 +185,7 @@ class Galleries extends \WP_List_Table
             'cb'                  => '<input type="checkbox" />',
             'title'               => __('Title', $this->owner->getName()),
             $prefix.'description' => __('Description', $this->owner->getName()),
-            $prefix.'photos'      => __('Photos', $this->owner->getName()),
+            $prefix.'images'      => __('Images', $this->owner->getName()),
         );
     }
     
@@ -289,17 +289,17 @@ class Galleries extends \WP_List_Table
     }
     
     /** 
-     * Displays the photo count of the item
+     * Displays the image count of the item
      */
-    function column_photos($item)
+    function column_images($item)
     {
-        echo $this->owner->photos->getCount($item->ID);
+        echo $this->owner->images->getCount($item->ID);
     }
     
-    /** Displays the `Photos` column in the Trash */
-    function column_trash_photos($item)
+    /** Displays the `Images` column in the Trash */
+    function column_trash_images($item)
     {
-        $this->column_photos($item);
+        $this->column_images($item);
     }
 
     /** Displays the `Description` column in the Trash */
@@ -324,25 +324,25 @@ class Galleries extends \WP_List_Table
 
         switch ($action) {
             case 'edit':
-                $title = (!$title) ? __('Edit this Photo Set', $this->owner->getName()) : $title;
+                $title = (!$title) ? __('Edit this Image Set', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Edit', $this->owner->getName()) : $text;
                 return sprintf($link, esc_url(add_query_arg(array('edit'=>$id, 'action'=>false, 'ids'=>false, '_wpnonce'=>false, 'order'=>false, 'orderby'=>false))), $title, $class, $text);
                 
             case 'trash':
                 $nonce =  wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_TRASH_GALLERY . $id);
-                $title = (!$title) ? __('Move this Photo Set to the Trash', $this->owner->getName()) : $title;
+                $title = (!$title) ? __('Move this Image Set to the Trash', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Trash', $this->owner->getName()) : $text;
                 break;
                 
             case 'delete':
                 $nonce = wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_DELETE_GALLERY . $id);
-                $title = (!$title) ? __('Delete this Photo Set permanently', $this->owner->getName()) : $title;
+                $title = (!$title) ? __('Delete this Image Set permanently', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Delete Permanently', $this->owner->getName()) : $text;
                 break;
             
             case 'restore':
                 $nonce = wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_RESTORE_GALLERY . $id);
-                $title = (!$title) ? __('Restore this Photo Set from the Trash', $this->owner->getName()) : $title;
+                $title = (!$title) ? __('Restore this Image Set from the Trash', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Restore', $this->owner->getName()) : $text;
                 break;
                 

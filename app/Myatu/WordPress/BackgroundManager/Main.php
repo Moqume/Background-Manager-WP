@@ -71,8 +71,8 @@ class Main extends \Pf4wp\WordpressPlugin
     /** Cached response of inEdit() - @see inEdit() */
     private $in_edit;
     
-    /** Instance of Photos - @see onAdminInit() */
-    public $photos;
+    /** Instance of Images - @see onAdminInit() */
+    public $images;
     
     /** Instance of Galleries - @see onAdminInit() */
     public $galleries;
@@ -187,7 +187,7 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Helper that obtains a random image (photo), including all details about it
+     * Helper that obtains a random image, including all details about it
      *
      * @filter myatu_bgm_active_gallery
      * @param string $previous_image The URL of the previous image, if any (to avoid duplicates)
@@ -214,9 +214,9 @@ class Main extends \Pf4wp\WordpressPlugin
         }
         
         if ($this->getGallery($gallery_id) != false) {
-            // Create an instance of Photos, if needed
-            if (!isset($this->photos))
-                $this->photos = new Photos($this);
+            // Create an instance of Images, if needed
+            if (!isset($this->images))
+                $this->images = new Images($this);
             
             switch ($this->options->change_freq) {
                 case static::CF_SESSION:
@@ -226,7 +226,7 @@ class Main extends \Pf4wp\WordpressPlugin
                     if (isset($_SESSION['myatu_bgm_bg_id'])) {
                         $random_id = $_SESSION['myatu_bgm_bg_id'];
                     } else {
-                        $random_id = $this->photos->getRandomPhotoId($gallery_id);
+                        $random_id = $this->images->getRandomImageId($gallery_id);
                     }
                     $random_image = wp_get_attachment_image_src($random_id, $size);
                     
@@ -243,12 +243,12 @@ class Main extends \Pf4wp\WordpressPlugin
                     break;
                     
                 case static::CF_CUSTOM:
-                    $only_one_available = ($this->photos->getCount($gallery_id) == 1);
+                    $only_one_available = ($this->images->getCount($gallery_id) == 1);
                     
                     while (true) {
                         $bailout++;
                         
-                        $random_id    = $this->photos->getRandomPhotoId($gallery_id);
+                        $random_id    = $this->images->getRandomImageId($gallery_id);
                         $random_image = wp_get_attachment_image_src($random_id, $size);
                         
                         if ($random_image) {
@@ -269,7 +269,7 @@ class Main extends \Pf4wp\WordpressPlugin
                     break;
                     
                 default: // CF_LOAD
-                    $random_id    = $this->photos->getRandomPhotoId($gallery_id);
+                    $random_id    = $this->images->getRandomImageId($gallery_id);
                     $random_image = wp_get_attachment_image_src($random_id, $size);
                     
                     // All we need is the URL here
@@ -305,10 +305,10 @@ class Main extends \Pf4wp\WordpressPlugin
                 $thumb = '';
             }
             
-            // Get the photo caption and description
-            if (($photo = get_post($random_id))) {
-                $desc    = $photo->post_content;
-                $caption = $photo->post_excerpt;
+            // Get the image caption and description
+            if (($image = get_post($random_id))) {
+                $desc    = $image->post_content;
+                $caption = $image->post_excerpt;
             }               
         }
 
@@ -380,7 +380,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 
             $galleries[] = array(
                 'id'       => $gallery_post->ID,
-                'name'     => $gallery_name,
+                'name'     => sprintf('%s (%d)', $gallery_name, $this->images->getCount($gallery_post->ID)),
                 'selected' => ($active_gallery == $gallery_post->ID),
             );
         }
@@ -465,8 +465,8 @@ class Main extends \Pf4wp\WordpressPlugin
         // Register post types
         register_post_type(self::PT_GALLERY, array(
             'labels' => array(
-                'name'          => __('Background Photo Sets', $this->getName()),
-                'singular_name' => __('Background Photo Set', $this->getName()),
+                'name'          => __('Background Image Sets', $this->getName()),
+                'singular_name' => __('Background Image Set', $this->getName()),
             ),
             'public'              => true,             // Make it available in the Admin 'attach' feature of the Media Library
             'exclude_from_search' => true,             // But hide it from the front-end search...
@@ -514,7 +514,7 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         // Create an public instances
         $this->galleries = new Galleries($this);
-        $this->photos    = new Photos($this);
+        $this->images    = new Images($this);
         
         // Initialize meta boxes
         if (current_user_can('edit_theme_options')) {
@@ -543,34 +543,34 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onAjaxRequest($function, $data)
     {
-        // as onAdminInit does not get called before Ajax requests, set up the Photos instance if needed
-        if (!isset($this->photos))
-            $this->photos = new Photos($this);
+        // as onAdminInit does not get called before Ajax requests, set up the Images instance if needed
+        if (!isset($this->images))
+            $this->images = new Images($this);
         
         switch ($function) {
-            /** Returns all the Photo IDs within a gallery */
-            case 'photo_ids' : // PRIVILEGED
+            /** Returns all the Image IDs within a gallery */
+            case 'image_ids' : // PRIVILEGED
                 if (!current_user_can('edit_theme_options'))
                     return;
                 
                 $id = (int)$data; // Gallery ID
                 
-                // This returns the array as an object, where the object property names are the values (ids) of the photos
-                $this->ajaxResponse((object)array_flip($this->photos->getAllPhotoIds($id)));
+                // This returns the array as an object, where the object property names are the values (ids) of the images
+                $this->ajaxResponse((object)array_flip($this->images->getAllImageIds($id)));
                 break;
             
-            /** Returns the number of photos in the gallery */
-            case 'photo_count' :
+            /** Returns the number of images in the gallery */
+            case 'image_count' :
                 $id = (int)$data; // Gallery ID
         
-                $this->ajaxResponse($this->photos->getCount($id));
+                $this->ajaxResponse($this->images->getCount($id));
                 break;
             
-            /** Returns the hash of the photos in a gallery */
-            case 'photos_hash' :
+            /** Returns the hash of the images in a gallery */
+            case 'images_hash' :
                 $id = (int)$data; // Gallery ID
                 
-                $this->ajaxResponse($this->photos->getHash($id));
+                $this->ajaxResponse($this->images->getHash($id));
                 break;
             
             /** Returns HTML containing pagination links */
@@ -591,7 +591,7 @@ class Main extends \Pf4wp\WordpressPlugin
                     'format'       => '',
                     'prev_text'    => __('&laquo;'),
                     'next_text'    => __('&raquo;'),
-                    'total'        => ceil($this->photos->getCount($id) / $per_page),
+                    'total'        => ceil($this->images->getCount($id) / $per_page),
                     'current'      => $current,
                 ));
                 
@@ -599,12 +599,12 @@ class Main extends \Pf4wp\WordpressPlugin
                 
                 break;
             
-            /** Deletes one or more photos from a gallery */
-            case 'delete_photos' : // PRIVILEGED
+            /** Deletes one or more images from a gallery */
+            case 'delete_images' : // PRIVILEGED
                 if (!current_user_can('edit_theme_options'))
                     return;
                     
-                $ids    = explode(',', $data); // Photo (post/attachment) IDs
+                $ids    = explode(',', $data); // Image (post/attachment) IDs
                 $result = true;
 
                 foreach($ids as $id) {
@@ -621,7 +621,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 
                 break;
             
-            /** Returns a randomly selected image (photo) from the active gallery */
+            /** Returns a randomly selected image from the active gallery */
             case 'random_image' :
                 // Extract the URL of the previous image
                 if (!preg_match('#^(?:url\(\\\\?[\'\"])?(.+?)(?:\\\\?[\'\"]\))?$#i', $data['prev_img'], $matches))
@@ -684,8 +684,8 @@ class Main extends \Pf4wp\WordpressPlugin
         $main_menu->page_title = $this->getDisplayName();
         $main_menu->large_icon = 'icon-themes';
         
-        // Add photo sets (galleries) submenu
-        $gallery_menu = $mymenu->addSubmenu(__('Photo Sets', $this->getName()), array($this, 'onGalleriesMenu'));
+        // Add image sets (galleries) submenu
+        $gallery_menu = $mymenu->addSubmenu(__('Image Sets', $this->getName()), array($this, 'onGalleriesMenu'));
         $gallery_menu->count = $this->getGalleryCount();
         if (!$this->inEdit())
             $gallery_menu->per_page = 15; // Add a `per page` screen setting
@@ -713,14 +713,14 @@ class Main extends \Pf4wp\WordpressPlugin
             menu_page_url('theme_options', false)
         );
         
-        // Add an 'Add New Photo Set' link
+        // Add an 'Add New Image Set' link
         if (($this->inEdit() && $this->gallery->post_status != 'auto-draft') || (($active_menu = $mymenu->getActiveMenu()) == false) || $active_menu != $gallery_menu) {
             // Replace existing main page title with one that contains a link
             $main_menu->page_title = sprintf(
                 '%s <a class="add-new-h2" href="%s">%s</a>',
                 $main_menu->page_title,
                 esc_url($this->edit_gallery_link),
-                __('Add New Photo Set', $this->getName())
+                __('Add New Image Set', $this->getName())
             );
         }
         
@@ -897,12 +897,12 @@ class Main extends \Pf4wp\WordpressPlugin
         // Render any requested iframes (and 'die' afterwards)
         if (isset($_REQUEST['iframe'])) {
             switch (strtolower(trim($_REQUEST['iframe']))) {
-                case 'photos' :
-                    $this->onIframePhotos();
+                case 'images' :
+                    $this->onIframeImages();
                     break;
                     
-                case 'edit_photo' :
-                    $this->onIframeEditPhoto();
+                case 'edit_image' :
+                    $this->onIframeEditImage();
                     break;
             }
         }      
@@ -945,8 +945,8 @@ class Main extends \Pf4wp\WordpressPlugin
             wp_enqueue_script($this->getName() . '-gallery-edit', $js_dir . 'gallery_edit' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
             wp_localize_script(
                 $this->getName() . '-gallery-edit', 'bgmL10n', array(
-                    'warn_delete_all_photos' => __('You are about to permanently delete the selected photos. Are you sure?', $this->getName()),
-                    'warn_delete_photo'      => __('You are about to permanently delete this photo. Are you sure?', $this->getName()),
+                    'warn_delete_all_images' => __('You are about to permanently delete the selected images. Are you sure?', $this->getName()),
+                    'warn_delete_image'      => __('You are about to permanently delete this image. Are you sure?', $this->getName()),
                     'l10n_print_after'       => 'try{convertEntities(bgmL10n);}catch(e){};'
                 ) 
             );
@@ -954,10 +954,10 @@ class Main extends \Pf4wp\WordpressPlugin
             // Enqueue editor buttons (since WordPress 3.3)
             wp_enqueue_style('editor-buttons');
 
-            // Set the 'photos per page'
+            // Set the 'images per page'
             $active_menu                 = $this->getMenu()->getActiveMenu();
             $active_menu->per_page       = 30;
-            $active_menu->per_page_label = __('photos per page', $this->getName());
+            $active_menu->per_page_label = __('images per page', $this->getName());
             
             // Set the layout two 1 or 2 column width
             add_screen_option('layout_columns', array('max' => 2, 'default' => 2) );
@@ -1077,16 +1077,16 @@ class Main extends \Pf4wp\WordpressPlugin
         }
         
         // Iframes
-        $photos_iframe_src = add_query_arg(array('iframe' => 'photos', 'edit' => $this->gallery->ID, 'orderby' => false, 'order' => false, 'pp' => $per_page, 'paged' => false));
-        $photo_edit_src    = add_query_arg(array('iframe' => 'edit_photo', 'edit' => false, 'orderby' => false, 'order' => false, 'post_id' => 0, 'filter' => Filter\MediaLibrary::FILTER));
+        $images_iframe_src = add_query_arg(array('iframe' => 'images', 'edit' => $this->gallery->ID, 'orderby' => false, 'order' => false, 'pp' => $per_page, 'paged' => false));
+        $image_edit_src    = add_query_arg(array('iframe' => 'edit_image', 'edit' => false, 'orderby' => false, 'order' => false, 'post_id' => 0, 'filter' => Filter\MediaLibrary::FILTER));
         
         $vars = array(
             'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar' : '',
             'nonce'             => wp_nonce_field(self::NONCE_EDIT_GALLERY . $this->gallery->ID, '_nonce', true, false),
             'nonce_meta_order'  => wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false),
             'nonce_meta_clsd'   => wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false),
-            'photos_iframe_src' => $photos_iframe_src,  // iframe source
-            'photo_edit_src'    => $photo_edit_src,     // iframe source
+            'images_iframe_src' => $images_iframe_src,  // iframe source
+            'image_edit_src'    => $image_edit_src,     // iframe source
             'gallery'           => $this->gallery,
             'post_type'         => self::PT_GALLERY,
             'meta_boxes_main'   => $meta_boxes_main,
@@ -1094,25 +1094,25 @@ class Main extends \Pf4wp\WordpressPlugin
             'media_buttons'     => $media_buttons,
             'is_new'            => $this->gallery->post_status != 'auto-draft',
             'edit'              => $this->gallery->ID,
-            'photos_per_page'   => $per_page,
-            'photos_count'      => $this->photos->getCount($this->gallery->ID),
-            'photos_hash'       => $this->photos->getHash($this->gallery->ID),
+            'images_per_page'   => $per_page,
+            'images_count'      => $this->images->getCount($this->gallery->ID),
+            'images_hash'       => $this->images->getHash($this->gallery->ID),
             'img_large_loader'  => $this->getPluginUrl() . static::DIR_IMAGES . 'large_loader.gif',
-            'photo_del_is_perm' => (!EMPTY_TRASH_DAYS || !MEDIA_TRASH) ? true : false,
+            'image_del_is_perm' => (!EMPTY_TRASH_DAYS || !MEDIA_TRASH) ? true : false,
         );
         
         $this->template->display('edit_gallery.html.twig', $vars);
     }
     
-    /** Photos Iframe */
-    public function onIframePhotos()
+    /** Images Iframe */
+    public function onIframeImages()
     {
         if (!isset($this->gallery->ID))
             die; // Something didn't go quite right
         
-        // Only if Javascript is disabled will we get here, which adds a photo to the gallery directly
+        // Only if Javascript is disabled will we get here, which adds a image to the gallery directly
         if (!empty($_POST) && isset($_POST['_nonce'])) {
-            if (!wp_verify_nonce($_POST['_nonce'], 'photo-upload'))
+            if (!wp_verify_nonce($_POST['_nonce'], 'image-upload'))
                 wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
             
             // Check if there's a valid image, and if so, let the Media Library handle the upload
@@ -1125,8 +1125,8 @@ class Main extends \Pf4wp\WordpressPlugin
         $items_per_page = isset($_GET['pp']) ? $_GET['pp'] : 30;
         $page_num       = isset($_GET['paged']) ? $_GET['paged'] : 1;
         
-        // Grab the total amount of items (photos) and figure out how many pages that is
-        $total_items = $this->photos->getCount($this->gallery->ID);
+        // Grab the total amount of items (images) and figure out how many pages that is
+        $total_items = $this->images->getCount($this->gallery->ID);
         if (($total_pages = ceil($total_items / $items_per_page)) < 1)
             $total_pages = 1;        
         
@@ -1137,8 +1137,8 @@ class Main extends \Pf4wp\WordpressPlugin
             $page_num = 1;
         }
         
-        // Grab the photos
-        $photos = $this->photos->get($this->gallery->ID, 
+        // Grab the images
+        $images = $this->images->get($this->gallery->ID, 
             array(
                 'orderby'     => 'date',
                 'order'       => 'desc',
@@ -1158,23 +1158,23 @@ class Main extends \Pf4wp\WordpressPlugin
         ));      
         
         $vars = array(
-            'photos'            => $photos,
+            'images'            => $images,
             'current_page'      => $page_num,
-            'photo_edit_img'    => includes_url('js/tinymce/plugins/wpeditimage/img/image.png'),    // Use familiar images
-            'photo_delete_img'  => includes_url('js/tinymce/plugins/wpeditimage/img/delete.png'),
+            'image_edit_img'    => includes_url('js/tinymce/plugins/wpeditimage/img/image.png'),    // Use familiar images
+            'image_delete_img'  => includes_url('js/tinymce/plugins/wpeditimage/img/delete.png'),
             /* For non-JS: */
             'page_links'        => $page_links,
-            'nonce'             => wp_nonce_field('photo-upload', '_nonce', false, false),
+            'nonce'             => wp_nonce_field('image-upload', '_nonce', false, false),
         );
         
-        $this->template->display('gallery_photo.html.twig', $vars);
+        $this->template->display('gallery_image.html.twig', $vars);
 
         iframe_footer();
         die();
     }
     
-    /** Edit Photo iframe **/
-    public function onIframeEditPhoto()
+    /** Edit Image iframe **/
+    public function onIframeEditImage()
     {
         if (!isset($_GET['id']))
             die; // How did you get here? Hmm!
@@ -1211,7 +1211,7 @@ class Main extends \Pf4wp\WordpressPlugin
         }
         
         // Render template
-        $this->template->display('gallery_edit_photo.html.twig', $vars);
+        $this->template->display('gallery_edit_image.html.twig', $vars);
 
         // Send iframe footer and then 'die'.
         iframe_footer();
@@ -1233,8 +1233,8 @@ class Main extends \Pf4wp\WordpressPlugin
         if (is_admin() || !$this->canDisplayBackground())
             return;
         
-        $style                   = '';
-        $gallery_id              = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
+        $style      = '';
+        $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
         
         // Only add a background image here if we have a valid gallery and we're not using a full-screen image
         if ($this->getGallery($gallery_id) != false && $this->options->background_size != static::BS_FULL) {
@@ -1378,7 +1378,7 @@ class Main extends \Pf4wp\WordpressPlugin
      * Add a footer to the public side
      *
      * Instead of using a BODY background, this will use an IMG to generate a full
-     * screen rendering of a random image (photo) and an overlay, provided either of
+     * screen rendering of a random image and an overlay, provided either of
      * these options have been enabled by the user
      *
      * @filter myatu_bgm_active_overlay

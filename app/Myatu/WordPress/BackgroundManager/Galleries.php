@@ -315,7 +315,7 @@ class Galleries
             
             $this->owner->addDelayedNotice(sprintf(
                 __('%s moved to the Trash. <a href="%s">Undo</a>', $this->owner->getName()),
-                _n('Photo Set', 'Photo Sets', count($result), $this->owner->getName()),
+                _n('Image Set', 'Image Sets', count($result), $this->owner->getName()),
                 esc_url(add_query_arg(
                     array(
                         'action'   => $action,
@@ -325,7 +325,7 @@ class Galleries
                 ))
             ));
         } else {
-           $this->owner->addDelayedNotice(__('There was a problem moving the Photo Set(s) to the Trash.', $this->owner->getName()), true);
+           $this->owner->addDelayedNotice(__('There was a problem moving the Image Set(s) to the Trash.', $this->owner->getName()), true);
         }
         
         $this->redirectUserActionOrigin();   
@@ -345,9 +345,9 @@ class Galleries
         $result = $this->restore($bulk);
         
         if ($result !== false) {
-            $this->owner->addDelayedNotice(sprintf(__('%s restored from the Trash.', $this->owner->getName()), _n('Photo Set', 'Photo Sets', count($result), $this->owner->getName())));
+            $this->owner->addDelayedNotice(sprintf(__('%s restored from the Trash.', $this->owner->getName()), _n('Image Set', 'Image Sets', count($result), $this->owner->getName())));
         } else {
-            $this->owner->addDelayedNotice(__('There was a problem restoring the Photo Set(s) from the Trash.', $this->owner->getName()), true);
+            $this->owner->addDelayedNotice(__('There was a problem restoring the Image Set(s) from the Trash.', $this->owner->getName()), true);
         }        
         
         $this->redirectUserActionOrigin(); 
@@ -367,9 +367,9 @@ class Galleries
         $result = $this->delete($bulk);
         
         if ($result !== false) {
-            $this->owner->addDelayedNotice(sprintf(__('%s permanently deleted.', $this->owner->getName()), _n('Photo Set', 'Photo Sets', count($result), $this->owner->getName())));
+            $this->owner->addDelayedNotice(sprintf(__('%s permanently deleted.', $this->owner->getName()), _n('Image Set', 'Image Sets', count($result), $this->owner->getName())));
         } else {
-            $this->owner->addDelayedNotice(__('There was a problem deleting the Photo Set(s).', $this->owner->getName()), true);
+            $this->owner->addDelayedNotice(__('There was a problem deleting the Image Set(s).', $this->owner->getName()), true);
         }        
         
         $this->redirectUserActionOrigin();
@@ -393,20 +393,20 @@ class Galleries
         $post_title = trim($_REQUEST['post_title']);
         
         if ($post_title == '') {
-            AdminNotice::add(__('Please specify a name for this Photo Set.', $this->owner->getName()), true);
+            AdminNotice::add(__('Please specify a name for this Image Set.', $this->owner->getName()), true);
             return false;
         }
                
         $saved_id = $this->save($id, $post_title, $_REQUEST['post_content']);
         
         if (!$saved_id) {
-            AdminNotice::add(__('The Photo Set could not be saved.', $this->owner->getName()), true);
+            AdminNotice::add(__('The Image Set could not be saved.', $this->owner->getName()), true);
             return false;
         }
 
-        // Let the user know if the photo set was successfuly added or saved.
+        // Let the user know if the image set was successfuly added or saved.
         $did_what = ($is_new) ? __('added', $this->owner->getName()) : __('saved', $this->owner->getName());
-        $this->owner->addDelayedNotice(sprintf(__('The Photo Set was successfully %s.', $this->owner->getName()), $did_what));
+        $this->owner->addDelayedNotice(sprintf(__('The Image Set was successfully %s.', $this->owner->getName()), $did_what));
         
         $this->redirectUserActionOrigin(array('edit' => $saved_id));
     }
