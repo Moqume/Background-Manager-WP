@@ -461,6 +461,7 @@ class Main extends \Pf4wp\WordpressPlugin
         // Register additional actions
         add_action('wp_head', array($this, 'onWpHead'));
         add_action('get_edit_post_link', array($this, 'onGetEditPostLink'), 10, 3);
+        add_action('add_attachment', array($this, 'onAddAttachment'), 20);
         
         // Register post types
         register_post_type(self::PT_GALLERY, array(
@@ -478,7 +479,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'supports'            => array('title'),   // In case onGetEditPostLink() borks
         ));
         
-        /** @TODO: Attachement support */
+        // @see: onAddAttachment()
         add_theme_support('custom-background');
         
         // Check if there are any on-demand filters requested
@@ -508,10 +509,42 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
+     * Called when the plugin is activated
+     *
+     * This will import the original background into a new image set.
+     */
+    public function onActivation()
+    {
+        global $wpdb;
+        
+        // Retrieve the background image URL and ID, or return if none specified
+        if (!($background_image_url = get_theme_mod('background_image')) || 
+            !($background_image_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM `{$wpdb->posts}` WHERE `guid` = %s", $background_image_url)))) 
+            return;
+        
+        // Create a new gallery to hold the original background.
+        $galleries  = new Galleries($this);
+        $gallery_id = $galleries->save(0, __('Imported Background'), __('Automatically created Image Set, containing the original background image specified in WordPress.'));
+        
+        // If we created a valid gallery, add the original background image and remove the theme modification.
+        if ($gallery_id && ($image = get_post($background_image_id))) {
+            $image->post_content = ''; // Clear the URL from the content, as this will display in the info tab otherwise.
+            
+            wp_insert_attachment($image, false, $gallery_id);
+            remove_theme_mod('background_image');
+            
+            // Set the gallery to the active one
+            $this->options->active_gallery = $gallery_id;
+        }
+        
+        unset($galleries);
+    }
+    
+    /**
      * Initialize the Admin pages
      */
     public function onAdminInit()
-    {
+    {      
         // Create an public instances
         $this->galleries = new Galleries($this);
         $this->images    = new Images($this);
@@ -532,6 +565,27 @@ class Main extends \Pf4wp\WordpressPlugin
         // This activates the *filters* provided by the Meta Boxes
         new Meta\Stylesheet($this);
         new Meta\Single($this);
+    }
+    
+    /**
+     * Action called when a media attachment is added
+     *
+     * It will check if the attachment's parent is a gallery. If that
+     * is the case, it will add an additional meta to indicate to
+     * WordPress it is a background, a la the original custom background
+     * provided by WordPress itself, for a backward compatibility.
+     *
+     * @param int $id Attachement ID
+     */
+    public function onAddAttachment($id)
+    {
+        // We only worry about images with a valid parent
+        if (!wp_attachment_is_image($id) || !($attachment = get_post($id)) || !($parent = get_post($attachment->post_parent)))
+            return;
+        
+        // Check if the parent is a gallery, and if so, set the internal (!) custom_background meta.
+        if ($parent->post_type == self::PT_GALLERY)
+            update_post_meta($id, '_wp_attachment_is_custom_background', get_option('stylesheet'));
     }
     
     /**
@@ -1388,10 +1442,11 @@ class Main extends \Pf4wp\WordpressPlugin
         if (!$this->canDisplayBackground())
             return;
             
-        $overlay = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
+        $overlay    = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
+        $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
         
         $vars = array(
-            'has_info_tab'   => $this->options->info_tab,
+            'has_info_tab'   => $this->options->info_tab && ($this->getGallery($gallery_id) != false), // Only display if we have a valid gallery
             'info_tab_thumb' => $this->options->info_tab_thumb,
             'info_tab_link'  => $this->options->info_tab_link,
             'info_tab_desc'  => $this->options->info_tab_desc,

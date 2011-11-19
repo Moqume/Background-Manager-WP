@@ -62,7 +62,7 @@
 
     $(document).ready(function($){
         myatu_bgm.SetTimer();
-        
+
         // Activate balloon tip
         if ($.isFunction($('#myatu_bgm_info_tab').bt)) {
             $('#myatu_bgm_info_tab').bt({
