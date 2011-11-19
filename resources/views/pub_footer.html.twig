@@ -34,13 +34,13 @@
     </div>
 
     {% if info_tab_desc %}
-    <div id="myatu_bgm_info_tab_content">
+    <div class="myatu_bgm_info_tab_content" style="display:none">
         {% if info_tab_thumb %}
         <img src="{{ random_image.thumb }}" alt="{{ random_image.alt }}" />
         {% endif %}
 
         <h3>{{ random_image.caption }}</h3>
-        <div id="myatu_bgm_info_tab_desc">{{ random_image.desc | raw }}</div>
+        <div class="myatu_bgm_info_tab_desc">{{ random_image.desc | raw }}</div>
     </div>
     {% endif %}
 </div>

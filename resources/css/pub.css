@@ -30,6 +30,7 @@
     color: #fff;
     font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
     font-size: 12px;
+    font-weight: bold;
     text-align: center;
     text-shadow: 0.1em 0.1em 0.2em black;
     display: block !important;
@@ -37,7 +38,7 @@
     width: 25px !important;
     padding: 0 !important;
     position: fixed !important;
-    z-index: 9999 !important;
+    z-index: 9999;
 }
 
 #myatu_bgm_info_tab a {
@@ -45,11 +46,7 @@
     text-decoration: none;
 }
 
-#myatu_bgm_info_tab_content {
-    display: none;
-}
-
-#myatu_bgm_info_tab_content img {
+.myatu_bgm_info_tab_content img {
     float: left;
     width: 150px;
     height: 150px;
@@ -58,13 +55,13 @@
     border: 1px solid #666;
 }
 
-#myatu_bgm_info_tab_content h3 {
+.myatu_bgm_info_tab_content h3 {
     font-weight: bold;
     clear: none;
     text-transform: uppercase;
 }
 
-#myatu_bgm_info_tab_desc {
+.myatu_bgm_info_tab_desc {
     margin-right: 10px;
 }
 

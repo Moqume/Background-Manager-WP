@@ -7,6 +7,7 @@
  */
 (function($){
     $.extend(myatu_bgm, {
+        /** Shows additional layouts if 'Fullscreen' is not selected, hides otherwise. */
         showHideLayoutTable: function(e) {
             if ((typeof e === 'string' && e == 'full') || this.value == 'full') {
                 $('.bg_extra_layout').hide();
@@ -15,6 +16,7 @@
             }
         },
 
+        /** Hides or shows additional settings for Background Information */
         showHideInfoExtra: function() {
             if ($('#info_tab:checked').length) {
                 $('.info_tab_extra').show();
@@ -23,18 +25,22 @@
             }
         },
 
+        /** Changes the preview background color according to the selection */
         updatePreviewColor: function() {
             var color = $('#background_color').val();
 
             if (color && color.charAt(0) == '#') {
                 if (color.length > 1) {
                     $('#bg_preview').css('background-color', color);
+                    $('#clear_color').show();
                 } else {
                     $('#bg_preview').css('background-color', '');
+                    $('#clear_color').hide();
                 }
             }
         },
 
+        /** Updates the overlay preview */
         updatePreviewOverlay: function() {
             var data = myatu_bgm.GetAjaxData('overlay_data', $('#active_overlay option:selected').val());
 
@@ -45,16 +51,18 @@
             }
         },
 
+        /** Updates the image used in the preview, taken from the selected gallery */
         updatePreviewGallery: function() {
-            var id = $('#active_gallery option:selected').val(), img = myatu_bgm.GetAjaxData('preview_image', id);
+            var id = $('#active_gallery option:selected').val(), img = myatu_bgm.GetAjaxData('random_image', {'active_gallery': id, 'prev_img': 'none'});
 
             if (img) {
-                $('#bg_preview').css('background-image', 'url(\'' + img.url + '\')');
+                $('#bg_preview').css('background-image', 'url(\'' + img.thumb + '\')');
             } else {
                 $('#bg_preview').css('background-image', '');
             }
         },
 
+        /** Updates the preview layout according to the selected settings, ie., tiled, full screen */
         updatePreviewLayout: function() {
             var screen_size = $('input[name="background_size"]:checked').val(),
                 position    = $('input[name="background_position"]:checked').val().replace('-', ' '),
@@ -77,6 +85,14 @@
                     'background-position': position,
                 });            
             }
+        },
+
+        /** Resets the color field */
+        clearColor: function() {
+            $('#background_color').val('#');
+            myatu_bgm.updatePreviewColor();
+
+            return false;
         }
     });
 
@@ -115,5 +131,6 @@
         $('#background_stretch_horizontal').click(myatu_bgm.updatePreviewLayout);
         $('#background_stretch_vertical').click(myatu_bgm.updatePreviewLayout);
         $('#info_tab').click(myatu_bgm.showHideInfoExtra);
+        $('#clear_color').click(myatu_bgm.clearColor);
     });
 })(jQuery);

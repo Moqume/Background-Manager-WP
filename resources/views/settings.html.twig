@@ -66,6 +66,7 @@
                 <td>
                     <input type="text" value="#{{ background_color }}" autocomplete="off" name="background_color" id="background_color" />
                     <div id="color_picker" class="hide-if-no-js"></div>
+                    <span id="clear_color" class="hide-if-no-js">(<a href="#">{{ __('Clear') }}</a>)</span>
                 </td>
             </tr>
             <tr valign="top">
@@ -244,13 +245,14 @@
         <tbody>
             <tr valign="top">
                 <th scope="row">
-                    {{ __('Information Icon') }}
+                    {{ __('Display icon') }}
                 </th>
                 <td>
                     <fieldset id="info_tab_fs">
                         <label class="info_tab">
                             <input type="checkbox" value="1" id="info_tab" name="info_tab" {% if info_tab %}checked="checked"{% endif %} />
                             <span>{{ __('Enabled') }}</span>
+                            <span class="description">({{ __('This will display a small <code>[ + ]</code> icon in one of the selected locations') | raw }})</span>
                         </label>
                     </fieldset>
                 </td>

@@ -313,14 +313,14 @@ class Main extends \Pf4wp\WordpressPlugin
         }
 
         return array(
-            'id' => $random_id, 
-            'url' => $random_image, 
-            'alt' => $alt, 
-            'desc' => wpautop($desc), 
+            'id'      => $random_id, 
+            'url'     => $random_image, 
+            'alt'     => $alt, 
+            'desc'    => wpautop($desc), 
             'caption' => $caption, 
-            'link' => $link, 
-            'thumb' => $thumb,
-            'meta' => $meta,
+            'link'    => $link, 
+            'thumb'   => $thumb,
+            'meta'    => $meta,
         );
     }
     
@@ -641,19 +641,6 @@ class Main extends \Pf4wp\WordpressPlugin
                     
                 if (($embed_data = Helpers::embedDataUri($data, false, (defined('WP_DEBUG') && WP_DEBUG))) != false)
                     $this->ajaxResponse($embed_data);
-                
-                break;
-                
-            /** Returns a small, randomly selected image from a gallery for preview purposes */
-            case 'preview_image' : // PRIVILEGED
-                $id = (int)$data; // Gallery ID
-                
-                if (!current_user_can('edit_theme_options') || !($id))
-                    return;
-                
-                $random_image = $this->getRandomImage(false, $id, 'thumbnail');
-                
-                $this->ajaxResponse((object)$random_image, empty($random_image['url']));
                 
                 break;
                 
@@ -1317,7 +1304,7 @@ class Main extends \Pf4wp\WordpressPlugin
         // If the info tab is enabled along with the short description, also include jQuery.bt (balloon tips)
         if ($this->options->info_tab && $this->options->info_tab_desc) {
             // Include for MSIE only
-            printf('<!--[if IE]><script src="%s/vendor/excanvas/excanvas.compiled.js"></script><![endif]-->'.PHP_EOL, $js_dir);
+            printf('<!--[if IE]><script src="%svendor/excanvas/excanvas.compiled.js"></script><![endif]-->'.PHP_EOL, $js_dir);
 
             wp_enqueue_script('jquery.bt', $js_dir . 'vendor/bt/jquery.bt.min.js', array('jquery'), '0.9.5-rc1');
         }
@@ -1372,7 +1359,7 @@ class Main extends \Pf4wp\WordpressPlugin
         // The info icon
         if ($this->options->info_tab) {
             $location = '';
-            $spacer = 5; // Distance from the corners, in pixels, to display the info 'tab'
+            $spacer   = 5; // Distance from the corners, in pixels, to display the info 'tab'
             
             switch ($this->options->info_tab_location) {
                 case 'top-left'     : $location = sprintf('left: %dpx !important; top: %1$dpx !important;', $spacer); break;
