@@ -98,8 +98,7 @@ class Main extends \Pf4wp\WordpressPlugin
         
     /* Enable public-side Ajax - @see onAjaxRequest() */
     public $public_ajax = true;
-
-    
+   
     
     /* ----------- Helpers ----------- */
 
@@ -526,11 +525,11 @@ class Main extends \Pf4wp\WordpressPlugin
         $galleries  = new Galleries($this);
         $gallery_id = $galleries->save(0, __('Imported Background'), __('Automatically created Image Set, containing the original background image specified in WordPress.'));
         
-        // If we created a valid gallery, add the original background image and remove the theme modification.
+        // If we created a valid gallery, activate it, add the original background image and remove the theme modification.
         if ($gallery_id && ($image = get_post($background_image_id))) {
             $image->post_content = ''; // Clear the URL from the content, as this will display in the info tab otherwise.
             
-            wp_insert_attachment($image, false, $gallery_id);
+            wp_insert_attachment($image, false, $gallery_id); // Causes an update instead, as image->ID is set
             remove_theme_mod('background_image');
             
             // Set the gallery to the active one
@@ -750,6 +749,9 @@ class Main extends \Pf4wp\WordpressPlugin
             $trash_menu->count = $count;
             $trash_menu->per_page = 15;
         }
+        
+        // Import menu
+        $import_menu = $mymenu->addSubMenu(__('Import', $this->getName()), array($this, 'onImportMenu'));
 
         // Make it appear under WordPress' `Appearance` (theme_options)
         $mymenu->setType(\Pf4wp\Menu\MenuEntry::MT_THEMES);
@@ -1064,7 +1066,8 @@ class Main extends \Pf4wp\WordpressPlugin
      * @see onGalleriesMenuLoad()
      * @param object $current_screen Object containing the current screen (Wordpress)
      */
-    public function onTrashMenuLoad($current_screen) {
+    public function onTrashMenuLoad($current_screen)
+    {
         $this->list = new Lists\Galleries($this, true); // !!
         
         $this->onGalleriesMenuLoad($current_screen);
@@ -1082,6 +1085,29 @@ class Main extends \Pf4wp\WordpressPlugin
     public function onTrashMenu($data, $per_page)
     {
         $this->onGalleriesMenu($data, $per_page);
+    }
+    
+    /**
+     * Before Import Menu...
+     */
+    public function onImportMenuLoad($current_screen)
+    {
+        if (isset($_REQUEST['run_import_job'])) {
+            Importers\WpFlickrBackground::import($this);
+            die();
+        }
+    }
+    
+    /**
+     * Import Menu
+     */
+    public function onImportMenu($data)
+    {
+        $vars = array(
+            'import_job_src' => add_query_arg(array('run_import_job' => true)),
+        );
+        
+        $this->template->display('import.html.twig', $vars);
     }
        
     /**

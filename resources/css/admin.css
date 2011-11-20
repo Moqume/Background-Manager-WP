@@ -167,4 +167,8 @@
     min-height: 100px;
 }
 
-
+#import_job {
+    width: 1px;
+    height: 1px;
+    border: 0;
+}

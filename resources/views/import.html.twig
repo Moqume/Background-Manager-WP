@@ -1,0 +1,21 @@
+{#
+    Copyright (c) 2011 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+
+
+<script type="text/javascript">
+//<![CDATA[
+(function($){
+    mainWin.doImportProgress = function(percent) {
+        $('#import_progress').text(percent + '%')
+    }
+})(jQuery);
+//]]>
+</script>
+
+<div id="import_progress">0%</div>
+
+<iframe id="import_job" src="{{ import_job_src }}"></iframe>
