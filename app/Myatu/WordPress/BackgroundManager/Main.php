@@ -47,8 +47,9 @@ class Main extends \Pf4wp\WordpressPlugin
     const BST_SCROLL = 'scroll';
     
     /* Directory/URL defines */
-    const DIR_IMAGES   = 'resources/images/';
-    const DIR_OVERLAYS = 'resources/images/overlays/';
+    const DIR_IMAGES    = 'resources/images/';
+    const DIR_OVERLAYS  = 'resources/images/overlays/';
+    const DIR_IMPORTERS = 'app/Myatu/WordPress/BackgroundManager/Importers/';
     
     /* Possible background positions */
     private $bg_positions = array('top-left', 'top-center', 'top-right', 'center-left', 'center-center', 'center-right', 'bottom-left', 'bottom-center', 'bottom-right');
@@ -441,6 +442,30 @@ class Main extends \Pf4wp\WordpressPlugin
         usort($overlays, function($a, $b){ return strcmp($a['desc'], $b['desc']); });
 
         return $overlays;
+    }
+    
+    /**
+     * Obtains an array of available Importers
+     *
+     * @return array Array containing a list of importers, indexed by classname, containing a display name and description.
+     */
+    protected function getImporters()
+    {
+        $importers = array();
+        $iterator  = new \RecursiveIteratorIterator(new \Pf4wp\Storage\IgnorantRecursiveDirectoryIterator($this->getPluginDir() . static::DIR_IMPORTERS, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+        $files     = iterator_to_array(new \RegexIterator($iterator, '/^.+\.php$/i', \RecursiveRegexIterator::GET_MATCH));
+        
+        foreach ($files as $file) {
+            try {
+                $class_name = basename($file[0], '.php');
+                $class      = '\\Myatu\\WordPress\\BackgroundManager\\Importers\\' . $class_name;
+                
+                // Obtain information about the Importer, and add it to the array
+                $importers[$class_name] = $class::info();
+            } catch (Exception $e) {}
+        }
+        
+        return $importers;
     }
     
     /* ----------- Events ----------- */
@@ -1088,7 +1113,7 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Before Import Menu...
+     * Import Menu Loader
      */
     public function onImportMenuLoad($current_screen)
     {
@@ -1096,6 +1121,9 @@ class Main extends \Pf4wp\WordpressPlugin
             Importers\WpFlickrBackground::import($this);
             die();
         }
+
+        list($js_dir, $version, $debug) = $this->getResourceDir();
+        wp_enqueue_script($this->getName() . '-import', $js_dir . 'import' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
     }
     
     /**
@@ -1103,8 +1131,25 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onImportMenu($data)
     {
+        $importers = $this->getImporters();
+        $importer  = '';
+        
+        if (!empty($_POST) && isset($_POST['_nonce'])) {
+            if (!wp_verify_nonce($_POST['_nonce'], 'onImportMenu'))
+                wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
+            
+            $importer = $_POST['importer'];
+            
+            if (!array_key_exists($importer, $importers))
+                $importer = '';            
+        }
+        
         $vars = array(
-            'import_job_src' => add_query_arg(array('run_import_job' => true)),
+            'nonce'          => wp_nonce_field('onImportMenu', '_nonce', true, false),
+            'submit_button'  => get_submit_button('Import'),
+            'importers'      => $importers,
+            'run_import'     => ($importer != ''),
+            'import_job_src' => add_query_arg(array('run_import_job' => $importer)),
         );
         
         $this->template->display('import.html.twig', $vars);

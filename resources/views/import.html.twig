@@ -5,17 +5,37 @@
     file that was distributed with this source code.
 #}
 
+{% if not run_import %}
+<form method="post" action="">
+    {{ nonce | raw }}
+    {% for importer_key, importer_value in importers %}
+    <input type="hidden" id="{{ importer_key }}_desc" name="{{ importer_key }}_desc" value="{{ importer_value.desc }}" />
+    {% endfor %}
+    
+    <table class="form-table">
+        <tbody>
+            <tr valign="top">
+                <th scope="row">
+                    <label for="importer">{{ __('Import using') }}</label>
+                </th>
+                <td>
+                    <select id="importer" class="postform" name="importer">
+                        <option value="">-- {{ __('Select an importer') }} --</option>
+                        {% for importer_key, importer_value in importers %}
+                        <option value="{{ importer_key }}">{{ importer_value.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <br />
+                    <span id="importer_desc" class="description"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
-<script type="text/javascript">
-//<![CDATA[
-(function($){
-    mainWin.doImportProgress = function(percent) {
-        $('#import_progress').text(percent + '%')
-    }
-})(jQuery);
-//]]>
-</script>
-
+    {{ submit_button | raw }}
+</form>
+{% else %}
 <div id="import_progress">0%</div>
 
 <iframe id="import_job" src="{{ import_job_src }}"></iframe>
+{% endif %}

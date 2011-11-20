@@ -170,5 +170,5 @@
 #import_job {
     width: 1px;
     height: 1px;
-    border: 0;
+    border: 0 none;
 }

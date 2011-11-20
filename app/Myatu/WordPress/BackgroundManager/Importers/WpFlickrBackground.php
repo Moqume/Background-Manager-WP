@@ -30,6 +30,19 @@ class WpFlickrBackground
     protected function __construct() {}
     
     /**
+     * Returns information about the importer
+     *
+     * @return array
+     */
+    static public function info()
+    {
+        return array(
+            'name' => 'WP Flickr Background Importer',
+            'desc' => 'Imports the galleries from WP Flickr Background into the Background Manager.'
+        );
+    }
+    
+    /**
      * Imports galleries from WP Flickr Background
      *
      * @param object $main The object of the Main class
@@ -63,6 +76,7 @@ class WpFlickrBackground
         $chunks = ceil(100 / count($options['galleries']));
         $chunk  = 0;
         
+        // TESTING!!!!
         for ($i = 1; $i < 101; $i++) {
             $setProgress($i);
             sleep(1);
@@ -90,7 +104,7 @@ class WpFlickrBackground
                         $errors[] = sprintf(__('Could not import remote image from \'%s\'', $main->getName()), $photo['background']);
                 } else {
                     // Strip any -DDDxDDD from the filename within the URL
-                    $background_image_url = preg_replace('#^(.*?)(-\d{2,4}x\d{2,4}(?=[.]))(.*)$#', '$1$3', $photo['background']);
+                    $background_image_url = preg_replace('#^(.*?)(-\d{2,4}x\d{2,4}(?=\.))(.*)$#', '$1$3', $photo['background']);
                     
                     // Fetch the image ID from the posts/attachments
                     $background_image_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM `{$wpdb->posts}` WHERE `guid` = %s", $background_image_url));
