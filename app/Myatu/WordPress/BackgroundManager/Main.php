@@ -458,7 +458,7 @@ class Main extends \Pf4wp\WordpressPlugin
         foreach ($files as $file) {
             try {
                 $class_name = basename($file[0], '.php');
-                $class      = '\\Myatu\\WordPress\\BackgroundManager\\Importers\\' . $class_name;
+                $class      = __NAMESPACE__ . '\\Importers\\' . $class_name;
                 
                 // Obtain information about the Importer, and add it to the array
                 $importers[$class_name] = $class::info();
@@ -1117,9 +1117,22 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onImportMenuLoad($current_screen)
     {
-        if (isset($_REQUEST['run_import_job'])) {
-            Importers\WpFlickrBackground::import($this);
-            die();
+        // Check if there's a valid 'run_import_job'
+        if (isset($_REQUEST['run_import_job']) && isset($_REQUEST['nonce'])) {
+            if (!wp_verify_nonce($_REQUEST['nonce'], $this->getName() . '_import_' . $_REQUEST['run_import_job']))
+                wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
+                
+            $importers = $this->getImporters();
+            $importer  = $_REQUEST['run_import_job'];
+            
+            if (array_key_exists($importer, $importers)) {
+                $class = __NAMESPACE__ . '\\Importers\\' . $importer;
+                
+                // Run import job
+                $class::import($this);
+                
+                die();
+            }
         }
 
         list($js_dir, $version, $debug) = $this->getResourceDir();
@@ -1131,25 +1144,52 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onImportMenu($data)
     {
-        $importers = $this->getImporters();
-        $importer  = '';
+        $importers      = $this->getImporters();
+        $importer       = '';
+        $pre_import     = '';
+        $import_job_src = '';
         
+        // If the form was submitted...
         if (!empty($_POST) && isset($_POST['_nonce'])) {
             if (!wp_verify_nonce($_POST['_nonce'], 'onImportMenu'))
                 wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
             
             $importer = $_POST['importer'];
             
-            if (!array_key_exists($importer, $importers))
-                $importer = '';            
+            if (!array_key_exists($importer, $importers)) {
+                $importer = ''; // Invalid importer specified, ignore
+            } else {
+                // Obtain any pre-import information from the user, if required
+                if (empty($_POST['pre_import_done'])) {
+                    $class      = __NAMESPACE__ . '\\Importers\\' . $importer;
+                    $pre_import = $class::preImport($this);
+                }
+                
+                // Scrub POST variables, and pass them on to the import job source args
+                $args = array();
+                
+                foreach ($_POST as $post_key => $post_val) {
+                    $post_key = preg_replace('#_desc$#', '', $post_key);
+                    
+                    if (!array_key_exists($post_key, $importers) &&
+                        !in_array($post_key, array('_nonce', 'submit', 'importer', 'pre_import_done', '_wp_http_referer')))
+                        $args[$post_key] = $post_val;
+                }
+                
+                // Include a nonce in the import jobs source
+                $import_job_src = add_query_arg(array_merge($args, array('run_import_job' => $importer, 'nonce' => wp_create_nonce($this->getName() . '_import_' . $importer))));
+            }
         }
         
         $vars = array(
-            'nonce'          => wp_nonce_field('onImportMenu', '_nonce', true, false),
-            'submit_button'  => get_submit_button('Import'),
-            'importers'      => $importers,
-            'run_import'     => ($importer != ''),
-            'import_job_src' => add_query_arg(array('run_import_job' => $importer)),
+            'nonce'           => wp_nonce_field('onImportMenu', '_nonce', true, false),
+            'submit_button'   => get_submit_button('Import'),
+            'importers'       => $importers,
+            'importer'        => $importer,
+            'show_pre_import' => (!empty($pre_import)),
+            'pre_import'      => $pre_import,
+            'run_import'      => (!empty($importer) && empty($pre_import)),
+            'import_job_src'  => $import_job_src,
         );
         
         $this->template->display('import.html.twig', $vars);

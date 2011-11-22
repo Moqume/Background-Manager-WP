@@ -19,10 +19,10 @@
                     <label for="importer">{{ __('Import using') }}</label>
                 </th>
                 <td>
-                    <select id="importer" class="postform" name="importer">
+                    <select id="importer" class="postform" name="importer{% if show_pre_import %}_disabled{% endif %}" {% if show_pre_import %}disabled="disabled"{% endif %}>
                         <option value="">-- {{ __('Select an importer') }} --</option>
                         {% for importer_key, importer_value in importers %}
-                        <option value="{{ importer_key }}">{{ importer_value.name }}</option>
+                        <option value="{{ importer_key }}" {% if importer == importer_key %}selected="selected"{% endif %}>{{ importer_value.name }}</option>
                         {% endfor %}
                     </select>
                     <br />
@@ -31,6 +31,12 @@
             </tr>
         </tbody>
     </table>
+
+    {% if show_pre_import %}
+    <input type="hidden" name="importer" value="{{ importer }}" />
+    <input type="hidden" name="pre_import_done" value="true" />
+    {{ pre_import | raw }}
+    {% endif %}
 
     {{ submit_button | raw }}
 </form>

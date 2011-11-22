@@ -42,6 +42,12 @@ class WpFlickrBackground
         );
     }
     
+    static public function preImport(Main $main)
+    {
+        return 'Hello World! <input type="hidden" name="test" value="testing" />';
+        //$main->template->render('pub_footer.html.twig', $vars);
+    }
+    
     /**
      * Imports galleries from WP Flickr Background
      *
@@ -62,6 +68,8 @@ class WpFlickrBackground
         ob_implicit_flush(true);
         
         echo '<!DOCTYPE html><html><head></head><body><script type="text/javascript">/* <![CDATA[ */ mainWin = window.dialogArguments || opener || parent || top; /* ]]> */</script>';
+        
+        echo $_REQUEST['test'];
         
         $errors = array();
         
