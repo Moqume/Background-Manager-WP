@@ -63,7 +63,6 @@
     $(document).ready(function($){
         myatu_bgm.SetTimer();
 
-        // Activate balloon tip
         if ($.isFunction($('#myatu_bgm_info_tab').bt)) {
             $('#myatu_bgm_info_tab').bt({
                 contentSelector: "$('.myatu_bgm_info_tab_content')",
@@ -91,15 +90,14 @@
                 shadowOffsetX: 4,
                 shadowOffsetY: 4,
                 showTip: function(box) {
-                    /* Only show the tip if there's something to show. As content is dynamic, we use this callback for that. */
+                    // Only show the tip if there's something to show. As content is dynamic, we use this callback for that.
                     if (!$('.myatu_bgm_info_tab_content img').attr('src') &&
                         !$('.myatu_bgm_info_tab_desc').text() &&
                         !$('.myatu_bgm_info_tab_content h3').text())
                         return;
 
-                    /* Only set to width to 'auto' if there's no description. This maintains the
-                     * width (and float of image) if there's something present and prevents overflow if shrunk.
-                     */
+                    // Only set to width to 'auto' if there's no description. This maintains the
+                    // width (and float of image) if there's something present and prevents overflow if shrunk.
                     if ($('.myatu_bgm_info_tab_desc').text() == '')
                         $(box).css('width', 'auto');
 

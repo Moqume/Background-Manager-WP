@@ -369,7 +369,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'orderby' => 'title',
             'order' => 'ASC',
             'numberposts' => 0, 
-            'post_type' => \Myatu\WordPress\BackgroundManager\Main::PT_GALLERY)
+            'post_type' => static::PT_GALLERY)
         );
         
         foreach ($gallery_posts as $gallery_post) {
@@ -439,7 +439,7 @@ class Main extends \Pf4wp\WordpressPlugin
             }
             
         // Sort overlays
-        usort($overlays, function($a, $b){ return strcmp($a['desc'], $b['desc']); });
+        usort($overlays, function($a, $b){ return strcasecmp($a['desc'], $b['desc']); });
 
         return $overlays;
     }
@@ -447,23 +447,34 @@ class Main extends \Pf4wp\WordpressPlugin
     /**
      * Obtains an array of available Importers
      *
-     * @return array Array containing a list of importers, indexed by classname, containing a display name and description.
+     * @filter myatu_bgm_importers
+     * @return array Array containing a list of importers, indexed by classname, containing a display name, description and namespace+class.
      */
     protected function getImporters()
     {
         $importers = array();
         $iterator  = new \RecursiveIteratorIterator(new \Pf4wp\Storage\IgnorantRecursiveDirectoryIterator($this->getPluginDir() . static::DIR_IMPORTERS, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
-        $files     = iterator_to_array(new \RegexIterator($iterator, '/^.+\.php$/i', \RecursiveRegexIterator::GET_MATCH));
+        $files     = iterator_to_array(new \RegexIterator($iterator, '/^.+\.php?$/i', \RecursiveRegexIterator::GET_MATCH));
         
         foreach ($files as $file) {
-            try {
-                $class_name = basename($file[0], '.php');
-                $class      = __NAMESPACE__ . '\\Importers\\' . $class_name;
-                
-                // Obtain information about the Importer, and add it to the array
-                $importers[$class_name] = $class::info();
-            } catch (Exception $e) {}
+            $class_name = basename($file[0], '.php');
+            $class      = __NAMESPACE__ . '\\Importers\\' . $class_name;
+            
+            // Obtain information about the Importer, and add it to the array
+            if (is_callable($class . '::info'))
+                $importers[$class_name] = array_merge($class::info(), array('class' => $class));
         }
+        
+        // Allow filtering of importers
+        $importers = apply_filters('myatu_bgm_importers', $importers);
+        
+        // Classes must be a subclass of Importers\Importer
+        foreach ($importers as $importer_key => $importer)
+            if (!is_subclass_of($importer['class'], __NAMESPACE__ . '\\Importers\\Importer'))
+                unset($importers[$importer_key]);
+        
+        // Sort importers by name
+        uasort($importers, function($a, $b){ return strcasecmp($a['name'], $b['name']); });
         
         return $importers;
     }
@@ -1114,6 +1125,9 @@ class Main extends \Pf4wp\WordpressPlugin
     
     /**
      * Import Menu Loader
+     *
+     * This will check the form response for a valid import job request, and 
+     * performs it accordingly.
      */
     public function onImportMenuLoad($current_screen)
     {
@@ -1126,12 +1140,11 @@ class Main extends \Pf4wp\WordpressPlugin
             $importer  = $_REQUEST['run_import_job'];
             
             if (array_key_exists($importer, $importers)) {
-                $class = __NAMESPACE__ . '\\Importers\\' . $importer;
+                $class = $importers[$importer]['class'];
                 
                 // Run import job
-                $class::import($this);
-                
-                die();
+                if (is_callable($class . '::import'))
+                    $class::import($this);
             }
         }
 
@@ -1161,15 +1174,17 @@ class Main extends \Pf4wp\WordpressPlugin
             } else {
                 // Obtain any pre-import information from the user, if required
                 if (empty($_POST['pre_import_done'])) {
-                    $class      = __NAMESPACE__ . '\\Importers\\' . $importer;
-                    $pre_import = $class::preImport($this);
+                    $class      = $importers[$importer]['class'];
+                    
+                    if (is_callable($class . '::preImport'))
+                        $pre_import = $class::preImport($this);
                 }
                 
                 // Scrub POST variables, and pass them on to the import job source args
                 $args = array();
                 
                 foreach ($_POST as $post_key => $post_val) {
-                    $post_key = preg_replace('#_desc$#', '', $post_key);
+                    $post_key = preg_replace('#_desc$#', '', $post_key); // Both regular class names and descriptions are ignored
                     
                     if (!array_key_exists($post_key, $importers) &&
                         !in_array($post_key, array('_nonce', 'submit', 'importer', 'pre_import_done', '_wp_http_referer')))
@@ -1186,7 +1201,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'submit_button'   => get_submit_button('Import'),
             'importers'       => $importers,
             'importer'        => $importer,
-            'show_pre_import' => (!empty($pre_import)),
+            'show_pre_import' => (!empty($importer) && !empty($pre_import)),
             'pre_import'      => $pre_import,
             'run_import'      => (!empty($importer) && empty($pre_import)),
             'import_job_src'  => $import_job_src,
