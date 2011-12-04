@@ -33,7 +33,7 @@ class Importer
      *
      * @return array
      */
-    static public function info()
+    final static public function info()
     {        
         return array(
             'name'  => static::NAME,
@@ -53,7 +53,7 @@ class Importer
     /**
      * Echoes (outputs) a small JavaScript that updates the import progress
      */
-    static protected function setProgress($percentage)
+    final static protected function setProgress($percentage)
     {
         echo '<script type="text/javascript">/* <![CDATA[ */ mainWin.doImportProgress(' . $percentage . '); /* ]]> */</script>';
     }
@@ -96,5 +96,5 @@ class Importer
      * @param object $main The object of the Main class
      * @see import()
      */
-    static public function doImport() {}
+    static public function doImport(Main $main) {}
 }
