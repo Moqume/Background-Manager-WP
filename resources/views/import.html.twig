@@ -22,7 +22,7 @@
                     <select id="importer" class="postform" name="importer{% if show_pre_import %}_disabled{% endif %}" {% if show_pre_import %}disabled="disabled"{% endif %}>
                         <option value="">-- {{ __('Select an importer') }} --</option>
                         {% for importer_key, importer_value in importers %}
-                        <option value="{{ importer_key }}" {% if importer == importer_key %}selected="selected"{% endif %}>{{ importer_value.name }}</option>
+                        <option value="{{ importer_key }}" {% if not importer_value.active %}disabled="disabled"{% endif %} {% if importer == importer_key %}selected="selected"{% endif %}>{{ importer_value.name }}</option>
                         {% endfor %}
                     </select>
                     <br />

@@ -172,21 +172,6 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Helper to obtain the resource directory.
-     *
-     * @param bool $for_css If set to `true` obtain the resource directory for CSS, or for JS otherwise (default)
-     * @return array Array containing Directory, Version and Debug string.
-     */
-    public function getResourceDir($for_css = false)
-    {
-        $dir     = $this->getPluginUrl() . 'resources/' . (($for_css) ? 'css/' : 'js/');
-        $version = PluginInfo::getInfo(true, $this->getPluginBaseName(), 'Version');
-        $debug   = (defined('WP_DEBUG') && WP_DEBUG) ? '.dev' : '';
-        
-        return array($dir, $version, $debug);
-    }
-    
-    /**
      * Helper that obtains a random image, including all details about it
      *
      * @filter myatu_bgm_active_gallery
@@ -415,7 +400,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 $desc_file = dirname($img_file) . '/' . basename($img_file, '.' . pathinfo($img_file, PATHINFO_EXTENSION)) . '.txt';
                
                 // Grab the description from an accompanying file, if possible
-                if (@file_exists($desc_file) && ($handle = @fopen($desc_file, 'r')) != false) {
+                if (@is_file($desc_file) && ($handle = @fopen($desc_file, 'r')) != false) {
                     $desc = fgetss($handle);
                     fclose($handle);
                 }
@@ -824,11 +809,11 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onAdminScripts()
     {
-        list($js_dir, $version, $debug) = $this->getResourceDir();
+        list($js_url, $version, $debug) = $this->getResourceUrl();
 
         wp_enqueue_script('post');
         wp_enqueue_script('media-upload');
-        wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions' . $debug . '.js', array('jquery'), $version);
+        wp_enqueue_script($this->getName() . '-functions', $js_url . 'functions' . $debug . '.js', array('jquery'), $version);
     }
     
     /**
@@ -836,9 +821,9 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onAdminStyles()
     {
-        list($css_dir, $version, $debug) = $this->getResourceDir(true);
+        list($css_url, $version, $debug) = $this->getResourceUrl('css');
         
-        wp_enqueue_style($this->getName() . '-admin', $css_dir . 'admin.css', false, $version);
+        wp_enqueue_style($this->getName() . '-admin', $css_url . 'admin.css', false, $version);
     }
     
     /**
@@ -850,11 +835,11 @@ class Main extends \Pf4wp\WordpressPlugin
     public function onSettingsMenuLoad($current_screen)
     {
         // Extra scripts to include
-        list($js_dir, $version, $debug) = $this->getResourceDir();
+        list($js_url, $version, $debug) = $this->getResourceUrl();
 
         wp_enqueue_script('farbtastic');        
 		wp_enqueue_style('farbtastic');
-        wp_enqueue_script($this->getName() . '-settings', $js_dir . 'settings' . $debug . '.js', array($this->getName() . '-functions'), $version);        
+        wp_enqueue_script($this->getName() . '-settings', $js_url . 'settings' . $debug . '.js', array($this->getName() . '-functions'), $version);        
         
         // Save settings if POST is set
         if (!empty($_POST) && isset($_POST['_nonce'])) {
@@ -1031,10 +1016,10 @@ class Main extends \Pf4wp\WordpressPlugin
                 $this->galleries->saveUserAction();
             
             // Add thickbox and other javascripts
-            list($js_dir, $version, $debug) = $this->getResourceDir();
+            list($js_url, $version, $debug) = $this->getResourceUrl();
 
             add_thickbox();
-            wp_enqueue_script($this->getName() . '-gallery-edit', $js_dir . 'gallery_edit' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
+            wp_enqueue_script($this->getName() . '-gallery-edit', $js_url . 'gallery_edit' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
             wp_localize_script(
                 $this->getName() . '-gallery-edit', 'bgmL10n', array(
                     'warn_delete_all_images' => __('You are about to permanently delete the selected images. Are you sure?', $this->getName()),
@@ -1148,8 +1133,8 @@ class Main extends \Pf4wp\WordpressPlugin
             }
         }
 
-        list($js_dir, $version, $debug) = $this->getResourceDir();
-        wp_enqueue_script($this->getName() . '-import', $js_dir . 'import' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
+        list($js_url, $version, $debug) = $this->getResourceUrl();
+        wp_enqueue_script($this->getName() . '-import', $js_url . 'import' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
     }
     
     /**
@@ -1476,17 +1461,17 @@ class Main extends \Pf4wp\WordpressPlugin
             return;
         
         // Enqueue jQuery and base functions
-        list($js_dir, $version, $debug) = $this->getResourceDir();
+        list($js_url, $version, $debug) = $this->getResourceUrl();
         
         wp_enqueue_script('jquery');
-        wp_enqueue_script($this->getName() . '-functions', $js_dir . 'functions' . $debug . '.js', array('jquery'), $version);
+        wp_enqueue_script($this->getName() . '-functions', $js_url . 'functions' . $debug . '.js', array('jquery'), $version);
         
         // If the info tab is enabled along with the short description, also include jQuery.bt (balloon tips)
         if ($this->options->info_tab && $this->options->info_tab_desc) {
             // Include for MSIE only
-            printf('<!--[if IE]><script src="%svendor/excanvas/excanvas.compiled.js"></script><![endif]-->'.PHP_EOL, $js_dir);
+            printf('<!--[if IE]><script src="%svendor/excanvas/excanvas.compiled.js"></script><![endif]-->'.PHP_EOL, $js_url);
 
-            wp_enqueue_script('jquery.bt', $js_dir . 'vendor/bt/jquery.bt.min.js', array('jquery'), '0.9.5-rc1');
+            wp_enqueue_script('jquery.bt', $js_url . 'vendor/bt/jquery.bt.min.js', array('jquery'), '0.9.5-rc1');
         }
         
         // Don't worry about the rest if the change frequency isn't custom or there's no short description for the info tab
@@ -1494,7 +1479,7 @@ class Main extends \Pf4wp\WordpressPlugin
             return;
         
         // (the rest)
-        wp_enqueue_script($this->getName() . '-pub', $js_dir . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
+        wp_enqueue_script($this->getName() . '-pub', $js_url . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
         
         // Make the change frequency available to JavaScript
         $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
@@ -1524,10 +1509,10 @@ class Main extends \Pf4wp\WordpressPlugin
         if (!$this->canDisplayBackground())
             return;
         
-        list($css_dir, $version, $debug) = $this->getResourceDir(true);
+        list($css_url, $version, $debug) = $this->getResourceUrl('css');
         
         // Default CSS for the public side
-        wp_enqueue_style($this->getName() . '-pub', $css_dir . 'pub.css', false, $version);
+        wp_enqueue_style($this->getName() . '-pub', $css_url . 'pub.css', false, $version);
         
         $style   = '';
         $overlay = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);

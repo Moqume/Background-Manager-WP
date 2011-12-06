@@ -29,15 +29,26 @@ class Importer
     protected function __construct() {}
     
     /**
+     * Returns whether this importer is active
+     *
+     * @return bool
+     */
+    static public function active()
+    {
+        return true;
+    }
+    
+    /**
      * Returns information about the importer
      *
-     * @return array
+     * @return array An array containing a short name (`name`), description (`desc`) and whether it is active (`active`)
      */
     final static public function info()
     {        
         return array(
-            'name'  => static::NAME,
-            'desc'  => static::DESC,
+            'name'   => static::NAME,
+            'desc'   => static::DESC,
+            'active' => static::active(),
         );
     }
     
@@ -52,9 +63,13 @@ class Importer
     
     /**
      * Echoes (outputs) a small JavaScript that updates the import progress
+     *
+     * @param int $percentage The percentage into the progress (0-100)
      */
     final static protected function setProgress($percentage)
     {
+        $percentage = ($percentage > 100) ? 100 : $percentage;
+        
         echo '<script type="text/javascript">/* <![CDATA[ */ mainWin.doImportProgress(' . $percentage . '); /* ]]> */</script>';
     }
     
@@ -80,7 +95,9 @@ class Importer
         
         echo '<!DOCTYPE html><html><head></head><body><script type="text/javascript">/* <![CDATA[ */ mainWin = window.dialogArguments || opener || parent || top; /* ]]> */</script>';
 
-        static::doImport($main);
+        // Only perform this if actually active
+        if (static::active())
+            static::doImport($main);
         
         // Finalize progress
         static::setProgress(100);
