@@ -9,6 +9,7 @@
 
 namespace Myatu\WordPress\BackgroundManager\Importers;
 
+use Pf4wp\Info\PluginInfo;
 use Myatu\WordPress\BackgroundManager\Main;
 use Myatu\WordPress\BackgroundManager\Galleries;
 use Myatu\WordPress\BackgroundManager\Images;
@@ -28,10 +29,22 @@ class WpFlickrBackground extends Importer
     const NAME = 'WP Flickr Background Importer';
     const DESC = 'Imports the galleries from WP Flickr Background into the Background Manager.';
     
-    static public function preImport(Main $main)
+    /**
+     * Returns the active status of the importer
+     *
+     * @return bool
+     */
+    static public function active()
     {
-        return 'Hello World! <input type="hidden" name="test" value="testing" />';
-        //$main->template->render('pub_footer.html.twig', $vars);
+        // Only active if ...
+        if (!PluginInfo::isInstalled('WP Flickr Background') ||             // the WP Flickr Background is installed (regardless of active)
+            ($options = get_option(static::WP_OPTION_NAME)) === false ||    // the options exists
+            !array_key_exists('galleries', $options) ||                     // the options contain one or more galleries
+            !is_array($options['galleries']) ||
+            count($options['galleries']) == 0)
+            return false;
+     
+        return true;
     }
     
     /**
@@ -43,29 +56,22 @@ class WpFlickrBackground extends Importer
     {
         global $wpdb;
         
-        // Ensure we have valid options
-        if (($options = get_option(static::WP_OPTION_NAME)) === false || !array_key_exists('galleries', $options) || !is_array($options['galleries']) || count($options['galleries']) == 0)
-            return;
-            
-        $galleries = new Galleries($main);
-        $images    = new Images($main);
+        $options    = get_option(static::WP_OPTION_NAME);
+        $galleries  = new Galleries($main);
+        $images     = new Images($main);
         
         // Turn how many gallery's we process into chunks for progress bar
         $chunks = ceil(100 / count($options['galleries']));
         $chunk  = 0;
         
-        // TESTING!!!!
-        for ($i = 1; $i < 20; $i++) {
-            static::setProgress($i);
-            sleep(1);
-        }
-        return;
-
         foreach ($options['galleries'] as $wpfbg_gallery) {
-            $gallery_id = $galleries->save(0, $wpfbg_gallery['name'], $wpfbg_gallery['desc']);
+            $image_set = sprintf(__('%s (Imported)', $main->getName()), $wpfbg_gallery['name']);
+            $gallery_id = $galleries->save(0, $image_set, $wpfbg_gallery['desc']);
             
-            if (!$gallery_id)
+            if (!$gallery_id) {
+                $main->addDelayedNotice(sprintf(__('Unable to create Image Set <strong>%s</strong>', $main->getName()), $image_set), true);
                 continue;
+            }
             
             // If we have custom CSS, add this as a meta to the gallery
             if (!empty($wpfbg_gallery['customcss']))
@@ -74,7 +80,10 @@ class WpFlickrBackground extends Importer
             foreach ($wpfbg_gallery['photos'] as $photo) {
                 if ($photo['id'][0] != 'L') {
                     // Images that do not start with an "L" are only available via a remote URL.
-                    media_sideload_image($photo['background'], $gallery_id);
+                    $r = media_sideload_image($photo['background'], $gallery_id);
+                    
+                    if (is_wp_error($r))
+                        $main->addDelayedNotice(sprintf(__('Unable to import image <em>%s</em> into Image Set <strong>%s</strong>', $main->getName()), $photo['background'], $image_set), true);
                 } else {
                     // Strip any -DDDxDDD from the filename within the URL
                     $background_image_url = preg_replace('#^(.*?)(-\d{2,4}x\d{2,4}(?=\.))(.*)$#', '$1$3', $photo['background']);
@@ -84,13 +93,19 @@ class WpFlickrBackground extends Importer
                     
                     // Change the parent of the image attachment to that of the gallery
                     if ($background_image_id && ($image = get_post($background_image_id)))
-                        wp_insert_attachment($image, false, $gallery_id);
+                        $r = wp_insert_attachment($image, false, $gallery_id);
+                    
+                    if (!$background_image_id || !$image || !$r)
+                        $main->addDelayedNotice(sprintf(__('Unable to import image <em>%s</em> into Image Set <strong>%s</strong>', $main->getName()), $background_image_url, $image_set), true);
                 }
             }
             
             $chunk++;
             static::setProgress($chunk * $chunks);
         }
+        
+        // And voila!
+        $main->addDelayedNotice(__('Completed import from WP Flickr Background', $main->getName()));
         
         unset($galleries);
         unset($images);

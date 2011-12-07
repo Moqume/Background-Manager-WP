@@ -10,7 +10,6 @@
 namespace Myatu\WordPress\BackgroundManager;
 
 use Pf4wp\Notification\AdminNotice;
-use Pf4wp\Info\PluginInfo;
 use Pf4wp\Common\Helpers;
 
 /**
@@ -19,7 +18,6 @@ use Pf4wp\Common\Helpers;
  * It is the controller for all other functionality of BackgroundManager
  *
  * @author Mike Green <myatus@gmail.com>
- * @version 0.0.0.2
  * @package BackgroundManager
  */
 class Main extends \Pf4wp\WordpressPlugin
@@ -68,6 +66,9 @@ class Main extends \Pf4wp\WordpressPlugin
     
     /** The link to edit Galleries - @see onBuildMenu() */
     private $edit_gallery_link = '';
+    
+    /** The link to the Import menu - @see onBuildMenu() */
+    public $import_menu_link  = '';
     
     /** Cached response of inEdit() - @see inEdit() */
     private $in_edit;
@@ -788,6 +789,16 @@ class Main extends \Pf4wp\WordpressPlugin
                 'edit' => 'new',
             ),
             menu_page_url('theme_options', false)
+        );
+        
+        // Set the import menu link
+        $this->import_menu_link = add_query_arg(
+            array(
+                \Pf4wp\Menu\CombinedMenu::SUBMENU_ID => $import_menu->getSlug(),
+                'page' => $gallery_menu->getSlug(true),
+                'run_import_job' => false,
+                'nonce' => false,
+            )
         );
         
         // Add an 'Add New Image Set' link

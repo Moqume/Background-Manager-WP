@@ -34,14 +34,32 @@
 
     {% if show_pre_import %}
     <input type="hidden" name="importer" value="{{ importer }}" />
-    <input type="hidden" name="pre_import_done" value="true" />
+    
     {{ pre_import | raw }}
     {% endif %}
 
     {{ submit_button | raw }}
 </form>
 {% else %}
-<div id="import_progress">0%</div>
+<table class="form-table">
+    <tbody>
+        <tr valign="top">
+            <th scope="row">
+                {{ __('Import progress:') }}
+            </th>
+            <td>
+                <div id="import_progress_bar_container" style="display:none;">
+                    <div id="import_progress_bar"></div>
+                </div>
+                <span id="import_progress" class="hide-if-no-js">0%</span>
 
-<iframe id="import_job" src="{{ import_job_src }}"></iframe>
+                <iframe id="import_job" src="{{ import_job_src }}" class="hide-if-js"></iframe>
+            </td>
+        </tr>
+    </tbody>
+</table>
 {% endif %}
+
+
+
+

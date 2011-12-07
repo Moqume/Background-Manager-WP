@@ -8,7 +8,8 @@
 
 (function($){
     mainWin.doImportProgress = function(percent) {
-        $('#import_progress').text(percent + '%')
+        $('#import_progress').text(percent + '%');
+        $('#import_progress_bar').css('width', percent + '%');
     }
 
     $.extend(myatu_bgm, {
@@ -26,6 +27,9 @@
     $(document).ready(function($){
         // Initialize
         myatu_bgm.updateDescription();
+
+        // Show progress bar container if JS is enabled
+        $('#import_progress_bar_container').css('display', 'inline-block');
 
         // Set events
         $('#importer').change(myatu_bgm.updateDescription);

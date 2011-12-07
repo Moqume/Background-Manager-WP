@@ -167,8 +167,28 @@
     min-height: 100px;
 }
 
+#import_progress_bar_container {
+    width: 300px;
+    height: 30px;
+    vertical-align: middle;
+    background-color: #F1F1F1;
+    border: 1px solid #CCC;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+
+#import_progress_bar {
+    width: 0;
+    height: 100%;
+    background-color: #21759B;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+
 #import_job {
-    width: 1px;
-    height: 1px;
+    width: 100%;
+    height: 45px;
     border: 0 none;
 }
