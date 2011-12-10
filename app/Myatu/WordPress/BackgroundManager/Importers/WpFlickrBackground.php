@@ -61,7 +61,7 @@ class WpFlickrBackground extends Importer
         $images     = new Images($main);
         
         // Turn how many gallery's we process into chunks for progress bar
-        $chunks = ceil(100 / count($options['galleries']));
+        $chunks = ceil(100 / count($options['galleries']) -1);
         $chunk  = 0;
         
         foreach ($options['galleries'] as $wpfbg_gallery) {
@@ -89,7 +89,7 @@ class WpFlickrBackground extends Importer
                     $background_image_url = preg_replace('#^(.*?)(-\d{2,4}x\d{2,4}(?=\.))(.*)$#', '$1$3', $photo['background']);
                     
                     // Fetch the image ID from the posts/attachments
-                    $background_image_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM `{$wpdb->posts}` WHERE `guid` = %s", $background_image_url));
+                    $background_image_id = $wpdb->get_var($wpdb->prepare("SELECT `ID` FROM `{$wpdb->posts}` WHERE `guid` = %s", $background_image_url));
                     
                     // Change the parent of the image attachment to that of the gallery
                     if ($background_image_id && ($image = get_post($background_image_id)))

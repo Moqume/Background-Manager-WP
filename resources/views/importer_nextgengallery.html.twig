@@ -1,0 +1,27 @@
+{#
+    Copyright (c) 2011 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+
+<table class="form-table">
+    <tbody>
+        <tr valign="top">
+            <th scope="row">
+                <label for="gallery">{{ __('Import NextGEN Gallery') }}</label>
+            </th>
+            <td>
+                <select id="gallery" class="postform" name="gallery">
+                    <option value="">{{ __('-- Select a gallery --') }}</option>
+                    {% for gallery in galleries %}
+                    <option value="{{ gallery.gid }}">{{ gallery.title }} ({{ gallery.pictures }})</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+
