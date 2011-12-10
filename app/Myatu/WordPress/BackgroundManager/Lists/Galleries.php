@@ -12,7 +12,7 @@ namespace Myatu\WordPress\BackgroundManager\Lists;
 use Pf4wp\WordpressPlugin;
 
 /**
- * This class extends WP_List_Table to provide Gallery listings
+ * This class extends WP_List_Table to provide Image Set listings (Galleries)
  *
  * It uses the following actions/filters:
  *
@@ -359,6 +359,10 @@ class Galleries extends \WP_List_Table
         if (!$this->trash) {
             // Print the name of the gallery
             echo $this->actionLink('edit', $item->ID, sprintf('<strong>%s</strong>', htmlspecialchars($item->post_title)), sprintf(__('Edit &#8220;%s&#8221;', $this->owner->getName()), get_the_title($item->ID)));
+            
+            // Print active state
+            if ($this->owner->options->active_gallery == $item->ID)
+                printf(' - <strong>%s</strong>', __('Active Background', $this->owner->getName()));
             
             // Set the actions (start off with an `edit` link)
             $actions = array($this->actionLink('edit', $item->ID));

@@ -482,7 +482,8 @@ class Main extends \Pf4wp\WordpressPlugin
         // Register additional actions
         add_action('wp_head', array($this, 'onWpHead'));
         add_action('get_edit_post_link', array($this, 'onGetEditPostLink'), 10, 3);
-        add_action('add_attachment', array($this, 'onAddAttachment'), 20);
+        add_action('add_attachment', array($this, 'onAddAttachment'), 20);      // Adds 'Background Image' to Library
+        add_action('edit_attachment', array($this, 'onAddAttachment'), 20);
         
         // Register post types
         register_post_type(self::PT_GALLERY, array(

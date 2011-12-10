@@ -5,4 +5,336 @@
  * file that was distributed with this source code.
  *
  */
-(function(a){photo_selection=new Object();getPhotoCount=function(){return getAjaxData("photo_count",a("#edit_id").val())};getPhotosHash=function(){return getAjaxData("photos_hash",a("#edit_id").val())};getPhotoIds=function(){return getAjaxData("photo_ids",a("#edit_id").val())};removePhotosOverlay=function(){a("#photos_iframe").fadeIn("fast",function(){a("#photo_iframe_overlay").hide()})};showHideEditBar=function(c){if(c==true){var d=getPhotoIds();for(key in photo_selection){var g=key.replace("photo_","");if(d[g]==undefined){delete photo_selection[key]}}}var f=a("#quicktags"),b=a("#selected-count"),e=getObjSize(photo_selection);if(e>0){f.slideDown();b.show();a("#select-count",b).html(e)}else{f.slideUp();b.hide();a("#select-count",b).html("0")}};havePhotosChanged=function(c){var d=a("#photos_hash").val(),b=getPhotosHash();if(b!=false&&d!=b){if(c==true){a("#photos_hash").val(b)}return true}return false};loadPhotosIframe=function(d){var c=a("#photo_iframe_overlay"),b=a("#loader",c);if(d==undefined){d=a("#photos_iframe").attr("src")}c.show();a("#photo_buttons").hide();b.css("top",((c.height()-b.outerHeight())/2)+c.scrollTop()+"px");b.css("left",((c.width()-b.outerWidth())/2)+c.scrollLeft()+"px");a("#photos_iframe").attr("src",d).fadeOut("fast")};showHidePhotoButtons=function(f){var c=a("#photos_iframe").contents().find("#photo_buttons");if(f==undefined){f=a("#photos_iframe").contents().find(".highlighted:first")}if(!a(f).length){c.hide();return}var e=a("img",f),d=a("#photo_iframe_overlay"),b=a("#loader",d);c.css("top",e.offset().top-d.scrollTop()+"px");c.css("left",e.offset().left-d.scrollLeft()+"px");c.show();a("#photo_edit_button",c).attr("href",a("#photo_iframe_edit_base").val()+"&id="+a(f).attr("id").replace("photo_","")+"&TB_iframe=true");a("#photo_del_button",c).attr("href","#"+a(f).attr("id").replace("photo_",""))};onPhotosIframeFinish=function(d){var c=a("#photos_iframe").contents().find("html,body"),b=a("#photo_container",c);var e=getAjaxData("paginate_links",{id:a("#edit_id").val(),base:a("#photos_iframe_base").val(),pp:a("#photos_per_page").val(),current:d});if(e!=false){a(".tablenav-pages").html(e);a(".tablenav-pages a").click(onPaginationClick)}a("#wp-word-count #photo-count").html(getPhotoCount());a(".photo",b).each(function(f){a(this).dblclick(onPhotoDoubleClick);a(this).click(onPhotoClick);if(photo_selection[a(this).attr("id")]==true){a(this).addClass("selected")}});c.click(onEmptyPhotoAreaClick);a("#photo_edit_button",c).click(onPhotoEditButtonClick);a("#photo_del_button",c).click(onPhotoDeleteButtonClick);c.keydown(onIframeKeyDown);removePhotosOverlay()};onDeleteSelected=function(d){if(a("#photo_del_is_perm").val()=="1"&&confirm(bgmL10n.warn_delete_all_photos)==false){return false}var b,c="";for(b in photo_selection){c+=b.replace("photo_","")+","}getAjaxData("delete_photos",c);showHideEditBar(true);if(havePhotosChanged(true)){loadPhotosIframe()}return false};onClearSelected=function(c){var b=a("#photos_iframe").contents().find("#photo_container");photo_selection=new Object();a(".photo",b).each(function(d){if(a(this).hasClass("selected")){a(this).removeClass("selected")}});showHideEditBar(false);return false};onPaginationClick=function(b){loadPhotosIframe(a(this).attr("href"));return false};onPhotoDoubleClick=function(b){var c=a(this).attr("id");a(this).toggleClass("selected");if(a(this).hasClass("selected")){photo_selection[c]=true}else{delete photo_selection[c]}showHideEditBar(false);return false};onPhotoClick=function(b){a("#photos_iframe").contents().find(".photo").removeClass("highlighted");a(this).addClass("highlighted");showHidePhotoButtons(this);return false};onEmptyPhotoAreaClick=function(b){a("#photos_iframe").contents().find(".photo").removeClass("highlighted");showHidePhotoButtons()};onPhotoEditButtonClick=function(b){tb_show(a(this).attr("title"),a(this).attr("href"));return false};onPhotoDeleteButtonClick=function(b){if(a("#photo_del_is_perm").val()=="1"&&confirm(bgmL10n.warn_delete_photo)==false){return false}getAjaxData("delete_photos",a(this).attr("href").replace("#",""));showHideEditBar(true);if(havePhotosChanged(true)){loadPhotosIframe()}return false};onIframeKeyDown=function(e){var f=a("#photos_iframe").contents().find("html,body"),c=a("#photo_container",f),d=a(".photo.highlighted",c);var b=function(h){if(!d.length&&h!=undefined){d=a(".photo:"+h,c).addClass("highlighted")}showHidePhotoButtons();if(f.length&&d.length){f.scrollTo(d)}};var g=function(h){return{x:a(h).offset().left,y:a(h).offset().top,w:a(h).outerWidth(),h:a(h).outerHeight()}};switch(e.keyCode){case 32:d.dblclick();return false;case 37:d=d.removeClass("highlighted").prev(".photo").addClass("highlighted");b("last");return false;case 39:d=d.removeClass("highlighted").next(".photo").addClass("highlighted");b("first");return false;case 40:if(d.length){d.removeClass("highlighted");possible_highlighted=a(".photo:below("+g(d).x+","+g(d).y+","+g(d).w+"):first",c);if(!possible_highlighted.length||possible_highlighted==d){d=a(".photo:above("+g(d).x+","+g(d).y+","+g(d).w+"):first",c);if(d.length){d=a(".photo:right("+g(d).x+","+g(d).y+","+g(d).h+"):first",c)}if(!d.length){d=a(".photo:first",c)}}else{d=possible_highlighted}d.addClass("highlighted");b()}else{b("last")}return false;case 38:if(d.length){d.removeClass("highlighted");possible_highlighted=a(".photo:above("+g(d).x+","+g(d).y+","+g(d).w+"):last",c);if(!possible_highlighted.length||possible_highlighted==d){if(d.prev(".photo").length){d=d.prev(".photo")}else{d=a(".photo:right("+g(d).x+","+g(d).y+","+g(d).h+"):last",c)}d=a(".photo:below("+g(d).x+","+g(d).y+","+g(d).w+"):last",c);if(!d.length){d=a(".photo:last",c)}}else{d=possible_highlighted}d.addClass("highlighted");b()}else{b("first")}return false}};a(document).ready(function(b){mainWin.send_to_editor=function(c){tb_remove()};mainWin.tb_remove=function(){b("#TB_imageOff").unbind("click");b("#TB_closeWindowButton").unbind("click");b("#TB_window").fadeOut("fast",function(){b("#TB_window,#TB_overlay,#TB_HideSelect").trigger("unload").unbind().remove()});b("#TB_load").remove();if(typeof document.body.style.maxHeight=="undefined"){b("body","html").css({height:"auto",width:"auto"});b("html").css("overflow","")}document.onkeydown="";document.onkeyup="";if(havePhotosChanged(true)){loadPhotosIframe()}return false};b("#ed_delete_selected").click(onDeleteSelected);b("#ed_clear_selected").click(onClearSelected)})})(jQuery);
+
+(function($){
+    $.extend(myatu_bgm, {
+        /** Holds selected images */
+        image_selection: new Object(),
+       
+        /** Gets the image count [Ajax] */
+        getImageCount: function() { return (myatu_bgm.GetAjaxData('image_count', $('#edit_id').val())); },
+
+        /** Gets the hash of the current images [Ajax] */
+        getImagesHash: function() { return (myatu_bgm.GetAjaxData('images_hash', $('#edit_id').val())); },
+
+        /** Gets all the ids of the images [Ajax] */
+        getImageIds: function() { return (myatu_bgm.GetAjaxData('image_ids', $('#edit_id').val())); },
+
+        /** Removes the image iframe overlay and restores iframe visibility */
+        removeImagesOverlay: function() { $('#images_iframe').fadeIn('fast', function() { $('#image_iframe_overlay').hide(); }); },
+
+        /** Displays or hides the "Edit Bar" (containing buttons related to selected items) */
+        showHideEditBar: function(getIds) {
+            if (getIds == true) {
+                // Check if a selected ID no longer exist in getImageIds(), and delete from image_selection if so.
+                var ids = myatu_bgm.getImageIds();
+
+                for (key in myatu_bgm.image_selection) {
+                    var id = key.replace('image_', '');
+
+                    if (ids[id] == undefined)
+                        delete myatu_bgm.image_selection[key];
+                }
+            }
+
+            // Show or hide the edit bar based on the image_selection object count
+            var edit_bar = $('#quicktags'), selected_count = $('#selected-count'), count = myatu_bgm.GetObjSize(myatu_bgm.image_selection);
+
+            if (count > 0) {
+                edit_bar.slideDown();
+                selected_count.show();
+                $('#select-count', selected_count).html(count);
+            } else {
+                edit_bar.slideUp();
+                selected_count.hide();
+                $('#select-count', selected_count).html('0');
+            }
+        },
+
+        /** Returns whether images have been changed (based on the hash) */
+        haveImagesChanged: function(setNewHash) {
+            var current_hash = $('#images_hash').val(), hash = myatu_bgm.getImagesHash();
+
+            if (hash != false && current_hash != hash) {
+                if (setNewHash == true)
+                    $('#images_hash').val(hash);
+
+                return true;
+            }
+
+            return false;
+        },
+
+        /** Loads a URL in the image iframe */
+        loadImagesIframe: function(dest) {
+            var overlay = $('#image_iframe_overlay'), loader = $('#loader', overlay);
+
+            if (dest == undefined)
+                dest = $('#images_iframe').attr("src"); // Default action is to reload
+               
+            // Display the overlay on top of the images iframe
+            overlay.show();
+
+            // Hide the image buttons, if shown.
+            $('#image_buttons').hide()
+
+            // Center the loader image
+            loader.css('top', ((overlay.height() - loader.outerHeight()) / 2) + overlay.scrollTop() + 'px');
+            loader.css('left', ((overlay.width() - loader.outerWidth()) / 2) + overlay.scrollLeft() + 'px');
+            
+            // Fade out the iframe
+            $('#images_iframe').attr("src", dest).fadeOut('fast');
+        },
+
+        /** Shows (or hides) the (single image) edit/delete buttons on the highlighted item */
+        showHideImageButtons: function(highlighted) {
+            var image_buttons = $('#images_iframe').contents().find('#image_buttons');
+
+            if (highlighted == undefined)
+                highlighted = $('#images_iframe').contents().find('.highlighted:first');
+
+            // If nothing is highlighted, then we hide the edit buttons instead.
+            if (!$(highlighted).length) {
+                image_buttons.hide();
+                return;
+            }
+
+            var image_img = $('img', highlighted), overlay = $('#image_iframe_overlay'), loader = $('#loader', overlay);
+
+            // Align edit buttons within the top-left corner of the image tag
+            image_buttons.css('top', image_img.offset().top - overlay.scrollTop() + 'px');
+            image_buttons.css('left', image_img.offset().left - overlay.scrollLeft() +  'px');
+            image_buttons.show();
+
+            // Set the correct href for the image `edit` and `delete` button
+            $('#image_edit_button', image_buttons).attr("href", $('#image_iframe_edit_base').val() + '&id=' + $(highlighted).attr('id').replace('image_', '') + '&TB_iframe=true');
+            $('#image_del_button', image_buttons).attr("href", '#' + $(highlighted).attr('id').replace('image_', ''));
+        },
+
+        /** Event triggered when the iframe has finished loading */
+        onImagesIframeFinish: function(current_page) {
+            var image_body = $('#images_iframe').contents().find('html,body'), image_container = $('#image_container', image_body);
+            var pagination_links = myatu_bgm.GetAjaxData('paginate_links', { id: $('#edit_id').val(), base: $('#images_iframe_base').val(), pp: $('#images_per_page').val(), current: current_page });
+
+            // Display pagination links, if any were returned by Ajax call
+            if (pagination_links != false) {
+                $('.tablenav-pages').html(pagination_links);
+                $('.tablenav-pages a').click(myatu_bgm.onPaginationClick);
+            }
+
+            // Display image count
+            $('#wp-word-count #image-count').html(myatu_bgm.getImageCount());
+            
+            // Iterate the images displayed, binding click and re-highlighting if previously selected
+            $('.image', image_container).each(function(index) {
+                $(this).dblclick(myatu_bgm.onImageDoubleClick);
+                $(this).click(myatu_bgm.onImageClick);
+
+                if (myatu_bgm.image_selection[$(this).attr('id')] == true)
+                    $(this).addClass('selected');
+            });
+
+            // Add a additional click events
+            image_body.click(myatu_bgm.onEmptyImageAreaClick);
+            $('#image_edit_button', image_body).click(myatu_bgm.onImageEditButtonClick);
+            $('#image_del_button', image_body).click(myatu_bgm.onImageDeleteButtonClick);
+
+            // Attach keyboard events
+            image_body.keydown(myatu_bgm.onIframeKeyDown);
+
+            // Remove the overlay, we're done.
+            myatu_bgm.removeImagesOverlay();
+        },
+
+        /** Event triggered when `Delete Selected` is clicked */
+        onDeleteSelected: function(event) {
+            if ($('#image_del_is_perm').val() == '1' && confirm(bgmL10n.warn_delete_all_images) == false)
+                return false;
+
+            var key, ids = '';
+
+            for (key in myatu_bgm.image_selection)
+                ids += key.replace('image_', '') + ',';
+
+            // Delete the images from the DB
+            myatu_bgm.GetAjaxData('delete_images', ids);
+
+            myatu_bgm.showHideEditBar(true);
+            
+            if (myatu_bgm.haveImagesChanged(true))
+                myatu_bgm.loadImagesIframe();
+
+            return false;
+        },
+
+        /** Event triggered when `Clear` is clicked */
+        onClearSelected: function(event) {
+            var image_container = $('#images_iframe').contents().find('#image_container');
+
+            // Clear image_selection
+            myatu_bgm.image_selection = new Object();
+
+            // Remove any selected classes displayed
+            $('.image', image_container).each(function(index) {
+                if ($(this).hasClass('selected'))
+                    $(this).removeClass('selected');
+            });
+
+            // Hide the edit bar
+            myatu_bgm.showHideEditBar(false);
+
+            return false;
+        },
+
+        /** Event triggered when one of the pagination buttons have been clicked */
+        onPaginationClick: function(event) {
+            myatu_bgm.loadImagesIframe($(this).attr('href'));
+
+            return false;
+       },
+
+        /** Event triggered when a image (inside the iframe) has been double clicked */
+        onImageDoubleClick: function(event) {
+            var id = $(this).attr('id');
+
+            $(this).toggleClass('selected');
+
+            if ($(this).hasClass('selected')) {
+                myatu_bgm.image_selection[id] = true;
+            } else {
+                delete myatu_bgm.image_selection[id];
+            }
+
+            myatu_bgm.showHideEditBar(false);
+
+            return false;
+        },
+
+        /** Event triggered when a image (inside the iframe) has been clicked */
+        onImageClick: function(event) {
+            // Only allow a single image to be highlighted
+            $('#images_iframe').contents().find('.image').removeClass('highlighted');
+
+            // Highlight the clicked item
+            $(this).addClass('highlighted');
+
+            // And show the image buttons
+            myatu_bgm.showHideImageButtons(this);
+
+            return false;
+        },
+
+        /** Event triggered when no image (empty area) is clicked */
+        onEmptyImageAreaClick: function(event) {
+            $('#images_iframe').contents().find('.image').removeClass('highlighted');
+
+            myatu_bgm.showHideImageButtons();
+        },
+
+        /** Event triggered when the `edit` button is clicked */
+        onImageEditButtonClick: function(event) {
+            tb_show($(this).attr('title'), $(this).attr('href')); // We do this here instead of using a thickbox class, to ensure it is shown in the parent, not the iframe
+
+            return false;
+        },
+
+        /** Event triggered when the `delete` button is clicked */
+        onImageDeleteButtonClick: function(event) {
+            if ($('#image_del_is_perm').val() == '1' && confirm(bgmL10n.warn_delete_image) == false)
+                return false;
+
+            // Delete the image from the DB
+            myatu_bgm.GetAjaxData('delete_images', $(this).attr('href').replace('#', ''));
+
+            myatu_bgm.showHideEditBar(true);
+            
+            if (myatu_bgm.haveImagesChanged(true))
+                myatu_bgm.loadImagesIframe();
+            
+            return false;
+        },
+
+        /** Event tiggered when a key is pressed inside the iframe, to assist with selecting items by keyboard */
+        onIframeKeyDown: function(event) {
+            var image_body = $('#images_iframe').contents().find('html,body'), image_container = $('#image_container', image_body), highlighted = $('.image.highlighted', image_container);
+
+            // Internal function to ensure a highlighted item, and then scroll to the highlighted item
+            var doScroll = function(which) { 
+                if (!highlighted.length && which != undefined) 
+                    highlighted = $('.image:'+which, image_container).addClass('highlighted');
+
+                // Add any image buttons, if needed
+                myatu_bgm.showHideImageButtons();
+
+                // Scroll to the item.
+                if (image_body.length && highlighted.length)
+                    image_body.scrollTo(highlighted);
+
+            };
+
+            // Internal function to get position, width and height details
+            var pos = function(obj) { return { x: $(obj).offset().left, y: $(obj).offset().top, w: $(obj).outerWidth(), h: $(obj).outerHeight() }; }
+
+            // Event is based on specific keys:
+            switch (event.keyCode) {
+                case 32:
+                    // Space
+                    highlighted.dblclick();
+
+                    return false;
+
+                case 37: 
+                    // Left arrow
+                    highlighted = highlighted.removeClass('highlighted').prev('.image').addClass('highlighted');
+
+                    doScroll('last');
+
+                    return false;
+
+                case 39: 
+                    // Right arrow
+                    highlighted = highlighted.removeClass('highlighted').next('.image').addClass('highlighted');
+
+                    doScroll('first');
+
+                    return false;
+            }
+
+        }
+  
+    });
+
+    /** "Ready" event */
+    $(document).ready(function($){
+        // Override send_to_editor(html):
+        mainWin.send_to_editor = function(send_id) {
+            tb_remove(); // All we need to do is close the ThickBox window
+        }
+
+        // Override tb_remove()
+        mainWin.tb_remove = function() {
+            $("#TB_imageOff").unbind("click");
+            $("#TB_closeWindowButton").unbind("click");
+            $("#TB_window").fadeOut("fast",function(){$('#TB_window,#TB_overlay,#TB_HideSelect').trigger("unload").unbind().remove();});
+            $("#TB_load").remove();
+
+            if (typeof document.body.style.maxHeight == "undefined") {//if IE 6
+                $("body","html").css({height: "auto", width: "auto"});
+                $("html").css("overflow","");
+            }
+
+            document.onkeydown = "";
+            document.onkeyup = "";
+
+            if (myatu_bgm.haveImagesChanged(true))
+               myatu_bgm.loadImagesIframe();
+
+            return false;
+        }
+
+        // Attach 'click' events
+        $('#ed_delete_selected').click(myatu_bgm.onDeleteSelected);
+        $('#ed_clear_selected').click(myatu_bgm.onClearSelected);
+    });
+
+})(jQuery);
