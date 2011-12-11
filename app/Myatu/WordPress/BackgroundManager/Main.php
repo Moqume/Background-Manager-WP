@@ -783,13 +783,14 @@ class Main extends \Pf4wp\WordpressPlugin
         $mymenu->setHomeTitle(__('Settings', $this->getName()));
 
         // Set an edit link
+        $theme_options_url = menu_page_url('theme_options', false);
         $this->edit_gallery_link = add_query_arg(
             array(
                 \Pf4wp\Menu\CombinedMenu::SUBMENU_ID => $gallery_menu->getSlug(),
                 'page' => $gallery_menu->getSlug(true),
                 'edit' => 'new',
             ),
-            menu_page_url('theme_options', false)
+            ($theme_options_url) ? $theme_options_url : admin_url('themes.php')
         );
         
         // Set the import menu link
