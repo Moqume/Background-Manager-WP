@@ -285,7 +285,7 @@ class Galleries extends \WP_List_Table
     /** Displays the description of the item */
     function column_description($item)
     {
-        echo htmlspecialchars($item->post_content);
+        echo (empty($item->post_content)) ? '&nbsp;' : htmlspecialchars($item->post_content);
     }
     
     /** 
