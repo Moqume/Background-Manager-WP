@@ -1,0 +1,104 @@
+{#
+    Copyright (c) 2011 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+
+{% if errors %}
+<div id="message" class="error"><p>{{ errors }}</p></div>
+{% endif %}
+
+{% if ask_auth %}
+
+<h3>Flickr Access</h3>
+<p>
+    {{ __('Background Manager has not been linked to a Flickr account. Do you wish to continue as an anonymous user, or login to your Flickr account?') }}
+</p>
+<p style="margin-left:20px">
+    <label>
+        <input type="radio" value="yes" name="do_login" checked="checked" />
+        <span>{{ __('Login to my Flickr account') }}</span>
+    </label>
+    <br />
+    <label>
+        <input type="radio" value="no" name="do_login" />
+        <span>{{ __('Continue anonymously') }}</span>
+    </label>
+</p>
+
+{% elseif auth_redir %}
+
+<script type="text/javascript">
+//<![CDATA[
+setTimeout(function() {   
+    window.location.replace('{{ auth_redir | raw }}');
+}, 3000);
+//]]>
+</script>
+<h3>Flickr Access</h3>
+<p>
+    {{ __('You will be redirected to Flickr in just a moment.') }} 
+    <a href="{{ auth_redir }}">{{ __('Click here if you are not being redirected.') }}</a>
+</p>
+
+{% else %}
+
+{% if not anonymous %}
+<h3>{{ __('Hello') }} {{ username }}</h3>
+<p>
+{{ __('You are currently logged in to Flickr') }}. 
+
+(<a href="{{ logout_url }}">{{ __('Logout') }}</a>)
+</p>
+{% else %}
+<h3>{{ __('Hello') }}!</h3>
+
+<p>
+{{ __('You are currently using Flickr as an anonymous user. To start, first enter a Flickr username or ID, and click the "Continue Import" button.') }}
+</p>
+
+<input type="hidden" name="do_login" value="no" />
+{% endif %}
+
+<table class="form-table">
+        <tbody>
+            <tr valign="top">
+                <th scope="row">
+                    <label for="flickr_username">{{ __('Flickr User') }}</label>
+                </th>
+                <td>
+                    <input type="text" value="{{ flickr_username }}" name="flickr_username" id="flickr_username" />
+                    {% if not anonymous %}<span class="description">{{ __('Optional') }}, "{{ username }}" {{ __('by default') }}.</span>{% endif %}
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">
+                    <label for="flickr_photoset">{{ __('Flickr Photo Set') }}</label>
+                </th>
+                <td>
+                    <select id="flickr_photoset" class="postform" name="flickr_photoset" {% if not photosets %}disabled="disabled"{% endif %}>
+                        {% if not photosets %}
+                        <option value="">(No photosets found)</option>
+                        {% else %}
+                        <option value="">{{ __('-- Select a Flickr Photo Set --') }}</option>
+                        {% endif %}
+                        {% for photoset_key,photoset_value in photosets %}
+                        <option value="{{ photoset_key }}">{{ photoset_value }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="description">
+                    {% if anonymous and flickr_username == "" %}
+                    {{ __('First enter the name or ID of a Flickr user and click the "Continue Import" button') }}.
+                    {% endif %}
+                    </span>
+                </td>
+            </tr>
+    </tbody>
+</table>
+{% endif %}
+
+
+
+
+

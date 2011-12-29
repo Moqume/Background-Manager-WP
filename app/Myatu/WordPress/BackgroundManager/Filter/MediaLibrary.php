@@ -131,8 +131,9 @@ class MediaLibrary
     {
         global $wpdb;
         
-        unset($tabs['type_url']);
+        //unset($tabs['type_url']);
         unset($tabs['gallery']);
+        unset($tabs['nextgen']);
         
         // Grab a count of available mime types
         list($post_mime_types, $avail_post_mime_types) = wp_edit_attachments_query();

@@ -28,11 +28,16 @@ $_pf4wp_ucl->registerNamespaces(array(
 ));
 $_pf4wp_ucl->registerPrefixes(array(
     'Twig_' => __DIR__.'/vendor/Twig/lib',
+    'HTTP_' => __DIR__.'/vendor/OAuth/lib',
+    'Net_'  => __DIR__.'/vendor/OAuth/lib',
 ));
 $_pf4wp_ucl->registerNamespaceFallbacks(array(
     __DIR__.'/app',
 ));
 $_pf4wp_ucl->register();
+
+// Additional include path
+set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__.'/vendor/OAuth/lib');
 
 /* Fire her up, Scotty! */
 

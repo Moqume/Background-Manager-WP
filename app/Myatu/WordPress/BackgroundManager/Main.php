@@ -782,15 +782,18 @@ class Main extends \Pf4wp\WordpressPlugin
         // Give the 'Home' a different title
         $mymenu->setHomeTitle(__('Settings', $this->getName()));
 
-        // Set an edit link
+        // Theme options URL
         $theme_options_url = menu_page_url('theme_options', false);
+        $theme_options_url = ($theme_options_url) ? $theme_options_url : admin_url('themes.php'); // As of WP3.3
+        
+        // Set an edit link
         $this->edit_gallery_link = add_query_arg(
             array(
                 \Pf4wp\Menu\CombinedMenu::SUBMENU_ID => $gallery_menu->getSlug(),
                 'page' => $gallery_menu->getSlug(true),
                 'edit' => 'new',
             ),
-            ($theme_options_url) ? $theme_options_url : admin_url('themes.php')
+            $theme_options_url
         );
         
         // Set the import menu link
@@ -800,10 +803,11 @@ class Main extends \Pf4wp\WordpressPlugin
                 'page' => $gallery_menu->getSlug(true),
                 'run_import_job' => false,
                 'nonce' => false,
-            )
+            ),
+            $theme_options_url
         );
         
-        // Add an 'Add New Image Set' link
+        // Add an 'Add New Image Set' link to the main title, if not editing an image set
         if (($this->inEdit() && $this->gallery->post_status != 'auto-draft') || (($active_menu = $mymenu->getActiveMenu()) == false) || $active_menu != $gallery_menu) {
             // Replace existing main page title with one that contains a link
             $main_menu->page_title = sprintf(
@@ -1147,6 +1151,8 @@ class Main extends \Pf4wp\WordpressPlugin
         }
 
         list($js_url, $version, $debug) = $this->getResourceUrl();
+        
+        add_thickbox();
         wp_enqueue_script($this->getName() . '-import', $js_url . 'import' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
     }
     
@@ -1161,34 +1167,32 @@ class Main extends \Pf4wp\WordpressPlugin
         $import_job_src = '';
         
         // If the form was submitted...
-        if (!empty($_POST) && isset($_POST['_nonce'])) {
-            if (!wp_verify_nonce($_POST['_nonce'], 'onImportMenu'))
+        if (isset($_REQUEST['importer']) && isset($_REQUEST['_nonce'])) {
+            if (!wp_verify_nonce($_REQUEST['_nonce'], 'onImportMenu'))
                 wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
             
-            $importer = $_POST['importer'];
+            $importer = $_REQUEST['importer'];
             
             if (!array_key_exists($importer, $importers)) {
                 $importer = ''; // Invalid importer specified, ignore
             } else {
                 // Obtain any pre-import information from the user, if required
-                if (empty($_POST['pre_import_done'])) {
-                    $class      = $importers[$importer]['class'];
-                    
-                    if (is_callable($class . '::preImport'))
-                        $pre_import = $class::preImport($this);
-                }
+                $class = $importers[$importer]['class'];
                 
-                // Scrub POST variables, and pass them on to the import job source args
+                if (is_callable($class . '::preImport'))
+                    $pre_import = $class::preImport($this);
+                
+                // Scrub REQUEST variables, and pass them on to the import job source args
                 $args = array();
                 
-                foreach ($_POST as $post_key => $post_val) {
+                foreach ($_REQUEST as $post_key => $post_val) {
                     $post_key = preg_replace('#_desc$#', '', $post_key); // Both regular class names and descriptions are ignored
                     
                     if (!array_key_exists($post_key, $importers) &&
-                        !in_array($post_key, array('_nonce', 'submit', 'importer', 'pre_import_done', '_wp_http_referer')))
+                        !in_array($post_key, array('_nonce', 'page', 'sub', 'submit', 'importer', 'pre_import_done', '_wp_http_referer')))
                         $args[$post_key] = $post_val;
                 }
-                
+
                 // Include a nonce in the import jobs source
                 $import_job_src = add_query_arg(array_merge($args, array('run_import_job' => $importer, 'nonce' => wp_create_nonce($this->getName() . '_import_' . $importer))));
             }
@@ -1196,7 +1200,7 @@ class Main extends \Pf4wp\WordpressPlugin
         
         $vars = array(
             'nonce'           => wp_nonce_field('onImportMenu', '_nonce', true, false),
-            'submit_button'   => get_submit_button('Import'),
+            'submit_button'   => get_submit_button('Continue Import'),
             'importers'       => $importers,
             'importer'        => $importer,
             'show_pre_import' => (!empty($importer) && !empty($pre_import)),
