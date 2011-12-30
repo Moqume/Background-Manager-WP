@@ -11,6 +11,7 @@ namespace Myatu\WordPress\BackgroundManager;
 
 use Pf4wp\Notification\AdminNotice;
 use Pf4wp\Common\Helpers;
+use Pf4wp\Help\ContextHelp;
 
 /**
  * The main class for the BackgroundManager
@@ -759,6 +760,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $main_menu = $mymenu->addMenu(__('Background', $this->getName()), array($this, 'onSettingsMenu'));
         $main_menu->page_title = $this->getDisplayName();
         $main_menu->large_icon = 'icon-themes';
+        $main_menu->context_help = new ContextHelp($this, 'settings');
         
         // Add image sets (galleries) submenu
         $gallery_menu = $mymenu->addSubmenu(__('Image Sets', $this->getName()), array($this, 'onGalleriesMenu'));

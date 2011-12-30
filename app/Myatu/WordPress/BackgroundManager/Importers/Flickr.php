@@ -35,9 +35,8 @@ class Flickr extends Importer
      */
     static public function preImport(Main $main)
     {
-        // A photoset has been selected
         if (isset($_REQUEST['flickr_photoset']) && !empty($_REQUEST['flickr_photoset']))
-            return;
+            return; // A photoset has been selected
         
         $flickr = new FlickrApi($main);
         $vars   = array();

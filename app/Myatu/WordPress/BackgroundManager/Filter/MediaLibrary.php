@@ -131,7 +131,7 @@ class MediaLibrary
     {
         global $wpdb;
         
-        //unset($tabs['type_url']);
+        unset($tabs['type_url']);
         unset($tabs['gallery']);
         unset($tabs['nextgen']);
         

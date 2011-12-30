@@ -15,6 +15,7 @@ if (!function_exists('add_action')) return;
 /* Bootstrap */
 
 $_pf4wp_file = __FILE__;
+$_pf4wp_version_check_wp = '3.2.1'; // Min version for WP
 
 require dirname(__FILE__).'/vendor/pf4wp/lib/bootstrap.php'; // use dirname()!
 
