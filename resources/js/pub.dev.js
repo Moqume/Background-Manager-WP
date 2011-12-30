@@ -77,6 +77,9 @@
                 overlap: 0,
                 shrinkToFit: true,
                 width: '450px',
+                textzIndex: 19999,
+                boxzIndex: 19998,
+                wrapperzIndex: 19997,
                 windowMargin: 20,
                 cssStyles: {
                     fontFamily: '"Lucida Grande",Helvetica,Arial,Verdana,sans-serif', 

@@ -13,6 +13,25 @@ use Pf4wp\Notification\AdminNotice;
 use Pf4wp\Common\Helpers;
 use Pf4wp\Help\ContextHelp;
 
+/* Guided Help using FeaturePointers */
+
+/** Step 1 of Guided Help. @see onSettingsMenuLoad() */
+class PointerAddNewStep1 extends \Pf4wp\Pointers\FeaturePointer
+{
+    protected $selector = '#add_new_image_set';
+    protected $position = array('align' => 'left');
+    protected $content  = '<h3>Let\'s Get Started!</h3><p>Start by adding a new <em>Image Set</em><p><p>Once you\'re done, come back here and set it as the active <em>Background Image Set</em>.</p>';
+}
+
+/** Step 2 of Guided Help. @see onGalleriesMenuLoad() (Edit section) */
+class PointerAddNewStep2 extends \Pf4wp\Pointers\FeaturePointer
+{
+    protected $selector = '#add_add_image';
+    protected $position = array('edge' => 'left');
+    protected $content  = '<h3>Add Some Images!</h3><p>Click on this icon to start adding some images.</p><p>Save using the <strong>Add Image Set</strong> button. Don\'t forget to add a title once you\'re done!</p>';
+}
+
+
 /**
  * The main class for the BackgroundManager
  *
@@ -816,7 +835,7 @@ class Main extends \Pf4wp\WordpressPlugin
         if (($this->inEdit() && $this->gallery->post_status != 'auto-draft') || (($active_menu = $mymenu->getActiveMenu()) == false) || $active_menu != $gallery_menu) {
             // Replace existing main page title with one that contains a link
             $main_menu->page_title = sprintf(
-                '%s <a class="add-new-h2" href="%s">%s</a>',
+                '%s <a class="add-new-h2" id="add_new_image_set" href="%s">%s</a>',
                 $main_menu->page_title,
                 esc_url($this->edit_gallery_link),
                 __('Add New Image Set', $this->getName())
@@ -837,7 +856,7 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_script('media-upload');
         wp_enqueue_script($this->getName() . '-functions', $js_url . 'functions' . $debug . '.js', array('jquery'), $version);
     }
-    
+
     /**
      * Load Admin CSS
      */
@@ -845,7 +864,7 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         list($css_url, $version, $debug) = $this->getResourceUrl('css');
         
-        wp_enqueue_style($this->getName() . '-admin', $css_url . 'admin.css', false, $version);
+        wp_enqueue_style($this->getName() . '-admin', $css_url . 'admin' . $debug . '.css', false, $version);
     }
     
     /**
@@ -862,6 +881,9 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_script('farbtastic');        
 		wp_enqueue_style('farbtastic');
         wp_enqueue_script($this->getName() . '-settings', $js_url . 'settings' . $debug . '.js', array($this->getName() . '-functions'), $version);        
+        
+        // Guided Help, Step 1 ("Get Started")
+        new PointerAddNewStep1();
         
         // Save settings if POST is set
         if (!empty($_POST) && isset($_POST['_nonce'])) {
@@ -1055,6 +1077,9 @@ class Main extends \Pf4wp\WordpressPlugin
             
             // Enqueue editor buttons (since WordPress 3.3)
             wp_enqueue_style('editor-buttons');
+            
+            // Guided Help ("Add Images")
+            new PointerAddNewStep2();            
 
             // Set the 'images per page'
             $active_menu                 = $this->getMenu()->getActiveMenu();
@@ -1537,7 +1562,7 @@ class Main extends \Pf4wp\WordpressPlugin
         list($css_url, $version, $debug) = $this->getResourceUrl('css');
         
         // Default CSS for the public side
-        wp_enqueue_style($this->getName() . '-pub', $css_url . 'pub.css', false, $version);
+        wp_enqueue_style($this->getName() . '-pub', $css_url . 'pub' . $debug . '.css', false, $version);
         
         $style   = '';
         $overlay = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);

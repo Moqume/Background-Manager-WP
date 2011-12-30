@@ -5,33 +5,4 @@
  * file that was distributed with this source code.
  *
  */
-
-(function($){
-    mainWin.doImportProgress = function(percent) {
-        $('#import_progress').text(percent + '%');
-        $('#import_progress_bar').css('width', percent + '%');
-    }
-
-    $.extend(myatu_bgm, {
-        updateDescription : function() {
-            var selected_importer = $('#importer option:selected').val(), importer_desc = $('#' + selected_importer + '_desc').val();
-
-            if (selected_importer != '') {
-                $('#importer_desc').text(importer_desc);
-            } else {
-                $('#importer_desc').text('');
-            }
-        }
-    });
-
-    $(document).ready(function($){
-        // Initialize
-        myatu_bgm.updateDescription();
-
-        // Show progress bar container if JS is enabled
-        $('#import_progress_bar_container').css('display', 'inline-block');
-
-        // Set events
-        $('#importer').change(myatu_bgm.updateDescription);
-    });
-})(jQuery);
+(function(a){mainWin.doImportProgress=function(b){a("#import_progress").text(b+"%");a("#import_progress_bar").css("width",b+"%")};a.extend(myatu_bgm,{updateDescription:function(){var b=a("#importer option:selected").val(),c=a("#"+b+"_desc").val();if(b!=""){a("#importer_desc").text(c)}else{a("#importer_desc").text("")}}});a(document).ready(function(b){myatu_bgm.updateDescription();b("#import_progress_bar_container").css("display","inline-block");b("#importer").change(myatu_bgm.updateDescription)})})(jQuery);
