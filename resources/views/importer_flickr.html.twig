@@ -47,15 +47,17 @@ setTimeout(function() {
 {% if not anonymous %}
 <h3>{{ __('Hello') }} {{ username }}</h3>
 <p>
-{{ __('You are currently logged in to Flickr') }}. 
-
-(<a href="{{ logout_url }}">{{ __('Logout') }}</a>)
+{{ __('You are currently logged in to Flickr') }}. (<a href="{{ logout_url }}">{{ __('Logout') }}</a>)
 </p>
+<p>
+{{ __('Select a Flickr Photo Set from your own account and click the <strong>Continue Import</strong> button. Or enter a Flickr username or ID (for example: <code>45244809@N00</code>) and click the <strong>Continue Import</strong> button, which then allows you to select from another Flickr user\'s Photo Sets.') | raw }}
+</p>
+
 {% else %}
 <h3>{{ __('Hello') }}!</h3>
 
 <p>
-{{ __('You are currently using Flickr as an anonymous user. To start, first enter a Flickr username or ID, and click the "Continue Import" button.') }}
+{{ __('You are currently using Flickr as an anonymous user. To start, enter a Flickr username or ID (for example: <code>45244809@N00</code>) and click the <strong>Continue Import</strong> button. You can then select a Flickr Photo Set from that user.') | raw }}
 </p>
 
 <input type="hidden" name="do_login" value="no" />

@@ -27,7 +27,7 @@ class WpFlickrBackground extends Importer
     
     // Overrides
     const NAME = 'WP Flickr Background Importer';
-    const DESC = 'Imports the galleries from WP Flickr Background into the Background Manager.';
+    const DESC = 'Imports the galleries from WP Flickr Background into the Background Manager. Note: This will import ALL available galleries.';
     
     /**
      * Returns the active status of the importer

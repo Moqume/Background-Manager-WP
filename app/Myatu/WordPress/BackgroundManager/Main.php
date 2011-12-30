@@ -773,11 +773,13 @@ class Main extends \Pf4wp\WordpressPlugin
         if ($count = $this->getGalleryCount(false)) {
             $trash_menu = $mymenu->addSubmenu(__('Trash', $this->getName()), array($this, 'onTrashMenu'));
             $trash_menu->count = $count;
+            $trash_menu->context_help = new ContextHelp($this, 'trash');
             $trash_menu->per_page = 15;
         }
         
         // Import menu
         $import_menu = $mymenu->addSubMenu(__('Import', $this->getName()), array($this, 'onImportMenu'));
+        $import_menu->context_help = new ContextHelp($this, 'import');
 
         // Make it appear under WordPress' `Appearance` (theme_options)
         $mymenu->setType(\Pf4wp\Menu\MenuEntry::MT_THEMES);
