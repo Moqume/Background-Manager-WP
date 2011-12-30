@@ -765,6 +765,7 @@ class Main extends \Pf4wp\WordpressPlugin
         // Add image sets (galleries) submenu
         $gallery_menu = $mymenu->addSubmenu(__('Image Sets', $this->getName()), array($this, 'onGalleriesMenu'));
         $gallery_menu->count = $this->getGalleryCount();
+        $gallery_menu->context_help = new ContextHelp($this, 'galleries');
         if (!$this->inEdit())
             $gallery_menu->per_page = 15; // Add a `per page` screen setting
         
@@ -1029,6 +1030,9 @@ class Main extends \Pf4wp\WordpressPlugin
              * edit form meta boxes for this post type
              */
             set_current_screen(self::PT_GALLERY);
+            
+            // Override the context help
+            $this->getMenu()->getActiveMenu()->context_help = new ContextHelp($this, 'edit');
             
             // Respond to a save edit action (this will not return if the gallery was saved)
             if (isset($_POST['submit']))
