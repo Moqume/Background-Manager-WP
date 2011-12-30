@@ -51,7 +51,7 @@ All this is done without the need to edit the theme or any other files!
 
 = License =
 
-[GNU GPL version 2](http://www.gnu.org/licenses/gpl-3.0.txt)
+[GNU GPL version 3](http://www.gnu.org/licenses/gpl-3.0.txt)
 
 This product uses the Flickr API but is not endorsed or certified by Flickr.
 
