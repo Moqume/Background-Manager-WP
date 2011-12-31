@@ -5,3 +5,6 @@
 # Ignore data store
 /store/
 
+# Ignore SVN
+/.svn/
+
