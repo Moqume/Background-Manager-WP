@@ -3,7 +3,7 @@ Contributors: Myatu
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.3
-Stable tag: 0.9
+Stable tag: 0.9.1
 
 Display a random image as the website background at each visit or as a timed slideshow, without the need to edit the theme.
 
@@ -29,15 +29,15 @@ All this is done without the need to edit the theme or any other files!
 * Full-screen background images
 * Full control over position for images in normal display mode (tiling, positioning, scrolling and stretching)
 * "Ease in" of a full-screen background image
-* Fade effect between different background images displayed
-* Multiple _Image Sets_
-* User definable image rotation, of 10 seconds upwards.
-* Override images displayed in the background per post or page
-* Background overlays
-* Enable or disable the background on the front page, error pages, etc.
+* Multiple _Image Sets_ to select a random image from
+* Override the _Image Set_ for each Post, Page or Custom post type
+* User defined display interval between the background images (timed slideshow)
+* Fade-in/fade-out effect between the different background images displayed
+* Pre-defined background overlays
+* Enable or disable the background images on the Front page, Error pages, Custom post types, etc.
 * Optional thumbnail/information tab for the visitor to learn more about the background
 * Import from various sources, such as:
-   * Flickr
+   * Flickr (including license and ownership)
    * NextGEN Gallery Plugin
    * WP Flickr Background Plugin
 
@@ -53,7 +53,7 @@ This product uses the Flickr API but is not endorsed or certified by Flickr.
 1. Activate the plugin through the __Plugins__ menu in WordPress
 1. Access the plugin via __Appearance__ -> __Background__ menu
 
-Additional help is provided via the Help tabs within the plugin
+Additional help is provided via the _Help_ tabs within the plugin
 
 = Requirements =
 
@@ -70,10 +70,12 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 0.9.1 =
+= 0.9.1 (January 5, 2012) =
 
-* Added: Better handling of PHP versions older than 5.3, which before caused confusion due to cryptic error messages
 * Fixed: Overlay images not shown where 'Fileinfo' PHP extension was disabled
+* Added: Better handling of PHP versions older than 5.3, which before caused confusion due to cryptic error messages
+* Added: Support for Custom Post Types (activation and background overrides)
+* Changed: Flickr imports now include the owner, license and link to the original image in the description
 
 = 0.9 (December 30, 2011) =
 * Public BETA release of the plugin
