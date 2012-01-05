@@ -99,6 +99,9 @@ class Main extends \Pf4wp\WordpressPlugin
     /** Instance of Galleries - @see onAdminInit() */
     public $galleries;
     
+    /** Cached response for canDisplayBackground() */
+    private $can_display_background;
+   
     /** The default options */
     protected $default_options = array(
         'change_freq'            => 'load',      // static::CF_LOAD
@@ -120,7 +123,7 @@ class Main extends \Pf4wp\WordpressPlugin
         
     /* Enable public-side Ajax - @see onAjaxRequest() */
     public $public_ajax = true;
-   
+  
     
     /* ----------- Helpers ----------- */
 
@@ -337,14 +340,28 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function canDisplayBackground()
     {
-        return (
-            ($this->options->display_on_front_page  && is_front_page()) ||
-            ($this->options->display_on_single_post && is_single())     ||
-            ($this->options->display_on_single_page && is_page())       ||
-            ($this->options->display_on_archive     && is_archive())    ||
-            ($this->options->display_on_search      && is_search())     ||
-            ($this->options->display_on_error       && is_404())
-        );
+        if (isset($this->can_display_background))
+            return($this->can_display_background);
+        
+        // Obtain a list of custom posts that can be displayed (or not)
+        $display_custom_post_types = $this->options->display_custom_post_types;
+        
+        if (is_array($display_custom_post_types) && isset($display_custom_post_types[get_post_type()]))
+            $this->can_display_background = $display_custom_post_types[get_post_type()];
+        
+        // This isn't a custom post or not specified in settings, so use these
+        if (!isset($this->can_display_background)) {
+            $this->can_display_background  = (
+                ($this->options->display_on_front_page  && is_front_page()) ||
+                ($this->options->display_on_single_post && is_single())     ||
+                ($this->options->display_on_single_page && is_page())       ||
+                ($this->options->display_on_archive     && is_archive())    ||
+                ($this->options->display_on_search      && is_search())     ||
+                ($this->options->display_on_error       && is_404())
+            );
+        }
+
+        return $this->can_display_background;
     }
     
     /**
@@ -912,6 +929,17 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->info_tab_link                 = (!empty($_POST['info_tab_link']));
             $this->options->info_tab_desc                 = (!empty($_POST['info_tab_desc']));
             
+            // Display settings for Custom Post Types
+            $display_on = array();
+            
+            // Iterate over existing custom post types, filtering out whether it can be shown or not
+            foreach (get_post_types(array('_builtin' => false, 'public' => true), 'objects') as $post_type_key => $post_type) {
+                if ($post_type_key !== static::PT_GALLERY)
+                    $display_on[$post_type_key] = (!empty($_POST['display_on'][$post_type_key]));
+            }
+            
+            $this->options->display_custom_post_types = $display_on;
+            
             // Slightly different, the background color is saved as a theme mod only.
             $background_color = ltrim($_POST['background_color'], '#');            
             if (empty($background_color)) {
@@ -967,6 +995,18 @@ class Main extends \Pf4wp\WordpressPlugin
             __('Bottom Left', $this->getName()), __('Bottom Right', $this->getName())
         );
         
+        // Grab Custom Post Types
+        $custom_post_types         = array();
+        $display_custom_post_types = $this->options->display_custom_post_types;
+        
+        foreach (get_post_types(array('_builtin' => false, 'public' => true), 'objects') as $post_type_key => $post_type) {
+            if ($post_type_key !== static::PT_GALLERY)
+                $custom_post_types[$post_type_key] = array(
+                    'name'    => $post_type->labels->name,
+                    'display' => (isset($display_custom_post_types[$post_type_key])) ? $display_custom_post_types[$post_type_key] : true,
+                );
+        }
+        
         // Template exports:
         $vars = array(
             'nonce'                         => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
@@ -988,6 +1028,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'display_on_archive'            => $this->options->display_on_archive,
             'display_on_search'             => $this->options->display_on_search,
             'display_on_error'              => $this->options->display_on_error,
+            'custom_post_types'             => $custom_post_types,
             'info_tab'                      => $this->options->info_tab,
             'info_tab_location'             => $this->options->info_tab_location,
             'info_tab_thumb'                => $this->options->info_tab_thumb,

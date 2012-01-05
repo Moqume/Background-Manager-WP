@@ -37,6 +37,12 @@ class Single extends PostMetabox
         add_filter('myatu_bgm_active_gallery', array($this, 'onActiveGallery'), 15, 1);
         add_filter('myatu_bgm_active_overlay', array($this, 'onActiveOverlay'), 15, 1);
         
+        // Include Custom Post Types
+        $this->pages = array_merge($this->pages, get_post_types(array('_builtin' => false, 'public' => true)));
+        
+        // Exclude our own Custom Post Type
+        unset($this->pages[\Myatu\WordPress\BackgroundManager\Main::PT_GALLERY]);
+        
         // An is_admin() check in the parent will automatically avoid things not needed for the public side
         parent::__construct($owner, $auto_register);
     }

@@ -107,6 +107,13 @@
                             <input type="checkbox" value="1" name="display_on_error" {% if display_on_error %}checked="checked"{% endif %} />
                             <span>{{ __('Error page') }}</span>
                         </label>
+                        {% for custom_post_type_key,custom_post_type in custom_post_types %}
+                        <br />
+                        <label class="bg_display_on">
+                            <input type="checkbox" value="1" name="display_on[{{ custom_post_type_key | raw }}]" {% if custom_post_type['display'] %}checked="checked"{% endif %} />
+                            <span>{{ custom_post_type['name'] }}</span>
+                        </label>
+                        {% endfor %}
                     </fieldset>
                 </td>
             </tr>
