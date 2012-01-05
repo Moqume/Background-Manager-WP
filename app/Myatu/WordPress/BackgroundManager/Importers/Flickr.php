@@ -171,7 +171,6 @@ class Flickr extends Importer
             return;
         }
         
-        
         $page      = 1;
         $pb_chunk  = 0;
         $failed    = 0;
@@ -190,12 +189,18 @@ class Flickr extends Importer
                 $title        = $photo['title'];
                 $can_download = true;
                 
-                // Attempt to obtain additional information about the photo
+                // Attempt to obtain additional information about the photo, including the license
                 if ($flickr->isValid($info = $flickr->call('photos.getInfo', array('photo_id' => $photo['id'], 'secret' => $photo['secret']))) && isset($info['photo'])) {
-                    $info = $info['photo'];
-                    
-                    $description  = $info['description']['_content'];
-                    $can_download = ($info['usage']['candownload'] == 1);
+                    $info         = $info['photo'];
+                    $license_info = $flickr->getLicenseById($info['license']); // Obtain license details
+                    $can_download = ($info['usage']['candownload'] == 1);                    
+                    $description  = sprintf(__('<p>%s</p><p>By: <a href="http://www.flickr.com/photos/%s/%s/">%s</a> (%s)</p>', $main->getName()),
+                        $info['description']['_content'],
+                        $info['owner']['nsid'],     // User ID
+                        $info['id'],                // Photo ID
+                        $info['owner']['username'], // Username
+                        (!empty($license_info['url'])) ? sprintf('<a href="%s">%s</a>', $license_info['url'], $license_info['name']) : $license_info['name']
+                    );
                 }
                 
                 // Select the largest size available to us

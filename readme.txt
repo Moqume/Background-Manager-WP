@@ -9,25 +9,17 @@ Display a random image as the website background at each visit or as a timed sli
 
 == Description ==
 
-Background Manager is a powerful replacement for the default WordPress background manager. It allows you to 
-create multiple image sets, from which a random image is selected and displayed as the website background. 
-The images can be uploaded from your local computer, select images in your Media Library, or import them from
-other plugins and third-party sources.
+_Background Manager_ is a powerful replacement for the default WordPress background manager. 
 
-With an easy to use menu, you can also define how the background image is displayed, such as full-screen (with 
-ratio correction), tiled, fixed or scrolling, and define where the image is positioned. 
+It allows you to create multiple image sets, from which a random image is selected and displayed as the website background. The images can be uploaded from your local computer, selected from images available in your Media Library, or import them from other plugins and third-party sources.
 
-You also have the ability to add an overlay to the background images, with a choice of various patterns. Of 
-course it is also possible to add a color to the background instead (or in addition to) showing background
-image.
+With an easy to use menu, you can also define how the background image is displayed, such as full-screen (with ratio correction), tiled, fixed or scrolling, and define where the image is positioned. 
 
-Where supported, in full-screen mode the the background image is "eased in" when it is ready to be displayed. No
-longer will visitors with slower Internet connections have to endure watching a background image load from top 
-down.
+You also have the ability to add an overlay to the background images with a choice of pre-defined patterns. And of course it is also possible to add a background color.
 
-You can limit the background images to certain parts of WordPress, for example only on the front page or a
-full-page post. Individual pages and posts can also override the image set used as the background, which allows
-you to have pages or posts with a different background theme.
+Where supported, in full-screen mode the the background image is "eased in" when it is ready to be displayed. No longer will visitors with slower Internet connections have to endure watching a background image load from top down.
+
+You can also limit the background images to certain parts of WordPress, for example only on the front page or a full-page post. And for each individual page or post, you can also override the images and overlay used as the background, which allows you to have pages or posts with a different background theme.
 
 All this is done without the need to edit the theme or any other files!
 
@@ -73,11 +65,16 @@ with PHP versions older than 5.3.
 
 == Screenshots ==
 
-1. A full-screen background behind the TwentyEleven theme, with the a thumbnail preview in the lower-right corner
+1. A full-screen background behind the TwentyEleven theme, with the a thumbnail preview in the lower-left corner
 2. Editing an Image Set within Background Manager
 
 == Changelog ==
 
-= 0.9 =
+= 0.9.1 =
+
+* Added: Better handling of PHP versions older than 5.3, which before caused confusion due to cryptic error messages
+* Fixed: Overlay images not shown where 'Fileinfo' PHP extension was disabled
+
+= 0.9 (December 30, 2011) =
 * Public BETA release of the plugin
 

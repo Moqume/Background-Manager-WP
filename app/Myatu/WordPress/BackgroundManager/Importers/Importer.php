@@ -115,7 +115,7 @@ class Importer
         static::setProgress(100);
         
         // Finish HTML document and write a JS redirect
-        printf(' %s<script type="text/javascript">/* <![CDATA[ */ mainWin.location="%s"; /* ]]> */</script></body></html>', __('Done!', $main->getName()), $main->import_menu_link);
+        //printf(' %s<script type="text/javascript">/* <![CDATA[ */ mainWin.location="%s"; /* ]]> */</script></body></html>', __('Done!', $main->getName()), $main->import_menu_link);
         
         die();
     }

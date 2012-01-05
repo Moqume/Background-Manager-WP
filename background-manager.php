@@ -42,4 +42,4 @@ set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__.'/vendor/OAuth/li
 
 /* Fire her up, Scotty! */
 
-Myatu\WordPress\BackgroundManager\Main::register(__FILE__);
+call_user_func('Myatu\\WordPress\\BackgroundManager\\Main::register', __FILE__);
