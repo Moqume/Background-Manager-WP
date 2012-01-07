@@ -53,7 +53,7 @@
                             <input class="change_freq" type="radio" value="custom" name="change_freq" {% if change_freq == 'custom' %}checked="checked"{% endif %} />
                             <span>{{ __('Every') }}</span>
                         </label>
-                        <input type="text" class="small-text" value="{{ change_freq_custom | default('10') }}" name="change_freq_custom" />
+                        <input type="text" class="small-text" value="{{ change_freq_custom }}" name="change_freq_custom" />
                         <span>{{ __('seconds') }}</span>
                         <span class="description">({{ __('Requires Javascript by the visitor, but will gracefully degrade if not available') }})</span>
                     </fieldset>

@@ -1020,7 +1020,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'background_repeat'             => $this->options->background_repeat,
             'background_stretch_vertical'   => $this->options->background_stretch_vertical,
             'background_stretch_horizontal' => $this->options->background_stretch_horizontal,
-            'change_freq_custom'            => $this->options->change_freq_custom,
+            'change_freq_custom'            => ((int)$this->options->change_freq_custom >= 10) ? $this->options->change_freq_custom : 10,
             'change_freq'                   => $this->options->change_freq,
             'display_on_front_page'         => $this->options->display_on_front_page,
             'display_on_single_post'        => $this->options->display_on_single_post,
@@ -1274,7 +1274,7 @@ class Main extends \Pf4wp\WordpressPlugin
         
         $vars = array(
             'nonce'           => wp_nonce_field('onImportMenu', '_nonce', true, false),
-            'submit_button'   => get_submit_button('Continue Import'),
+            'submit_button'   => get_submit_button(__('Continue Import', $this->getName())),
             'importers'       => $importers,
             'importer'        => $importer,
             'show_pre_import' => (!empty($importer) && !empty($pre_import)),
