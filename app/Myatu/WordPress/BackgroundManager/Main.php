@@ -229,14 +229,15 @@ class Main extends \Pf4wp\WordpressPlugin
             
             switch ($this->options->change_freq) {
                 case static::CF_SESSION:
-                    session_start();
-                                       
+                    $session_id = 'myatu_bgm_bg_id_' . $gallery_id; // Session ID for stored background image ID
+                    
                     // Grab the random image from the session, or new random one if nothing found in saved session
-                    if (isset($_SESSION['myatu_bgm_bg_id'])) {
-                        $random_id = $_SESSION['myatu_bgm_bg_id'];
+                    if (isset($_SESSION[$session_id])) {
+                        $random_id = $_SESSION[$session_id];
                     } else {
                         $random_id = $this->images->getRandomImageId($gallery_id);
                     }
+                    
                     $random_image = wp_get_attachment_image_src($random_id, $size);
                     
                     if ($random_image) {
@@ -244,9 +245,9 @@ class Main extends \Pf4wp\WordpressPlugin
                         $random_image = $random_image[0];
                     
                         // Save random image in session
-                        $_SESSION['myatu_bgm_bg_id'] = $random_id;
+                        $_SESSION[$session_id] = $random_id;
                     } else {
-                        unset($_SESSION['myatu_bgm_bg_id']); // In case it came form the session
+                        unset($_SESSION[$session_id]); // In case it came form the session
                     }
                     
                     break;
@@ -512,6 +513,9 @@ class Main extends \Pf4wp\WordpressPlugin
     public function registerActions()
     {
         parent::registerActions();
+        
+        // Ensure we have an active session
+        @session_start();
         
         // Remove the original 'Background' menu and WP's callback
         remove_custom_background(); // Since WP 3.1
