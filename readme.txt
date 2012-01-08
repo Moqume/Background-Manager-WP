@@ -40,6 +40,7 @@ All this is done without the need to edit the theme or any other files!
    * Flickr (including license and ownership)
    * NextGEN Gallery Plugin
    * WP Flickr Background Plugin
+* Define the background opacity (available in Full Screen only)
 
 = License =
 
@@ -72,6 +73,7 @@ with PHP versions older than 5.3.
 
 = X =
 * Fixed: Background overrides for individual pages and posts was not honored when 'Select a random image' was set to 'At each browser session'.
+* Added: Support for background opacity
 
 = 0.9.1 (January 5, 2012) =
 
