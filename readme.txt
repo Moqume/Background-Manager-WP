@@ -70,6 +70,9 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
+= X =
+* Fixed: Background overrides for individual pages and posts was not honored when 'Select a random image' was set to 'At each browser session'.
+
 = 0.9.1 (January 5, 2012) =
 
 * Fixed: Overlay images not shown where 'Fileinfo' PHP extension was disabled

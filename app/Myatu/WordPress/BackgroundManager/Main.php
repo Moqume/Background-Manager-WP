@@ -110,6 +110,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'background_scroll'      => 'scroll',    // static::BST_SCROLL
         'background_position'    => 'top-left',
         'background_repeat'      => 'repeat',
+        'background_opacity'     => 100,
         'display_on_front_page'  => true,
         'display_on_single_post' => true,
         'display_on_single_page' => true,
@@ -899,9 +900,26 @@ class Main extends \Pf4wp\WordpressPlugin
         // Extra scripts to include
         list($js_url, $version, $debug) = $this->getResourceUrl();
 
+        // Color picker
         wp_enqueue_script('farbtastic');        
-		wp_enqueue_style('farbtastic');
+        
+        // Slider
+        wp_enqueue_script('jquery-ui-core');
+        wp_enqueue_script('jquery-ui-mouse');
+        wp_enqueue_script('jquery-ui-widget');
+        wp_enqueue_script('jquery-ui-slider');
+        
         wp_enqueue_script($this->getName() . '-settings', $js_url . 'settings' . $debug . '.js', array($this->getName() . '-functions'), $version);        
+        
+        // Extra CSS to include
+        list($css_url, $version, $debug) = $this->getResourceUrl('css');
+        
+        // Color picker
+        wp_enqueue_style('farbtastic');
+        
+        // Slider
+        wp_enqueue_style('jquery-ui-slider', $css_url . 'vendor/jquery-ui-slider' . $debug . '.css', false, $version);        
+
         
         // Guided Help, Step 1 ("Get Started")
         new PointerAddNewStep1();
@@ -933,11 +951,15 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->info_tab_link                 = (!empty($_POST['info_tab_link']));
             $this->options->info_tab_desc                 = (!empty($_POST['info_tab_desc']));
             
+            // Opacity (1-100)
+            if (($opacity = (int)$_POST['background_opacity']) <= 100 && $opacity > 0)
+                $this->options->background_opacity = $opacity;
+            
             // Display settings for Custom Post Types
             $display_on = array();
             
-            // Iterate over existing custom post types, filtering out whether it can be shown or not
             foreach (get_post_types(array('_builtin' => false, 'public' => true), 'objects') as $post_type_key => $post_type) {
+                // Iterate over existing custom post types, filtering out whether it can be shown or not
                 if ($post_type_key !== static::PT_GALLERY)
                     $display_on[$post_type_key] = (!empty($_POST['display_on'][$post_type_key]));
             }
@@ -1024,6 +1046,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'background_repeat'             => $this->options->background_repeat,
             'background_stretch_vertical'   => $this->options->background_stretch_vertical,
             'background_stretch_horizontal' => $this->options->background_stretch_horizontal,
+            'background_opacity'            => $this->options->background_opacity,
             'change_freq_custom'            => ((int)$this->options->change_freq_custom >= 10) ? $this->options->change_freq_custom : 10,
             'change_freq'                   => $this->options->change_freq,
             'display_on_front_page'         => $this->options->display_on_front_page,
@@ -1657,6 +1680,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'info_tab_link'  => $this->options->info_tab_link,
             'info_tab_desc'  => $this->options->info_tab_desc,
             'has_overlay'    => ($overlay != false),
+            'opacity'        => str_pad($this->options->background_opacity, 2, '0', STR_PAD_LEFT), // Only available to full size background
             'is_fullsize'    => $this->options->background_size == static::BS_FULL,
             'random_image'   => $this->getRandomImage(),
         );

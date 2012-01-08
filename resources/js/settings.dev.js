@@ -11,8 +11,12 @@
         showHideLayoutTable: function(e) {
             if ((typeof e === 'string' && e == 'full') || this.value == 'full') {
                 $('.bg_extra_layout').hide();
+                $('.bg_fs_layout').show();
+                myatu_bgm.updateOpacity();
             } else {
                 $('.bg_extra_layout').show();
+                $('.bg_fs_layout').hide();
+                myatu_bgm.updateOpacity(100); // Opacity is not available for 'Normal' displaying
             }
         },
 
@@ -31,14 +35,31 @@
 
             if (color && color.charAt(0) == '#') {
                 if (color.length > 1) {
-                    $('#bg_preview').css('background-color', color);
+                    $('#bg_preview_bg_color').css('background-color', color);
                     $('#clear_color').show();
                 } else {
-                    $('#bg_preview').css('background-color', '');
+                    $('#bg_preview_bg_color').css('background-color', '');
                     $('#clear_color').hide();
                 }
             }
         },
+
+        /** Changes the opacity of the preview */
+        updateOpacity : function(force_to) {
+            var opacity = $('#background_opacity').val(), str_opacity = '100';
+
+            if (force_to)
+                opacity = force_to;
+
+            if (opacity < 10) {
+                str_opacity = '.0' + opacity;
+            } else  if (opacity < 100) {
+                str_opacity = '.' + opacity;
+            }
+
+            $('#bg_preview').css('opacity', str_opacity);
+        },
+
 
         /** Updates the overlay preview */
         updatePreviewOverlay: function() {
@@ -100,6 +121,7 @@
         // Pre-set values
         myatu_bgm.updatePreviewColor();
         myatu_bgm.updatePreviewGallery();
+        myatu_bgm.updateOpacity();
         myatu_bgm.updatePreviewLayout();
         myatu_bgm.updatePreviewOverlay();
         myatu_bgm.showHideInfoExtra();
@@ -118,8 +140,23 @@
         });
 
         // Color picker
-        $('#color_picker').farbtastic(function(color) { $('#background_color').attr('value', color); $('#bg_preview').css('background-color', color) });
+        $('#color_picker').farbtastic(function(color) { 
+            $('#background_color').attr('value', color);
+            myatu_bgm.updatePreviewColor();
+        });
         $.farbtastic('#color_picker').setColor($('#background_color').val());
+
+        // Opacity picker
+	    $('#opacity_picker').slider({
+		    value: $('#background_opacity').val(),
+		    min: 1,
+		    max: 100,
+		    slide: function(event, ui) {
+			    $("#background_opacity").val(ui.value);
+                $("#opacity_picker_val").text(ui.value + '%');
+                myatu_bgm.updateOpacity();
+		    }
+	    });
 
         // Set events
         $('input[name="background_size"]').change(myatu_bgm.showHideLayoutTable);
@@ -131,6 +168,6 @@
         $('#background_stretch_horizontal').click(myatu_bgm.updatePreviewLayout);
         $('#background_stretch_vertical').click(myatu_bgm.updatePreviewLayout);
         $('#info_tab').click(myatu_bgm.showHideInfoExtra);
-        $('#clear_color').click(myatu_bgm.clearColor);
+        $('#clear_color').click(myatu_bgm.clearColor);        
     });
 })(jQuery);
