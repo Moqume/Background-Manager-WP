@@ -96,7 +96,7 @@
                 $('#bg_preview').css({
                     'background-size': '100% auto',
                     'background-repeat': 'no-repeat',
-                    'background-position': 'top left',
+                    'background-position': '50% 50%',
                 });
             } else {
                 // The thumbnail is further resized to 50x50px
