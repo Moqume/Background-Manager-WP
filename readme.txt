@@ -3,7 +3,7 @@ Contributors: Myatu
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.3.1
-Stable tag: 0.9.1
+Stable tag: 0.9.3
 
 Display a random image as the website background at each visit or as a timed slideshow, without the need to edit the theme.
 
@@ -71,8 +71,11 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= X =
-* Fixed: Background overrides for individual pages and posts was not honored when 'Select a random image' was set to 'At each browser session'.
+= 0.9.3 (January 14, 2012) =
+* Fixed: Background overrides for individual pages and posts were not honored when 'Select a random image' was set to 'At each browser session'.
+* Fixed (Potentially): Under certain circumstances, PHP crashes when generating the embedded URI data for overlays, causing the
+web pages not to finish rendering.
+* Changed: Preview image is now centered
 * Added: Support for background opacity
 
 = 0.9.1 (January 5, 2012) =
@@ -84,4 +87,12 @@ with PHP versions older than 5.3.
 
 = 0.9 (December 30, 2011) =
 * Public BETA release of the plugin
+
+== Frequently Asked Questions ==
+
+= Help, it's broken! What do I do now? =
+
+If something does not appear to be working as it should, [search the forum](http://wordpress.org/tags/background-manager) or [write a new topic](http://wordpress.org/tags/background-manager#postform) that describes the problem(s) you are experiencing. 
+
+It will be very useful to include information about the environment in which the problem occured. If you can still activate and access the __Settings__ page for the plugin, look at the bottom of the page for a __Debug__ link. Clicking it will expand a box with often requested details, such as the WordPress version and what operating system the web server is using. You copy and paste these details when reporting a problem, which will help speed up finding a solution.
 

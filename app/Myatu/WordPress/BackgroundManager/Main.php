@@ -427,7 +427,7 @@ class Main extends \Pf4wp\WordpressPlugin
      *
      * @filter myatu_bgm_overlays
      * @param string $active_overlays The active overlay (to set 'select')
-     * @return array Array containing the overlays, by Value, Description and Selected
+     * @return array Array containing the overlays, by Value, Description, Preview (embedded data image preview) and Selected
      */    
     public function getSettingOverlays($active_overlay)
     {
@@ -909,7 +909,8 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_script('jquery-ui-widget');
         wp_enqueue_script('jquery-ui-slider');
         
-        wp_enqueue_script($this->getName() . '-settings', $js_url . 'settings' . $debug . '.js', array($this->getName() . '-functions'), $version);        
+        // Default Functions
+        wp_enqueue_script($this->getName() . '-settings', $js_url . 'settings' . $debug . '.js', array($this->getName() . '-functions'), $version);
         
         // Extra CSS to include
         list($css_url, $version, $debug) = $this->getResourceUrl('css');
@@ -918,8 +919,7 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_style('farbtastic');
         
         // Slider
-        wp_enqueue_style('jquery-ui-slider', $css_url . 'vendor/jquery-ui-slider' . $debug . '.css', false, $version);        
-
+        wp_enqueue_style('jquery-ui-slider', $css_url . 'vendor/jquery-ui-slider' . $debug . '.css', false, $version);
         
         // Guided Help, Step 1 ("Get Started")
         new PointerAddNewStep1();
@@ -983,6 +983,8 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onSettingsMenu($data, $per_page)
     {
+        global $wp_version;
+        
         // Generate a list of galleries, including a default of "None"
         $galleries = array_merge(array(
             array(
@@ -1033,6 +1035,29 @@ class Main extends \Pf4wp\WordpressPlugin
                 );
         }
         
+        // Generate some debug information
+        $plugin_version = \Pf4wp\Info\PluginInfo::getInfo(false, $this->getPluginBaseName(), 'Version');
+        $active_plugins = array();
+        
+        foreach (\Pf4wp\Info\PluginInfo::getInfo(true) as $plugin)
+            $active_plugins[] = sprintf("'%s' by %s", $plugin['Name'], $plugin['Author']);
+            
+        $debug_info = array(
+            'Generated On'                       => gmdate('D, d M Y H:i:s') . ' GMT',
+            $this->getDisplayName() . ' Version' => $plugin_version,
+            'PHP Version'                        => PHP_VERSION,
+            'Available PHP Extensions'           => implode(', ', get_loaded_extensions()),
+            'Pf4wp Version'                      => PF4WP_VERSION,
+            'Pf4wp APC Enabled'                  => (PF4WP_APC) ? 'Yes' : 'No',
+            'WordPress Version'                  => $wp_version,
+            'WordPress Debug Mode'               => (defined('WP_DEBUG') && WP_DEBUG) ? 'Yes' : 'No',
+            'Active WordPress Theme'             => get_current_theme(),
+            'Active Wordpress Plugins'           => implode(', ', $active_plugins),
+            'Browser'                            => $_SERVER['HTTP_USER_AGENT'],
+            'Server'                             => $_SERVER['SERVER_SOFTWARE'],
+            'Server OS'                          => php_uname(),
+        );        
+        
         // Template exports:
         $vars = array(
             'nonce'                         => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
@@ -1064,6 +1089,11 @@ class Main extends \Pf4wp\WordpressPlugin
             'bg_positions'                  => array_combine($this->bg_positions, $bg_position_titles),
             'bg_repeats'                    => array_combine($this->bg_repeats, $bg_repeat_titles),
             'info_tab_locations'            => array_combine($this->info_tab_locations, $info_tab_location_titles),
+            'plugin_base_url'               => $this->getPluginUrl(),
+            'debug_info'                    => $debug_info,
+            'plugin_name'                   => $this->getDisplayName(),
+            'plugin_version'                => $plugin_version,
+            'plugin_home'                   => \Pf4wp\Info\PluginInfo::getInfo(false, $this->getPluginBaseName(), 'PluginURI'),
         );
         
         $this->template->display('settings.html.twig', $vars);

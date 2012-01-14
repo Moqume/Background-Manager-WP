@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Mike Green <myatus@gmail.com>
+ * Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,11 +11,11 @@
         showHideLayoutTable: function(e) {
             if ((typeof e === 'string' && e == 'full') || this.value == 'full') {
                 $('.bg_extra_layout').hide();
-                $('.bg_fs_layout').show();
+                $('.bg_fs_layout').show('slow');
                 myatu_bgm.updateOpacity();
             } else {
-                $('.bg_extra_layout').show();
                 $('.bg_fs_layout').hide();
+                $('.bg_extra_layout').show('slow');
                 myatu_bgm.updateOpacity(100); // Opacity is not available for 'Normal' displaying
             }
         },
@@ -23,9 +23,9 @@
         /** Hides or shows additional settings for Background Information */
         showHideInfoExtra: function() {
             if ($('#info_tab:checked').length) {
-                $('.info_tab_extra').show();
+                $('.info_tab_extra').show('slow');
             } else {
-                $('.info_tab_extra').hide();
+                $('.info_tab_extra').hide('slow');
             }
         },
 
@@ -168,6 +168,9 @@
         $('#background_stretch_horizontal').click(myatu_bgm.updatePreviewLayout);
         $('#background_stretch_vertical').click(myatu_bgm.updatePreviewLayout);
         $('#info_tab').click(myatu_bgm.showHideInfoExtra);
-        $('#clear_color').click(myatu_bgm.clearColor);        
+        $('#clear_color').click(myatu_bgm.clearColor);
+
+        // Simple event
+        $('#footer_debug_link').click(function() { $('#footer_debug').toggle(); return false; });
     });
 })(jQuery);

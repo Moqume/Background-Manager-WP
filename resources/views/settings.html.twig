@@ -159,6 +159,7 @@
                     </div>
                     <div id="opacity_picker" class="hide-if-no-js"></div>
                     <span id="opacity_picker_val" class="hide-if-no-js">{{ background_opacity }}%</span>
+                    <span class="description hide-if-js">({{ __('Only available for Full Screen layouts') }})</span>
                 </td>
             </tr>
             <tr valign="top" class="bg_extra_layout">
@@ -329,4 +330,29 @@
     {{ submit_button | raw }}
 
 </form>
+
+<div id="my_footer">
+    <img src="{{ plugin_base_url }}resources/images/myatus_logo_white.png" alt="Myatu's"/><br>
+    <span>
+        <a href="{{ plugin_home }}" target="_blank">{{plugin_name }} {{ plugin_version }}</a> | 
+        <a href="#" id="footer_debug_link">{{ __('Debug') }}</a> | 
+        <a href="http://wordpress.org/extend/plugins/background-manager/" target="_blank">{{ __('Rate It') }}</a> |
+        <a href="http://wordpress.org/tags/background-manager" target="_blank">{{ __('Forum') }}</a>
+    </span>
+</div>
+
+<div id="footer_debug" style="display:none;">
+    <table class="form-table">
+        <tbody>
+            {% for debug_name, debug_value in debug_info %}
+            <tr>    
+                <th scope="row" style="font-weight: bold;">{{ debug_name }}:</th>
+                <td>{{ debug_value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
 
