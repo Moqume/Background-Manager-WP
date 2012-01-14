@@ -23,6 +23,10 @@ You can also limit the background images to certain parts of WordPress, for exam
 
 All this is done without the need to edit the theme or any other files!
 
+= Demo =
+
+The home page for [Background Manager](http://j.mp/bgmwp) is also a live demonstration of the plugin.
+
 = Features =
 
 * Integration with WordPress Media Library
