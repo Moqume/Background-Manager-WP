@@ -75,6 +75,9 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
+= X =
+* Fixed: Background images were always scaled down to 1024 pixels.
+
 = 0.9.3 (January 14, 2012) =
 * Fixed: Background overrides for individual pages and posts were not honored when 'Select a random image' was set to 'At each browser session'.
 * Fixed (Potentially): Under certain circumstances, PHP crashes when generating the embedded URI data for overlays, causing the

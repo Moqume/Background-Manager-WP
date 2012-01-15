@@ -202,10 +202,10 @@ class Main extends \Pf4wp\WordpressPlugin
      * @filter myatu_bgm_active_gallery
      * @param string $previous_image The URL of the previous image, if any (to avoid duplicates)
      * @param id $active_id Active gallery, or `false` if to be determined automatically (default)
-     * @param string $size The size of the image to return ('large' by default)
+     * @param string $size The size of the image to return (original size by default)
      * @return array
      */
-    public function getRandomImage($previous_image = '', $active_id = false, $size = 'large')
+    public function getRandomImage($previous_image = '', $active_id = false, $size = false)
     {
         $bailout      = 0; // Loop bailout
         $random_id    = 0;
