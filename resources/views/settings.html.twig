@@ -46,6 +46,7 @@
                         <label>
                             <input class="change_freq" type="radio" value="session" name="change_freq" {% if change_freq == 'session' %}checked="checked"{% endif %} />
                             <span>{{ __('At each browser session') }}</span>
+                            <span class="description">({{ __('Stores a cookie on the visitor\'s computer for the duration of the browser session') }})</span>
                         </label>
                         <br />
                         <label>

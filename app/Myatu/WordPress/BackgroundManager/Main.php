@@ -230,25 +230,41 @@ class Main extends \Pf4wp\WordpressPlugin
             
             switch ($this->options->change_freq) {
                 case static::CF_SESSION:
-                    $session_id = 'myatu_bgm_bg_id_' . $gallery_id; // Session ID for stored background image ID
+                    $cookie_id = 'myatu_bgm_bg_id_' . $gallery_id; // Cookie ID for stored background image ID
                     
-                    // Grab the random image from the session, or new random one if nothing found in saved session
-                    if (isset($_SESSION[$session_id])) {
-                        $random_id = $_SESSION[$session_id];
-                    } else {
-                        $random_id = $this->images->getRandomImageId($gallery_id);
-                    }
-                    
-                    $random_image = wp_get_attachment_image_src($random_id, $size);
-                    
-                    if ($random_image) {
-                        // We only need the URL
-                        $random_image = $random_image[0];
-                    
-                        // Save random image in session
-                        $_SESSION[$session_id] = $random_id;
-                    } else {
-                        unset($_SESSION[$session_id]); // In case it came form the session
+                    while (true) {
+                        $bailout++;
+                        
+                        // Grab the random image from the cookie, or new random one
+                        if (isset($_COOKIE[$cookie_id])) {
+                            $random_id = $_COOKIE[$cookie_id];
+                        } else {
+                            $random_id = $this->images->getRandomImageId($gallery_id);
+                        }
+                        
+                        $random_image = wp_get_attachment_image_src($random_id, $size);
+                        
+                        if ($random_image) {
+                            // We only need the URL
+                            $random_image = $random_image[0];
+                        
+                            // Save random image in cookie
+                            if (!isset($_COOKIE[$cookie_id])) {
+                                $_COOKIE[$cookie_id] = $random_id;  // "internal"
+                                @setcookie($cookie_id, $random_id); // browser
+                            }
+                            
+                            break;
+                        } else {
+                            // Invalidate cookie
+                            unset($_COOKIE[$cookie_id]);
+                        }
+                        
+                        // The bailout clause
+                        if ($bailout > 3) {
+                            $random_image = '';
+                            break;
+                        }
                     }
                     
                     break;
@@ -856,9 +872,8 @@ class Main extends \Pf4wp\WordpressPlugin
         // Add an 'Add New Image Set' link to the main title, if not editing an image set
         if (($this->inEdit() && $this->gallery->post_status != 'auto-draft') || (($active_menu = $mymenu->getActiveMenu()) == false) || $active_menu != $gallery_menu) {
             // Replace existing main page title with one that contains a link
-            $main_menu->page_title = sprintf(
-                '%s <a class="add-new-h2" id="add_new_image_set" href="%s">%s</a>',
-                $main_menu->page_title,
+            $main_menu->page_title_extra = sprintf(
+                '<a class="add-new-h2" id="add_new_image_set" href="%s">%s</a>',
                 esc_url($this->edit_gallery_link),
                 __('Add New Image Set', $this->getName())
             );
@@ -1597,6 +1612,10 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         if (!$this->canDisplayBackground())
             return;
+        
+        // If image is selected per browser session, set a cookie now (before headers are sent)
+        if ($this->options->change_freq == static::CF_SESSION)
+            $this->getRandomImage();
 
         /* Only load the scripts if: 
          * - there's custom change frequency
