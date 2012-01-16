@@ -531,9 +531,6 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         parent::registerActions();
         
-        // Ensure we have an active session
-        @session_start();
-        
         // Remove the original 'Background' menu and WP's callback
         remove_custom_background(); // Since WP 3.1
         
