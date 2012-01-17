@@ -11,6 +11,7 @@ namespace Myatu\WordPress\BackgroundManager;
 
 use Pf4wp\Notification\AdminNotice;
 use Pf4wp\Common\Helpers;
+use Pf4wp\Common\Cookies;
 use Pf4wp\Help\ContextHelp;
 
 /* Guided Help using FeaturePointers */
@@ -235,13 +236,7 @@ class Main extends \Pf4wp\WordpressPlugin
                     while (true) {
                         $bailout++;
                         
-                        // Grab the random image from the cookie, or new random one
-                        if (isset($_COOKIE[$cookie_id])) {
-                            $random_id = $_COOKIE[$cookie_id];
-                        } else {
-                            $random_id = $this->images->getRandomImageId($gallery_id);
-                        }
-                        
+                        $random_id    = Cookies::get($cookie_id, $this->images->getRandomImageId($gallery_id));                       
                         $random_image = wp_get_attachment_image_src($random_id, $size);
                         
                         if ($random_image) {
@@ -249,19 +244,16 @@ class Main extends \Pf4wp\WordpressPlugin
                             $random_image = $random_image[0];
                         
                             // Save random image in cookie
-                            if (!isset($_COOKIE[$cookie_id])) {
-                                $_COOKIE[$cookie_id] = $random_id;  // "internal"
-                                @setcookie($cookie_id, $random_id); // browser
-                            }
+                            Cookies::set($cookie_id, $random_id, 0, false);
                             
                             break;
                         } else {
                             // Invalidate cookie
-                            unset($_COOKIE[$cookie_id]);
+                            Cookies::delete($cookie_id);
                         }
                         
                         // The bailout clause
-                        if ($bailout > 3) {
+                        if ($bailout > 2) {
                             $random_image = '';
                             break;
                         }
