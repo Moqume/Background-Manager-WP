@@ -91,17 +91,14 @@ class Main extends \Pf4wp\WordpressPlugin
     /** The link to the Import menu - @see onBuildMenu() */
     public $import_menu_link  = '';
     
-    /** Cached response of inEdit() - @see inEdit() */
-    private $in_edit;
-    
     /** Instance of Images - @see onAdminInit() */
     public $images;
     
     /** Instance of Galleries - @see onAdminInit() */
     public $galleries;
-    
-    /** Cached response for canDisplayBackground() */
-    private $can_display_background;
+
+    /** Non-persistent Cache */
+    private $np_cache = array();
    
     /** The default options */
     protected $default_options = array(
@@ -159,8 +156,8 @@ class Main extends \Pf4wp\WordpressPlugin
         if (!current_user_can('edit_theme_options'))
             return false;
         
-        if (isset($this->in_edit))
-            return ($this->in_edit);
+        if (isset($this->np_cache['in_edit']))
+            return ($this->np_cache['in_edit']);
         
         $edit = (isset($_REQUEST['edit'])) ? trim($_REQUEST['edit']) : '';
         
@@ -192,7 +189,7 @@ class Main extends \Pf4wp\WordpressPlugin
             }
         } // else empty, return default (false)
         
-        $this->in_edit = $result; // Cache response (non-persistent)
+        $this->np_cache['in_edit'] = $result; // Cache response (non-persistent)
         
         return $result;
     }
@@ -350,18 +347,18 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function canDisplayBackground()
     {
-        if (isset($this->can_display_background))
-            return($this->can_display_background);
+        if (isset($this->np_cache['can_display_background']))
+            return($this->np_cache['can_display_background']);
         
         // Obtain a list of custom posts that can be displayed (or not)
         $display_custom_post_types = $this->options->display_custom_post_types;
         
         if (is_array($display_custom_post_types) && isset($display_custom_post_types[get_post_type()]))
-            $this->can_display_background = $display_custom_post_types[get_post_type()];
+            $this->np_cache['can_display_background'] = $display_custom_post_types[get_post_type()];
         
         // This isn't a custom post or not specified in settings, so use these
         if (!isset($this->can_display_background)) {
-            $this->can_display_background  = (
+            $this->np_cache['can_display_background']  = (
                 ($this->options->display_on_front_page  && is_front_page()) ||
                 ($this->options->display_on_single_post && is_single())     ||
                 ($this->options->display_on_single_page && is_page())       ||
@@ -371,7 +368,7 @@ class Main extends \Pf4wp\WordpressPlugin
             );
         }
 
-        return $this->can_display_background;
+        return $this->np_cache['can_display_background'];
     }
     
     /**
@@ -392,10 +389,13 @@ class Main extends \Pf4wp\WordpressPlugin
      * Returns a list of galleries, for settings
      *
      * @param int $active_gallery The ID of the active gallery (to set 'select')
-     * @return array Array containing the galleries, by ID, Name and Selected
+     * @return array Array containing the galleries, by ID, Name, Description and Selected
      */
     public function getSettingGalleries($active_gallery)
     {
+        if (isset($this->np_cache['setting_galleries']))
+            return $this->np_cache['setting_galleries'];
+        
         $galleries = array();
         
         $gallery_posts = get_posts(array(
@@ -414,9 +414,13 @@ class Main extends \Pf4wp\WordpressPlugin
             $galleries[] = array(
                 'id'       => $gallery_post->ID,
                 'name'     => sprintf('%s (%d)', $gallery_name, $this->images->getCount($gallery_post->ID)),
+                'desc'     => $gallery_post->post_content,
                 'selected' => ($active_gallery == $gallery_post->ID),
             );
         }
+        
+        // Store into non-persistent cache
+        $this->np_cache['setting_galleries'] = $galleries;
         
         return $galleries;
     }
@@ -439,6 +443,9 @@ class Main extends \Pf4wp\WordpressPlugin
      */    
     public function getSettingOverlays($active_overlay)
     {
+        if (isset($this->np_cache['overlays']))
+            return $this->np_cache['overlays'];
+        
         $overlays = array();
         $iterator = new \RecursiveIteratorIterator(new \Pf4wp\Storage\IgnorantRecursiveDirectoryIterator($this->getPluginDir() . static::DIR_OVERLAYS, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($iterator as $fileinfo) {
@@ -474,6 +481,9 @@ class Main extends \Pf4wp\WordpressPlugin
         // Sort overlays
         usort($overlays, function($a, $b){ return strcasecmp($a['desc'], $b['desc']); });
 
+        // Store in non-persistent cache
+        $this->np_cache['overlays'] = $overlays;
+        
         return $overlays;
     }
     
@@ -485,6 +495,9 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     protected function getImporters()
     {
+        if (isset($this->np_cache['importers']))
+            return $this->np_cache['importers'];
+        
         $importers = array();
         $iterator  = new \RecursiveIteratorIterator(new \Pf4wp\Storage\IgnorantRecursiveDirectoryIterator($this->getPluginDir() . static::DIR_IMPORTERS, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
         $files     = iterator_to_array(new \RegexIterator($iterator, '/^.+\.php?$/i', \RecursiveRegexIterator::GET_MATCH));
@@ -508,6 +521,9 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // Sort importers by name
         uasort($importers, function($a, $b){ return strcasecmp($a['name'], $b['name']); });
+        
+        // Store in non-persistent cache
+        $this->np_cache['importers'] = $importers;
         
         return $importers;
     }
@@ -989,7 +1005,7 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         global $wp_version;
         
-        // Generate a list of galleries, including a default of "None"
+        // Generate a list of galleries, including a default of "None", and set a flag if we can use collages
         $galleries = array_merge(array(
             array(
                 'id' => 0, 

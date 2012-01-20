@@ -81,7 +81,7 @@ class Images
     
     
     /**
-     * Obtains the Images (images) in a Gallery
+     * Obtains the images in a Gallery
      *
      * @param int $id ID of the Gallery (image set)
      * @param array $args Additional arguments to pass to the query (Optional)
@@ -117,7 +117,7 @@ class Images
     }
     
     /**
-     * Obtains a hash based on the Images (images) in a Gallery
+     * Obtains a hash based on the images in a Gallery
      *
      * @param int $id ID of the Gallery (image set)
      * @return string A string containing the hash
@@ -133,7 +133,7 @@ class Images
     }
 
     /**
-     * Obtains the number of Images (images) in a Gallery
+     * Obtains the number of images in a Gallery
      *
      * @param int $id ID of the Gallery (image set)
      * @return int Number of images in the gallery
@@ -141,5 +141,5 @@ class Images
     public function getCount($id)
     {
         return count($this->getAllImageIds($id));
-    }    
+    }
 }
