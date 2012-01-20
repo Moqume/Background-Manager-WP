@@ -17,12 +17,12 @@
 {# UNCOMPRESSED:
 try {
     (function($){
-        $('#myatu_bgm_top').hide().imgLoaded(function() {
+        $('#myatu_bgm_top').hide().delay(100).imgLoaded(function() {
             $(this).fadeIn('slow');
         });
     })(jQuery);
 } catch(e) {}; #}
-try{(function(a){a("#myatu_bgm_top").hide().imgLoaded(function(){a(this).fadeIn("slow")})})(jQuery)}catch(e){};
+try{(function(a){a("#myatu_bgm_top").hide().delay(100).imgLoaded(function(){a(this).fadeIn("slow")})})(jQuery)}catch(e){};
 //]]>
 </script>
 {% endif %}

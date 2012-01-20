@@ -547,6 +547,7 @@ class Main extends \Pf4wp\WordpressPlugin
         add_action('get_edit_post_link', array($this, 'onGetEditPostLink'), 10, 3);
         add_action('add_attachment', array($this, 'onAddAttachment'), 20);      // Adds 'Background Image' to Library
         add_action('edit_attachment', array($this, 'onAddAttachment'), 20);
+        add_action('admin_bar_menu', array($this, 'onAdminBarMenu'), 90);
         
         // Register post types
         register_post_type(self::PT_GALLERY, array(
@@ -812,6 +813,38 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
+     * This replaces the `Background` menu on the public Admin Bar with our own, if it is shown
+     *
+     * @param mixed $wp_admin_bar Admin bar object
+     * @internal
+     */
+    public function onAdminBarMenu($wp_admin_bar)
+    {
+        try {
+            if (!is_admin() && $wp_admin_bar->get_node('background')) {
+                $wp_admin_bar->remove_node('background');
+                
+                $title = __('Background');
+                
+                /* We create a 'fake' menu here, as on the public side, onBuildMenu() will not get called */
+                $menu = new \Pf4wp\Menu\SubHeadMenu($this->getName());
+                $menu->addMenu($title,  array($this, 'onSettingsMenu'));
+                $menu->setType(\Pf4wp\Menu\MenuEntry::MT_THEMES);
+                $menu->display();
+                
+                $wp_admin_bar->add_node(array(
+                    'parent' => 'appearance', 
+                    'id'     => 'background', 
+                    'title'  => $title,
+                    'href'   => $menu->getParentUrl()
+                ));
+                
+                unset($menu);
+            }
+        } catch (\Exception $e) { /* Silent, to prevent public side from becoming inaccessible on error */ }
+    }    
+    
+    /**
      * Build the menu
      */
     public function onBuildMenu()
@@ -819,7 +852,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $mymenu = new \Pf4wp\Menu\SubHeadMenu($this->getName());
         
         // Add settings menu
-        $main_menu = $mymenu->addMenu(__('Background', $this->getName()), array($this, 'onSettingsMenu'));
+        $main_menu = $mymenu->addMenu(__('Background'), array($this, 'onSettingsMenu'));
         $main_menu->page_title = $this->getDisplayName();
         $main_menu->large_icon = 'icon-themes';
         $main_menu->context_help = new ContextHelp($this, 'settings');

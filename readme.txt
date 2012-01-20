@@ -77,6 +77,8 @@ with PHP versions older than 5.3.
 
 = X =
 * Fixed: Background images were always scaled down to 1024 pixels.
+* Fixed: 'Background' menu entry on front-end admin bar directed user to incorrect URL.
+* Fixed: Under certain conditions, the fade-in of a full-screen image happened too quick after the on-ready `hide()`, causing the image to disappear.
 * Changed: Using cookies instead of a PHP session to store background image(s) IDs used for the browser session, to better accomodate the EU Directive regarding non-essential cookies.
 
 = 0.9.3 (January 14, 2012) =
