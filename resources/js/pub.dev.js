@@ -18,6 +18,39 @@
             myatu_bgm.timer = setTimeout('myatu_bgm.SwitchBackground()', background_manager_vars.change_freq * 1000);
         },
 
+        /** Called when an animation performed by SwitchBackground is completed */
+        AnimationCompleted: function() {
+            $('#myatu_bgm_prev').remove();  // Remove old background
+            myatu_bgm.SetTimer();           // Reset timer
+        },
+
+        /** Slides a new background image (el) into position */
+        AnimateSlide: function(el, scroll_in_from, duration, cover) {
+            var pos_top = '-9000px', pos_prev = '9000px', dir = 'top', properties = new Object;
+
+            // Determine staring position
+            switch (scroll_in_from) {
+                case 'top'   :               pos_top = '-'+$(el).height()+'px'; pos_prev =     $(el).height()+'px'; break;
+                case 'bottom':               pos_top =     $(el).height()+'px'; pos_prev = '-'+$(el).height()+'px'; break;
+                case 'left'  : dir = 'left'; pos_top = '-'+$(el).width()+'px';  pos_prev =     $(el).width()+'px';  break;
+                case 'right' : dir = 'left'; pos_top =     $(el).width()+'px';  pos_prev = '-'+$(el).width()+'px';  break;
+            }
+
+            // Move new image into a position out of view
+            $(el).css(dir, pos_top).show();
+
+            // Slide (scroll) old image out of the way, unless we're covering it
+            if (cover == undefined || cover == false) {
+                properties[dir] = pos_prev;
+                $('#myatu_bgm_prev').animate(properties, {'duration': duration, 'queue': false});
+            }
+
+            // Slide new image in position
+            properties[dir] = '0';
+            $(el).animate(properties, {'duration': duration, 'queue': false, 'complete': myatu_bgm.AnimationCompleted});
+        },
+
+        /** Switch the background */
         SwitchBackground: function() {
             var is_fullsize = (background_manager_vars.is_fullsize == 'true'),
                 prev_img = (is_fullsize) ? $('#myatu_bgm_top').attr('src') : $('body').css('background-image'),
@@ -30,18 +63,38 @@
                 // Clone to a 'prev' full-size image
                 $('#myatu_bgm_top').clone().attr('id', 'myatu_bgm_prev').appendTo('body');
 
-                // Hide and then set new top image
-                $('#myatu_bgm_top').hide().attr({
+                // Hide and then set new top image (unbinding previous imgLoaded event)
+                $('#myatu_bgm_top').hide().unbind('load').attr({
                     'src'   : new_image.url,
                     'alt'   : new_image.alt
                 }).imgLoaded(function() {
-                    // Once the image is loaded, fade it in and then remove the underlaying 'prev' image
-                    $(this).fadeIn('slow', function() {
-                        $('#myatu_bgm_prev').remove();
+                    switch (new_image.transition) {
+                        // No transition
+                        case 'none' :
+                            $(this).show();
+                            myatu_bgm.AnimationCompleted();
+                            break;
 
-                        // And repeat later
-                        myatu_bgm.SetTimer();
-                    });
+                        // Slide
+                        case 'slidedown' : myatu_bgm.AnimateSlide(this, 'top',    new_image.transition_speed); break;
+                        case 'slideup'   : myatu_bgm.AnimateSlide(this, 'bottom', new_image.transition_speed); break;
+                        case 'slideright': myatu_bgm.AnimateSlide(this, 'left',   new_image.transition_speed); break;
+                        case 'slideleft' : myatu_bgm.AnimateSlide(this, 'right',  new_image.transition_speed); break;
+                        
+                        // Cover
+                        case 'coverdown' : myatu_bgm.AnimateSlide(this, 'top',    new_image.transition_speed, true); break;
+                        case 'coverup'   : myatu_bgm.AnimateSlide(this, 'bottom', new_image.transition_speed, true); break;
+                        case 'coverright': myatu_bgm.AnimateSlide(this, 'left',   new_image.transition_speed, true); break;
+                        case 'coverleft' : myatu_bgm.AnimateSlide(this, 'right',  new_image.transition_speed, true); break;
+
+                        // Crossfade is standard transition
+                        default:
+                            // Fade-out the previous image at the same time the new image is being faded in.
+                            $('#myatu_bgm_prev').animate({opacity:0}, {'duration': new_image.transition_speed, 'queue': false});
+
+                            $(this).fadeIn(new_image.transition_speed, myatu_bgm.AnimationCompleted);
+                            break;
+                    }
                 });
             } else {
                 // Simply replace the body background

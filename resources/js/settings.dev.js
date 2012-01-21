@@ -9,7 +9,9 @@
     $.extend(myatu_bgm, {
         /** Shows additional layouts if 'Fullscreen' is not selected, hides otherwise. */
         showHideLayoutTable: function(e) {
-            if ((typeof e === 'string' && e == 'full') || this.value == 'full') {
+            var is_full = ($('input[name="background_size"]:checked').val() == 'full');
+
+            if (is_full) {
                 $('.bg_extra_layout').hide();
                 $('.bg_fs_layout').show('slow');
                 myatu_bgm.updateOpacity();
@@ -18,6 +20,9 @@
                 $('.bg_extra_layout').show('slow');
                 myatu_bgm.updateOpacity(100); // Opacity is not available for 'Normal' displaying
             }
+
+            // Determine if we can show Background Transition settings
+            myatu_bgm.showHideBackgroundTransition();
         },
 
         /** Hides or shows additional settings for Background Information */
@@ -26,6 +31,18 @@
                 $('.info_tab_extra').show('slow');
             } else {
                 $('.info_tab_extra').hide('slow');
+            }
+        },
+
+        /** Hides or shows the Background Transition settings */
+        showHideBackgroundTransition: function() {
+            var is_full = ($('input[name="background_size"]:checked').val() == 'full'),
+                is_custom_freq = ($('input[name="change_freq"]:checked').val() == 'custom');
+
+            if (is_full && is_custom_freq) {
+                $('.bg_transition').show('slow');
+            } else {
+                $('.bg_transition').hide('slow');
             }
         },
 
@@ -124,8 +141,9 @@
         myatu_bgm.updateOpacity();
         myatu_bgm.updatePreviewLayout();
         myatu_bgm.updatePreviewOverlay();
+
         myatu_bgm.showHideInfoExtra();
-        myatu_bgm.showHideLayoutTable($('input[name="background_size"]:checked').val());
+        myatu_bgm.showHideLayoutTable();
 
         // Background Color field
         $('#background_color').focusin(function() { 
@@ -158,6 +176,18 @@
 		    }
 	    });
 
+        // Transition Speed picker
+	    $('#transition_speed_picker').slider({
+		    value: $('#transition_speed').val(),
+		    min: 100,
+		    max: 7500,
+            step: 100,
+		    slide: function(event, ui) {
+			    $("#transition_speed").val(ui.value);
+                myatu_bgm.updateOpacity();
+		    }
+	    });
+
         // Set events
         $('input[name="background_size"]').change(myatu_bgm.showHideLayoutTable);
         $('#active_gallery').change(myatu_bgm.updatePreviewGallery);
@@ -169,6 +199,7 @@
         $('#background_stretch_vertical').click(myatu_bgm.updatePreviewLayout);
         $('#info_tab').click(myatu_bgm.showHideInfoExtra);
         $('#clear_color').click(myatu_bgm.clearColor);
+        $('input[name="change_freq"]').change(myatu_bgm.showHideBackgroundTransition);
 
         // Simple event
         $('#footer_debug_link').click(function() { $('#footer_debug').toggle(); return false; });

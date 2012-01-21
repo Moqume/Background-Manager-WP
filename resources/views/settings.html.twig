@@ -157,10 +157,10 @@
                     <div class="hide-if-js">
                         <input type="text" value="{{ background_opacity }}" autocomplete="off" name="background_opacity" id="background_opacity" />
                         <span>%</span>
+                        <span class="description">({{ __('Only available for Full Screen layouts') }})</span>
                     </div>
                     <div id="opacity_picker" class="hide-if-no-js"></div>
                     <span id="opacity_picker_val" class="hide-if-no-js">{{ background_opacity }}%</span>
-                    <span class="description hide-if-js">({{ __('Only available for Full Screen layouts') }})</span>
                 </td>
             </tr>
             <tr valign="top" class="bg_extra_layout">
@@ -245,7 +245,43 @@
             </tr>
         </tbody>
     </table>
-    
+
+    <div class="bg_transition">
+        <h3>{{ __('Background Transitioning Effect') }} <span class="description hide-if-js">({{ __('Only available for Full Screen layouts') }})</span></h3>
+        <table class="form-table">
+            <tbody>
+                <tr valign="top">
+                    <th scope="row">
+                        <label for="background_transition">{{ __('Transition Effect') }}</label>
+                    </th>
+                    <td>
+                        <select id="background_transition" class="postform" name="background_transition">
+                            {% for bg_transition_key, bg_transition_value in bg_transitions %}
+                            <option {% if background_transition == bg_transition_key %}selected="selected"{% endif %} value="{{ bg_transition_key }}">{{ bg_transition_value }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">
+                        <label for="transition_speed">{{ __('Transition Speed') }}</label>
+                    </th>
+                    <td>
+                        <div class="hide-if-js">
+                            <input type="text" class="small-text" value="{{ transition_speed }}" name="transition_speed" id="transition_speed" />
+                            <span>{{ __('milliseconds') }}</span>
+                            <span class="description">({{ __('1000 milliseconds = 1 second') }})</span>
+                        </div>
+                        <div class="hide-if-no-js">
+                            <span>Faster</span>
+                            <div id="transition_speed_picker" class="hide-if-no-js"></div>
+                            <span>Slower</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <h3>{{ __('Background Overlay') }}</h3>
     <table class="form-table">

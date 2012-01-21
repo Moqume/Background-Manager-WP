@@ -79,6 +79,14 @@ class Main extends \Pf4wp\WordpressPlugin
     /* Possible info tab locations */
     private $info_tab_locations = array('top-left', 'top-right', 'bottom-left', 'bottom-right');
     
+    /* Possible transition options */
+    private $bg_transitions = array(
+        'none', 'random',
+        'slidedown', 'slideup', 'slideleft', 'slideright',
+        'coverdown', 'coverup', 'coverleft', 'coverright',
+        'crossfade',
+    );
+    
     /** Instance containing current gallery being edited (if any) */
     private $gallery = null;
     
@@ -109,6 +117,8 @@ class Main extends \Pf4wp\WordpressPlugin
         'background_position'    => 'top-left',
         'background_repeat'      => 'repeat',
         'background_opacity'     => 100,
+        'background_transition'  => 'crossfade',
+        'transition_speed'       => 600,
         'display_on_front_page'  => true,
         'display_on_single_post' => true,
         'display_on_single_page' => true,
@@ -769,7 +779,24 @@ class Main extends \Pf4wp\WordpressPlugin
                 
                 $prev_image   = $matches[1];
                 $random_image = $this->getRandomImage($prev_image, (int)$data['active_gallery']);
+                
+                // Remove 'meta', as we do not use this in the front-end
+                unset($random_image['meta']);
+                
+                // Add transition type
+                if ($this->options->background_transition == 'random') {
+                    // Filter and select random transition
+                    $transitions = array_diff_key($this->bg_transitions, array('none', 'random'));
+                    $rand_sel    = array_rand($transitions);
 
+                    $random_image['transition'] = $transitions[$rand_sel];
+                } else {
+                    $random_image['transition'] = $this->options->background_transition;
+                }
+                
+                // Add transition speed
+                $random_image['transition_speed'] = ((int)$this->options->transition_speed >= 100 && (int)$this->options->transition_speed <= 7500) ? $this->options->transition_speed : 600;
+                
                 $this->ajaxResponse((object)$random_image, empty($random_image['url']));
                 
                 break;
@@ -989,6 +1016,8 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->background_scroll             = (in_array($_POST['background_scroll'], array(static::BST_FIXED, static::BST_SCROLL))) ? $_POST['background_scroll'] : null;
             $this->options->background_position           = (in_array($_POST['background_position'], $this->bg_positions)) ? $_POST['background_position'] : null;
             $this->options->background_repeat             = (in_array($_POST['background_repeat'], $this->bg_repeats)) ? $_POST['background_repeat'] : null;
+            $this->options->background_transition         = (in_array($_POST['background_transition'], $this->bg_transitions)) ? $_POST['background_transition'] : null;
+            $this->options->transition_speed              = (int)$_POST['transition_speed'];
             $this->options->background_stretch_vertical   = (!empty($_POST['background_stretch_vertical']));
             $this->options->background_stretch_horizontal = (!empty($_POST['background_stretch_horizontal']));
             $this->options->active_overlay                = (string)$_POST['active_overlay'];
@@ -1076,6 +1105,14 @@ class Main extends \Pf4wp\WordpressPlugin
             __('Bottom Left', $this->getName()), __('Bottom Right', $this->getName())
         );
         
+        // Give the transitions titles
+        $bg_transition_titles = array(
+            __('-- None (deactivated) --', $this->getName()), __('Random', $this->getName()),
+            __('Slide Down', $this->getName()), __('Slide Up', $this->getName()), __('Slide to Left', $this->getName()), __('Slide to Right', $this->getName()),
+            __('Cover Down', $this->getName()), __('Cover Up', $this->getName()), __('Cover to Left', $this->getName()), __('Cover to Right', $this->getName()),
+            __('Crossfade', $this->getName()),
+        );        
+        
         // Grab Custom Post Types
         $custom_post_types         = array();
         $display_custom_post_types = $this->options->display_custom_post_types;
@@ -1125,6 +1162,8 @@ class Main extends \Pf4wp\WordpressPlugin
             'background_stretch_vertical'   => $this->options->background_stretch_vertical,
             'background_stretch_horizontal' => $this->options->background_stretch_horizontal,
             'background_opacity'            => $this->options->background_opacity,
+            'background_transition'         => $this->options->background_transition,
+            'transition_speed'              => ((int)$this->options->transition_speed >= 100 && (int)$this->options->transition_speed <= 7500) ? $this->options->transition_speed : 600,
             'change_freq_custom'            => ((int)$this->options->change_freq_custom >= 10) ? $this->options->change_freq_custom : 10,
             'change_freq'                   => $this->options->change_freq,
             'display_on_front_page'         => $this->options->display_on_front_page,
@@ -1141,6 +1180,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'info_tab_desc'                 => $this->options->info_tab_desc,
             'bg_positions'                  => array_combine($this->bg_positions, $bg_position_titles),
             'bg_repeats'                    => array_combine($this->bg_repeats, $bg_repeat_titles),
+            'bg_transitions'                => array_combine($this->bg_transitions, $bg_transition_titles),
             'info_tab_locations'            => array_combine($this->info_tab_locations, $info_tab_location_titles),
             'plugin_base_url'               => $this->getPluginUrl(),
             'debug_info'                    => $debug_info,

@@ -217,6 +217,12 @@
     border: 0 none;
 }
 
+#transition_speed_picker {
+    width: 200px;
+    display: inline-block;
+    margin: 0 10px;
+}
+
 #opacity_picker {
     width: 200px;
     display: inline-block;
