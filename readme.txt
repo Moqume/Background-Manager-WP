@@ -78,7 +78,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= X =
+= 1.0 (January 21, 2012) =
 * Added: Support for additional transition effects for full-screen images, including the ability to disable it.
 * Added: Ability to select transition effect speed.
 * Fixed: Background images were always scaled down to 1024 pixels.
@@ -86,6 +86,7 @@ with PHP versions older than 5.3.
 * Fixed: Under certain conditions, the fade-in of a full-screen image happened too quick after the on-ready `hide()`, causing the image to disappear.
 * Fixed: Full-screen imgLoaded() (JS) event was not unbound at subsequent use, causing undesired results with transition effects.
 * Changed: Using cookies instead of a PHP session to store background image(s) IDs used for the browser session, to better accomodate the EU Directive regarding non-essential cookies.
+* Changed: More fluid crossfading of images
 
 = 0.9.3 (January 14, 2012) =
 * Fixed: Background overrides for individual pages and posts were not honored when 'Select a random image' was set to 'At each browser session'.
