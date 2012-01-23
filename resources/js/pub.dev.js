@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Mike Green <myatus@gmail.com>
+ * Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,34 +20,62 @@
 
         /** Called when an animation performed by SwitchBackground is completed */
         AnimationCompleted: function() {
-            $('#myatu_bgm_prev').remove();  // Remove old background
-            myatu_bgm.SetTimer();           // Reset timer
+            $('#myatu_bgm_top').css({'left' : '', 'top' : ''}); // Restore `left` and `top` to those defined by CSS
+            $('#myatu_bgm_prev').remove();                      // Remove old background
+            myatu_bgm.SetTimer();                               // Reset timer
         },
 
-        /** Slides a new background image (el) into position */
-        AnimateSlide: function(el, scroll_in_from, duration, cover) {
-            var pos_top = '-9000px', pos_prev = '9000px', dir = 'top', properties = new Object;
+        /** Slides a new background image into position */
+        AnimateSlide: function(scroll_in_from, duration, cover) {
+            var new_img = $('#myatu_bgm_top'), old_img = $('#myatu_bgm_prev'),              // Images selectors
+                pos_new_img = '-9000px', pos_old_img = '9000px',                            // Failsafe image positions
+                dir   = 'top',                                                              // Default CSS positioning
+                css   = new Object,
+                ww    = $(window).width(),                                                  // Window width
+                wp    = ((new_img.width() - ww) * 100) / ww,                                // Window image overflow %
+                pos_p = (150 + wp) + '%',
+                neg_p = '-' + (50 + wp) + '%',
+                _isp  = function(s) { s = String(s); return (s.charAt(s.length-1) == '%') }; // Macro to check if value is a percentage
 
-            // Determine staring position
+            // Determine starting position for new image, and ending position for old image
             switch (scroll_in_from) {
-                case 'top'   :               pos_top = '-'+$(el).height()+'px'; pos_prev =     $(el).height()+'px'; break;
-                case 'bottom':               pos_top =     $(el).height()+'px'; pos_prev = '-'+$(el).height()+'px'; break;
-                case 'left'  : dir = 'left'; pos_top = '-'+$(el).width()+'px';  pos_prev =     $(el).width()+'px';  break;
-                case 'right' : dir = 'left'; pos_top =     $(el).width()+'px';  pos_prev = '-'+$(el).width()+'px';  break;
+                // Vertical movement - the show/hide is to permit the browser to adjust the image to the window size (CSS styling)
+                case 'top'   : new_img.show(); pos_new_img = '-'+new_img.height()+'px'; pos_old_img = new_img.height()+'px'; new_img.hide(); break;
+                case 'bottom': pos_new_img = old_img.height()+'px'; pos_old_img = '-'+old_img.height()+'px'; break; //!!
+
+                // Horizontla movement
+                case 'left'  : 
+                    dir = 'left';
+
+                    var p = _isp(new_img.css(dir));
+                    pos_new_img = (p) ? neg_p : '-'+ww+'px';
+                    pos_old_img = (p) ? pos_p :     ww+'px';
+
+                    break;
+
+                case 'right' : 
+                    dir = 'left';
+
+                    var p = _isp(new_img.css(dir));
+
+                    pos_new_img = (p) ? pos_p :     ww+'px';
+                    pos_old_img = (p) ? neg_p : '-'+ww+'px';
+                    break;
             }
 
-            // Move new image into a position out of view
-            $(el).css(dir, pos_top).show();
+            // Store original position and move new image out of view
+            var pos_orig = new_img.css(dir);
+            new_img.css(dir, pos_new_img).show();
 
             // Slide (scroll) old image out of the way, unless we're covering it
             if (cover == undefined || cover == false) {
-                properties[dir] = pos_prev;
-                $('#myatu_bgm_prev').animate(properties, {'duration': duration, 'queue': false});
+                css[dir] = pos_old_img;
+                old_img.animate(css, {'duration': duration, 'queue': false});
             }
 
-            // Slide new image in position
-            properties[dir] = '0';
-            $(el).animate(properties, {'duration': duration, 'queue': false, 'complete': myatu_bgm.AnimationCompleted});
+            // Slide new image into orignal position
+            css[dir] = pos_orig;
+            new_img.animate(css, {'duration': duration, 'queue': false, 'complete': myatu_bgm.AnimationCompleted});
         },
 
         /** Switch the background */
@@ -68,6 +96,8 @@
                     'src'   : new_image.url,
                     'alt'   : new_image.alt
                 }).imgLoaded(function() {
+                    var s = new_image.transition_speed, c = false;
+
                     switch (new_image.transition) {
                         // No transition
                         case 'none' :
@@ -75,17 +105,17 @@
                             myatu_bgm.AnimationCompleted();
                             break;
 
-                        // Slide
-                        case 'slidedown' : myatu_bgm.AnimateSlide(this, 'top',    new_image.transition_speed); break;
-                        case 'slideup'   : myatu_bgm.AnimateSlide(this, 'bottom', new_image.transition_speed); break;
-                        case 'slideright': myatu_bgm.AnimateSlide(this, 'left',   new_image.transition_speed); break;
-                        case 'slideleft' : myatu_bgm.AnimateSlide(this, 'right',  new_image.transition_speed); break;
-                        
-                        // Cover
-                        case 'coverdown' : myatu_bgm.AnimateSlide(this, 'top',    new_image.transition_speed, true); break;
-                        case 'coverup'   : myatu_bgm.AnimateSlide(this, 'bottom', new_image.transition_speed, true); break;
-                        case 'coverright': myatu_bgm.AnimateSlide(this, 'left',   new_image.transition_speed, true); break;
-                        case 'coverleft' : myatu_bgm.AnimateSlide(this, 'right',  new_image.transition_speed, true); break;
+                        case 'coverdown' : c = true; // Cover instead of slide. Remember nobreak
+                        case 'slidedown' : myatu_bgm.AnimateSlide('top', s, c); break;
+
+                        case 'coverup'   : c = true;
+                        case 'slideup'   : myatu_bgm.AnimateSlide('bottom', s, c); break;
+
+                        case 'coverright': c = true;
+                        case 'slideright': myatu_bgm.AnimateSlide('left', s, c); break;
+
+                        case 'coverleft' : c = true;
+                        case 'slideleft' : myatu_bgm.AnimateSlide('right', s, c); break;
 
                         // Crossfade is standard transition
                         default:
