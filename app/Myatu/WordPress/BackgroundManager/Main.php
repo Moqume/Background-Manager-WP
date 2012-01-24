@@ -869,7 +869,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 unset($menu);
             }
         } catch (\Exception $e) { /* Silent, to prevent public side from becoming inaccessible on error */ }
-    }    
+    }
     
     /**
      * Build the menu
