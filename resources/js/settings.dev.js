@@ -7,31 +7,27 @@
  */
 (function($){
     $.extend(myatu_bgm, {
+        /** Helper to show/hide settings */
+        showHide: function(what, show, speed) {
+            if (speed == undefined)
+                speed = 'slow';
+
+            (show) ? $(what).show(speed) : $(what).hide(speed);
+        },
+
         /** Shows additional layouts if 'Fullscreen' is not selected, hides otherwise. */
         showHideLayoutTable: function(e) {
             var is_full = ($('input[name="background_size"]:checked').val() == 'full');
-
-            if (is_full) {
-                $('.bg_extra_layout').hide();
-                $('.bg_fs_layout').show('slow');
-                myatu_bgm.updateOpacity();
-            } else {
-                $('.bg_fs_layout').hide();
-                $('.bg_extra_layout').show('slow');
-                myatu_bgm.updateOpacity(100); // Opacity is not available for 'Normal' displaying
-            }
-
-            // Determine if we can show Background Transition settings
-            myatu_bgm.showHideBackgroundTransition();
+            
+            myatu_bgm.showHide('.bg_fs_layout', is_full);                   // Show/hide 'Full Screen' layout extras
+            myatu_bgm.showHide('.bg_extra_layout', !is_full, false);        // Show/hide 'Normal' layout extras
+            myatu_bgm.updateBackgroundOpacity((!is_full) ? 100 : false);    // Fix opacity to 100 if not 'Full Screen'
+            myatu_bgm.showHideBackgroundTransition();                       // Determine if we can show Background Transition settings
         },
 
         /** Hides or shows additional settings for Background Information */
         showHideInfoExtra: function() {
-            if ($('#info_tab:checked').length) {
-                $('.info_tab_extra').show('slow');
-            } else {
-                $('.info_tab_extra').hide('slow');
-            }
+            myatu_bgm.showHide('.info_tab_extra', $('#info_tab:checked').length);
         },
 
         /** Hides or shows the Background Transition settings */
@@ -39,11 +35,7 @@
             var is_full = ($('input[name="background_size"]:checked').val() == 'full'),
                 is_custom_freq = ($('input[name="change_freq"]:checked').val() == 'custom');
 
-            if (is_full && is_custom_freq) {
-                $('.bg_transition').show('slow');
-            } else {
-                $('.bg_transition').hide('slow');
-            }
+            myatu_bgm.showHide('.bg_transition', (is_full && is_custom_freq));
         },
 
         /** Changes the preview background color according to the selection */
@@ -61,9 +53,9 @@
             }
         },
 
-        /** Changes the opacity of the preview */
-        updateOpacity : function(force_to) {
-            var opacity = $('#background_opacity').val(), str_opacity = '100';
+        /** Changes the opacity in the preview */
+        updateOpacity : function(force_to, source, target) {
+            var opacity = $(source).val(), str_opacity = '100';
 
             if (force_to)
                 opacity = force_to;
@@ -74,20 +66,17 @@
                 str_opacity = '.' + opacity;
             }
 
-            $('#bg_preview').css('opacity', str_opacity);
+            $(target).css('opacity', str_opacity);
         },
 
-        /** Changes the opacity for the overlay in the preview */
+        /** Changes the background opacity */
+        updateBackgroundOpacity : function(force_to) {
+            myatu_bgm.updateOpacity(force_to, '#background_opacity', '#bg_preview');
+        },
+
+        /** Changes the overlay opacity */
         updateOverlayOpacity : function() {
-            var opacity = $('#overlay_opacity').val(), str_opacity = '100';
-
-            if (opacity < 10) {
-                str_opacity = '.0' + opacity;
-            } else  if (opacity < 100) {
-                str_opacity = '.' + opacity;
-            }
-
-            $('#bg_preview_overlay').css('opacity', str_opacity);
+            myatu_bgm.updateOpacity(false, '#overlay_opacity', '#bg_preview_overlay');
         },
 
         /** Updates the overlay preview */
@@ -147,17 +136,6 @@
     });
 
     $(document).ready(function($){
-        // Pre-set values
-        myatu_bgm.updatePreviewColor();
-        myatu_bgm.updatePreviewGallery();
-        myatu_bgm.updateOpacity();
-        myatu_bgm.updatePreviewLayout();
-        myatu_bgm.updatePreviewOverlay();
-        myatu_bgm.updateOverlayOpacity();
-
-        myatu_bgm.showHideInfoExtra();
-        myatu_bgm.showHideLayoutTable();
-
         // Background Color field
         $('#background_color').focusin(function() { 
             $('#color_picker').show(); 
@@ -180,18 +158,20 @@
         // Opacity picker
 	    $('#opacity_picker').slider({
 		    value: $('#background_opacity').val(),
+            range: 'min',
 		    min: 1,
 		    max: 100,
 		    slide: function(event, ui) {
 			    $("#background_opacity").val(ui.value);
                 $("#opacity_picker_val").text(ui.value + '%');
-                myatu_bgm.updateOpacity();
+                myatu_bgm.updateBackgroundOpacity();
 		    }
 	    });
 
         // Overlay opacity picker
 	    $('#ov_opacity_picker').slider({
 		    value: $('#overlay_opacity').val(),
+            range: 'min',
 		    min: 1,
 		    max: 100,
 		    slide: function(event, ui) {
@@ -203,28 +183,32 @@
 
         // Transition Speed picker
 	    $('#transition_speed_picker').slider({
-		    value: $('#transition_speed').val(),
-		    min: 7500,
-		    max: 100,
+		    value: 7600 - $('#transition_speed').val(),
+		    min: 100,
+		    max: 7500,
             step: 100,
 		    slide: function(event, ui) {
-			    $("#transition_speed").val(ui.value);
+			    $("#transition_speed").val(7600 - ui.value);
                 myatu_bgm.updateOpacity();
 		    }
 	    });
 
-        // Set events
-        $('input[name="background_size"]').change(myatu_bgm.showHideLayoutTable);
-        $('#active_gallery').change(myatu_bgm.updatePreviewGallery);
-        $('#active_overlay').change(myatu_bgm.updatePreviewOverlay);
-        $('input[name="background_size"]').change(myatu_bgm.updatePreviewLayout);
-        $('input[name="background_position"]').change(myatu_bgm.updatePreviewLayout);
-        $('input[name="background_repeat"]').change(myatu_bgm.updatePreviewLayout);
-        $('#background_stretch_horizontal').click(myatu_bgm.updatePreviewLayout);
-        $('#background_stretch_vertical').click(myatu_bgm.updatePreviewLayout);
-        $('#info_tab').click(myatu_bgm.showHideInfoExtra);
-        $('#clear_color').click(myatu_bgm.clearColor);
-        $('input[name="change_freq"]').change(myatu_bgm.showHideBackgroundTransition);
+        // Set and Pre-set complex events
+        myatu_bgm.updatePreviewColor();
+        myatu_bgm.updateBackgroundOpacity();
+        myatu_bgm.updateOverlayOpacity();
+
+        $('#info_tab').click(myatu_bgm.showHideInfoExtra);                              myatu_bgm.showHideInfoExtra();
+        $('input[name="background_size"]').change(myatu_bgm.showHideLayoutTable);       myatu_bgm.showHideLayoutTable();
+        $('#active_gallery').change(myatu_bgm.updatePreviewGallery);                    myatu_bgm.updatePreviewGallery();
+        $('#active_overlay').change(myatu_bgm.updatePreviewOverlay);                    myatu_bgm.updatePreviewOverlay();
+        $('input[name="background_size"]').change(myatu_bgm.updatePreviewLayout);       myatu_bgm.updatePreviewLayout();
+        $('input[name="background_position"]').change(myatu_bgm.updatePreviewLayout);   // ..
+        $('input[name="background_repeat"]').change(myatu_bgm.updatePreviewLayout);     // ..
+        $('#background_stretch_horizontal').click(myatu_bgm.updatePreviewLayout);       // ..
+        $('#background_stretch_vertical').click(myatu_bgm.updatePreviewLayout);         // ..
+        $('#clear_color').click(myatu_bgm.clearColor);                                  // No pre-set
+        $('input[name="change_freq"]').change(myatu_bgm.showHideBackgroundTransition);  // No pre-set (handled by updatePreviewLayout())
 
         // Simple event
         $('#footer_debug_link').click(function() { $('#footer_debug').toggle(); return false; });

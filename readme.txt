@@ -81,16 +81,16 @@ with PHP versions older than 5.3.
 == Changelog ==
 
 = 1.0.1 =
-* Added: Support for overlay opacity
-* Added: New background overlays
+* __Added:__ Support for overlay opacity
+* __Added:__ New background overlays
     * Black and White Grid
     * Black and White Horizontal Line (dense)
     * Jeans effect
 * Improved: The Slide and Cover transition effects have been improved, handling various image sizes and smaller browser windows better.
 
 = 1.0 (January 21, 2012) =
-* Added: Support for additional transition effects for full-screen images, including the ability to disable it.
-* Added: Ability to select transition effect speed.
+* __Added:__ Support for additional transition effects for full-screen images, including the ability to disable it.
+* __Added:__ Ability to select transition effect speed.
 * Fixed: Background images were always scaled down to 1024 pixels.
 * Fixed: 'Background' menu entry on front-end admin bar directed user to incorrect URL.
 * Fixed: Under certain conditions, the fade-in of a full-screen image happened too quick after the on-ready `hide()`, causing the image to disappear.
@@ -103,13 +103,13 @@ with PHP versions older than 5.3.
 * Fixed: Under certain circumstances, PHP crashes when generating the embedded URI data for overlays, causing the
 web pages not to finish rendering.
 * Changed: Preview image is now centered
-* Added: Support for background opacity
+* __Added:__ Support for background opacity
 
 = 0.9.1 (January 5, 2012) =
 
 * Fixed: Overlay images not shown where 'Fileinfo' PHP extension was disabled
-* Added: Better handling of PHP versions older than 5.3, which before caused confusion due to cryptic error messages
-* Added: Support for Custom Post Types (activation and background overrides)
+* __Added:__ Better handling of PHP versions older than 5.3, which before caused confusion due to cryptic error messages
+* __Added:__ Support for Custom Post Types (activation and background overrides)
 * Changed: Flickr imports now include the owner, license and link to the original image in the description
 
 = 0.9 (December 30, 2011) =
