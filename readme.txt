@@ -40,7 +40,7 @@ The home page for [Background Manager](http://j.mp/bgmwp) is also a live demonst
     * Fade-in/Fade-out (Crossfade)
     * Slide (Top, bottom, left or right)
     * Cover (Top, bottom, left or right)
-* Pre-defined background overlays
+* 18 pre-defined background overlays
 * Enable or disable the background images on the Front page, Error pages, Custom post types, etc.
 * Optional thumbnail/information tab for the visitor to learn more about the background
 * Import from various sources, such as:
@@ -48,6 +48,8 @@ The home page for [Background Manager](http://j.mp/bgmwp) is also a live demonst
    * NextGEN Gallery Plugin
    * WP Flickr Background Plugin
 * Define the background opacity (available in Full Screen only)
+* Uses AJAX to load background images, keeping the website's footprint small and improve caching
+* Graceful degradation for visitors without JavaScript
 
 = License =
 
@@ -77,6 +79,13 @@ with PHP versions older than 5.3.
 2. Editing an Image Set within Background Manager
 
 == Changelog ==
+
+= 1.0.1 =
+* Added: New background overlays
+    * Black and White Grid
+    * Black and White Horizontal Line (dense)
+    * Jeans effect
+* Improved: The Slide and Cover transition effects have been improved, handling various image sizes and smaller browser windows better.
 
 = 1.0 (January 21, 2012) =
 * Added: Support for additional transition effects for full-screen images, including the ability to disable it.
