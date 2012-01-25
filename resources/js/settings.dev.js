@@ -77,6 +77,18 @@
             $('#bg_preview').css('opacity', str_opacity);
         },
 
+        /** Changes the opacity for the overlay in the preview */
+        updateOverlayOpacity : function() {
+            var opacity = $('#overlay_opacity').val(), str_opacity = '100';
+
+            if (opacity < 10) {
+                str_opacity = '.0' + opacity;
+            } else  if (opacity < 100) {
+                str_opacity = '.' + opacity;
+            }
+
+            $('#bg_preview_overlay').css('opacity', str_opacity);
+        },
 
         /** Updates the overlay preview */
         updatePreviewOverlay: function() {
@@ -141,6 +153,7 @@
         myatu_bgm.updateOpacity();
         myatu_bgm.updatePreviewLayout();
         myatu_bgm.updatePreviewOverlay();
+        myatu_bgm.updateOverlayOpacity();
 
         myatu_bgm.showHideInfoExtra();
         myatu_bgm.showHideLayoutTable();
@@ -176,11 +189,23 @@
 		    }
 	    });
 
+        // Overlay opacity picker
+	    $('#ov_opacity_picker').slider({
+		    value: $('#overlay_opacity').val(),
+		    min: 1,
+		    max: 100,
+		    slide: function(event, ui) {
+			    $("#overlay_opacity").val(ui.value);
+                $("#ov_opacity_picker_val").text(ui.value + '%');
+                myatu_bgm.updateOverlayOpacity();
+		    }
+	    });
+
         // Transition Speed picker
 	    $('#transition_speed_picker').slider({
 		    value: $('#transition_speed').val(),
-		    min: 100,
-		    max: 7500,
+		    min: 7500,
+		    max: 100,
             step: 100,
 		    slide: function(event, ui) {
 			    $("#transition_speed").val(ui.value);

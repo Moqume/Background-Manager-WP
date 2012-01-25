@@ -223,7 +223,7 @@
     margin: 0 10px;
 }
 
-#opacity_picker {
+#ov_opacity_picker, #opacity_picker {
     width: 200px;
     display: inline-block;
     margin-right: 10px;

@@ -81,6 +81,7 @@ with PHP versions older than 5.3.
 == Changelog ==
 
 = 1.0.1 =
+* Added: Support for overlay opacity
 * Added: New background overlays
     * Black and White Grid
     * Black and White Horizontal Line (dense)

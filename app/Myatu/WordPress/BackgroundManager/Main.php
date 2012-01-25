@@ -117,6 +117,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'background_position'    => 'top-left',
         'background_repeat'      => 'repeat',
         'background_opacity'     => 100,
+        'overlay_opacity'        => 100,
         'background_transition'  => 'crossfade',
         'transition_speed'       => 600,
         'display_on_front_page'  => true,
@@ -1036,6 +1037,10 @@ class Main extends \Pf4wp\WordpressPlugin
             // Opacity (1-100)
             if (($opacity = (int)$_POST['background_opacity']) <= 100 && $opacity > 0)
                 $this->options->background_opacity = $opacity;
+                
+            if (($opacity = (int)$_POST['overlay_opacity']) <= 100 && $opacity > 0)
+                $this->options->overlay_opacity = $opacity;
+
             
             // Display settings for Custom Post Types
             $display_on = array();
@@ -1162,6 +1167,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'background_stretch_vertical'   => $this->options->background_stretch_vertical,
             'background_stretch_horizontal' => $this->options->background_stretch_horizontal,
             'background_opacity'            => $this->options->background_opacity,
+            'overlay_opacity'               => $this->options->overlay_opacity,
             'background_transition'         => $this->options->background_transition,
             'transition_speed'              => ((int)$this->options->transition_speed >= 100 && (int)$this->options->transition_speed <= 7500) ? $this->options->transition_speed : 600,
             'change_freq_custom'            => ((int)$this->options->change_freq_custom >= 10) ? $this->options->change_freq_custom : 10,
@@ -1763,8 +1769,13 @@ class Main extends \Pf4wp\WordpressPlugin
         $overlay = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
         
         // The image for the overlay, as CSS embedded data
-        if ($overlay && ($data = Helpers::embedDataUri($overlay, false, (defined('WP_DEBUG') && WP_DEBUG))) != false)
-            $style .= sprintf('#myatu_bgm_overlay { background: url(\'%s\') repeat fixed top left transparent; }', $data);
+        if ($overlay && ($data = Helpers::embedDataUri($overlay, false, (defined('WP_DEBUG') && WP_DEBUG))) != false) {
+            $opacity = '';
+            if ($this->options->overlay_opacity < 100)
+                $opacity = sprintf('-moz-opacity:.%s; filter:alpha(opacity=%1$s); opacity:.%1$s', str_pad($this->options->overlay_opacity, 2, '0', STR_PAD_LEFT));
+            
+            $style .= sprintf('#myatu_bgm_overlay { background: url(\'%s\') repeat fixed top left transparent; %s }', $data, $opacity);
+        }
         
         // The info icon
         if ($this->options->info_tab) {

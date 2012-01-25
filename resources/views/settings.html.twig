@@ -273,9 +273,9 @@
                             <span class="description">({{ __('1000 milliseconds = 1 second') }})</span>
                         </div>
                         <div class="hide-if-no-js">
-                            <span>Faster</span>
+                            <span>{{ __('Slower') }}</span>
                             <div id="transition_speed_picker" class="hide-if-no-js"></div>
-                            <span>Slower</span>
+                            <span>{{ __('Faster') }}</span>
                         </div>
                     </td>
                 </tr>
@@ -296,6 +296,19 @@
                         <option {% if overlay.selected %}selected="selected"{% endif %} value="{{ overlay.value }}">{{ overlay.desc }}</option>
                         {% endfor %}
                     </select>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">
+                    <label for="background_color">{{ __('Overlay Opacity') }}</label>
+                </th>
+                <td>
+                    <div class="hide-if-js">
+                        <input type="text" value="{{ overlay_opacity }}" autocomplete="off" name="overlay_opacity" id="overlay_opacity" />
+                        <span>%</span>
+                    </div>
+                    <div id="ov_opacity_picker" class="hide-if-no-js"></div>
+                    <span id="ov_opacity_picker_val" class="hide-if-no-js">{{ overlay_opacity }}%</span>
                 </td>
             </tr>
         </tbody>
