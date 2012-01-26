@@ -849,25 +849,15 @@ class Main extends \Pf4wp\WordpressPlugin
     public function onAdminBarMenu($wp_admin_bar)
     {
         try {
-            if (!is_admin() && $wp_admin_bar->get_node('background')) {
+            if (!is_admin() && $wp_admin_bar->get_node('background') && function_exists('get_user_option') && ($home_url = get_user_option('myatu_bgm_home_url'))) {
                 $wp_admin_bar->remove_node('background');
-                
-                $title = __('Background');
-                
-                /* We create a 'fake' menu here, as on the public side, onBuildMenu() will not get called */
-                $menu = new \Pf4wp\Menu\SubHeadMenu($this->getName());
-                $menu->addMenu($title,  array($this, 'onSettingsMenu'));
-                $menu->setType(\Pf4wp\Menu\MenuEntry::MT_THEMES);
-                $menu->display();
                 
                 $wp_admin_bar->add_node(array(
                     'parent' => 'appearance', 
                     'id'     => 'background', 
-                    'title'  => $title,
-                    'href'   => $menu->getParentUrl()
+                    'title'  => __('Background'),
+                    'href'   => $home_url
                 ));
-                
-                unset($menu);
             }
         } catch (\Exception $e) { /* Silent, to prevent public side from becoming inaccessible on error */ }
     }
@@ -944,6 +934,12 @@ class Main extends \Pf4wp\WordpressPlugin
                 __('Add New Image Set', $this->getName())
             );
         }
+        
+        // Display is usually called automatically, but we use it to grab the parent menu URL and set it in the user option (varies by translation!)
+        $mymenu->display();
+        
+        if (($user = wp_get_current_user()) instanceof \WP_User)
+            update_user_option($user->ID, 'myatu_bgm_home_url', $mymenu->getParentUrl());
         
         return $mymenu;
     }

@@ -87,6 +87,8 @@ with PHP versions older than 5.3.
     * Black and White Horizontal Line (dense)
     * Jeans effect
 * Improved: The Slide and Cover transition effects have been improved, handling various image sizes and smaller browser windows better.
+* Changed: The Preview window on the _Settings_ page will now remain in view, which allows the user to scroll the page down to additional options/settings and see any changes without having to refer back to the Preview.
+* Fixed: 'Background' menu entry on front-end admin bar could potentially cause a fatal error due to unchecked use of admin-privileged function, changed to a user option storing home url instead
 
 = 1.0 (January 21, 2012) =
 * __Added:__ Support for additional transition effects for full-screen images, including the ability to disable it.
