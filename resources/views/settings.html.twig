@@ -5,277 +5,20 @@
     file that was distributed with this source code.
 #}
 
-<form method="post" action="">
-    {{ nonce | raw }}
-    
-    <table class="form-table">
-        <tbody>
-            <tr valign="top" class="hide-if-no-js">
-                <th scope="row">
-                    {{ __('Preview') }}
-                </th>
-                <td>
-                    <div id="bg_preview_container">
-                        <div id="bg_preview_bg_color"></div>
-                        <div id="bg_preview"></div>
-                        <div id="bg_preview_overlay"></div>
-                    </div>
-                </td>
-            </tr>
-            <tr valign="top">
-                <th scope="row">
-                    <label for="active_gallery">{{ __('Background Image Set') }}</label>
-                </th>
-                <td>
-                    <select id="active_gallery" class="postform" name="active_gallery">
-                        {% for gallery in galleries %}
-                        <option {% if gallery.selected %}selected="selected"{% endif %} value="{{ gallery.id }}">{{ gallery.name }}</option>
-                        {% endfor %}
-                    </select>
-                </td>
-            </tr>
-            <tr valign="top">
-                <th scope="row">
-                    {{ __('Select a random image') }}
-                </th>
-                <td>
-                    <fieldset id="rand_sel">
-                        <legend class="screen-reader-text">
-                            <span>{{ __('Select a random image') }}</span>
-                        </legend>
-                        <label>
-                            <input class="change_freq" type="radio" value="session" name="change_freq" {% if change_freq == 'session' %}checked="checked"{% endif %} />
-                            <span>{{ __('At each browser session') }}</span>
-                            <span class="description">({{ __('Stores a cookie on the visitor\'s computer for the duration of the browser session') }})</span>
-                        </label>
-                        <br />
-                        <label>
-                            <input class="change_freq" type="radio" value="load" name="change_freq" {% if change_freq == 'load' %}checked="checked"{% endif %} />
-                            <span>{{ __('On a page (re)load') }}</span>
-                        </label>
-                        <br />
-                        <label>
-                            <input class="change_freq" type="radio" value="custom" name="change_freq" {% if change_freq == 'custom' %}checked="checked"{% endif %} />
-                            <span>{{ __('Every') }}</span>
-                        </label>
-                        <input type="text" class="small-text" value="{{ change_freq_custom }}" name="change_freq_custom" />
-                        <span>{{ __('seconds') }}</span>
-                        <span class="description">({{ __('Requires Javascript by the visitor, but will gracefully degrade if not available') }})</span>
-                    </fieldset>
-                </td>
-            </tr>
-            <tr valign="top">
-                <th scope="row">
-                    <label for="background_color">{{ __('Background Color') }}</label>
-                </th>
-                <td>
-                    <input type="text" value="#{{ background_color }}" autocomplete="off" name="background_color" id="background_color" />
-                    <div id="color_picker" class="hide-if-no-js"></div>
-                    <span id="clear_color" class="hide-if-no-js">(<a href="#">{{ __('Clear') }}</a>)</span>
-                </td>
-            </tr>
-            <tr valign="top">
-                <th scope="row">
-                   {{ __('Active on') }}
-                </th>
-                <td>
-                    <fieldset id="bg_display_on">
-                        <legend class="screen-reader-text">
-                            <span>{{ __('Active on') }}</span>
-                        </legend>
-                       <label class="bg_display_on">
-                            <input type="checkbox" value="1" name="display_on_front_page" {% if display_on_front_page %}checked="checked"{% endif %} />
-                            <span>{{ __('Front page') }}</span>
-                        </label>
-                        <br />
-                        <label class="bg_display_on">
-                            <input type="checkbox" value="1" name="display_on_single_post" {% if display_on_single_post %}checked="checked"{% endif %} />
-                            <span>{{ __('Single post') }}</span>
-                        </label>
-                        <br />
-                        <label class="bg_display_on">
-                            <input type="checkbox" value="1" name="display_on_single_page" {% if display_on_single_page %}checked="checked"{% endif %} />
-                            <span>{{ __('Single page') }}</span>
-                        </label>
-                        <br />
-                        <label class="bg_display_on">
-                            <input type="checkbox" value="1" name="display_on_archive" {% if display_on_archive %}checked="checked"{% endif %} />
-                            <span>{{ __('Archive pages') }}</span>
-                        </label>
-                        <br />
-                        <label class="bg_display_on">
-                            <input type="checkbox" value="1" name="display_on_search" {% if display_on_search %}checked="checked"{% endif %} />
-                            <span>{{ __('Search results') }}</span>
-                        </label>
-                        <br />
-                        <label class="bg_display_on">
-                            <input type="checkbox" value="1" name="display_on_error" {% if display_on_error %}checked="checked"{% endif %} />
-                            <span>{{ __('Error page') }}</span>
-                        </label>
-                        {% for custom_post_type_key,custom_post_type in custom_post_types %}
-                        <br />
-                        <label class="bg_display_on">
-                            <input type="checkbox" value="1" name="display_on[{{ custom_post_type_key | raw }}]" {% if custom_post_type['display'] %}checked="checked"{% endif %} />
-                            <span>{{ custom_post_type['name'] }}</span>
-                        </label>
-                        {% endfor %}
-                    </fieldset>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<div style="position: relative; width: 100%;"> {# REL DIV #}
 
-    <h3>{{ __('Background Layout') }}</h3>
-    <table class="form-table">
-        <tbody>
-            <tr valign="top">
-                <th scope="row">
-                   {{ __('Size') }}
-                </th>
-                <td>
-                    <fieldset id="bg_size">
-                        <legend class="screen-reader-text">
-                            <span>{{ __('Size') }}</span>
-                        </legend>
-                       <label class="bg_size">
-                            <input type="radio" value="as-is" name="background_size" {% if background_size == 'as-is' %}checked="checked"{% endif %} />
-                            <span>{{ __('Normal') }}</span>
-                        </label>
-                        <br />
-                        <label class="bg_size">
-                            <input type="radio" value="full" name="background_size" {% if background_size == 'full' %}checked="checked"{% endif %} />
-                            <span>{{ __('Full Screen') }}</span>
-                        </label>
-                    </fieldset>
-                </td>
-            </tr>
-            <tr valign="top" class="bg_fs_layout">
-                <th scope="row">
-                    <label for="background_color">{{ __('Background Image Opacity') }}</label>
-                </th>
-                <td>
-                    <div class="hide-if-js">
-                        <input type="text" value="{{ background_opacity }}" autocomplete="off" name="background_opacity" id="background_opacity" />
-                        <span>%</span>
-                        <span class="description">({{ __('Only available for Full Screen layouts') }})</span>
-                    </div>
-                    <div id="opacity_picker" class="hide-if-no-js"></div>
-                    <span id="opacity_picker_val" class="hide-if-no-js">{{ background_opacity }}%</span>
-                </td>
-            </tr>
-            <tr valign="top" class="bg_extra_layout">
-                <th scope="row">
-                   {{ __('Position') }}
-                </th>
-                <td>
-                    <fieldset id="bg_pos">
-                        <legend class="screen-reader-text">
-                            <span>{{ __('Position') }}</span>
-                        </legend>
-                        {% for bg_position_key, bg_position_value in bg_positions %}
-                        <label class="bg_pos" id="pos-{{ bg_position_key }}">
-                            <input type="radio" value="{{ bg_position_key }}" name="background_position" {% if background_position == bg_position_key %}checked="checked"{% endif %} />
-                            <span>{{ bg_position_value }}</span>
-                        </label>
-                        {% if loop.index is divisibleby(3) %}<br />{% endif %}
-                        {% endfor %}
-                    </fieldset>
-                </td>
-            </tr>
-            <tr valign="top" class="bg_extra_layout">
-                <th scope="row">
-                   {{ __('Tiling') }}
-                </th>
-                <td>
-                    <fieldset id="bg_repeat">
-                        <legend class="screen-reader-text">
-                            <span>{{ __('Tiling') }}</span>
-                        </legend>
-                        {% for bg_repeat_key, bg_repeat_value in bg_repeats %}
-                        <label class="bg_repeat">
-                            <input type="radio" value="{{ bg_repeat_key }}" name="background_repeat" {% if background_repeat == bg_repeat_key %}checked="checked"{% endif %} />
-                            <span>{{ bg_repeat_value }}</span>
-                        </label>
-                        <br />
-                        {% endfor %}
-                    </fieldset>
-                </td>
-            </tr>
-            <tr valign="top" class="bg_extra_layout">
-                <th scope="row">
-                   {{ __('Scrolling') }}
-                </th>
-                <td>
-                    <fieldset id="bg_scroll">
-                        <legend class="screen-reader-text">
-                            <span>{{ __('Scrolling') }}</span>
-                        </legend>
-                       <label class="bg_scroll">
-                            <input type="radio" value="scroll" name="background_scroll" {% if background_scroll == 'scroll' %}checked="checked"{% endif %} />
-                            <span>{{ __('Scroll with the screen') }}</span>
-                        </label>
-                        <br />
-                        <label class="bg_scroll">
-                            <input type="radio" value="fixed" name="background_scroll" {% if background_scroll == 'fixed' %}checked="checked"{% endif %} />
-                            <span>{{ __('Fixed') }}</span>
-                        </label>
-                    </fieldset>
-                </td>
-            </tr>
-            <tr valign="top" class="bg_extra_layout">
-                <th scope="row">
-                   {{ __('Stretching') }}
-                </th>
-                <td>
-                    <fieldset id="bg_stretch">
-                        <legend class="screen-reader-text">
-                            <span>{{ __('Stretching') }}</span>
-                        </legend>
-                       <label class="bg_stretch">
-                            <input type="checkbox" value="1" id="background_stretch_vertical" name="background_stretch_vertical" {% if background_stretch_vertical %}checked="checked"{% endif %} />
-                            <span>{{ __('Vertical') }}</span>
-                        </label>
-                        <br />
-                        <label class="bg_stretch">
-                            <input type="checkbox" value="1" id="background_stretch_horizontal" name="background_stretch_horizontal" {% if background_stretch_horizontal %}checked="checked"{% endif %} />
-                            <span>{{ __('Horizontal') }}</span>
-                        </label>
-                    </fieldset>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="bg_transition">
-        <h3>{{ __('Background Transitioning Effect') }} <span class="description hide-if-js">({{ __('Only available for Full Screen layouts') }})</span></h3>
+    <div id="bg_preview_div" class="hide-if-no-js">
         <table class="form-table">
             <tbody>
                 <tr valign="top">
                     <th scope="row">
-                        <label for="background_transition">{{ __('Transition Effect') }}</label>
+                        {{ __('Preview') }}
                     </th>
                     <td>
-                        <select id="background_transition" class="postform" name="background_transition">
-                            {% for bg_transition_key, bg_transition_value in bg_transitions %}
-                            <option {% if background_transition == bg_transition_key %}selected="selected"{% endif %} value="{{ bg_transition_key }}">{{ bg_transition_value }}</option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">
-                        <label for="transition_speed">{{ __('Transition Speed') }}</label>
-                    </th>
-                    <td>
-                        <div class="hide-if-js">
-                            <input type="text" class="small-text" value="{{ transition_speed }}" name="transition_speed" id="transition_speed" />
-                            <span>{{ __('milliseconds') }}</span>
-                            <span class="description">({{ __('1000 milliseconds = 1 second') }})</span>
-                        </div>
-                        <div class="hide-if-no-js">
-                            <span>{{ __('Slower') }}</span>
-                            <div id="transition_speed_picker" class="hide-if-no-js"></div>
-                            <span>{{ __('Faster') }}</span>
+                        <div id="bg_preview_container">
+                            <div id="bg_preview_bg_color"></div>
+                            <div id="bg_preview"></div>
+                            <div id="bg_preview_overlay"></div>
                         </div>
                     </td>
                 </tr>
@@ -283,126 +26,391 @@
         </table>
     </div>
 
-    <h3>{{ __('Background Overlay') }}</h3>
-    <table class="form-table">
-        <tbody>
-            <tr valign="top">
-                <th scope="row">
-                    <label for="active_overlay">{{ __('Overlay') }}</label>
-                </th>
-                <td>
-                    <select id="active_overlay" class="postform" name="active_overlay">
-                        {% for overlay in overlays %}
-                        <option {% if overlay.selected %}selected="selected"{% endif %} value="{{ overlay.value }}">{{ overlay.desc }}</option>
-                        {% endfor %}
-                    </select>
-                </td>
-            </tr>
-            <tr valign="top">
-                <th scope="row">
-                    <label for="background_color">{{ __('Overlay Opacity') }}</label>
-                </th>
-                <td>
-                    <div class="hide-if-js">
-                        <input type="text" value="{{ overlay_opacity }}" autocomplete="off" name="overlay_opacity" id="overlay_opacity" />
-                        <span>%</span>
-                    </div>
-                    <div id="ov_opacity_picker" class="hide-if-no-js"></div>
-                    <span id="ov_opacity_picker_val" class="hide-if-no-js">{{ overlay_opacity }}%</span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <form method="post" action="" id="settings_form">
+        {{ nonce | raw }}
+
+        <table class="form-table">
+            <tbody>
+                <tr valign="top">
+                    <th scope="row">
+                        <label for="active_gallery">{{ __('Background Image Set') }}</label>
+                    </th>
+                    <td>
+                        <select id="active_gallery" class="postform" name="active_gallery">
+                            {% for gallery in galleries %}
+                            <option {% if gallery.selected %}selected="selected"{% endif %} value="{{ gallery.id }}">{{ gallery.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">
+                        {{ __('Select a random image') }}
+                    </th>
+                    <td>
+                        <fieldset id="rand_sel">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Select a random image') }}</span>
+                            </legend>
+                            <label>
+                                <input class="change_freq" type="radio" value="session" name="change_freq" {% if change_freq == 'session' %}checked="checked"{% endif %} />
+                                <span>{{ __('At each browser session') }}</span>
+                                <span class="description">({{ __('Stores a cookie on the visitor\'s computer for the duration of the browser session') }})</span>
+                            </label>
+                            <br />
+                            <label>
+                                <input class="change_freq" type="radio" value="load" name="change_freq" {% if change_freq == 'load' %}checked="checked"{% endif %} />
+                                <span>{{ __('On a page (re)load') }}</span>
+                            </label>
+                            <br />
+                            <label>
+                                <input class="change_freq" type="radio" value="custom" name="change_freq" {% if change_freq == 'custom' %}checked="checked"{% endif %} />
+                                <span>{{ __('Every') }}</span>
+                            </label>
+                            <input type="text" class="small-text" value="{{ change_freq_custom }}" name="change_freq_custom" />
+                            <span>{{ __('seconds') }}</span>
+                            <span class="description">({{ __('Requires Javascript by the visitor, but will gracefully degrade if not available') }})</span>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">
+                        <label for="background_color">{{ __('Background Color') }}</label>
+                    </th>
+                    <td>
+                        <input type="text" value="#{{ background_color }}" autocomplete="off" name="background_color" id="background_color" />
+                        <div id="color_picker" class="hide-if-no-js"></div>
+                        <span id="clear_color" class="hide-if-no-js">(<a href="#">{{ __('Clear') }}</a>)</span>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">
+                       {{ __('Active on') }}
+                    </th>
+                    <td>
+                        <fieldset id="bg_display_on">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Active on') }}</span>
+                            </legend>
+                           <label class="bg_display_on">
+                                <input type="checkbox" value="1" name="display_on_front_page" {% if display_on_front_page %}checked="checked"{% endif %} />
+                                <span>{{ __('Front page') }}</span>
+                            </label>
+                            <br />
+                            <label class="bg_display_on">
+                                <input type="checkbox" value="1" name="display_on_single_post" {% if display_on_single_post %}checked="checked"{% endif %} />
+                                <span>{{ __('Single post') }}</span>
+                            </label>
+                            <br />
+                            <label class="bg_display_on">
+                                <input type="checkbox" value="1" name="display_on_single_page" {% if display_on_single_page %}checked="checked"{% endif %} />
+                                <span>{{ __('Single page') }}</span>
+                            </label>
+                            <br />
+                            <label class="bg_display_on">
+                                <input type="checkbox" value="1" name="display_on_archive" {% if display_on_archive %}checked="checked"{% endif %} />
+                                <span>{{ __('Archive pages') }}</span>
+                            </label>
+                            <br />
+                            <label class="bg_display_on">
+                                <input type="checkbox" value="1" name="display_on_search" {% if display_on_search %}checked="checked"{% endif %} />
+                                <span>{{ __('Search results') }}</span>
+                            </label>
+                            <br />
+                            <label class="bg_display_on">
+                                <input type="checkbox" value="1" name="display_on_error" {% if display_on_error %}checked="checked"{% endif %} />
+                                <span>{{ __('Error page') }}</span>
+                            </label>
+                            {% for custom_post_type_key,custom_post_type in custom_post_types %}
+                            <br />
+                            <label class="bg_display_on">
+                                <input type="checkbox" value="1" name="display_on[{{ custom_post_type_key | raw }}]" {% if custom_post_type['display'] %}checked="checked"{% endif %} />
+                                <span>{{ custom_post_type['name'] }}</span>
+                            </label>
+                            {% endfor %}
+                        </fieldset>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>{{ __('Background Layout') }}</h3>
+        <table class="form-table">
+            <tbody>
+                <tr valign="top">
+                    <th scope="row">
+                       {{ __('Size') }}
+                    </th>
+                    <td>
+                        <fieldset id="bg_size">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Size') }}</span>
+                            </legend>
+                           <label class="bg_size">
+                                <input type="radio" value="as-is" name="background_size" {% if background_size == 'as-is' %}checked="checked"{% endif %} />
+                                <span>{{ __('Normal') }}</span>
+                            </label>
+                            <br />
+                            <label class="bg_size">
+                                <input type="radio" value="full" name="background_size" {% if background_size == 'full' %}checked="checked"{% endif %} />
+                                <span>{{ __('Full Screen') }}</span>
+                            </label>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr valign="top" class="bg_fs_layout">
+                    <th scope="row">
+                        <label for="background_color">{{ __('Background Image Opacity') }}</label>
+                    </th>
+                    <td>
+                        <div class="hide-if-js">
+                            <input type="text" value="{{ background_opacity }}" autocomplete="off" name="background_opacity" id="background_opacity" />
+                            <span>%</span>
+                            <span class="description">({{ __('Only available for Full Screen layouts') }})</span>
+                        </div>
+                        <div id="opacity_picker" class="hide-if-no-js"></div>
+                        <span id="opacity_picker_val" class="hide-if-no-js">{{ background_opacity }}%</span>
+                    </td>
+                </tr>
+                <tr valign="top" class="bg_extra_layout">
+                    <th scope="row">
+                       {{ __('Position') }}
+                    </th>
+                    <td>
+                        <fieldset id="bg_pos">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Position') }}</span>
+                            </legend>
+                            {% for bg_position_key, bg_position_value in bg_positions %}
+                            <label class="bg_pos" id="pos-{{ bg_position_key }}">
+                                <input type="radio" value="{{ bg_position_key }}" name="background_position" {% if background_position == bg_position_key %}checked="checked"{% endif %} />
+                                <span>{{ bg_position_value }}</span>
+                            </label>
+                            {% if loop.index is divisibleby(3) %}<br />{% endif %}
+                            {% endfor %}
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr valign="top" class="bg_extra_layout">
+                    <th scope="row">
+                       {{ __('Tiling') }}
+                    </th>
+                    <td>
+                        <fieldset id="bg_repeat">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Tiling') }}</span>
+                            </legend>
+                            {% for bg_repeat_key, bg_repeat_value in bg_repeats %}
+                            <label class="bg_repeat">
+                                <input type="radio" value="{{ bg_repeat_key }}" name="background_repeat" {% if background_repeat == bg_repeat_key %}checked="checked"{% endif %} />
+                                <span>{{ bg_repeat_value }}</span>
+                            </label>
+                            <br />
+                            {% endfor %}
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr valign="top" class="bg_extra_layout">
+                    <th scope="row">
+                       {{ __('Scrolling') }}
+                    </th>
+                    <td>
+                        <fieldset id="bg_scroll">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Scrolling') }}</span>
+                            </legend>
+                           <label class="bg_scroll">
+                                <input type="radio" value="scroll" name="background_scroll" {% if background_scroll == 'scroll' %}checked="checked"{% endif %} />
+                                <span>{{ __('Scroll with the screen') }}</span>
+                            </label>
+                            <br />
+                            <label class="bg_scroll">
+                                <input type="radio" value="fixed" name="background_scroll" {% if background_scroll == 'fixed' %}checked="checked"{% endif %} />
+                                <span>{{ __('Fixed') }}</span>
+                            </label>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr valign="top" class="bg_extra_layout">
+                    <th scope="row">
+                       {{ __('Stretching') }}
+                    </th>
+                    <td>
+                        <fieldset id="bg_stretch">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Stretching') }}</span>
+                            </legend>
+                           <label class="bg_stretch">
+                                <input type="checkbox" value="1" id="background_stretch_vertical" name="background_stretch_vertical" {% if background_stretch_vertical %}checked="checked"{% endif %} />
+                                <span>{{ __('Vertical') }}</span>
+                            </label>
+                            <br />
+                            <label class="bg_stretch">
+                                <input type="checkbox" value="1" id="background_stretch_horizontal" name="background_stretch_horizontal" {% if background_stretch_horizontal %}checked="checked"{% endif %} />
+                                <span>{{ __('Horizontal') }}</span>
+                            </label>
+                        </fieldset>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="bg_transition">
+            <h3>{{ __('Background Transitioning Effect') }} <span class="description hide-if-js">({{ __('Only available for Full Screen layouts') }})</span></h3>
+            <table class="form-table">
+                <tbody>
+                    <tr valign="top">
+                        <th scope="row">
+                            <label for="background_transition">{{ __('Transition Effect') }}</label>
+                        </th>
+                        <td>
+                            <select id="background_transition" class="postform" name="background_transition">
+                                {% for bg_transition_key, bg_transition_value in bg_transitions %}
+                                <option {% if background_transition == bg_transition_key %}selected="selected"{% endif %} value="{{ bg_transition_key }}">{{ bg_transition_value }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row">
+                            <label for="transition_speed">{{ __('Transition Speed') }}</label>
+                        </th>
+                        <td>
+                            <div class="hide-if-js">
+                                <input type="text" class="small-text" value="{{ transition_speed }}" name="transition_speed" id="transition_speed" />
+                                <span>{{ __('milliseconds') }}</span>
+                                <span class="description">({{ __('1000 milliseconds = 1 second') }})</span>
+                            </div>
+                            <div class="hide-if-no-js">
+                                <span>{{ __('Slower') }}</span>
+                                <div id="transition_speed_picker" class="hide-if-no-js"></div>
+                                <span>{{ __('Faster') }}</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>{{ __('Background Overlay') }}</h3>
+        <table class="form-table">
+            <tbody>
+                <tr valign="top">
+                    <th scope="row">
+                        <label for="active_overlay">{{ __('Overlay') }}</label>
+                    </th>
+                    <td>
+                        <select id="active_overlay" class="postform" name="active_overlay">
+                            {% for overlay in overlays %}
+                            <option {% if overlay.selected %}selected="selected"{% endif %} value="{{ overlay.value }}">{{ overlay.desc }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">
+                        <label for="background_color">{{ __('Overlay Opacity') }}</label>
+                    </th>
+                    <td>
+                        <div class="hide-if-js">
+                            <input type="text" value="{{ overlay_opacity }}" autocomplete="off" name="overlay_opacity" id="overlay_opacity" />
+                            <span>%</span>
+                        </div>
+                        <div id="ov_opacity_picker" class="hide-if-no-js"></div>
+                        <span id="ov_opacity_picker_val" class="hide-if-no-js">{{ overlay_opacity }}%</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
 
-    <h3>{{ __('Background Information') }}</h3>
-    <table class="form-table">
-        <tbody>
-            <tr valign="top">
-                <th scope="row">
-                    {{ __('Display icon') }}
-                </th>
-                <td>
-                    <fieldset id="info_tab_fs">
-                        <label class="info_tab">
-                            <input type="checkbox" value="1" id="info_tab" name="info_tab" {% if info_tab %}checked="checked"{% endif %} />
-                            <span>{{ __('Enabled') }}</span>
-                            <span class="description">({{ __('This will display a small <code>[ + ]</code> icon in one of the selected locations') | raw }})</span>
-                        </label>
-                    </fieldset>
-                </td>
-            </tr>
-            <tr valign="top" class="info_tab_extra">
-                <th scope="row">
-                    {{ __('Options') }}
-                </th>
-                <td>
-                    <fieldset id="info_tab_ops">
-                        <label class="info_tab_ops">
-                            <input type="checkbox" value="1" id="info_tab_desc" name="info_tab_desc" {% if info_tab_desc %}checked="checked"{% endif %} />
-                            <span>{{ __('Display a short description when the mouse is hovered over the icon') }}</span>
-                            <span class="description">({{ __('Requires Javascript by the visitor') }})</span>
-                        </label>
-                        <br />
-                        <label class="info_tab_ops">
-                            <input type="checkbox" value="1" id="info_tab_thumb" name="info_tab_thumb" {% if info_tab_thumb %}checked="checked"{% endif %} />
-                            <span>{{ __('Include a thumbnail in the short description') }}</span>
-                        </label>
-                        <br />
-                        <label class="info_tab_ops">
-                            <input type="checkbox" value="1" id="info_tab_link" name="info_tab_link" {% if info_tab_link %}checked="checked"{% endif %} />
-                            <span>{{ __('Icon is linked to a seperate page containing more information about the displayed background') }}</span>
-                        </label>
-                    </fieldset>
-                </td>
-            </tr>
-            <tr valign="top" class="info_tab_extra">
-                <th scope="row">
-                   {{ __('Location') }}
-                </th>
-                <td>
-                    <fieldset id="info_tab_location">
-                        <legend class="screen-reader-text">
-                            <span>{{ __('Location') }}</span>
-                        </legend>
-                        {% for info_tab_location_key, info_tab_location_value in info_tab_locations %}
-                        <label class="info_tab_location" id="info-tab-pos-{{ info_tab_location_key }}">
-                            <input type="radio" value="{{ info_tab_location_key }}" name="info_tab_location" {% if info_tab_location == info_tab_location_key %}checked="checked"{% endif %} />
-                            <span>{{ info_tab_location_value }}</span>
-                        </label>
-                        {% if loop.index is divisibleby(2) %}<br />{% endif %}
-                        {% endfor %}
-                    </fieldset>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    {{ submit_button | raw }}
+        <h3>{{ __('Background Information') }}</h3>
+        <table class="form-table">
+            <tbody>
+                <tr valign="top">
+                    <th scope="row">
+                        {{ __('Display icon') }}
+                    </th>
+                    <td>
+                        <fieldset id="info_tab_fs">
+                            <label class="info_tab">
+                                <input type="checkbox" value="1" id="info_tab" name="info_tab" {% if info_tab %}checked="checked"{% endif %} />
+                                <span>{{ __('Enabled') }}</span>
+                                <span class="description">({{ __('This will display a small <code>[ + ]</code> icon in one of the selected locations') | raw }})</span>
+                            </label>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr valign="top" class="info_tab_extra">
+                    <th scope="row">
+                        {{ __('Options') }}
+                    </th>
+                    <td>
+                        <fieldset id="info_tab_ops">
+                            <label class="info_tab_ops">
+                                <input type="checkbox" value="1" id="info_tab_desc" name="info_tab_desc" {% if info_tab_desc %}checked="checked"{% endif %} />
+                                <span>{{ __('Display a short description when the mouse is hovered over the icon') }}</span>
+                                <span class="description">({{ __('Requires Javascript by the visitor') }})</span>
+                            </label>
+                            <br />
+                            <label class="info_tab_ops">
+                                <input type="checkbox" value="1" id="info_tab_thumb" name="info_tab_thumb" {% if info_tab_thumb %}checked="checked"{% endif %} />
+                                <span>{{ __('Include a thumbnail in the short description') }}</span>
+                            </label>
+                            <br />
+                            <label class="info_tab_ops">
+                                <input type="checkbox" value="1" id="info_tab_link" name="info_tab_link" {% if info_tab_link %}checked="checked"{% endif %} />
+                                <span>{{ __('Icon is linked to a seperate page containing more information about the displayed background') }}</span>
+                            </label>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr valign="top" class="info_tab_extra">
+                    <th scope="row">
+                       {{ __('Location') }}
+                    </th>
+                    <td>
+                        <fieldset id="info_tab_location">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Location') }}</span>
+                            </legend>
+                            {% for info_tab_location_key, info_tab_location_value in info_tab_locations %}
+                            <label class="info_tab_location" id="info-tab-pos-{{ info_tab_location_key }}">
+                                <input type="radio" value="{{ info_tab_location_key }}" name="info_tab_location" {% if info_tab_location == info_tab_location_key %}checked="checked"{% endif %} />
+                                <span>{{ info_tab_location_value }}</span>
+                            </label>
+                            {% if loop.index is divisibleby(2) %}<br />{% endif %}
+                            {% endfor %}
+                        </fieldset>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {{ submit_button | raw }}
 
-</form>
+    </form>
 
-<div id="my_footer">
-    <img src="{{ plugin_base_url }}resources/images/myatus_logo_white.png" alt="Myatu's"/><br>
-    <span>
-        <a href="{{ plugin_home }}" target="_blank">{{plugin_name }} {{ plugin_version }}</a> | 
-        <a href="#" id="footer_debug_link">{{ __('Debug') }}</a> | 
-        <a href="http://wordpress.org/extend/plugins/background-manager/" target="_blank">{{ __('Rate It') }}</a> |
-        <a href="http://wordpress.org/tags/background-manager" target="_blank">{{ __('Forum') }}</a>
-    </span>
-</div>
+    <div id="my_footer">
+        <img src="{{ plugin_base_url }}resources/images/myatus_logo_white.png" alt="Myatu's"/><br>
+        <span>
+            <a href="{{ plugin_home }}" target="_blank">{{plugin_name }} {{ plugin_version }}</a> | 
+            <a href="#" id="footer_debug_link">{{ __('Debug') }}</a> | 
+            <a href="http://wordpress.org/extend/plugins/background-manager/" target="_blank">{{ __('Rate It') }}</a> |
+            <a href="http://wordpress.org/tags/background-manager" target="_blank">{{ __('Forum') }}</a>
+        </span>
+    </div>
 
-<div id="footer_debug" style="display:none;">
-    <table class="form-table">
-        <tbody>
-            {% for debug_name, debug_value in debug_info %}
-            <tr>    
-                <th scope="row" style="font-weight: bold;">{{ debug_name }}:</th>
-                <td>{{ debug_value }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+    <div id="footer_debug" style="display:none;">
+        <table class="form-table">
+            <tbody>
+                {% for debug_name, debug_value in debug_info %}
+                <tr>    
+                    <th scope="row" style="font-weight: bold;">{{ debug_name }}:</th>
+                    <td>{{ debug_value }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-
-
+</div> {# REL DIV #}

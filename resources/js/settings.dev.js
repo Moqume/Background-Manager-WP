@@ -212,5 +212,25 @@
 
         // Simple event
         $('#footer_debug_link').click(function() { $('#footer_debug').toggle(); return false; });
+
+        // Scroll event (to keep the preview in view)
+        var preview_pad = 35, preview_div = $('#bg_preview_div'), preview_offset = preview_div.offset().top;
+
+        $(window).scroll(function(){
+            var scroll_pos  = $(window).scrollTop() - $('#screen-meta').height(),                   // The current "scroll" position, less height of screen meta
+                bottom_edge = $('#submit').offset().top - $('#screen-meta').height() - preview_pad; // Where to stop keeping it in view (bottom edge)
+
+            // If we scrolled past the offset of the preview ...
+            if (scroll_pos > preview_offset - preview_pad) {
+                // ... But haven't reached the bottom edge yet (prevent covering the "debug" output)
+                if (scroll_pos + preview_div.height() + 10 < bottom_edge) {
+                    preview_div.css({'box-shadow' : '5px 5px 5px #aaa', 'border' : '1px solid #aaa'});
+                    preview_div.stop().animate({'top': (scroll_pos - preview_offset + preview_pad) + 'px'}, 'slow');
+                }
+            } else {
+                preview_div.css({'box-shadow': '', 'border' : ''});
+                preview_div.stop().animate({'top': 0});
+            }
+        });
     });
 })(jQuery);
