@@ -48,6 +48,7 @@ The home page for [Background Manager](http://j.mp/bgmwp) is also a live demonst
    * NextGEN Gallery Plugin
    * WP Flickr Background Plugin
 * Define the background opacity (available in Full Screen only)
+* Background image links (click-able backgrounds)
 * Uses AJAX to load background images, keeping the website's footprint small and improve caching
 * Graceful degradation for visitors without JavaScript
 
@@ -80,7 +81,8 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.5 =
+= 1.0.6 =
+* __Added:__ Background Image Links
 * __Added:__ Support for overlay opacity
 * __Added:__ New background overlays
     * Black and White Grid

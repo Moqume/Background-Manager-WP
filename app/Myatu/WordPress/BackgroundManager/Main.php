@@ -225,6 +225,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $link         = '';
         $thumb        = '';
         $meta         = '';
+        $bg_link      = '';
         
         if ($active_id === false) {
             $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
@@ -324,6 +325,9 @@ class Main extends \Pf4wp\WordpressPlugin
                 $meta = '';
             }
             
+            // Get background link
+            $bg_link = get_post_meta($random_id, Filter\MediaLibrary::META_LINK, true);
+            
             // Get a thumbnail image link
             $thumb = wp_get_attachment_image_src($random_id, 'thumbnail');
             if ($thumb) {
@@ -336,7 +340,7 @@ class Main extends \Pf4wp\WordpressPlugin
             if (($image = get_post($random_id))) {
                 $desc    = $image->post_content;
                 $caption = $image->post_excerpt;
-            }               
+            }
         }
 
         return array(
@@ -348,6 +352,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'link'    => $link, 
             'thumb'   => $thumb,
             'meta'    => $meta,
+            'bg_link' => $bg_link
         );
     }
     

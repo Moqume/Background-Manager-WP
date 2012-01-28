@@ -28,6 +28,8 @@ class MediaLibrary
     
     const FILTER = 'media_library';
     
+    const META_LINK = 'myatu_bgm_link';
+    
     /** Options that we use, passed by get_media_item_args action */
     private $media_item_args = array();
     
@@ -51,6 +53,7 @@ class MediaLibrary
         add_filter('post_mime_types', array($this, 'onMediaMimeTypes'), $order);
         add_filter('media_upload_mime_type_links', array($this, 'onMediaTypeLinks'), $order);
         add_filter('media_send_to_editor', array($this, 'onSendToEditor'), $order, 3);
+        add_filter('attachment_fields_to_save', array($this, 'onAttachmentFieldsToSave'), $order, 2);
     }
     
     /**
@@ -58,6 +61,8 @@ class MediaLibrary
      *
      * This removes fields from the Media Library upload screen that are not 
      * needed (and thus confuse the end user). See wp-admin/includes/media.php
+     *
+     * Since 1.0.6 we also include a 'link' form field.
      *
      * @param array $form_fields The form fields being displayed, as specified by WordPress
      * @param object $attachment The attachment (post)
@@ -71,6 +76,13 @@ class MediaLibrary
         
         $attachment_id = (is_object($attachment) && $attachment->ID) ? $attachment->ID : 0;
         $filename      = esc_html(basename($attachment->guid));
+        
+        // Add a 'link' form field
+        $form_fields['link'] = array(
+            'label' => __('Background URL', $this->owner->getName()),
+            'helps' => __('Optional link URL for the background', $this->owner->getName()),
+            'value' => get_post_meta($attachment_id, static::META_LINK, true),
+        );
         
         // 'Add to' button
         $send = '';
@@ -224,5 +236,28 @@ class MediaLibrary
     public function onSendToEditor($html, $send_id, $attachment)
     {
         return $send_id;
+    }
+    
+    /**
+     * Saves the 'link' form field
+     *
+     * @since 1.0.6
+     * @see onAttachmentFields
+     * @param array $post
+     * @param array $attachments
+     */
+    public function onAttachmentFieldsToSave($post, $attachments)
+    {
+        if (isset($attachments['link'])) {
+            $attachment_id = $post['ID'];
+            
+            $link     = get_post_meta($attachment_id, static::META_LINK, true);
+            $new_link = wp_strip_all_tags(stripslashes($attachments['link']));
+            
+            if ($link != $new_link)
+                update_post_meta($attachment_id, static::META_LINK, $new_link);
+        }
+        
+        return $post;
     }
 }

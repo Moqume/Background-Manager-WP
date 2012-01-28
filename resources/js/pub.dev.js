@@ -78,14 +78,44 @@
             new_img.animate(css, {'duration': duration, 'queue': false, 'complete': myatu_bgm.AnimationCompleted});
         },
 
+        /** Event on background click */
+        OnBackgroundClick: function(e) {
+            if (e.target == this || $(e.target).hasClass('myatu_bgm_fs')) {
+                window.location.href = e.data.url;
+                return false;
+            }
+        },
+
+        /** Event on background hover - changes the mouse pointer if the background is click-able */
+        OnBackgroundHover: function(e) {
+            $(this).css('cursor', (e.target == this || $(e.target).hasClass('myatu_bgm_fs')) ? 'pointer' : 'auto');
+        },
+
+        /** Make the background click-able */
+        SetBackgroundLink: function(url) {
+            var b = $('body');
+            
+            // Unbind our prior hover and click functions, and reset the mouse pointer 
+            b.unbind('click', myatu_bgm.OnBackgroundClick).unbind('mouseover', myatu_bgm.OnBackgroundHover).css('cursor', 'auto');
+
+            // Re-bind if we have a non-empty URL
+            if (url != '' && url != '#') {
+                b.bind('click', {'url': url}, myatu_bgm.OnBackgroundClick).bind('mouseover', myatu_bgm.OnBackgroundHover);
+            }
+        },
+
         /** Switch the background */
         SwitchBackground: function() {
             var is_fullsize = (background_manager_vars.is_fullsize == 'true'),
                 prev_img = (is_fullsize) ? $('#myatu_bgm_top').attr('src') : $('body').css('background-image'),
                 new_image = myatu_bgm.GetAjaxData('random_image', { 'prev_img' : prev_img, 'active_gallery': background_manager_vars.active_gallery });
 
+
             if (!new_image)
                 return;
+
+            // Replace/remove background link
+            myatu_bgm.SetBackgroundLink(new_image.bg_link);
 
             if (is_fullsize) {
                 // Clone to a 'prev' full-size image
@@ -145,6 +175,12 @@
 
     $(document).ready(function($){
         myatu_bgm.SetTimer();
+
+        // Pre-set background link
+        myatu_bgm.SetBackgroundLink($('#myatu_bgm_bg_link').attr('href'));
+
+        // Remove fall-back background link (prefer the Javascript method)
+        $('#myatu_bgm_bg_link').remove();
 
         if ($.isFunction($('#myatu_bgm_info_tab').bt)) {
             $('#myatu_bgm_info_tab').bt({

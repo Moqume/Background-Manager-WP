@@ -6,6 +6,9 @@
 #}
 
 <!-- Background Manager Start -->
+{# ------ Background Link ------ #}
+<a id="myatu_bgm_bg_link" class="myatu_bgm_fs" {% if random_image.bg_link %}href="{{ random_image.bg_link }}"{% else %}href="#" style="display:none"{% endif %}></a>
+
 {# ------ Overlay ------ #}
 {% if has_overlay %}<div id="myatu_bgm_overlay" class="myatu_bgm_fs"></div>{% endif %}
 
