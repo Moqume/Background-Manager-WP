@@ -21,9 +21,9 @@ mainWin = window.dialogArguments || opener || parent || top;
         scrollTo : function(obj){ $(this).clearQueue().animate({scrollTop: $(obj).offset().top}, 'fast'); return $(this); },
         
         /**
-         * Provided by Paul Irish (MIT License)
+         * Based on code by Paul Irish (MIT License)
          *
-         * Same as load(), but supports cached images
+         * Same as load(), but supports cached images. Only activated when DOM is ready.
          *
          * @link https://github.com/paulirish/jquery.imgloaded
          */
@@ -36,10 +36,14 @@ mainWin = window.dialogArguments || opener || parent || top;
                 } else {
                     callback.call(this, e);
                 }
-            }).each(function() {
-                if (this.complete || this.complete === undefined) {
-                    this.src = this.src;
-                }
+            });
+
+            $(function() {
+                elems.each(function() {
+                    if (this.complete === undefined || this.complete || this.readyState === 4) {
+                        this.src = this.src;
+                    }
+                });
             });
         }
     });

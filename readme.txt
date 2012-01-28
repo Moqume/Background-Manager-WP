@@ -80,7 +80,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.1 =
+= 1.0.5 =
 * __Added:__ Support for overlay opacity
 * __Added:__ New background overlays
     * Black and White Grid

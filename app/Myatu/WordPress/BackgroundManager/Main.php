@@ -1109,8 +1109,8 @@ class Main extends \Pf4wp\WordpressPlugin
         // Give the transitions titles
         $bg_transition_titles = array(
             __('-- None (deactivated) --', $this->getName()), __('Random', $this->getName()),
-            __('Slide Down', $this->getName()), __('Slide Up', $this->getName()), __('Slide to Left', $this->getName()), __('Slide to Right', $this->getName()),
-            __('Cover Down', $this->getName()), __('Cover Up', $this->getName()), __('Cover to Left', $this->getName()), __('Cover to Right', $this->getName()),
+            __('Slide Downward', $this->getName()), __('Slide Upward', $this->getName()), __('Slide to Left', $this->getName()), __('Slide to Right', $this->getName()),
+            __('Cover Downward', $this->getName()), __('Cover Upward', $this->getName()), __('Cover to Left', $this->getName()), __('Cover to Right', $this->getName()),
             __('Crossfade', $this->getName()),
         );        
         
