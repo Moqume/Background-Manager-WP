@@ -32,16 +32,16 @@ mainWin = window.dialogArguments || opener || parent || top;
 
             elems.bind('load', function(e) {
                 if (fireOne) {
-                    !elemsLen-- && callback.call(elems, e);
+                    !elemsLen-- && callback.call(elems);
                 } else {
-                    callback.call(this, e);
+                    callback.call(this);
                 }
             });
 
             $(function() {
                 elems.each(function() {
                     if (this.complete === undefined || this.complete || this.readyState === 4) {
-                        this.src = this.src;
+                        callback.call(this);
                     }
                 });
             });
