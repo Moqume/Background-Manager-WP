@@ -21,11 +21,13 @@ Where supported, in full-screen mode the the background image is "eased in" when
 
 You can also limit the background images to certain parts of WordPress, for example only on the front page or a full-page post. And for each individual page or post, you can also override the images and overlay used as the background, which allows you to have pages or posts with a different background theme.
 
+Each individual background image can also be linked to a specific URL, which allows a visitor to click anywhere on the background and be redirected to another page or website.
+
 All this is done without the need to edit the theme or any other files!
 
 = Demo =
 
-The home page for [Background Manager](http://j.mp/bgmwp) is also a live demonstration of the plugin.
+Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonstration of the plugin.
 
 = Features =
 
@@ -82,7 +84,7 @@ with PHP versions older than 5.3.
 == Changelog ==
 
 = 1.0.6 =
-* __Added:__ Background Image Links
+* __Added:__ Background image links
 * __Added:__ Support for overlay opacity
 * __Added:__ New background overlays
     * Black and White Grid
@@ -119,6 +121,12 @@ web pages not to finish rendering.
 = 0.9 (December 30, 2011) =
 * Public BETA release of the plugin
 
+== Upgrade Notice ==
+
+= 1.0.6 =
+
+New: Background image links, support for overlay opacity and more overlays. Improved transition effects.
+
 == Frequently Asked Questions ==
 
 = Help, it's broken! What do I do now? =
@@ -126,4 +134,8 @@ web pages not to finish rendering.
 If something does not appear to be working as it should, [search the forum](http://wordpress.org/tags/background-manager) or [write a new topic](http://wordpress.org/tags/background-manager#postform) that describes the problem(s) you are experiencing. 
 
 It will be very useful to include information about the environment in which the problem occured. If you can still activate and access the __Settings__ page for the plugin, look at the bottom of the page for a __Debug__ link. Clicking it will expand a box with often requested details, such as the WordPress version and what operating system the web server is using. You can copy and paste these details when reporting a problem, which will help speed up finding a solution.
+
+= How do my make my backgrounds click-able? =
+
+You can redirect your visitor to a specific URL if they click anywhere on the background by setting the __Background URL__ for an image. Simply edit one of your Image Sets (__Apperance__ -> __Background__ -> __Image Sets__ --> [desired image set]), select an image and click the __Edit__ icon displayed over the image. Provide the URL in the __Background URL__ field and click __Save All Changes__.
 
