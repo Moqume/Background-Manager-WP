@@ -83,7 +83,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.6 =
+= 1.0.6 (January 28, 2012) =
 * __Added:__ Background image links
 * __Added:__ Support for overlay opacity
 * __Added:__ New background overlays
