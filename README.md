@@ -13,12 +13,14 @@ Where supported, in full-screen mode the the background image is "eased in" when
 
 You can also limit the background images to certain parts of WordPress, for example only on the front page or a full-page post. And for each individual page or post, you can also override the images and overlay used as the background, which allows you to have pages or posts with a different background theme.
 
+Each individual background image can also be linked to a specific URL, which allows a visitor to click anywhere on the background and be redirected to another page or website.
+
 All this is done without the need to edit the theme or any other files!
 
 Demo
 ----
 
-The home page for [Background Manager](http://j.mp/bgmwp) is also a live demonstration of the plugin.
+Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonstration of the plugin.
 
 Features
 --------
@@ -34,7 +36,7 @@ Features
     * Fade-in/Fade-out (Crossfade)
     * Slide (Top, bottom, left or right)
     * Cover (Top, bottom, left or right)
-* Pre-defined background overlays
+* 18 pre-defined background overlays
 * Enable or disable the background images on the Front page, Error pages, Custom post types, etc.
 * Optional thumbnail/information tab for the visitor to learn more about the background
 * Import from various sources, such as:
@@ -42,6 +44,9 @@ Features
    * NextGEN Gallery Plugin
    * WP Flickr Background Plugin
 * Define the background opacity (available in Full Screen only)
+* Background image links (click-able backgrounds)
+* Uses AJAX to load background images, keeping the website's footprint small and improve caching
+* Graceful degradation for visitors without JavaScript
 
 License
 -------
