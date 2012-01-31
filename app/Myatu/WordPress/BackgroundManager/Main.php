@@ -1071,7 +1071,7 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onSettingsMenu($data, $per_page)
     {
-        global $wp_version;
+        global $wp_version, $wpdb;
         
         // Generate a list of galleries, including a default of "None", and set a flag if we can use collages
         $galleries = array_merge(array(
@@ -1152,6 +1152,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'Browser'                            => $_SERVER['HTTP_USER_AGENT'],
             'Server'                             => $_SERVER['SERVER_SOFTWARE'],
             'Server OS'                          => php_uname(),
+            'Database Version'                   => $wpdb->get_var('SELECT VERSION()'),
         );        
         
         // Template exports:

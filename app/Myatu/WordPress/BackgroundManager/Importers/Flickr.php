@@ -42,9 +42,15 @@ class Flickr extends Importer
         $vars   = array();
         $tokens = false;
         
+        // Domain
+        $domain = '';
+        if (preg_match('#^http[s]?:\/\/.+?(?=\/|$)#', get_site_url(), $matches))
+            list($domain) = $matches;
+
         // Callback URL
         $importer     = is_array($class = explode('\\', get_class())) ? $class[count($class)-1] : 'Flickr';
-        $callback_url = add_query_arg(array(
+        $callback_url = $domain . add_query_arg(array(
+            'logout'   => false,
             'importer' => $importer,
             '_nonce'   => wp_create_nonce('onImportMenu'),
         ));
@@ -66,7 +72,7 @@ class Flickr extends Importer
             } else if ($do_login = ($_REQUEST['do_login'] == 'yes')) {
                 // User has decided to login to Flickr
                 
-                $url = $flickr->getAuthorizeUrl(get_site_url(null, '', 'admin') . $callback_url);
+                $url = $flickr->getAuthorizeUrl($callback_url);
                 
                 if ($url) {
                     $vars['auth_redir'] = $url;
