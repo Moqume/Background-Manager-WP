@@ -417,7 +417,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $gallery_posts = get_posts(array(
             'orderby' => 'title',
             'order' => 'ASC',
-            'numberposts' => 0, 
+            'numberposts' => -1, 
             'post_type' => static::PT_GALLERY)
         );
         
