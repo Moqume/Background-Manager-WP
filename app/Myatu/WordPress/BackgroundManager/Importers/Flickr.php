@@ -44,7 +44,7 @@ class Flickr extends Importer
         
         // Domain
         $domain = '';
-        if (preg_match('#^http[s]?:\/\/.+?(?=\/|$)#', get_site_url(), $matches))
+        if (preg_match('#^http[s]?:\/\/.+?(?=\/|$)#i', get_site_url(), $matches))
             list($domain) = $matches;
 
         // Callback URL

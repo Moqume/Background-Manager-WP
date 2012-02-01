@@ -1,0 +1,33 @@
+{#
+    Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+{% if errors %}
+<div id="message" class="error">{{ errors }}</div>
+{% endif %}
+
+<form method="post" action="" class="media-upload-form type-form">
+    {% if attachment != '' %}
+    <div id="media-items">
+        <div class="media-item">
+            {{ attachment | raw }}
+        </div>
+    </div>
+
+    {{ save_btn | raw }}
+    {% else %}
+
+    <h3 class="media-title">{{ __('Add images from an external source') }}</h3>
+
+    <input type="hidden" name="post_id" id="post_id" value="{{ post_id }}" />
+    {{ nonce | raw }}
+    
+    <label for="url">Image URL:</label>
+    <input id="url" name="url" type="text" value="http://" style="width:300px;" />
+    
+    {{ get_btn | raw }}
+    {% endif %}
+</form>
+

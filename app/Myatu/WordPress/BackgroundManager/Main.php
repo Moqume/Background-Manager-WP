@@ -596,11 +596,14 @@ class Main extends \Pf4wp\WordpressPlugin
                 if (!empty($referer_arg) && strpos($referer_arg, '=') !== false) {
                     list($arg_name, $arg_value) = explode('=', $referer_arg);
                     if ($arg_name == 'filter') {
-                        $filters = array_merge($filters, explode(',', $arg_value));
+                        $filters = array_replace($filters, explode(',', $arg_value));
                         break;
                     }
                 }
         }
+        
+        // Remove any possible duplicates
+        $filters = array_unique($filters);
         
         foreach ($filters as $filter)
             switch ($filter) {

@@ -83,6 +83,11 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
+= 1.0.9 =
+* __Added:__ Ability to download an image directly from an external source (URL) to the Image Set/Media Library, with support for Flickr.
+* Fixed: Not all Image Sets were shown in the Settings (system dependent)
+* Fixed: Flickr Importer authorization and logout URLs
+
 = 1.0.6 (January 28, 2012) =
 * __Added:__ Background image links
 * __Added:__ Support for overlay opacity
