@@ -573,7 +573,8 @@ class Main extends \Pf4wp\WordpressPlugin
             ),
             'public'              => true,             // Make it available in the Admin 'attach' feature of the Media Library
             'exclude_from_search' => true,             // But hide it from the front-end search...
-            'publicly_queryable'  => false,            // ...and front-end query (display)
+            'publicly_queryable'  => false,            // ...and front-end query (display)...
+            'show_in_nav_menus'   => false,            // ...and hide it as a menu...
             'show_ui'             => false,            // Don't generate its own UI in the Admin
             'hierarchical'        => false,
             'rewrite'             => false,
