@@ -55,6 +55,8 @@ class MediaLibrary
         add_filter('media_upload_mime_type_links', array($this, 'onMediaTypeLinks'), $order);
         add_filter('media_send_to_editor', array($this, 'onSendToEditor'), $order, 3);
         add_filter('attachment_fields_to_save', array($this, 'onAttachmentFieldsToSave'), $order, 2);
+        
+        add_action('admin_print_styles-media-upload-popup', array($this, 'onPrintStyles'), $order);
         add_action('media_upload_bgm_url', array($this, 'onBgmUrl'), $order); // "From External Source" tab
     }
     
@@ -283,6 +285,17 @@ class MediaLibrary
     }
     
     /**
+     * Outputs some extra styles
+     *
+     * @since 1.0.8
+     */
+    public function onPrintStyles()
+    {
+        // Gives errors a more noticable surround
+        echo '<style type="text/css" media="screen">.describe td.error{background-color:#FFEBE8;border:1px solid #C00;padding:2px 8px !important;}</style>';
+    }
+    
+    /**
      * Handles the 'Download From URL' tab
      *
      * This will close the TB Frame if the photo is 'inserted' (saved), or download
@@ -296,17 +309,21 @@ class MediaLibrary
     public function onBgmUrl()
     {
         $errors        = false;
-        $attachment_id = 0;
+        $attachment_id = isset($_POST['attachment_id']) ? $_POST['attachment_id'] : 0;
         
-        // Simply close the TB Frame
+        // Save any changes made, then close the TB Frame if successful
         if (isset($_POST['insert'])) {
-            echo '<html><head><script type="text/javascript">/* <![CDATA[ */ var win=window.dialogArguments||opener||parent||top; win.tb_remove(); /* ]]> */</script></head><body></body></html>';
-            die();
+            $errors = media_upload_form_handler();
+            
+            if (!$errors) {
+                echo '<html><head><script type="text/javascript">/* <![CDATA[ */ var win=window.dialogArguments||opener||parent||top; win.tb_remove(); /* ]]> */</script></head><body></body></html>';
+                die();
+            }
         }
         
         // Attempt to download and save the image
         if (isset($_POST['submit'])) {
-            check_admin_referer('bgm_url_form'); // die() if invalid NONCE
+            check_admin_referer('media-form'); // die() if invalid NONCE
             
             $gallery_id = (int)$_POST['post_id'];
             $image_url  = trim($_POST['url']);
@@ -372,17 +389,18 @@ class MediaLibrary
      */    
     public function onBgmUrlForm($errors, $attachment_id = 0)
     {
+        media_upload_header();
+        
         $post_id = (isset($_REQUEST['post_id'])) ? (int)$_REQUEST['post_id'] : 0;
         
-        media_upload_header();
-        wp_nonce_field();
         $vars = array(
-            'nonce'         => wp_nonce_field('bgm_url_form', '_wpnonce', true, false),
+            'nonce'         => wp_nonce_field('media-form', '_wpnonce', false, false), // Same as used by media_upload_form_handler()
             'get_btn'       => get_submit_button(__('Download', $this->owner->getName()), 'button', 'submit', false, array('style'=>'display:inline-block')),
-            'save_btn'      => get_submit_button(__('Save Changes', $this->owner->getName()), 'button', 'insert'),
+            'save_btn'      => get_submit_button(__('Save all changes', $this->owner->getName()), 'button', 'insert'),
             'post_id'       => (isset($_REQUEST['post_id'])) ? (int)$_REQUEST['post_id'] : 0,
-            'errors'        => $errors,
-            'attachment'    => ($attachment_id) ? get_media_item($attachment_id, array('toggle' => false, 'show_title' => false)) : '',
+            'errors'        => (!is_array($errors)) ? $errors : false,
+            'attachment_id' => $attachment_id,
+            'attachment'    => ($attachment_id) ? get_media_item($attachment_id, array('toggle' => false, 'show_title' => false, 'send' => false, 'errors' => (is_array($errors) && isset($errors[$attachment_id])) ? $errors[$attachment_id] : null)) : '',
         );
         
         $this->owner->template->display('media_library_bgm_url.html.twig', $vars);

@@ -9,7 +9,12 @@
 {% endif %}
 
 <form method="post" action="" class="media-upload-form type-form">
+    <input type="hidden" name="post_id" id="post_id" value="{{ post_id }}" />
+    {{ nonce | raw }}
+
     {% if attachment != '' %}
+    <input type="hidden" name="attachment_id" id="attachment_id" value="{{ attachment_id }}" />
+
     <div id="media-items">
         <div class="media-item">
             {{ attachment | raw }}
@@ -21,9 +26,6 @@
 
     <h3 class="media-title">{{ __('Add images from an external source') }}</h3>
 
-    <input type="hidden" name="post_id" id="post_id" value="{{ post_id }}" />
-    {{ nonce | raw }}
-    
     <label for="url">Image URL:</label>
     <input id="url" name="url" type="text" value="http://" style="width:300px;" />
     

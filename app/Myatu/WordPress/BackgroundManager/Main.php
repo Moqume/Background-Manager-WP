@@ -1136,7 +1136,7 @@ class Main extends \Pf4wp\WordpressPlugin
         }
         
         // Generate some debug information
-        $plugin_version = \Pf4wp\Info\PluginInfo::getInfo(false, $this->getPluginBaseName(), 'Version');
+        $plugin_version = $this->getVersion();
         $active_plugins = array();
         
         foreach (\Pf4wp\Info\PluginInfo::getInfo(true) as $plugin)
