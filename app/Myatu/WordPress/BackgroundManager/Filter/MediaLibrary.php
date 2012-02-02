@@ -78,6 +78,7 @@ class MediaLibrary
         unset($form_fields['align']);
         unset($form_fields['image-size']);
         
+        $gallery_id    = (isset($_REQUEST['post_id'])) ? $_REQUEST['post_id'] : 0;
         $attachment_id = (is_object($attachment) && $attachment->ID) ? $attachment->ID : 0;
         $filename      = esc_html(basename($attachment->guid));
         
@@ -90,8 +91,20 @@ class MediaLibrary
         
         // 'Add to' button
         $send = '';
-        if (isset($this->media_item_args['send']) && $this->media_item_args['send'])
-            $send = get_submit_button( __('Add to Image Set', $this->owner->getName()), 'button', "send[$attachment_id]", false);
+        if (substr($attachment->post_mime_type, 0, 5) == 'image') {
+            if (!$attachment->post_parent) {
+                $send = get_submit_button( __('Add to Image Set', $this->owner->getName()), 'button', "send[$attachment_id]", false);
+            } else if ($attachment->post_parent != $gallery_id) {
+                $parent      = get_post($attachment->post_parent);
+                $parent_name = '';
+                
+                if ($parent_type = get_post_type_object(get_post_type($parent)))
+                    $parent_name = (!empty($parent_type->labels->singular_name)) ? $parent_type->labels->singular_name : $parent_type->labels->name;
+                
+                $send = '<p><span class="description">' . sprintf('Currently attached to %s "%s"', $parent_name, $parent->post_title) . '</span></p>';
+                $send .= get_submit_button( __('Copy to Image Set', $this->owner->getName()), 'button', "send[$attachment_id]", false);
+            }
+        }
         
         // 'Delete' or 'Trash' button
         $delete = '';
@@ -153,21 +166,23 @@ class MediaLibrary
         unset($tabs['nextgen']);
         
         // Insert the 'Download from URL' uploader
-        $bgm_url_title = __('Download from URL', $this->owner->getName());
-        if (count($tabs) > 1) {
-            // Insert it immediately after the first tab
-            $c     = 0;
-            $_tabs = array();
-            foreach ($tabs as $tab_idx => $tab) {
-                if ($c == 1)
-                    $_tabs['bgm_url'] = $bgm_url_title;
-                
-                $_tabs[$tab_idx] = $tab;
-                $c++;
+        if (current_user_can('upload_files')) {
+            $bgm_url_title = __('Download from URL', $this->owner->getName());
+            if (count($tabs) > 1) {
+                // Insert it immediately after the first tab
+                $c     = 0;
+                $_tabs = array();
+                foreach ($tabs as $tab_idx => $tab) {
+                    if ($c == 1)
+                        $_tabs['bgm_url'] = $bgm_url_title;
+                    
+                    $_tabs[$tab_idx] = $tab;
+                    $c++;
+                }
+                $tabs = $_tabs;
+            } else {
+                $tabs['bgm_url'] = $bgm_url_title;
             }
-            $tabs = $_tabs;
-        } else {
-            $tabs['bgm_url'] = $bgm_url_title;
         }
         
         // Grab a count of available mime types
@@ -255,10 +270,45 @@ class MediaLibrary
     
     /**
      * What to send to the Gallery Editor if a image needs to be attached
+     *
+     * If the image is already attached, we duplicate it first so it can be re-attached (bypasses WordPress single attachment limitation)
+     *
      */
     public function onSendToEditor($html, $send_id, $attachment)
     {
-        return $send_id;
+        $result     = $send_id; // Default response
+        $attachment = get_post($send_id, ARRAY_A);
+        $gallery_id = (isset($_REQUEST['post_id'])) ? $_REQUEST['post_id'] : 0;
+        
+        // Check if the image is already attached to something other than the current gallery
+        if (($gallery_id && $attachment['post_parent']) && $attachment['post_parent'] != $gallery_id) {
+            // First make a copy of the image
+            $orig_image = get_attached_file($attachment['ID']);
+            $temp_image = trailingslashit(sys_get_temp_dir()) . 'bgm' . mt_rand(10000, 99999) . basename($orig_image);
+            
+            if (copy($orig_image, $temp_image)) {
+                // Once copied, we duplicated it with a 'sideload', retaining all original attachment ant meta data
+                
+                $alttext = get_post_meta($attachment['ID'], '_wp_attachment_image_alt', true);  // ALT
+                $link    = get_post_meta($attachment['ID'], static::META_LINK, true);           // Background URL
+                $duplicate_attachment = array_merge($attachment, array(
+                    'ID'            => 0,
+                    'post_parent'   => $gallery_id,
+                    'ancestors'     => array(),
+                    'guid'          => '',
+                ));
+                
+                if ($id = media_handle_sideload(array('name' => basename($orig_image), 'tmp_name' => $temp_image), $gallery_id, $alttext, $duplicate_attachment)) {
+                    $result = $id;
+                    update_post_meta($result, '_wp_attachment_image_alt', $alttext);
+                    update_post_meta($result, static::META_LINK, $link);
+                }
+                
+                @unlink($temp_image); // Ensure we clean up, in case there's leftovers.
+            }
+        }
+        
+        return $result;
     }
     
     /**
@@ -291,7 +341,7 @@ class MediaLibrary
      */
     public function onPrintStyles()
     {
-        // Gives errors a more noticable surround
+        // Makrs errors a more noticable
         echo '<style type="text/css" media="screen">.describe td.error{background-color:#FFEBE8;border:1px solid #C00;padding:2px 8px !important;}</style>';
     }
     
@@ -322,7 +372,7 @@ class MediaLibrary
         }
         
         // Attempt to download and save the image
-        if (isset($_POST['submit'])) {
+        if (isset($_POST['submit']) && current_user_can('upload_files')) {
             check_admin_referer('media-form'); // die() if invalid NONCE
             
             $gallery_id = (int)$_POST['post_id'];
@@ -397,7 +447,7 @@ class MediaLibrary
             'nonce'         => wp_nonce_field('media-form', '_wpnonce', false, false), // Same as used by media_upload_form_handler()
             'get_btn'       => get_submit_button(__('Download', $this->owner->getName()), 'button', 'submit', false, array('style'=>'display:inline-block')),
             'save_btn'      => get_submit_button(__('Save all changes', $this->owner->getName()), 'button', 'insert'),
-            'post_id'       => (isset($_REQUEST['post_id'])) ? (int)$_REQUEST['post_id'] : 0,
+            'post_id'       => $post_id,
             'errors'        => (!is_array($errors)) ? $errors : false,
             'attachment_id' => $attachment_id,
             'attachment'    => ($attachment_id) ? get_media_item($attachment_id, array('toggle' => false, 'show_title' => false, 'send' => false, 'errors' => (is_array($errors) && isset($errors[$attachment_id])) ? $errors[$attachment_id] : null)) : '',

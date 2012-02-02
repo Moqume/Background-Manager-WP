@@ -37,7 +37,8 @@ class WpFlickrBackground extends Importer
     static public function active()
     {
         // Only active if ...
-        if (!PluginInfo::isInstalled('WP Flickr Background') ||             // the WP Flickr Background is installed (regardless of active)
+        if (!current_user_can('upload_files') ||                            // the user is permitted to add files to the Media Library
+            !PluginInfo::isInstalled('WP Flickr Background') ||             // the WP Flickr Background is installed (regardless of active)
             ($options = get_option(static::WP_OPTION_NAME)) === false ||    // the options exists
             !array_key_exists('galleries', $options) ||                     // the options contain one or more galleries
             !is_array($options['galleries']) ||

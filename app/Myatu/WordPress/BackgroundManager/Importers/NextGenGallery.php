@@ -36,7 +36,7 @@ class NextGenGallery extends Importer
     {
         global $wpdb;
         
-        if (!PluginInfo::isInstalled('NextGEN Gallery') || !($gallery_count = (int)$wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->prefix}ngg_gallery`")))
+        if (!current_user_can('upload_files') || !PluginInfo::isInstalled('NextGEN Gallery') || !($gallery_count = (int)$wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->prefix}ngg_gallery`")))
             return false;
      
         return true;

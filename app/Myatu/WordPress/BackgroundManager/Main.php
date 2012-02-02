@@ -1496,7 +1496,7 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // Iframes
         $images_iframe_src = add_query_arg(array('iframe' => 'images', 'edit' => $this->gallery->ID, 'orderby' => false, 'order' => false, 'pp' => $per_page, 'paged' => false));
-        $image_edit_src    = add_query_arg(array('iframe' => 'edit_image', 'edit' => false, 'orderby' => false, 'order' => false, 'post_id' => 0, 'filter' => Filter\MediaLibrary::FILTER));
+        $image_edit_src    = add_query_arg(array('iframe' => 'edit_image', 'edit' => false, 'orderby' => false, 'order' => false, 'post_id' => $this->gallery->ID, 'filter' => Filter\MediaLibrary::FILTER));
         
         $vars = array(
             'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar' : '',
