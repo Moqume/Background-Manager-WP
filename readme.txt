@@ -83,10 +83,13 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.9 =
+= 1.0.10 =
 * __Added:__ Ability to download an image directly from an external source (URL) to the Image Set/Media Library, with support for Flickr.
+* __Added:__ Ability to copy images from the Media Library already attached to other posts, pages or image sets.
+* Changed: Extra user capability checks for Importers
 * Fixed: Not all Image Sets were shown in the Settings (system dependent)
 * Fixed: Flickr Importer authorization and logout URLs
+* Fixed: 'Add to Image Set' button was missing from Media Library when adding images to an Image Set
 
 = 1.0.6 (January 28, 2012) =
 * __Added:__ Background image links

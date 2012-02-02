@@ -95,6 +95,7 @@ class MediaLibrary
             if (!$attachment->post_parent) {
                 $send = get_submit_button( __('Add to Image Set', $this->owner->getName()), 'button', "send[$attachment_id]", false);
             } else if ($attachment->post_parent != $gallery_id) {
+                // The image is already attached, but not to this Image Set. Allow it to be copied (@see onSendToEditor)
                 $parent      = get_post($attachment->post_parent);
                 $parent_name = '';
                 
@@ -274,10 +275,10 @@ class MediaLibrary
      * If the image is already attached, we duplicate it first so it can be re-attached (bypasses WordPress single attachment limitation)
      *
      */
-    public function onSendToEditor($html, $send_id, $attachment)
+    public function onSendToEditor($_html, $send_id, $_attachment)
     {
         $result     = $send_id; // Default response
-        $attachment = get_post($send_id, ARRAY_A);
+        $attachment = get_post($send_id, ARRAY_A); // Original attachment
         $gallery_id = (isset($_REQUEST['post_id'])) ? $_REQUEST['post_id'] : 0;
         
         // Check if the image is already attached to something other than the current gallery
@@ -287,8 +288,7 @@ class MediaLibrary
             $temp_image = trailingslashit(sys_get_temp_dir()) . 'bgm' . mt_rand(10000, 99999) . basename($orig_image);
             
             if (copy($orig_image, $temp_image)) {
-                // Once copied, we duplicated it with a 'sideload', retaining all original attachment ant meta data
-                
+                // Once copied, we duplicate it with a 'sideload', retaining all original attachment and meta data
                 $alttext = get_post_meta($attachment['ID'], '_wp_attachment_image_alt', true);  // ALT
                 $link    = get_post_meta($attachment['ID'], static::META_LINK, true);           // Background URL
                 $duplicate_attachment = array_merge($attachment, array(
