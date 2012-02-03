@@ -24,7 +24,8 @@
     {{ save_btn | raw }}
     {% else %}
 
-    <h3 class="media-title">{{ __('Add images from an external source') }}</h3>
+    <h3 class="media-title">{{ __('Add an image from an external source') }}</h3>
+    <p>{{ __('After an image has been retrieved, you can add a title and description.') }}</p>
 
     <label for="url">Image URL:</label>
     <input id="url" name="url" type="text" value="http://" style="width:300px;" />
