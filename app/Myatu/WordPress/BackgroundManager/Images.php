@@ -146,7 +146,7 @@ class Images
     /**
      * Imports an image into the specified Gallery
      *
-     * @param string $file Path to the file
+     * @param string $file Path or URL to the file
      * @param int $id ID of the Gallery (image set)
      * @param string $title Optional title of the image
      * @param string $desc Optional description of the image
@@ -156,34 +156,48 @@ class Images
      */
     static public function importImage($file, $id, $title = '', $desc = '', $alttext = '', $extra_post_data = array())
     {
-        $result = false;
+        $result    = false;
+        $temp_file = false;
         
-        if (file_is_valid_image($file) && $id) {
-            $temp_file = trailingslashit(sys_get_temp_dir()) . 'bgm' . mt_rand(10000, 99999) . basename($file);
-            
-            $post_data = array();
-            
-            if ($title)
-                $post_data['post_title'] = $title;
+        if ($id && $file) {
+            if (preg_match('#http[s]?:\/\/#i', $file)) {
+                $temp_file = download_url($file);
                 
-            if ($desc)
-                $post_data['post_content'] = $desc;
+                if (!file_is_valid_image($temp_file)) {
+                    // Downloaded file is not a valid image, invalidate $temp_file
+                    @unlink($temp_file);
+                    $temp_file = false;
+                }
+            } else {
+                if (@is_readable($file) && file_is_valid_image($file))
+                    $temp_file = trailingslashit(sys_get_temp_dir()) . 'bgm' . mt_rand(10000, 99999) . basename($file);
+            }
             
-            // Allow extra post data to overwrite/add to existing post data
-            $post_data = array_merge($post_data, $extra_post_data);
-            
-            if (copy($file, $temp_file)) {
-                $id = media_handle_sideload(array('name' => basename($file), 'tmp_name' => $temp_file), $id, null);
-            
-                if (!is_wp_error($id)) {
-                    $result = $id;
+            if ($temp_file) {
+                $post_data = array();
+                
+                if ($title)
+                    $post_data['post_title'] = $title;
                     
-                    if ($alttext)
-                        update_post_meta($id, '_wp_attachment_image_alt', $alttext);
-                }                   
+                if ($desc)
+                    $post_data['post_content'] = $desc;
+                
+                // Allow extra post data to overwrite/add to existing post data
+                $post_data = array_merge($post_data, $extra_post_data);
+                
+                if (copy($file, $temp_file)) {
+                    $id = media_handle_sideload(array('name' => basename($file), 'tmp_name' => $temp_file), $id, null, $post_data);
+                
+                    if (!is_wp_error($id)) {
+                        $result = $id;
+                        
+                        if ($alttext)
+                            update_post_meta($id, '_wp_attachment_image_alt', $alttext);
+                    }                   
+                }
             }
                 
-            @unlink($temp_file); // Ensure it is indeed cleaned up
+            @unlink($temp_file); // Ensure the temp file cleaned up
         }
         
         return $result;

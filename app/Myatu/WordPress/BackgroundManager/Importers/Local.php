@@ -135,6 +135,7 @@ class Local extends Importer
         
         foreach ($iterator as $fileinfo)
             if ($fileinfo->isFile())
-                Images::importImage($fileinfo, $gallery_id);
+                if (!Images::importImage($fileinfo, $gallery_id))
+                    $main->addDelayedNotice(sprintf(__('Unable to create import <em>%s</em> into Image Set', $main->getName()), $fileinfo), true);
     }
 }

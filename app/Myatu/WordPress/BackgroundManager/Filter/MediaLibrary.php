@@ -11,6 +11,7 @@ namespace Myatu\WordPress\BackgroundManager\Filter;
 
 use Myatu\WordPress\BackgroundManager\Main;
 use Myatu\WordPress\BackgroundManager\Common\FlickrApi;
+use Myatu\WordPress\BackgroundManager\Images;
 
 /**
  * The Media Library filter class 
@@ -379,49 +380,34 @@ class MediaLibrary
             $image_url  = trim($_POST['url']);
             
             if (!empty($image_url)) {
-                $tmp = download_url($image_url);
+                $title       = '';
+                $description = '';
                 
-                if (!file_is_valid_image($tmp)) {
-                    $errors = __('File at specified URL is not a valid image', $this->owner->getName());
-                } else  if (!is_wp_error($tmp)) {
-                    $details = array();
-                    
-                    // Check if it's a Flickr URL
-                    if (preg_match('#^http[s]?://farm\d{1,3}\.(?:staticflickr|static\.flickr).com\/\d+\/(\d+)_.+\.(?:jpg|png|gif)$#i', $image_url, $matches)) {
-                        $flickr_photo_id = $matches[1];
+                // Check if it's a Flickr URL
+                if (preg_match('#^http[s]?://farm\d{1,3}\.(?:staticflickr|static\.flickr).com\/\d+\/(\d+)_.+\.(?:jpg|png|gif)$#i', $image_url, $matches)) {
+                    $flickr_photo_id = $matches[1];
 
-                        // Obtain some more details about the image from Flickr
-                        $flickr = new FlickrApi($this->owner);
-                        if ($flickr->isValid($info = $flickr->call('photos.getInfo', array('photo_id' => $flickr_photo_id))) && isset($info['photo'])) {
-                            $info         = $info['photo'];
-                            $title        = $info['title']['_content'];
-                            $license_info = $flickr->getLicenseById($info['license']);
-                            $description  = sprintf(__('<p>%s</p><p>By: <a href="http://www.flickr.com/photos/%s/%s/">%s</a> (%s)</p>', $this->owner->getName()),
-                                $info['description']['_content'],
-                                $info['owner']['nsid'],     // User ID
-                                $info['id'],                // Photo ID
-                                $info['owner']['username'], // Username
-                                (!empty($license_info['url'])) ? sprintf('<a href="%s">%s</a>', $license_info['url'], $license_info['name']) : $license_info['name']
-                            );
-                            
-                            // Update details array
-                            $details = array(
-                                'post_title' => $title, 
-                                'post_content' => $description
-                            );
-                        }
-                        unset($flickr);
+                    // Obtain some more details about the image from Flickr
+                    $flickr = new FlickrApi($this->owner);
+                    if ($flickr->isValid($info = $flickr->call('photos.getInfo', array('photo_id' => $flickr_photo_id))) && isset($info['photo'])) {
+                        $info         = $info['photo'];
+                        $title        = $info['title']['_content'];
+                        $license_info = $flickr->getLicenseById($info['license']);
+                        $description  = sprintf(__('<p>%s</p><p>By: <a href="http://www.flickr.com/photos/%s/%s/">%s</a> (%s)</p>', $this->owner->getName()),
+                            $info['description']['_content'],
+                            $info['owner']['nsid'],     // User ID
+                            $info['id'],                // Photo ID
+                            $info['owner']['username'], // Username
+                            (!empty($license_info['url'])) ? sprintf('<a href="%s">%s</a>', $license_info['url'], $license_info['name']) : $license_info['name']
+                        );
                     }
-                    
-                    $attachment_id = media_handle_sideload(array('name' => basename($image_url), 'tmp_name' => $tmp), $gallery_id, null, $details);
-                    
-                    if (is_wp_error($attachment_id))
-                        $errors = __('Unable to save image to Media Library', $this->owner->getName());
-                } else {
-                    $errors = __('Unable to download image from specified URL', $this->owner->getName());
+                    unset($flickr);
                 }
                 
-                @unlink($tmp); // Remove temporary file if it still exists
+                $attachment_id = Images::importImage($image_url, $gallery_id, $title, $description);
+                
+                if (!$attachment_id)
+                    $errors = __('Unable to import image at specified URL', $this->owner->getName());
             }            
         }
 
