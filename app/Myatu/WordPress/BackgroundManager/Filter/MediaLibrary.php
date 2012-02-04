@@ -284,28 +284,24 @@ class MediaLibrary
         
         // Check if the image is already attached to something other than the current gallery
         if (($gallery_id && $attachment['post_parent']) && $attachment['post_parent'] != $gallery_id) {
-            // First make a copy of the image
             $orig_image = get_attached_file($attachment['ID']);
-            $temp_image = trailingslashit(sys_get_temp_dir()) . 'bgm' . mt_rand(10000, 99999) . basename($orig_image);
             
-            if (copy($orig_image, $temp_image)) {
-                // Once copied, we duplicate it with a 'sideload', retaining all original attachment and meta data
-                $alttext = get_post_meta($attachment['ID'], '_wp_attachment_image_alt', true);  // ALT
-                $link    = get_post_meta($attachment['ID'], static::META_LINK, true);           // Background URL
-                $duplicate_attachment = array_merge($attachment, array(
-                    'ID'            => 0,
-                    'post_parent'   => $gallery_id,
-                    'ancestors'     => array(),
-                    'guid'          => '',
-                ));
+            // Obtain original image details
+            $alttext = get_post_meta($attachment['ID'], '_wp_attachment_image_alt', true);  // ALT
+            $link    = get_post_meta($attachment['ID'], static::META_LINK, true);           // Background URL
+            $details = array_merge($attachment, array(
+                'ID'            => 0,
+                'post_parent'   => $gallery_id,
+                'ancestors'     => array(),
+                'guid'          => '',
+            ));    
+            
+            // Import the image
+            if ($id = Images::importImage($orig_image, $gallery_id, '', '', $alttext, $details)) {
+                $result = $id;
                 
-                if ($id = media_handle_sideload(array('name' => basename($orig_image), 'tmp_name' => $temp_image), $gallery_id, $alttext, $duplicate_attachment)) {
-                    $result = $id;
-                    update_post_meta($result, '_wp_attachment_image_alt', $alttext);
-                    update_post_meta($result, static::META_LINK, $link);
-                }
-                
-                @unlink($temp_image); // Ensure we clean up, in case there's leftovers.
+                // Re-addd the Background URL
+                update_post_meta($id, static::META_LINK, $link);
             }
         }
         
