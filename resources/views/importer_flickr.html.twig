@@ -64,38 +64,38 @@ setTimeout(function() {
 {% endif %}
 
 <table class="form-table">
-        <tbody>
-            <tr valign="top">
-                <th scope="row">
-                    <label for="flickr_username">{{ __('Flickr User') }}</label>
-                </th>
-                <td>
-                    <input type="text" value="{{ flickr_username }}" name="flickr_username" id="flickr_username" />
-                    {% if not anonymous %}<span class="description">{{ __('Optional') }}, "{{ username }}" {{ __('by default') }}.</span>{% endif %}
-                </td>
-            </tr>
-            <tr valign="top">
-                <th scope="row">
-                    <label for="flickr_photoset">{{ __('Flickr Photo Set') }}</label>
-                </th>
-                <td>
-                    <select id="flickr_photoset" class="postform" name="flickr_photoset" {% if not photosets %}disabled="disabled"{% endif %}>
-                        {% if not photosets %}
-                        <option value="">(No photosets found)</option>
-                        {% else %}
-                        <option value="">{{ __('-- Select a Flickr Photo Set --') }}</option>
-                        {% endif %}
-                        {% for photoset_key,photoset_value in photosets %}
-                        <option value="{{ photoset_key }}">{{ photoset_value }}</option>
-                        {% endfor %}
-                    </select>
-                    <span class="description">
-                    {% if anonymous and flickr_username == "" %}
-                    {{ __('First enter the name or ID of a Flickr user and click the "Continue Import" button') }}.
+    <tbody>
+        <tr valign="top">
+            <th scope="row">
+                <label for="flickr_username">{{ __('Flickr User') }}</label>
+            </th>
+            <td>
+                <input type="text" value="{{ flickr_username }}" name="flickr_username" id="flickr_username" />
+                {% if not anonymous %}<span class="description">{{ __('Optional') }}, "{{ username }}" {{ __('by default') }}.</span>{% endif %}
+            </td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">
+                <label for="flickr_photoset">{{ __('Flickr Photo Set') }}</label>
+            </th>
+            <td>
+                <select id="flickr_photoset" class="postform" name="flickr_photoset" {% if not photosets %}disabled="disabled"{% endif %}>
+                    {% if not photosets %}
+                    <option value="">(No photosets found)</option>
+                    {% else %}
+                    <option value="">{{ __('-- Select a Flickr Photo Set --') }}</option>
                     {% endif %}
-                    </span>
-                </td>
-            </tr>
+                    {% for photoset_key,photoset_value in photosets %}
+                    <option value="{{ photoset_key }}">{{ photoset_value }}</option>
+                    {% endfor %}
+                </select>
+                <span class="description">
+                {% if anonymous and flickr_username == "" %}
+                {{ __('First enter the name or ID of a Flickr user and click the "Continue Import" button') }}.
+                {% endif %}
+                </span>
+            </td>
+        </tr>
     </tbody>
 </table>
 {% endif %}

@@ -120,6 +120,7 @@ class NextGenGallery extends Importer
                 // We use media_handle_sideload, which will delete the file after completion, so original is copied first.
                 $temp_file = trailingslashit(sys_get_temp_dir()) . 'bgm' . mt_rand(10000, 99999) . basename($image_file);
                 $copied    = copy($image_file, $temp_file);
+                $id        = false;
                 
                 if ($copied) {
                     if ($id = media_handle_sideload(array('name' => basename($image_file), 'tmp_name' => $temp_file), $gallery_id, $ngg_picture->alttext, array('post_content' => $ngg_picture->description)))
@@ -128,6 +129,8 @@ class NextGenGallery extends Importer
                 
                 if (!$copied || !$id)
                     $main->addDelayedNotice(sprintf(__('Unable to import image <em>%s</em> into Image Set <strong>%s</strong>', $main->getName()), $image_file, $image_set), true);
+                    
+                @unlink($temp_file); // Ensure we keep things clean and tidy at all times
             }
            
             $chunk++;

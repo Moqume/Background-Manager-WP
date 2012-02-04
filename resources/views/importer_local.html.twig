@@ -1,0 +1,58 @@
+{#
+    Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+
+<table class="form-table">
+    <tbody>
+        <tr>
+            <th>
+                {{ __('Directory') }}
+            </th>
+            <td>
+                <div class="xhide-if-js">
+                    <span>{{ root }}</span>
+                    <input type="text" id="directory" name="directory" value="" style="width:300px;" />
+                </div>
+                <div id="directory_listing" style="height:250px;overflow:auto;border:1px solid #aaa" class="hide-if-no-js">
+                    {{ directory | raw }}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                {{ __('Sub-directories') }}
+            </th>
+            <td>
+                <label>
+                    <input type="checkbox" value="1" id="sub_dirs" name="sub_dirs" checked="checked" />
+                    <span>{{ __('Include selected sub-directoies') }}</span>
+                </label>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+//<![CDATA[
+(function($){
+    $(document).ready(function($){
+        $('#directory_listing').bind('select_node.jstree', function(e, o) {
+            var selected_node = $('#directory_listing').jstree('get_selected'), dir = $('a', selected_node).attr('data-dir');
+
+            $('#directory').val(dir);
+        }).jstree({
+            'plugins': ['themes', 'html_data','ui'],
+            'core' : {
+                'initially_open' : ['root']
+            },
+            'ui' : {
+                'select_limit' : 1
+            }
+        });
+    });
+})(jQuery);
+//]]>
+</script>
