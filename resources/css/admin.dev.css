@@ -149,7 +149,7 @@
     -webkit-box-shadow: 5px 5px 5px #AAA;
 }
 
-#settings_form {
+.js #settings_form {
     padding-top: 125px;
 }
 
@@ -242,6 +242,7 @@
     margin-right: 10px;
 }
 
+#overlay_opacity,
 #background_opacity {
     width: 40px;
 }
