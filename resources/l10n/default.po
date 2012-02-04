@@ -1,0 +1,953 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Background Manager\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-02-04 22:23-0000\n"
+"PO-Revision-Date: 2012-02-04 22:24-0000\n"
+"Last-Translator: Mike Green <myatus@gmail.com>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ../..\n"
+
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:839
+msgid "Configure this plugin"
+msgstr ""
+
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:840
+msgid "Settings"
+msgstr ""
+
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:917
+msgid "Malformed AJAX Request"
+msgstr ""
+
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:971
+msgid "Oops! Something went wrong"
+msgstr ""
+
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:983
+#, php-format
+msgid "at %s%s%s()"
+msgstr ""
+
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:991
+#, php-format
+msgid " in <code>%s</code> line %s"
+msgstr ""
+
+#: ../../vendor/pf4wp/lib/Pf4wp/Widgets/TitledWidget.php:70
+msgid "New title"
+msgstr ""
+
+#: ../../vendor/pf4wp/lib/Pf4wp/Widgets/TitledWidget.php:73
+msgid "Title:"
+msgstr ""
+
+#: ../../vendor/pf4wp/lib/Pf4wp/Menu/MenuEntry.php:327
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: ../../vendor/pf4wp/lib/Pf4wp/Menu/CombinedMenu.php:50
+msgid "Home"
+msgstr ""
+
+#: ../../vendor/pf4wp/lib/Pf4wp/Menu/StandardMenu.php:375
+msgid "Overview"
+msgstr ""
+
+#: ../../vendor/pf4wp/lib/Pf4wp/Menu/StandardMenu.php:424
+msgid "items per page"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:571
+msgid "Background Image Sets"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:572
+msgid "Background Image Set"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:633
+msgid "Imported Background"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:633
+msgid "Automatically created Image Set, containing the original background image specified in WordPress."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:752
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1572
+msgid "&laquo;"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:753
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1573
+msgid "&raquo;"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:867
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:882
+msgid "Background"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:888
+msgid "Image Sets"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:896
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:334
+msgid "Trash"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:903
+msgid "Import"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:943
+msgid "Add New Image Set"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1016
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1375
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1408
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1534
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:81
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:279
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:390
+msgid "You do not have permission to do that [nonce]."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1069
+msgid "Settings have been saved"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1084
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1093
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1120
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Single.php:65
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Single.php:79
+msgid "-- None (deactivated) --"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1101
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1114
+msgid "Top Left"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1101
+msgid "Top Center"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1101
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1114
+msgid "Top Right"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1102
+msgid "Center Left"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1102
+msgid "Center"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1102
+msgid "Center Right"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1103
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1115
+msgid "Bottom Left"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1103
+msgid "Bottom Center"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1103
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1115
+msgid "Bottom Right"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1108
+msgid "Tile horizontal and vertical"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1108
+msgid "Tile horizontal"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1109
+msgid "Tile vertical"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1109
+msgid "No Tiling"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1120
+msgid "Random"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1121
+msgid "Slide Downward"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1121
+msgid "Slide Upward"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1121
+msgid "Slide to Left"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1121
+msgid "Slide to Right"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1122
+msgid "Cover Downward"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1122
+msgid "Cover Upward"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1122
+msgid "Cover to Left"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1122
+msgid "Cover to Right"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1123
+msgid "Crossfade"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1275
+msgid "You are about to permanently delete the selected images. Are you sure?"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1276
+msgid "You are about to permanently delete this image. Are you sure?"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1290
+msgid "images per page"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1439
+msgid "Continue Import"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1486
+msgid "Add an Image"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1627
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:431
+msgid "Save all changes"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:286
+msgid "The Trash has been emptied."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:288
+msgid "There was a problem emptying the Trash."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:317
+#, php-format
+msgid "%s moved to the Trash. <a href=\"%s\">Undo</a>"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:328
+msgid "There was a problem moving the Image Set(s) to the Trash."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:348
+#, php-format
+msgid "%s restored from the Trash."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:350
+msgid "There was a problem restoring the Image Set(s) from the Trash."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:370
+#, php-format
+msgid "%s permanently deleted."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:372
+msgid "There was a problem deleting the Image Set(s)."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:396
+msgid "Please specify a name for this Image Set."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:403
+msgid "The Image Set could not be saved."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:408
+msgid "added"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:408
+msgid "saved"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:409
+#, php-format
+msgid "The Image Set was successfully %s."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:186
+msgid "Title"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:187
+msgid "Description"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:188
+msgid "Images"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:235
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:141
+msgid "Move to Trash"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:238
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:346
+msgid "Restore"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:240
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:340
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:119
+msgid "Delete Permanently"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:260
+msgid "Add New"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:266
+msgid "Empty Trash"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:327
+msgid "Edit this Image Set"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:328
+msgid "Edit"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:333
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Submit.php:50
+msgid "Move this Image Set to the Trash"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:339
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Submit.php:55
+msgid "Delete this Image Set permanently"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:345
+msgid "Restore this Image Set from the Trash"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:361
+#, php-format
+msgid "Edit &#8220;%s&#8221;"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:365
+msgid "Active Background"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:214
+msgid "There was a problem contacting Flickr or the request was not authorized. Please try again."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:217
+msgid "Malformed results received from Flickr. Please try again."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:222
+msgid "The photo could not be found or has been removed from public view."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:225
+msgid "You do not have permission to view this photo."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:228
+msgid "The login details or authentication token passed were invalid."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:231
+msgid "This requires user authentication but no user was not logged in, or the authenticated method call did not have the required permissions."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:234
+msgid "There was a problem with the API Key. Please contact the plugin author."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:237
+msgid "Flickr is currently too busy. Please try again later."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:240
+msgid "Flickr does not support the requested format. Please contact the plugin author."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:243
+msgid "Flickr does not support the requested function. Please contact the plugin author."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:246
+#, php-format
+msgid "Flickr reported <i>\"%s\"</i>."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:88
+msgid "Background URL"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:89
+msgid "Optional link URL for the background"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:97
+msgid "Add to Image Set"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:107
+msgid "Copy to Image Set"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:129
+msgid "Delete"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:130
+#, php-format
+msgid "You are about to delete <strong>%s</strong>."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:132
+msgid "Continue"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:133
+msgid "Cancel"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:143
+msgid "Undo"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:172
+msgid "Download from URL"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:392
+#, php-format
+msgid "<p>%s</p><p>By: <a href=\"http://www.flickr.com/photos/%s/%s/\">%s</a> (%s)</p>"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:406
+msgid "Unable to import image at specified URL"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:430
+msgid "Download"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Submit.php:51
+msgid "Trash Image Set"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Submit.php:56
+msgid "Delete Image Set"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Submit.php:78
+msgid "Save Changes"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Submit.php:78
+msgid "Add Image Set"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Single.php:70
+msgid "Default Image Set"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Single.php:84
+msgid "Default Overlay"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:93
+msgid "There was a problem obtaining NextGEN Gallery database details"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:98
+#, php-format
+msgid "%s (Imported)"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:102
+#, php-format
+msgid "Unable to create Image Set <strong>%s</strong>"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:120
+#, php-format
+msgid "Unable to import image <em>%s</em> into Image Set <strong>%s</strong>"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:127
+msgid "Completed import from NextGEN Gallery"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Local.php:103
+#, php-format
+msgid "Imported directory \"%s\""
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Local.php:105
+msgid " and sub-directories"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Local.php:125
+msgid "Completed import from Local Directory"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Local.php:144
+#, php-format
+msgid "Unable to import <em>%s</em> into Image Set"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Importer.php:118
+msgid "Done!"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Flickr.php:92
+msgid "Unable to obtain a Flickr authorization URL. Please try again later."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Flickr.php:142
+#, php-format
+msgid "\"%s\" is not a valid Flickr user."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Flickr.php:187
+msgid "Invalid or inaccessible Flickr Photo Set selected"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Flickr.php:257
+#, php-format
+msgid "%d photos could not be added."
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Flickr.php:259
+msgid "Completed import from Flickr"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/WpFlickrBackground.php:109
+msgid "Completed import from WP Flickr Background"
+msgstr ""
+
+#: ../../resources/views/importer_local.html.twig:12
+msgid "Directory"
+msgstr ""
+
+#: ../../resources/views/importer_local.html.twig:19
+msgid "Select a directory to import"
+msgstr ""
+
+#: ../../resources/views/importer_local.html.twig:27
+msgid "Sub-directories"
+msgstr ""
+
+#: ../../resources/views/importer_local.html.twig:32
+msgid "Include sub-directoies"
+msgstr ""
+
+#: ../../resources/views/import.html.twig:19
+msgid "Import using"
+msgstr ""
+
+#: ../../resources/views/import.html.twig:23
+msgid "Select an importer"
+msgstr ""
+
+#: ../../resources/views/import.html.twig:48
+msgid "Import progress:"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:15
+msgid "Preview"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:48
+#: ../../resources/views/settings.html.twig:53
+msgid "Select a random image"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:57
+msgid "At each browser session"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:58
+msgid "Stores a cookie on the visitor's computer for the duration of the browser session"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:63
+msgid "On a page (re)load"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:68
+msgid "Every"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:71
+msgid "seconds"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:72
+msgid "Requires Javascript by the visitor, but will gracefully degrade if not available"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:78
+msgid "Background Color"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:88
+#: ../../resources/views/settings.html.twig:93
+msgid "Active on"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:97
+msgid "Front page"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:102
+msgid "Single post"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:107
+msgid "Single page"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:112
+msgid "Archive pages"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:117
+msgid "Search results"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:122
+msgid "Error page"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:137
+msgid "Background Layout"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:142
+#: ../../resources/views/settings.html.twig:147
+msgid "Size"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:151
+msgid "Normal"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:156
+msgid "Full Screen"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:163
+msgid "Background Image Opacity"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:169
+#: ../../resources/views/settings.html.twig:259
+msgid "Only available for Full Screen layouts"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:177
+#: ../../resources/views/settings.html.twig:182
+msgid "Position"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:196
+#: ../../resources/views/settings.html.twig:201
+msgid "Tiling"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:215
+#: ../../resources/views/settings.html.twig:220
+msgid "Scrolling"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:224
+msgid "Scroll with the screen"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:229
+msgid "Fixed"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:236
+#: ../../resources/views/settings.html.twig:241
+msgid "Stretching"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:245
+msgid "Vertical"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:250
+msgid "Horizontal"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:259
+msgid "Background Transitioning Effect"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:264
+msgid "Transition Effect"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:276
+msgid "Transition Speed"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:281
+msgid "milliseconds"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:282
+msgid "1000 milliseconds = 1 second"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:285
+msgid "Slower"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:287
+msgid "Faster"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:295
+msgid "Background Overlay"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:300
+#: ../../resources/views/meta_single.html.twig:23
+msgid "Overlay"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:312
+msgid "Overlay Opacity"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:327
+msgid "Background Information"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:332
+msgid "Display icon"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:338
+msgid "Enabled"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:339
+msgid "This will display a small <code>[ + ]</code> icon in one of the selected locations"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:346
+msgid "Options"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:352
+msgid "Display a short description when the mouse is hovered over the icon"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:353
+msgid "Requires Javascript by the visitor"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:358
+msgid "Include a thumbnail in the short description"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:363
+msgid "Icon is linked to a seperate page containing more information about the displayed background"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:370
+#: ../../resources/views/settings.html.twig:375
+msgid "Location"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:397
+msgid "Debug"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:398
+msgid "Rate It"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:399
+msgid "Forum"
+msgstr ""
+
+#: ../../resources/views/meta_gallery_submit.html.twig:16
+msgid "Short Description"
+msgstr ""
+
+#: ../../resources/views/importer_nextgengallery.html.twig:12
+msgid "Import NextGEN Gallery"
+msgstr ""
+
+#: ../../resources/views/importer_nextgengallery.html.twig:16
+msgid "-- Select a gallery --"
+msgstr ""
+
+#: ../../resources/views/meta_gallery_css.html.twig:10
+msgid "You can provide an additional Custom Stylesheet (CSS) that will only be loaded when this Image Set is active."
+msgstr ""
+
+#: ../../resources/views/meta_gallery_css.html.twig:11
+msgid "As an example, this could be used to match the colors of the "
+msgstr ""
+
+#: ../../resources/views/meta_gallery_css.html.twig:11
+msgid " theme with those of the images."
+msgstr ""
+
+#: ../../resources/views/media_library_bgm_url.html.twig:27
+msgid "Add an image from an external source"
+msgstr ""
+
+#: ../../resources/views/media_library_bgm_url.html.twig:28
+msgid "After an image has been retrieved, you can add a title and description."
+msgstr ""
+
+#: ../../resources/views/edit_gallery.html.twig:27
+msgid "Enter title here"
+msgstr ""
+
+#: ../../resources/views/edit_gallery.html.twig:38
+msgid "Upload/Insert"
+msgstr ""
+
+#: ../../resources/views/edit_gallery.html.twig:65
+msgid "Image count"
+msgstr ""
+
+#: ../../resources/views/edit_gallery.html.twig:66
+msgid "selected"
+msgstr ""
+
+#: ../../resources/views/gallery_edit_image.html.twig:20
+msgid "Image was updated"
+msgstr ""
+
+#: ../../resources/views/meta_single.html.twig:11
+msgid "Image Set"
+msgstr ""
+
+#: ../../resources/views/gallery_image.html.twig:12
+msgid "Add Image"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:14
+msgid "Flickr Access"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:16
+msgid "Background Manager has not been linked to a Flickr account. Do you wish to continue as an anonymous user, or login to your Flickr account?"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:21
+msgid "Login to my Flickr account"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:26
+msgid "Continue anonymously"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:41
+msgid "You will be redirected to Flickr in just a moment."
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:42
+msgid "Click here if you are not being redirected."
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:48
+#: ../../resources/views/importer_flickr.html.twig:57
+msgid "Hello"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:50
+msgid "You are currently logged in to Flickr"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:50
+msgid "Logout"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:53
+msgid "Select a Flickr Photo Set from your own account and click the <strong>Continue Import</strong> button. Or enter a Flickr username or ID (for example: <code>45244809@N00</code>) and click the <strong>Continue Import</strong> button, which then allows you to select from another Flickr user's Photo Sets."
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:60
+msgid "You are currently using Flickr as an anonymous user. To start, enter a Flickr username or ID (for example: <code>45244809@N00</code>) and click the <strong>Continue Import</strong> button. You can then select a Flickr Photo Set from that user."
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:70
+msgid "Flickr User"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:74
+msgid "Optional"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:74
+msgid "by default"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:79
+msgid "Flickr Photo Set"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:86
+msgid "-- Select a Flickr Photo Set --"
+msgstr ""
+
+#: ../../resources/views/importer_flickr.html.twig:94
+msgid "First enter the name or ID of a Flickr user and click the \"Continue Import\" button"
+msgstr ""
+
