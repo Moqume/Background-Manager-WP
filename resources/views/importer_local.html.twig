@@ -16,7 +16,8 @@
                     <span>{{ root }}</span>
                     <input type="text" id="directory" name="directory" value="" style="width:300px;" />
                 </div>
-                <div id="directory_listing" style="height:250px;overflow:auto;border:1px solid #aaa" class="hide-if-no-js">
+                <span class="hide-if-no-js">{{ __('Select a directory to import') }}:</span>
+                <div id="directory_listing" style="height:250px;overflow:auto;border:1px solid #aaa;display:none;">
                     {{ directory | raw }}
                 </div>
             </td>
@@ -39,7 +40,9 @@
 //<![CDATA[
 (function($){
     $(document).ready(function($){
-        $('#directory_listing').bind('select_node.jstree', function(e, o) {
+        $('#directory_listing').bind('loaded.jstree', function() {
+            $(this).fadeIn('slow');
+        }).bind('select_node.jstree', function(e, o) {
             var selected_node = $('#directory_listing').jstree('get_selected'), dir = $('a', selected_node).attr('data-dir');
 
             $('#directory').val(dir);
