@@ -12,7 +12,7 @@
                 {{ __('Directory') }}
             </th>
             <td>
-                <div class="xhide-if-js">
+                <div class="hide-if-js">
                     <span>{{ root }}</span>
                     <input type="text" id="directory" name="directory" value="" style="width:300px;" />
                 </div>
@@ -28,7 +28,7 @@
             <td>
                 <label>
                     <input type="checkbox" value="1" id="sub_dirs" name="sub_dirs" checked="checked" />
-                    <span>{{ __('Include selected sub-directoies') }}</span>
+                    <span>{{ __('Include sub-directoies') }}</span>
                 </label>
             </td>
         </tr>
@@ -44,6 +44,11 @@
 
             $('#directory').val(dir);
         }).jstree({
+            {% if rtl %}
+            'themes' : {
+                'theme' : 'default-rtl'
+            },
+            {% endif %}
             'plugins': ['themes', 'html_data','ui'],
             'core' : {
                 'initially_open' : ['root']

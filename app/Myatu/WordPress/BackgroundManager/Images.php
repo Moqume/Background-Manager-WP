@@ -160,7 +160,9 @@ class Images
         $temp_file = false;
         
         if ($id && $file) {
+            // Determine if we need to download the file first
             if (preg_match('#http[s]?:\/\/#i', $file)) {
+                // It's a URL, dowload it
                 $temp_file = download_url($file);
                 
                 if (!file_is_valid_image($temp_file)) {
@@ -169,8 +171,16 @@ class Images
                     $temp_file = false;
                 }
             } else {
-                if (@is_readable($file) && file_is_valid_image($file))
+                // It's not a URL, make a copy of the orignal file if possible (as side-loading deletes it otherwise)
+                if (@is_readable($file) && file_is_valid_image($file)) {
                     $temp_file = trailingslashit(sys_get_temp_dir()) . 'bgm' . mt_rand(10000, 99999) . basename($file);
+                    
+                    if (!copy($file, $temp_file)) {
+                        // Invalidate $temp_file if we could not create a temporary copy of the image file
+                        @unlink($temp_file);
+                        $temp_file = false;                        
+                    }
+                }
             }
             
             if ($temp_file) {
@@ -185,16 +195,16 @@ class Images
                 // Allow extra post data to overwrite/add to existing post data
                 $post_data = array_merge($post_data, $extra_post_data);
                 
-                if (copy($file, $temp_file)) {
-                    $id = media_handle_sideload(array('name' => basename($file), 'tmp_name' => $temp_file), $id, null, $post_data);
+                // Sideload the image
+                $id = media_handle_sideload(array('name' => basename($file), 'tmp_name' => $temp_file), $id, null, $post_data);
                 
-                    if (!is_wp_error($id)) {
-                        $result = $id;
-                        
-                        if ($alttext)
-                            update_post_meta($id, '_wp_attachment_image_alt', $alttext);
-                    }                   
-                }
+                if (!is_wp_error($id)) {
+                    $result = $id;
+                
+                    // Add the alt text
+                    if ($alttext)
+                        update_post_meta($id, '_wp_attachment_image_alt', $alttext);
+                }                   
             }
                 
             @unlink($temp_file); // Ensure the temp file cleaned up

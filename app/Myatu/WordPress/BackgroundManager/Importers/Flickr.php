@@ -236,18 +236,8 @@ class Flickr extends Importer
                 
                 // If we have an URL, download it and insert the photo into the local Image Set
                 if (!empty($image_url)) {
-                    $tmp = download_url($image_url);
-                    
-                    if (!is_wp_error($tmp)) {
-                        $id = media_handle_sideload(array('name' => basename($image_url), 'tmp_name' => $tmp), $gallery_id, null, array('post_title' => $title, 'post_content' => $description));
-                        
-                        if (is_wp_error($id))
-                            $failed++; // Failed to sideload media
-                    } else {
-                        $failed++; // Failed to download media
-                    }
-                    
-                    @unlink($tmp); // Remove temporary file if it still exists
+                    if (!Images::importImage($image_url, $gallery_id, $title, $description))
+                        $failed++;
                 }
                 
                 // Update progress bar
@@ -265,5 +255,7 @@ class Flickr extends Importer
         
         if ($failed > 0)
             $main->addDelayedNotice(sprintf(__('%d photos could not be added.', $main->getName()), $failed), true);
+        
+        $main->addDelayedNotice(__('Completed import from Flickr', $main->getName()));
     }
 }

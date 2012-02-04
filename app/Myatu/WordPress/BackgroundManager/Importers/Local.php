@@ -79,6 +79,7 @@ class Local extends Importer
         
         // Render template
         $vars = array(
+            'rtl'       => is_rtl(),
             'root'      => $root,
             'directory' => $directory,
         );
@@ -110,16 +111,20 @@ class Local extends Importer
         }        
         
         // Import specified directory
-        self::importDir($directory, $gallery_id, $main);
+        static::importDir($directory, $gallery_id, $main);
         
         // Import sub-directories, if requested
         if ($sub_dirs) {
             $iterator= new \RecursiveIteratorIterator(new \Pf4wp\Storage\IgnorantRecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
             foreach ($iterator as $fileinfo) {
                 if ($fileinfo->isDir())
-                    self::importDir($fileinfo, $gallery_id, $main);
+                    static::importDir($fileinfo, $gallery_id, $main);
             }
         }
+        
+        $main->addDelayedNotice(__('Completed import from Local Directory', $main->getName()));
+        
+        unset($galleries);
     }
     
     /**
@@ -134,8 +139,8 @@ class Local extends Importer
         $iterator = new \Pf4wp\Storage\IgnorantRecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS);
         
         foreach ($iterator as $fileinfo)
-            if ($fileinfo->isFile())
+            if ($fileinfo->isFile() && file_is_valid_image($fileinfo))
                 if (!Images::importImage($fileinfo, $gallery_id))
-                    $main->addDelayedNotice(sprintf(__('Unable to create import <em>%s</em> into Image Set', $main->getName()), $fileinfo), true);
+                    $main->addDelayedNotice(sprintf(__('Unable to import <em>%s</em> into Image Set', $main->getName()), $fileinfo), true);
     }
 }
