@@ -146,6 +146,7 @@ class Images
     /**
      * Imports an image into the specified Gallery
      *
+     * @since 1.0.11
      * @param string $file Path or URL to the file
      * @param int $id ID of the Gallery (image set)
      * @param string $title Optional title of the image

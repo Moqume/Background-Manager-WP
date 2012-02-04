@@ -46,9 +46,10 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
 * Enable or disable the background images on the Front page, Error pages, Custom post types, etc.
 * Optional thumbnail/information tab for the visitor to learn more about the background
 * Import from various sources, such as:
-   * Flickr (including license and ownership)
-   * NextGEN Gallery Plugin
-   * WP Flickr Background Plugin
+    * Flickr (including license and ownership)
+    * NextGEN Gallery Plugin
+    * WP Flickr Background Plugin
+    * A directory (and optionally its sub-directories) on the web server
 * Define the background opacity (available in Full Screen only)
 * Background image links (click-able backgrounds)
 * Uses AJAX to load background images, keeping the website's footprint small and improve caching
@@ -83,9 +84,10 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.10 =
+= 1.0.11 =
 * __Added:__ Ability to download an image directly from an external source (URL) to the Image Set/Media Library, with support for Flickr.
 * __Added:__ Ability to copy images from the Media Library already attached to other posts, pages or image sets.
+* __Added:__ Importer for (sub)directories on the web server
 * Changed: Extra user capability checks for Importers
 * Fixed: Not all Image Sets were shown in the Settings (system dependent)
 * Fixed: Flickr Importer authorization and logout URLs
