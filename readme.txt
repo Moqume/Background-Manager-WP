@@ -36,7 +36,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
 * Full control over position for images in normal display mode (tiling, positioning, scrolling and stretching)
 * "Ease in" of a full-screen background image
 * Multiple _Image Sets_ to select a random image from
-* Override the _Image Set_ for each Post, Page or Custom post type
+* Override the _Image Set_ for each Post, Page, Custom post type or by Tag(s)
 * User defined display interval between the background images (timed slideshow)
 * Optional transition effects between the different background images displayed:
     * Fade-in/Fade-out (Crossfade)
@@ -84,7 +84,8 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.11 =
+= 1.0.12 =
+* __Added:__ Allow overriding the background _Image Set_ and/or _Overlay_ by the post's _Tag(s)_
 * __Added:__ Ability to download an image directly from an external source (URL) to the Image Set/Media Library, with support for Flickr.
 * __Added:__ Ability to copy images from the Media Library already attached to other posts, pages or image sets.
 * __Added:__ Importer for (sub)directories on the web server

@@ -660,6 +660,7 @@ class Main extends \Pf4wp\WordpressPlugin
             new Meta\Submit($this);
             new Meta\Stylesheet($this);
             new Meta\Single($this); // for Posts and Pages
+            new Meta\Tags($this);
         }
     }
     
@@ -671,6 +672,7 @@ class Main extends \Pf4wp\WordpressPlugin
         // This activates the *filters* provided by the Meta Boxes
         new Meta\Stylesheet($this);
         new Meta\Single($this);
+        new Meta\Tags($this);
     }
     
     /**
