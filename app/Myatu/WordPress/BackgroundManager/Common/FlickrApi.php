@@ -66,7 +66,11 @@ class FlickrApi
         
         $this->owner->options->flickr_api = $tokens;
         
-        return $consumer->getAuthorizeUrl(static::FLICKR_AUTH_URL, array('perms' => 'read')); // Read Only
+        $auth_url = $consumer->getAuthorizeUrl(static::FLICKR_AUTH_URL, array('perms' => 'read')); // Read Only
+        
+        unset($consumer); // Clear
+        
+        return $auth_url; 
     }
     
     /**
@@ -101,7 +105,7 @@ class FlickrApi
                 $consumer->getAccessToken(static::FLICKR_ACCESS_URL, $_REQUEST['oauth_verifier']);
             } else {
                 return false;
-            }                
+            }
         } catch (\Exception $e) {
             return false;
         }
@@ -119,6 +123,8 @@ class FlickrApi
         );
         
         $this->owner->options->flickr_api = $tokens;
+        
+        unset($consumer); // Clear
         
         return $tokens;
     }
@@ -188,6 +194,8 @@ class FlickrApi
                     $result = @unserialize($response->getResponse()->getBody());
                 
             } catch (\Exception $e) {}
+            
+            unset($consumer); // No longer needed
             
             return $result;
         } else {
