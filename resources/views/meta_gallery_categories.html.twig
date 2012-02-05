@@ -1,0 +1,33 @@
+{#
+    Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+
+<div id="catdiv" style="border-bottom:1px solid #dfdfdf;padding-bottom:10px;">
+    <p>
+        {{ __('You can override the default Image Set, or the one specified in an individual post, with this Image Set if a post belongs to one or more of the selected categories:') }}
+    </p>
+
+    <div id="taxonomy-category" class="categorydiv">
+        <div id="category-all" class="tabs-panel">
+            <ul id="categorychecklist" class="list:category categorychecklist form-no-clear">
+                {{ categories | raw }}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="overlaycatdiv" style="border-top:1px solid #fff;">
+    <p>
+        {{ __('Optionally override the overlay:') }}
+    </p>
+
+    <select id="overlay_cat_override" class="postform" name="overlay_cat_override">
+        {% for overlay in overlays %}
+        <option {% if overlay.selected %}selected="selected"{% endif %} value="{{ overlay.value }}">{{ overlay.desc }}</option>
+        {% endfor %}
+    </select>
+</div>
+

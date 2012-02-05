@@ -409,8 +409,14 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function getSettingGalleries($active_gallery)
     {
-        if (isset($this->np_cache['setting_galleries']))
-            return $this->np_cache['setting_galleries'];
+        if (isset($this->np_cache['setting_galleries'])) {
+            $galleries = $this->np_cache['setting_galleries'];
+            
+            foreach ($galleries as $gallery_idx => $gallery)
+                $galleries[$gallery_idx]['selected'] = ($active_gallery == $gallery['id']);
+                
+            return $galleries;
+        }
         
         $galleries = array();
         
@@ -459,8 +465,20 @@ class Main extends \Pf4wp\WordpressPlugin
      */    
     public function getSettingOverlays($active_overlay)
     {
-        if (isset($this->np_cache['overlays']))
-            return $this->np_cache['overlays'];
+        // Return from cache
+        if (isset($this->np_cache['overlays'])) {
+            $overlays = $this->np_cache['overlays'];
+            
+            // Ensure we have a 'selected' item.
+            foreach ($overlays as $overlay_key => $overlay)
+                if (!isset($overlay['value']) || !isset($overlay['desc'])) {
+                    unset($overlays[$overlay_key]);
+                } else {
+                    $overlays[$overlay_key]['selected'] = ($active_overlay == $overlay['value']);
+                }
+                
+            return $overlays;
+        }
         
         $overlays = array();
         $iterator = new \RecursiveIteratorIterator(new \Pf4wp\Storage\IgnorantRecursiveDirectoryIterator($this->getPluginDir() . static::DIR_OVERLAYS, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
@@ -661,6 +679,7 @@ class Main extends \Pf4wp\WordpressPlugin
             new Meta\Stylesheet($this);
             new Meta\Single($this); // for Posts and Pages
             new Meta\Tags($this);
+            new Meta\Categories($this);
         }
     }
     
@@ -673,6 +692,7 @@ class Main extends \Pf4wp\WordpressPlugin
         new Meta\Stylesheet($this);
         new Meta\Single($this);
         new Meta\Tags($this);
+        new Meta\Categories($this);
     }
     
     /**
