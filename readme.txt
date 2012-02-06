@@ -85,6 +85,10 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
+= X =
+
+* Fixed: Minor error where there was no test for btOff() in public script before using
+
 = 1.0.14 (February 6, 2012) =
 * __Added:__ Allow overriding the background _Image Set_ and/or _Overlay_ by the post's _Tag(s)_ or _Category_
 * __Added:__ Ability to download an image directly from an external source (URL) to the Image Set/Media Library, with support for Flickr.

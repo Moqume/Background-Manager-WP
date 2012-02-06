@@ -163,7 +163,7 @@
             }
 
             // Close the balloon tip, if it is showing.
-            $('#myatu_bgm_info_tab').btOff();
+            if ($.isFunction($('#myatu_bgm_info_tab').btOff)) $('#myatu_bgm_info_tab').btOff();
 
             // Set info tab content and link
             $('.myatu_bgm_info_tab a').attr('href', new_image.link);
