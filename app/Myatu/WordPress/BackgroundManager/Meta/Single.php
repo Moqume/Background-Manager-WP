@@ -34,8 +34,8 @@ class Single extends PostMetabox
      */
     public function __construct($owner, $auto_register = true)
     {
-        add_filter('myatu_bgm_active_gallery', array($this, 'onActiveGallery'), 15, 1);
-        add_filter('myatu_bgm_active_overlay', array($this, 'onActiveOverlay'), 15, 1);
+        add_filter('myatu_bgm_active_gallery', array($this, 'onActiveGallery'), 25, 1);
+        add_filter('myatu_bgm_active_overlay', array($this, 'onActiveOverlay'), 25, 1);
         
         // Include Custom Post Types
         $this->pages = array_merge($this->pages, get_post_types(array('_builtin' => false, 'public' => true)));
