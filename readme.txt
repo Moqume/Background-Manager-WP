@@ -3,7 +3,7 @@ Contributors: Myatu
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.3.1
-Stable tag: 1.0.6
+Stable tag: 1.0.14
 
 Display a random image as the website background at each visit or as a timed slideshow, without the need to edit the theme.
 
@@ -36,7 +36,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
 * Full control over position for images in normal display mode (tiling, positioning, scrolling and stretching)
 * "Ease in" of a full-screen background image
 * Multiple _Image Sets_ to select a random image from
-* Override the _Image Set_ for each Post, Page, Custom post type or by Tag(s)
+* Override the _Image Set_ for each Post, Page, Custom post type or by Tag(s) or Category
 * User defined display interval between the background images (timed slideshow)
 * Optional transition effects between the different background images displayed:
     * Fade-in/Fade-out (Crossfade)
@@ -84,8 +84,8 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.12 =
-* __Added:__ Allow overriding the background _Image Set_ and/or _Overlay_ by the post's _Tag(s)_
+= 1.0.14 (February 6, 2012) =
+* __Added:__ Allow overriding the background _Image Set_ and/or _Overlay_ by the post's _Tag(s)_ or _Category_
 * __Added:__ Ability to download an image directly from an external source (URL) to the Image Set/Media Library, with support for Flickr.
 * __Added:__ Ability to copy images from the Media Library already attached to other posts, pages or image sets.
 * __Added:__ Importer for (sub)directories on the web server
@@ -133,6 +133,9 @@ web pages not to finish rendering.
 * Public BETA release of the plugin
 
 == Upgrade Notice ==
+
+= 1.0.12 =
+New: Override Image Sets by Post Tags or Categories; Download Images by URL (with Flickr support); Copy existing Media Library images; Import a local (server) directory
 
 = 1.0.6 =
 

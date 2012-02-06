@@ -75,7 +75,7 @@ class Local extends Importer
         
         // Add jsTree
         list($js_url, $version, $debug) = $main->getResourceUrl();
-        wp_enqueue_script('jquery-jstree', $js_url . 'vendor/jsTree/jquery.jstree.js', array('jquery'), null);
+        wp_enqueue_script('jquery-jstree', $js_url . 'vendor/jsTree/jquery.jstree.min.js', array('jquery'), null);
         
         // Render template
         $vars = array(

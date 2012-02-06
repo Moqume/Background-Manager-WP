@@ -81,7 +81,7 @@
         /** Event on background click */
         OnBackgroundClick: function(e) {
             if (e.target == this || $(e.target).hasClass('myatu_bgm_fs')) {
-                window.location.href = e.data.url;
+                window.open(e.data.url);
                 return false;
             }
         },

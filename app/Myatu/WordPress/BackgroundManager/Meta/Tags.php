@@ -35,7 +35,15 @@ class Tags extends Taxonomy
      */
     public function onRender($id, $gallery)
     {
-        $this->doRender($id, 'meta_gallery_tags.html.twig', array('tags' => implode(',', get_post_meta($id, $this->meta_tax, true))));
+        $tags = get_post_meta($id, $this->meta_tax, true);
+        
+        if (is_array($tags) && !empty($tags)) {
+            $tags = implode(',', $tags);
+        } else {
+            $tags = '';
+        }
+        
+        $this->doRender($id, 'meta_gallery_tags.html.twig', array('tags' => $tags));
     }
     
     /**

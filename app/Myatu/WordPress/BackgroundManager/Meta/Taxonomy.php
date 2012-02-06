@@ -91,13 +91,13 @@ abstract class Taxonomy extends PostMetabox
         
         // Check if we already have a cached value
         if ($cached_val = get_transient($cache_id))
-            return $cached_val;
+            return unserialize($cached_val);
         
         // Get the taxonomies for the current post
         $post_tax = wp_get_object_terms($post_id, $this->taxonomy, array('fields' => $this->tax_fields));
         
         // Grab the galleries
-        $galleries = get_posts(array('numberposts' => -1, 'post_type' => \Myatu\WordPress\BackgroundManager\Main::PT_GALLERY));
+        $galleries = get_posts(array('numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC', 'post_type' => \Myatu\WordPress\BackgroundManager\Main::PT_GALLERY));
         
         // Iterate galleries until we found one for which one or more tags match up with the post's tags
         foreach ($galleries as $gallery) {
@@ -113,14 +113,15 @@ abstract class Taxonomy extends PostMetabox
                         'overlay_id' => get_post_meta($gallery->ID, $this->meta_tax . '_ol', true),
                     );
                     
-                    set_transient($cache_id, $cached_val, 10);
+                    // Cache response before returning - WP claims it will serialize, but doesn't seem to work well for this
+                    set_transient($cache_id, serialize($cached_val), 10);
                     return $cached_val;
                 }
             }
         }
         
         // If we reach this point, there's nothing to override
-        set_transient($cache_id, false, 10);
+        set_transient($cache_id, serialize(false), 10);
         return false;
     }
     
