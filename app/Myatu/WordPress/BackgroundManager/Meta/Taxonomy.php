@@ -86,7 +86,7 @@ abstract class Taxonomy extends PostMetabox
      * @param int $post_id The Post ID to check against
      * @param mixed $tax The queried object containing the taxonomy details
      */
-    protected function getIds($post_id, $tax = null)
+    protected function getOverrideIds($post_id, $tax = null)
     {
         $cache_id = 'myatu_bgm_' . md5('override' . $this->taxonomy . (is_null($tax) ? $post_id : $tax->slug));
         
@@ -134,9 +134,11 @@ abstract class Taxonomy extends PostMetabox
     }
     
     /**
-     * Event called on myatu_bgm_active_gallery filter
+     * Helper function to obtain the Override ID for a specific item
+     *
+     * @param string|bool $item The item to override (ie., 'gallery_id', 'overlay_id), `false` if none found
      */
-    public function onActiveGallery($gallery_id)
+    protected function getOverrideId($item)
     {
         $ids = false;
         
@@ -145,13 +147,24 @@ abstract class Taxonomy extends PostMetabox
             $qo = get_queried_object();
             
             if ($qo->taxonomy == $this->taxonomy)
-                $ids = $this->getIds(0, $qo);
+                $ids = $this->getOverrideIds(0, $qo);
         } else if (is_single() && ($post_id = get_the_ID())) {
-            $ids = $this->getIds($post_id);
+            $ids = $this->getOverrideIds($post_id);
         }
         
-        if ($ids)
-            return $ids['gallery_id'];
+        if (is_array($ids) && array_key_exists($item, $ids))
+            return $ids[$item];
+            
+        return false;
+    }
+    
+    /**
+     * Event called on myatu_bgm_active_gallery filter
+     */
+    public function onActiveGallery($gallery_id)
+    {
+        if ($id = $this->getOverrideId('gallery_id'))
+            return $id;        
         
         return $gallery_id;
     }
@@ -161,25 +174,13 @@ abstract class Taxonomy extends PostMetabox
      */
     public function onActiveOverlay($overlay_id)
     {
-        $ids = false;
-        
-        if (is_tax() || is_category() || is_tag()) {
-            // Taxonomy page
-            $qo = get_queried_object();
-            
-            if ($qo->taxonomy == $this->taxonomy)
-                $ids = $this->getIds(0, $qo);
-        } else if (is_single() && ($post_id = get_the_ID())) {
-            $ids = $this->getIds($post_id);
-        }
-            
-        if ($ids) {
-            if ($ids['overlay_id'] == -1) {
+        if ($id = $this->getOverrideId('overlay_id')) {
+            if ($id == -1) {
                 return 0; // Disabled
-            } else if ($ids['overlay_id'] == false) {
+            } else if ($id == false) {
                 return $overlay_id;
             } else {
-                return $ids['overlay_id']; // Override requested
+                return $id; // Override requested
             }
         }
         
