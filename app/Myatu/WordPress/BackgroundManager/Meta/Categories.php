@@ -17,6 +17,7 @@ use Pf4wp\Meta\PostMetabox;
  * @author Mike Green <myatus@gmail.com>
  * @package BackgroundManager
  * @subpackage Meta
+ * @since 1.0.14
  */
 class Categories extends Taxonomy
 {

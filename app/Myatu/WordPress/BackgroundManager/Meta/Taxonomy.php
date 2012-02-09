@@ -17,12 +17,12 @@ use Pf4wp\Meta\PostMetabox;
  * @author Mike Green <myatus@gmail.com>
  * @package BackgroundManager
  * @subpackage Meta
+ * @since 1.0.14
  */
 abstract class Taxonomy extends PostMetabox
 {
     protected $meta_tax         = '';       // The name of the Meta under which taxonomy overrides are stored
     protected $taxonomy         = '';       // The taxonomy being handled
-    protected $tax_fields       = 'ids';    // The taxonomy fields to compare to (ie., 'ids', 'names', etc)
     
     /** 
      * Constructor 

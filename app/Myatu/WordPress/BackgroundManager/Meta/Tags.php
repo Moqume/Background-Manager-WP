@@ -17,12 +17,12 @@ use Pf4wp\Meta\PostMetabox;
  * @author Mike Green <myatus@gmail.com>
  * @package BackgroundManager
  * @subpackage Meta
+ * @since 1.0.14
  */
 class Tags extends Taxonomy
 {
     protected $meta_tax         = 'myatu_bgm_override_tags';        // Taxonomy
     protected $taxonomy         = 'post_tag';                       // Taxonomy
-    protected $tax_fields       = 'names';                          // Taxonomy
     protected $title            = 'Override by Tag';
     protected $pages            = array(\Myatu\WordPress\BackgroundManager\Main::PT_GALLERY);
     protected $context          = 'side';
