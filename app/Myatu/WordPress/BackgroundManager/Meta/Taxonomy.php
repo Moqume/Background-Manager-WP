@@ -84,6 +84,7 @@ abstract class Taxonomy extends PostMetabox
      * Obtains the gallery and overlay IDs for the post based on its categories, if any
      *
      * @param int $post_id The Post ID to check against
+     * @param mixed $tax The queried object containing the taxonomy details
      */
     protected function getIds($post_id, $tax = null)
     {
