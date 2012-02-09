@@ -85,8 +85,9 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= X =
-
+= 1.0.17 =
+* Changed: Tag and Category overrides now also apply to their respective archive pages
+* Changed: Individual Post overrides now take priority over Tag or Category overrides
 * Fixed: Minor error where there was no test for btOff() in public script before using
 
 = 1.0.14 (February 6, 2012) =

@@ -85,29 +85,36 @@ abstract class Taxonomy extends PostMetabox
      *
      * @param int $post_id The Post ID to check against
      */
-    protected function getIds($post_id)
+    protected function getIds($post_id, $tax = null)
     {
-        $cache_id = 'myatu_bgm_override_' . $this->taxonomy . '_' . $post_id;
+        $cache_id = 'myatu_bgm_' . md5('override' . $this->taxonomy . (is_null($tax) ? $post_id : $tax->slug));
         
         // Check if we already have a cached value
         if ($cached_val = get_transient($cache_id))
             return unserialize($cached_val);
         
-        // Get the taxonomies for the current post
-        $post_tax = wp_get_object_terms($post_id, $this->taxonomy, array('fields' => $this->tax_fields));
-        
         // Grab the galleries
         $galleries = get_posts(array('numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC', 'post_type' => \Myatu\WordPress\BackgroundManager\Main::PT_GALLERY));
         
-        // Iterate galleries until we found one for which one or more tags match up with the post's tags
+        // Iterate galleries
         foreach ($galleries as $gallery) {
-            $overrides = get_post_meta($gallery->ID, $this->meta_tax, true);
+            $overriding_tax = get_post_meta($gallery->ID, $this->meta_tax, true); // Grab the meta containing the overriding tax from gallery
             
-            if (is_array($overrides) && !empty($overrides)) {
-                $intersect = array_intersect($overrides, $post_tax); // Find out if this taxonomy overrides any taxonomies set in the post
+            if (is_array($overriding_tax) && !empty($overriding_tax)) {
+                $match = false;
                 
-                if (!empty($intersect)) {
-                    // Match found
+                if (is_null($tax)) {
+                    // Check if the specified post contains an overrding tax
+                    $match = is_object_in_term($post_id, $this->taxonomy, $overriding_tax);
+                } else {
+                    // Check if the specified tax is in the overriding tax
+                    $match = (in_array($tax->term_id, $overriding_tax) ||
+                              in_array($tax->name,    $overriding_tax) ||
+                              in_array($tax->slug,    $overriding_tax));
+                }
+                
+                // Match found
+                if ($match) {
                     $cached_val = array(
                         'gallery_id' => $gallery->ID,
                         'overlay_id' => get_post_meta($gallery->ID, $this->meta_tax . '_ol', true),
@@ -130,14 +137,19 @@ abstract class Taxonomy extends PostMetabox
      */
     public function onActiveGallery($gallery_id)
     {
-        $post_id = get_the_ID();
+        $ids = false;
         
-        // Return the default if it isn't a single post, or no post ID returned
-        if (!$post_id || !is_single())
-            return $gallery_id;
+        if (is_tax() || is_category() || is_tag()) {
+            // Taxonomy page
+            $qo = get_queried_object();
+            
+            if ($qo->taxonomy == $this->taxonomy)
+                $ids = $this->getIds(0, $qo);
+        } else if (is_single() && ($post_id = get_the_ID())) {
+            $ids = $this->getIds($post_id);
+        }
         
-        // Return the gallery ID (@see getIds())
-        if ($ids = $this->getIds($post_id))
+        if ($ids)
             return $ids['gallery_id'];
         
         return $gallery_id;
@@ -148,13 +160,19 @@ abstract class Taxonomy extends PostMetabox
      */
     public function onActiveOverlay($overlay_id)
     {
-        $post_id = get_the_ID();
+        $ids = false;
         
-        // Return the default if it isn't a single post, or no post ID returned
-        if (!$post_id || !is_single())
-            return $overlay_id;
+        if (is_tax() || is_category() || is_tag()) {
+            // Taxonomy page
+            $qo = get_queried_object();
             
-        if ($ids = $this->getIds($post_id)) {
+            if ($qo->taxonomy == $this->taxonomy)
+                $ids = $this->getIds(0, $qo);
+        } else if (is_single() && ($post_id = get_the_ID())) {
+            $ids = $this->getIds($post_id);
+        }
+            
+        if ($ids) {
             if ($ids['overlay_id'] == -1) {
                 return 0; // Disabled
             } else if ($ids['overlay_id'] == false) {
