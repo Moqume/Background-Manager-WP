@@ -185,6 +185,8 @@ class Galleries extends \WP_List_Table
             'cb'                  => '<input type="checkbox" />',
             'title'               => __('Title', $this->owner->getName()),
             $prefix.'description' => __('Description', $this->owner->getName()),
+            'categories'          => __('Categories', $this->owner->getName()),
+            'tags'                => __('Tags', $this->owner->getName()),
             $prefix.'images'      => __('Images', $this->owner->getName()),
         );
     }
@@ -307,6 +309,30 @@ class Galleries extends \WP_List_Table
     {
         $this->column_description($item);
     }
+    
+    /** Displays the `Categories` column */
+    function column_categories($item)
+    {
+        $cats   = get_post_meta($item->ID, 'myatu_bgm_override_cats', true);
+        $result = array();
+        
+        if (is_array($cats))
+            foreach($cats as $cat)
+                $result[] = get_cat_name($cat);
+
+        echo implode(', ', $result);
+    }
+    
+    /** Displays the `Tags` column */
+    function column_tags($item)
+    {
+        $tags   = get_post_meta($item->ID, 'myatu_bgm_override_tags', true);
+        $result = '';
+        
+        if (is_array($tags))
+            echo implode(', ', $tags);
+    }
+    
     
     /**
      * Creates an action link

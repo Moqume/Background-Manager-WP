@@ -6,6 +6,18 @@
  *
  */
 
+.fixed .column-description {
+    width: 30%;
+}
+
+.fixed .column-categories, .fixed .column-tags {
+    width: 15%;
+}
+
+.fixed .column-images {
+    width:10%;
+}
+
 #imagediv_nav {
     float:right; 
     margin: 0;
