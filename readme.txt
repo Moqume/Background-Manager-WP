@@ -3,7 +3,7 @@ Contributors: Myatu
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.3.1
-Stable tag: 1.0.14
+Stable tag: 1.0.18
 
 Display a random image as the website background at each visit or as a timed slideshow, without the need to edit the theme.
 
@@ -85,7 +85,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.18 =
+= 1.0.18 (February 12, 2012) =
 * Changed: Added Categories and Tags columns to Image Set/Trash listings
 * Changed: Tag and Category overrides now also apply to their respective archive pages
 * Changed: Individual Post overrides now take priority over Tag or Category overrides
