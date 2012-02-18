@@ -54,6 +54,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
 * Background image links (click-able backgrounds)
 * Uses AJAX to load background images, keeping the website's footprint small and improve caching
 * Graceful degradation for visitors without JavaScript
+* Option to add a "Pin It" Pinterest button
 
 = License =
 
