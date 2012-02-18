@@ -21,7 +21,14 @@ class PointerAddNewStep1 extends \Pf4wp\Pointers\FeaturePointer
 {
     protected $selector = '#add_new_image_set';
     protected $position = array('align' => 'left');
-    protected $content  = '<h3>Let\'s Get Started!</h3><p>Start by adding a new <em>Image Set</em><p><p>Once you\'re done, come back here and set it as the active <em>Background Image Set</em>.</p>';
+    
+    public function onBeforeShow($textdomain)
+    {
+        $this->setContent(
+            __('<p>Start by adding a new <em>Image Set</em><p><p>Once you\'re done, come back here and set it as the active <em>Background Image Set</em>.</p>', $textdomain),
+            __('Let\'s Get Started!', $textdomain)
+        );
+    }
 }
 
 /** Step 2 of Guided Help. @see onGalleriesMenuLoad() (Edit section) */
@@ -29,7 +36,14 @@ class PointerAddNewStep2 extends \Pf4wp\Pointers\FeaturePointer
 {
     protected $selector = '#add_add_image';
     protected $position = array('edge' => 'left');
-    protected $content  = '<h3>Add Some Images!</h3><p>Click on this icon to start adding some images.</p><p>Save using the <strong>Add Image Set</strong> button. Don\'t forget to add a title once you\'re done!</p>';
+
+    public function onBeforeShow($textdomain)
+    {
+        $this->setContent(
+            __('<p>Click on this icon to start adding some images.</p><p>Save using the <strong>Add Image Set</strong> button. Don\'t forget to add a title once you\'re done!</p>', $textdomain),
+            __('Add Some Images!', $textdomain)
+        );
+    }    
 }
 
 
@@ -1030,7 +1044,7 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_style('jquery-ui-slider', $css_url . 'vendor/jquery-ui-slider' . $debug . '.css', false, $version);
         
         // Guided Help, Step 1 ("Get Started")
-        new PointerAddNewStep1();
+        new PointerAddNewStep1($this->getName());
         
         // Save settings if POST is set
         if (!empty($_POST) && isset($_POST['_nonce'])) {
@@ -1304,7 +1318,7 @@ class Main extends \Pf4wp\WordpressPlugin
             wp_enqueue_style('editor-buttons');
             
             // Guided Help ("Add Images")
-            new PointerAddNewStep2();            
+            new PointerAddNewStep2($this->getName());            
 
             // Set the 'images per page'
             $active_menu                 = $this->getMenu()->getActiveMenu();
