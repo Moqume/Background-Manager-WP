@@ -82,6 +82,16 @@
     padding: 10px;
 }
 
+.pinterest_logo {
+    width: 59px; 
+    height: 15px;
+    white-space: nowrap;
+    text-indent: -9999px;
+    overflow: hidden;
+    display: inline-block;
+    background-image: url('../images/Pinterest_Logo_small.png');
+}
+
 #image_container .image img {
     width: 150px;
     height: 150px;
@@ -169,7 +179,7 @@
     min-width: 400px;
 }
 
-.bg_pos, .info_tab_location {
+.bg_pos, .info_tab_location, .pin_it_btn_location {
     display: inline-block;
     width: 130px;
 }

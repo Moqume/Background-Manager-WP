@@ -30,6 +30,11 @@
             myatu_bgm.showHide('.info_tab_extra', $('#info_tab:checked').length);
         },
 
+        /** Hides or shows additional settings for "Pin It" button */
+        showHidePinItBtnExtra: function() {
+            myatu_bgm.showHide('.pin_it_btn_extra', $('#pin_it_btn:checked').length);
+        },
+
         /** Hides or shows the Background Transition settings */
         showHideBackgroundTransition: function() {
             var is_full = ($('input[name="background_size"]:checked').val() == 'full'),
@@ -199,6 +204,7 @@
         myatu_bgm.updateOverlayOpacity();
 
         $('#info_tab').click(myatu_bgm.showHideInfoExtra);                              myatu_bgm.showHideInfoExtra();
+        $('#pin_it_btn').click(myatu_bgm.showHidePinItBtnExtra);                        myatu_bgm.showHidePinItBtnExtra();
         $('input[name="background_size"]').change(myatu_bgm.showHideLayoutTable);       myatu_bgm.showHideLayoutTable();
         $('#active_gallery').change(myatu_bgm.updatePreviewGallery);                    myatu_bgm.updatePreviewGallery();
         $('#active_overlay').change(myatu_bgm.updatePreviewOverlay);                    myatu_bgm.updatePreviewOverlay();

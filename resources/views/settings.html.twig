@@ -374,10 +374,10 @@
                             <legend class="screen-reader-text">
                                 <span>{{ __('Location') }}</span>
                             </legend>
-                            {% for info_tab_location_key, info_tab_location_value in info_tab_locations %}
-                            <label class="info_tab_location" id="info-tab-pos-{{ info_tab_location_key }}">
-                                <input type="radio" value="{{ info_tab_location_key }}" name="info_tab_location" {% if info_tab_location == info_tab_location_key %}checked="checked"{% endif %} />
-                                <span>{{ info_tab_location_value }}</span>
+                            {% for corner_location_key, corner_location_value in corner_locations %}
+                            <label class="info_tab_location" id="info-tab-pos-{{ corner_location_key }}">
+                                <input type="radio" value="{{ corner_location_key }}" name="info_tab_location" {% if info_tab_location == corner_location_key %}checked="checked"{% endif %} />
+                                <span>{{ corner_location_value }}</span>
                             </label>
                             {% if loop.index is divisibleby(2) %}<br />{% endif %}
                             {% endfor %}
@@ -386,6 +386,46 @@
                 </tr>
             </tbody>
         </table>
+
+        <h3>{{ __('Pinterest') }}</h3>
+        <table class="form-table">
+            <tbody>
+                <tr valign="top">
+                    <th scope="row">
+                        {{ __('Display "Pin It" Button') }}
+                    </th>
+                    <td>
+                        <fieldset id="pin_it_fs">
+                            <label class="pin_it_btn">
+                                <input type="checkbox" value="1" id="pin_it_btn" name="pin_it_btn" {% if pin_it_btn %}checked="checked"{% endif %} />
+                                <span>{{ __('Enabled') }}</span>
+                                <span class="description">({{ __('This will display a "Pin It" button for the <a href="http://pinterest.com" target="_blank" class="pinterest_logo">Pinterest</a> service in one of the selected locations') | raw }})</span>
+                            </label>
+                        </fieldset>
+                    </td>
+                </tr>
+                <tr valign="top" class="pin_it_btn_extra">
+                    <th scope="row">
+                       {{ __('Location') }}
+                    </th>
+                    <td>
+                        <fieldset id="pin_it_location">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Location') }}</span>
+                            </legend>
+                            {% for corner_location_key, corner_location_value in corner_locations %}
+                            <label class="pin_it_btn_location" id="pin-it-btn-pos-{{ corner_location_key }}">
+                                <input type="radio" value="{{ corner_location_key }}" name="pin_it_btn_location" {% if pin_it_btn_location == corner_location_key %}checked="checked"{% endif %} />
+                                <span>{{ corner_location_value }}</span>
+                            </label>
+                            {% if loop.index is divisibleby(2) %}<br />{% endif %}
+                            {% endfor %}
+                        </fieldset>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
         {{ submit_button | raw }}
 
     </form>

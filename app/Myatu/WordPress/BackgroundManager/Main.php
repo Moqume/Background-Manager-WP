@@ -90,8 +90,8 @@ class Main extends \Pf4wp\WordpressPlugin
     /* Possible background tiling options */
     private $bg_repeats = array('repeat', 'repeat-x', 'repeat-y', 'no-repeat');
     
-    /* Possible info tab locations */
-    private $info_tab_locations = array('top-left', 'top-right', 'bottom-left', 'bottom-right');
+    /* Possible corner locations */
+    private $corner_locations = array('top-left', 'top-right', 'bottom-left', 'bottom-right');
     
     /* Possible transition options */
     private $bg_transitions = array(
@@ -143,6 +143,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'info_tab_location'      => 'bottom-left',
         'info_tab_thumb'         => true,
         'info_tab_desc'          => true,
+        'pin_it_btn_location'    => 'bottom-left', // Since 1.0.20
     );
         
     /* Enable public-side Ajax - @see onAjaxRequest() */
@@ -150,6 +151,28 @@ class Main extends \Pf4wp\WordpressPlugin
   
     
     /* ----------- Helpers ----------- */
+    
+    /**
+     * Helper function to get the CSS location for an element placed in a corner
+     *
+     * @param string $location Location (ie., 'top-left'),
+     * @param int $hspacer Horizontal spacer
+     * @param int $vspacer Vertical spacer
+     * @return string
+     */
+    private function getCornerStyle($location, $hspacer, $vspacer)
+    {
+        $style = '';
+        
+        switch ($location) {
+            case 'top-left'     : $style = sprintf('left: %dpx !important; top: %dpx !important;', $hspacer, $vspacer); break;
+            case 'top-right'    : $style = sprintf('right: %dpx !important; top: %dpx !important;', $hspacer, $vspacer); break;
+            case 'bottom-left'  : $style = sprintf('left: %dpx !important; bottom: %dpx !important;', $hspacer, $vspacer); break;
+            case 'bottom-right' : $style = sprintf('right: %dpx !important; bottom: %dpx !important;', $hspacer, $vspacer); break;
+        }
+        
+        return $style;
+    }
 
     /**
      * Returns the number of galleries
@@ -1070,10 +1093,12 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->display_on_search             = (!empty($_POST['display_on_search']));
             $this->options->display_on_error              = (!empty($_POST['display_on_error']));
             $this->options->info_tab                      = (!empty($_POST['info_tab']));
-            $this->options->info_tab_location             = (in_array($_POST['info_tab_location'], $this->info_tab_locations)) ? $_POST['info_tab_location'] : null;
+            $this->options->info_tab_location             = (in_array($_POST['info_tab_location'], $this->corner_locations)) ? $_POST['info_tab_location'] : null;
             $this->options->info_tab_thumb                = (!empty($_POST['info_tab_thumb']));
             $this->options->info_tab_link                 = (!empty($_POST['info_tab_link']));
             $this->options->info_tab_desc                 = (!empty($_POST['info_tab_desc']));
+            $this->options->pin_it_btn                    = (!empty($_POST['pin_it_btn']));
+            $this->options->pin_it_btn_location           = (in_array($_POST['pin_it_btn_location'], $this->corner_locations)) ? $_POST['pin_it_btn_location'] : null;
             
             // Opacity (1-100)
             if (($opacity = (int)$_POST['background_opacity']) <= 100 && $opacity > 0)
@@ -1145,8 +1170,8 @@ class Main extends \Pf4wp\WordpressPlugin
             __('Tile vertical', $this->getName()), __('No Tiling', $this->getName()),
         );
         
-        // Give the info tab locations titles
-        $info_tab_location_titles = array(
+        // Give the corner locations titles
+        $corner_location_titles = array(
             __('Top Left', $this->getName()), __('Top Right', $this->getName()), 
             __('Bottom Left', $this->getName()), __('Bottom Right', $this->getName())
         );
@@ -1229,12 +1254,14 @@ class Main extends \Pf4wp\WordpressPlugin
             'bg_positions'                  => array_combine($this->bg_positions, $bg_position_titles),
             'bg_repeats'                    => array_combine($this->bg_repeats, $bg_repeat_titles),
             'bg_transitions'                => array_combine($this->bg_transitions, $bg_transition_titles),
-            'info_tab_locations'            => array_combine($this->info_tab_locations, $info_tab_location_titles),
+            'corner_locations'              => array_combine($this->corner_locations, $corner_location_titles),
             'plugin_base_url'               => $this->getPluginUrl(),
             'debug_info'                    => $debug_info,
             'plugin_name'                   => $this->getDisplayName(),
             'plugin_version'                => $plugin_version,
             'plugin_home'                   => \Pf4wp\Info\PluginInfo::getInfo(false, $this->getPluginBaseName(), 'PluginURI'),
+            'pin_it_btn'                    => $this->options->pin_it_btn,
+            'pin_it_btn_location'           => $this->options->pin_it_btn_location,
         );
         
         $this->template->display('settings.html.twig', $vars);
@@ -1816,27 +1843,25 @@ class Main extends \Pf4wp\WordpressPlugin
             if ($this->options->overlay_opacity < 100)
                 $opacity = sprintf('-moz-opacity:.%s; filter:alpha(opacity=%1$s); opacity:.%1$s', str_pad($this->options->overlay_opacity, 2, '0', STR_PAD_LEFT));
             
-            $style .= sprintf('#myatu_bgm_overlay { background: url(\'%s\') repeat fixed top left transparent; %s }', $data, $opacity);
+            $style .= sprintf('#myatu_bgm_overlay{background:url(\'%s\') repeat fixed top left transparent; %s}', $data, $opacity);
         }
         
         // The info icon
-        if ($this->options->info_tab) {
-            $location = '';
-            $spacer   = 5; // Distance from the corners, in pixels, to display the info 'tab'
+        if ($this->options->info_tab)
+            $style .= sprintf('#myatu_bgm_info_tab{%s}', $this->getCornerStyle($this->options->info_tab_location, 5, 5));
+        
+        // The "Pin It" button
+        if ($this->options->pin_it_btn) {
+            // Horizontal spacer depends whether the info tab is shown as well
+            $hspacer = ($this->options->info_tab && ($this->options->info_tab_location == $this->options->pin_it_btn_location)) ? 35 : 10;
             
-            switch ($this->options->info_tab_location) {
-                case 'top-left'     : $location = sprintf('left: %dpx !important; top: %1$dpx !important;', $spacer); break;
-                case 'top-right'    : $location = sprintf('right: %dpx !important; top: %1$dpx !important;', $spacer); break;
-                case 'bottom-left'  : $location = sprintf('left: %dpx !important; bottom: %1$dpx !important;', $spacer); break;
-                case 'bottom-right' : $location = sprintf('right: %dpx !important; bottom: %1$dpx !important;', $spacer); break;
-            }
-            $style .= sprintf('#myatu_bgm_info_tab { %s }', $location);
+            $style .= sprintf('#myatu_bgm_pin_it_btn{%s}', $this->getCornerStyle($this->options->pin_it_btn_location, $hspacer, 5));
         }
         
         if ($style)
             printf('<style type="text/css" media="screen">%s</style>' . PHP_EOL, $style);
-    }    
-    
+    }
+       
     /**
      * Add a footer to the public side
      *
@@ -1859,10 +1884,12 @@ class Main extends \Pf4wp\WordpressPlugin
             'info_tab_thumb' => $this->options->info_tab_thumb,
             'info_tab_link'  => $this->options->info_tab_link,
             'info_tab_desc'  => $this->options->info_tab_desc,
+            'has_pin_it_btn' => $this->options->pin_it_btn  && ($this->getGallery($gallery_id) != false),
             'has_overlay'    => ($overlay != false),
             'opacity'        => str_pad($this->options->background_opacity, 2, '0', STR_PAD_LEFT), // Only available to full size background
             'is_fullsize'    => $this->options->background_size == static::BS_FULL,
             'random_image'   => $this->getRandomImage(),
+            'permalink'      => post_permalink(),
         );
         
         $this->template->display('pub_footer.html.twig', $vars);

@@ -85,6 +85,10 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
+= 1.0.20 (February 18, 2012) =
+* __Added:__ Support for the Pinterest "Pin It" button
+* Changed: Updated Pf4wp and Twig vendor libraries
+
 = 1.0.18 (February 12, 2012) =
 * Changed: Added Categories and Tags columns to Image Set/Trash listings
 * Changed: Tag and Category overrides now also apply to their respective archive pages

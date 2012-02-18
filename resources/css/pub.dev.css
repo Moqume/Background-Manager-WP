@@ -26,6 +26,15 @@
     }
 }
 
+#myatu_bgm_pin_it_btn {
+    display: block;
+    height: 25px !important;
+    width: 45px !important;
+    padding: 0 !important;
+    position: fixed !important;
+    z-index: 19999;
+}
+
 #myatu_bgm_info_tab {
     color: #fff;
     font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;

@@ -104,6 +104,13 @@
             }
         },
 
+        /** Replaces a query argument's value in a URL */
+        UrlReplaceQueryArgVal: function(original_url, query_arg, new_val) {
+            var pattern = new RegExp('(?![?&])' + query_arg + '=(.*?(?=\\?|\\&(?!amp;)|#|$))', 'ig');
+
+            return original_url.replace(pattern, query_arg + '=' + encodeURIComponent(new_val));
+        },
+
         /** Switch the background */
         SwitchBackground: function() {
             var is_fullsize = (background_manager_vars.is_fullsize == 'true'),
@@ -162,14 +169,28 @@
                 myatu_bgm.SetTimer();
             }
 
-            // Close the balloon tip, if it is showing.
-            if ($.isFunction($('#myatu_bgm_info_tab').btOff)) $('#myatu_bgm_info_tab').btOff();
+            // Info tab
+            if ($('.myatu_bgm_info_tab').length) {
+                // Close the balloon tip, if it is showing.
+                if ($.isFunction($('#myatu_bgm_info_tab').btOff)) $('#myatu_bgm_info_tab').btOff();
 
-            // Set info tab content and link
-            $('.myatu_bgm_info_tab a').attr('href', new_image.link);
-            $('.myatu_bgm_info_tab_content img').attr('src', new_image.thumb);
-            $('.myatu_bgm_info_tab_content h3').text(new_image.caption);
-            $('.myatu_bgm_info_tab_desc').html(new_image.desc);
+                // Set info tab content and link
+                $('.myatu_bgm_info_tab a').attr('href', new_image.link);
+                $('.myatu_bgm_info_tab_content img').attr('src', new_image.thumb);
+                $('.myatu_bgm_info_tab_content h3').text(new_image.caption);
+                $('.myatu_bgm_info_tab_desc').html(new_image.desc);
+            }
+
+            // "Pin it" button
+            if ($('#myatu_bgm_pin_it_btn').length) { 
+                // Replace "Pin it" button's iFrame source
+                var pin_it_src = $('#myatu_bgm_pin_it_btn iframe').attr('src'), clean_desc = new_image.desc.replace(/(<([^>]+)>)/ig,'');
+
+                pin_it_src = myatu_bgm.UrlReplaceQueryArgVal(pin_it_src, 'media', new_image.url);       // Replace image URL
+                pin_it_src = myatu_bgm.UrlReplaceQueryArgVal(pin_it_src, 'description', clean_desc);    // Replace description
+
+                $('#myatu_bgm_pin_it_btn iframe').attr('src', pin_it_src)
+            }
         }
     });
 
