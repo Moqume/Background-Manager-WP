@@ -170,9 +170,10 @@
             }
 
             // Info tab
-            if ($('.myatu_bgm_info_tab').length) {
+            if ($('#myatu_bgm_info_tab').length) {
                 // Close the balloon tip, if it is showing.
-                if ($.isFunction($('#myatu_bgm_info_tab').btOff)) $('#myatu_bgm_info_tab').btOff();
+                if ($.isFunction($('#myatu_bgm_info_tab').qtip))
+                    $('#myatu_bgm_info_tab').qtip('api').hide();
 
                 // Set info tab content and link
                 $('.myatu_bgm_info_tab a').attr('href', new_image.link);
@@ -203,49 +204,45 @@
         // Remove fall-back background link (prefer the Javascript method)
         $('#myatu_bgm_bg_link').remove();
 
-        if ($.isFunction($('#myatu_bgm_info_tab').bt)) {
-            $('#myatu_bgm_info_tab').bt({
-                contentSelector: "$('.myatu_bgm_info_tab_content')",
-                killTitle: false,
-                trigger: ['mouseover focus', 'mouseout blur'],
-                //trigger: ['mouseover', 'blur'],
-                positions: ['right', 'left'],
-                fill: '#333',
-                strokeStyle: '#666', 
-                spikeLength: 20,
-                spikeGirth: 20,
-                overlap: 0,
-                shrinkToFit: true,
-                width: '450px',
-                textzIndex: 19999,
-                boxzIndex: 19998,
-                wrapperzIndex: 19997,
-                windowMargin: 20,
-                cssStyles: {
-                    fontFamily: '"Lucida Grande",Helvetica,Arial,Verdana,sans-serif', 
-                    fontSize: '12px',
-                    padding: '14px 4px 9px 14px',
-                    color: '#eee'
-                },
-                shadow: true,
-                shadowColor: 'rgba(0,0,0,.5)',
-                shadowBlur: 8,
-                shadowOffsetX: 4,
-                shadowOffsetY: 4,
-                showTip: function(box) {
-                    // Only show the tip if there's something to show. As content is dynamic, we use this callback for that.
-                    if (!$('.myatu_bgm_info_tab_content img').attr('src') &&
-                        !$('.myatu_bgm_info_tab_desc').text() &&
-                        !$('.myatu_bgm_info_tab_content h3').text())
-                        return;
+        if ($.isFunction($('#myatu_bgm_info_tab').qtip)) {
+            $('#myatu_bgm_info_tab').qtip({
+                content: {
+                    text: function(api) {
+                        var text = $('.myatu_bgm_info_tab_content').clone();
 
-                    // Only set to width to 'auto' if there's no description. This maintains the
-                    // width (and float of image) if there's something present and prevents overflow if shrunk.
-                    if ($('.myatu_bgm_info_tab_desc').text() == '')
-                        $(box).css('width', 'auto');
+                        $('h3', text).remove(); // Remove title
 
-                    $(box).show();
+                        // Remove margin if there's no text to display
+                        if ($('.myatu_bgm_info_tab_desc', text).text() === '') {
+                            $('img', text).css('margin', 0);
+                        } else {
+                            $('img', text).css({'width':'50%', 'height':'50%'});
+                        }
+
+                        return text;
+                    },
+                    title: {
+                        text: function(api) {
+                            return $('.myatu_bgm_info_tab_content:first h3').text();
+                        },
+                        button: true
+                    }
                 },
+                style: {
+                    classes: 'ui-tooltip-dark ui-tooltip-shadow'
+                },
+                events: {
+                    hide: function(event, api) {
+                        $('.myatu_bgm_info_tab_content:last').remove();
+                    }
+                },
+                hide: false,
+                position: {
+                    adjust: {
+                        x: -10,
+                    },
+                    viewport: $(window)
+                }
             });
         }
     });

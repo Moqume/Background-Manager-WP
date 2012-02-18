@@ -86,8 +86,9 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.20 (February 18, 2012) =
+= 1.0.21 (February 18, 2012) =
 * __Added:__ Support for the Pinterest "Pin It" button
+* Changed: Replaced bt (jQuery BalloonTip) in favor of qTip2
 * Changed: Updated Pf4wp and Twig vendor libraries
 
 = 1.0.18 (February 12, 2012) =

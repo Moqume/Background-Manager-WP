@@ -377,6 +377,10 @@ class Main extends \Pf4wp\WordpressPlugin
             if (($image = get_post($random_id))) {
                 $desc    = $image->post_content;
                 $caption = $image->post_excerpt;
+                
+                // If the caption is empty, substitute it with the title - since 1.0.20
+                if (empty($caption))
+                    $caption = $image->post_title;
             }
         }
 
@@ -385,7 +389,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'url'     => $random_image, 
             'alt'     => $alt, 
             'desc'    => wpautop($desc), 
-            'caption' => $caption, 
+            'caption' => $caption,
             'link'    => $link, 
             'thumb'   => $thumb,
             'meta'    => $meta,
@@ -1786,13 +1790,9 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_script('jquery');
         wp_enqueue_script($this->getName() . '-functions', $js_url . 'functions' . $debug . '.js', array('jquery'), $version);
         
-        // If the info tab is enabled along with the short description, also include jQuery.bt (balloon tips)
-        if ($this->options->info_tab && $this->options->info_tab_desc) {
-            // Include for MSIE only
-            printf('<!--[if IE]><script src="%svendor/excanvas/excanvas.compiled.js"></script><![endif]-->'.PHP_EOL, $js_url);
-
-            wp_enqueue_script('jquery.bt', $js_url . 'vendor/bt/jquery.bt.min.js', array('jquery'), '0.9.5-rc1');
-        }
+        // If the info tab is enabled along with the short description, also include qTip2
+        if ($this->options->info_tab && $this->options->info_tab_desc)
+            wp_enqueue_script('jquery.qtip', $js_url . 'vendor/qtip/jquery.qtip.min.js', array('jquery'), $version);
         
         // Don't worry about the rest if the change frequency isn't custom or there's no short description for the info tab
         if ($this->options->change_freq != static::CF_CUSTOM && !$this->options->info_tab_desc)
@@ -1833,6 +1833,10 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // Default CSS for the public side
         wp_enqueue_style($this->getName() . '-pub', $css_url . 'pub' . $debug . '.css', false, $version);
+        
+        // qTip2 style, if required
+        if ($this->options->info_tab && $this->options->info_tab_desc)
+            wp_enqueue_style('jquery.qtip', $css_url . 'vendor/jquery.qtip.min.css', false, $version);
         
         $style   = '';
         $overlay = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
@@ -1889,7 +1893,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'opacity'        => str_pad($this->options->background_opacity, 2, '0', STR_PAD_LEFT), // Only available to full size background
             'is_fullsize'    => $this->options->background_size == static::BS_FULL,
             'random_image'   => $this->getRandomImage(),
-            'permalink'      => post_permalink(),
+            'permalink'      => get_site_url() . $_SERVER['REQUEST_URI'],
         );
         
         $this->template->display('pub_footer.html.twig', $vars);
