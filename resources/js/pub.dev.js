@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -216,7 +216,7 @@
                         if ($('.myatu_bgm_info_tab_desc', text).text() === '') {
                             $('img', text).css('margin', 0);
                         } else {
-                            $('img', text).css({'width':'50%', 'height':'50%'});
+                            $('img', text).css({'width':'100px', 'height':'100px'});
                         }
 
                         return text;
