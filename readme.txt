@@ -3,7 +3,7 @@ Contributors: Myatu
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.3.1
-Stable tag: 1.0.18
+Stable tag: 1.0.22
 
 Display a random image as the website background at each visit or as a timed slideshow, without the need to edit the theme.
 
