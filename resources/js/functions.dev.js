@@ -85,7 +85,7 @@ mainWin = window.dialogArguments || opener || parent || top;
             });
 
             return resp;
-        },
+        }
 
     } // myatu_bgm NS
 

@@ -3,7 +3,7 @@ Contributors: Myatu
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.3.1
-Stable tag: 1.0.22
+Stable tag: 1.0.22.1
 
 Display a random image as the website background at each visit or as a timed slideshow, without the need to edit the theme.
 
@@ -85,6 +85,9 @@ with PHP versions older than 5.3.
 3. Editing an Image Set within Background Manager
 
 == Changelog ==
+
+= 1.0.22.1 (February 20, 2012) =
+* Fixed: MSIE encountered Javascript runtime errors due to non-closure of object/array elements
 
 = 1.0.22 (February 18, 2012) =
 * __Added:__ Support for the Pinterest "Pin It" button

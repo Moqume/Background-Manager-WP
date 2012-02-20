@@ -239,7 +239,7 @@
                 hide: false,
                 position: {
                     adjust: {
-                        x: -10,
+                        x: -10
                     },
                     viewport: $(window)
                 }
