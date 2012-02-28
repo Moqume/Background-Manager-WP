@@ -30,7 +30,7 @@ Features
 * Full control over position for images in normal display mode (tiling, positioning, scrolling and stretching)
 * "Ease in" of a full-screen background image
 * Multiple _Image Sets_ to select a random image from
-* Override the _Image Set_ for each Post, Page or Custom post type
+* Override the _Image Set_ for each Post, Page, Custom post type or by Tag(s) or Category
 * User defined display interval between the background images (timed slideshow)
 * Optional transition effects between the different background images displayed:
     * Fade-in/Fade-out (Crossfade)
@@ -40,13 +40,15 @@ Features
 * Enable or disable the background images on the Front page, Error pages, Custom post types, etc.
 * Optional thumbnail/information tab for the visitor to learn more about the background
 * Import from various sources, such as:
-   * Flickr (including license and ownership)
-   * NextGEN Gallery Plugin
-   * WP Flickr Background Plugin
+    * Flickr (including license and ownership)
+    * NextGEN Gallery Plugin
+    * WP Flickr Background Plugin
+    * A directory (and optionally its sub-directories) on the web server
 * Define the background opacity (available in Full Screen only)
 * Background image links (click-able backgrounds)
 * Uses AJAX to load background images, keeping the website's footprint small and improve caching
 * Graceful degradation for visitors without JavaScript
+* Option to add a "Pin It" Pinterest button
 
 License
 -------

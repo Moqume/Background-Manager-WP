@@ -86,6 +86,9 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
+= 1.0.23 =
+* Fixed: When a static page for the front page using "Posts as page" was set, it would not display the background on either that page nor the front page.
+
 = 1.0.22.1 (February 20, 2012) =
 * Fixed: MSIE encountered Javascript runtime errors due to non-closure of object/array elements
 
