@@ -17,6 +17,8 @@ Each individual background image can also be linked to a specific URL, which all
 
 All this is done without the need to edit the theme or any other files!
 
+[![Click here to lend your support to: Myatu's OSS Development and make a donation at www.pledgie.com !](http://www.pledgie.com/campaigns/16906.png?skin_name=chrome)](http://pledgie.com/campaigns/16906)
+
 Demo
 ----
 

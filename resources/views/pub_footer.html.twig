@@ -25,12 +25,12 @@
 try {
     (function($){
         $('#myatu_bgm_top').hide().imgLoaded(function() {
-            $(this).fadeIn('slow');
+            $(this).unbind('load').fadeIn('slow');
         });
     })(jQuery);
 } catch(e) {};
 #}
-try{(function(a){a("#myatu_bgm_top").hide().imgLoaded(function(){a(this).fadeIn("slow")})})(jQuery)}catch(e){};
+try{(function(a){a("#myatu_bgm_top").hide().imgLoaded(function(){a(this).unbind("load").fadeIn("slow")})})(jQuery)}catch(e){};
 /*]]>*/
 </script>
 {% endif %}
@@ -38,7 +38,7 @@ try{(function(a){a("#myatu_bgm_top").hide().imgLoaded(function(){a(this).fadeIn(
 
 {# ------ "Pin It" button ------ #}
 {% if has_pin_it_btn %}
-<div id="myatu_bgm_pin_it_btn">
+<div id="myatu_bgm_pin_it_btn" class="myatu_bgm_info_blk">
 
 <script type="text/javascript">
 /*<![CDATA[*/
@@ -76,7 +76,7 @@ try{(function(a){a("#myatu_bgm_top").hide().imgLoaded(function(){a(this).fadeIn(
 {# ------ Info Tab ------ #}
 {% if has_info_tab %}
 <div id="myatu_bgm_info">
-    <div id="myatu_bgm_info_tab">
+    <div id="myatu_bgm_info_tab" class="myatu_bgm_info_blk">
         {% if info_tab_link %}
             <a href="{{ random_image.link }}">[ + ]</a>
         {% else %}

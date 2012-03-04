@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE

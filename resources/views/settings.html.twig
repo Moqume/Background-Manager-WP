@@ -168,7 +168,7 @@
                             <span>%</span>
                             <span class="description">({{ __('Only available for Full Screen layouts') }})</span>
                         </div>
-                        <div id="opacity_picker" class="hide-if-no-js"></div>
+                        <div id="opacity_picker" class="hide-if-no-js myatu_inline_block"></div>
                         <span id="opacity_picker_val" class="hide-if-no-js">{{ background_opacity }}%</span>
                     </td>
                 </tr>
@@ -182,7 +182,7 @@
                                 <span>{{ __('Position') }}</span>
                             </legend>
                             {% for bg_position_key, bg_position_value in bg_positions %}
-                            <label class="bg_pos" id="pos-{{ bg_position_key }}">
+                            <label class="bg_pos myatu_inline_block" id="pos-{{ bg_position_key }}">
                                 <input type="radio" value="{{ bg_position_key }}" name="background_position" {% if background_position == bg_position_key %}checked="checked"{% endif %} />
                                 <span>{{ bg_position_value }}</span>
                             </label>
@@ -283,7 +283,7 @@
                             </div>
                             <div class="hide-if-no-js">
                                 <span>{{ __('Slower') }}</span>
-                                <div id="transition_speed_picker" class="hide-if-no-js"></div>
+                                <div id="transition_speed_picker" class="hide-if-no-js myatu_inline_block"></div>
                                 <span>{{ __('Faster') }}</span>
                             </div>
                         </td>
@@ -316,7 +316,7 @@
                             <input type="text" value="{{ overlay_opacity }}" autocomplete="off" name="overlay_opacity" id="overlay_opacity" />
                             <span>%</span>
                         </div>
-                        <div id="ov_opacity_picker" class="hide-if-no-js"></div>
+                        <div id="ov_opacity_picker" class="hide-if-no-js myatu_inline_block"></div>
                         <span id="ov_opacity_picker_val" class="hide-if-no-js">{{ overlay_opacity }}%</span>
                     </td>
                 </tr>
@@ -375,7 +375,7 @@
                                 <span>{{ __('Location') }}</span>
                             </legend>
                             {% for corner_location_key, corner_location_value in corner_locations %}
-                            <label class="info_tab_location" id="info-tab-pos-{{ corner_location_key }}">
+                            <label class="info_tab_location myatu_inline_block" id="info-tab-pos-{{ corner_location_key }}">
                                 <input type="radio" value="{{ corner_location_key }}" name="info_tab_location" {% if info_tab_location == corner_location_key %}checked="checked"{% endif %} />
                                 <span>{{ corner_location_value }}</span>
                             </label>
@@ -399,7 +399,7 @@
                             <label class="pin_it_btn">
                                 <input type="checkbox" value="1" id="pin_it_btn" name="pin_it_btn" {% if pin_it_btn %}checked="checked"{% endif %} />
                                 <span>{{ __('Enabled') }}</span>
-                                <span class="description">({{ __('This will display a "Pin It" button for the <a href="http://pinterest.com" target="_blank" class="pinterest_logo">Pinterest</a> service in one of the selected locations') | raw }})</span>
+                                <span class="description">({{ __('This will display a "Pin It" button for the <a href="http://pinterest.com" target="_blank" class="pinterest_logo myatu_inline_block">Pinterest</a> service in one of the selected locations') | raw }})</span>
                             </label>
                         </fieldset>
                     </td>
@@ -414,7 +414,7 @@
                                 <span>{{ __('Location') }}</span>
                             </legend>
                             {% for corner_location_key, corner_location_value in corner_locations %}
-                            <label class="pin_it_btn_location" id="pin-it-btn-pos-{{ corner_location_key }}">
+                            <label class="pin_it_btn_location myatu_inline_block" id="pin-it-btn-pos-{{ corner_location_key }}">
                                 <input type="radio" value="{{ corner_location_key }}" name="pin_it_btn_location" {% if pin_it_btn_location == corner_location_key %}checked="checked"{% endif %} />
                                 <span>{{ corner_location_value }}</span>
                             </label>
@@ -436,7 +436,8 @@
             <a href="{{ plugin_home }}" target="_blank">{{plugin_name }} {{ plugin_version }}</a> | 
             <a href="#" id="footer_debug_link">{{ __('Debug') }}</a> | 
             <a href="http://wordpress.org/extend/plugins/background-manager/" target="_blank">{{ __('Rate It') }}</a> |
-            <a href="http://wordpress.org/tags/background-manager" target="_blank">{{ __('Forum') }}</a>
+            <a href="http://wordpress.org/tags/background-manager" target="_blank">{{ __('Forum') }}</a> |
+            <a href="http://pledgie.com/campaigns/16906" target="_blank">{{ __('Donate') }}</a>
         </span>
     </div>
 

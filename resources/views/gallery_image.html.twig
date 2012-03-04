@@ -19,7 +19,7 @@
 
 <div id="image_container">
     {% for image in images %}
-    <div id="image_{{ image.ID }}" class="image">
+    <div id="image_{{ image.ID }}" class="image myatu_inline_block">
         <img src="{{ image.thumb.0 }}" alt="{{ image.meta_alt }}" title="{% if image.post_excerpt %}{{ image.post_excerpt }}{% else %}{{ image.post_name }}{% endif %}" />
     </div>
     {% endfor %}

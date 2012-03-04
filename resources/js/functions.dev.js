@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -63,6 +63,8 @@ mainWin = window.dialogArguments || opener || parent || top;
 
         /** 
          * This is a simple wrapper for calling an Ajax function and obtaining its response
+         *
+         * Since 1.0.24, crossDomain check included (xd_ok)
          *
          * @param string ajaxFunc The Ajax function to perform
          * @param mixed ajaxData the data to send along with the function

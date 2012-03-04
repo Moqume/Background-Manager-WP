@@ -1,5 +1,6 @@
 === Background Manager ===
 Contributors: Myatu
+Donate link: http://pledgie.com/campaigns/16906
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.3.1
@@ -86,7 +87,8 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.23 =
+= 1.0.24 =
+* Changed: Image ratios are now retained, regardless of their width
 * Fixed: When a static page for the front page using "Posts as page" was set, it would not display the background on either that page nor the front page.
 
 = 1.0.22.1 (February 20, 2012) =
@@ -172,4 +174,12 @@ It will be very useful to include information about the environment in which the
 = How do my make my backgrounds click-able? =
 
 You can redirect your visitor to a specific URL if they click anywhere on the background by setting the __Background URL__ for an image. Simply edit one of your Image Sets (__Apperance__ -> __Background__ -> __Image Sets__ --> [desired image set]), select an image and click the __Edit__ icon displayed over the image. Provide the URL in the __Background URL__ field and click __Save All Changes__.
+
+= How do I change the background or overlay for individual posts or pages? =
+
+To override the default Image Set or overlay used as the background, edit the desired page or post and look for the __Background__ box, which is usually located under the large text editor.
+
+If this box is not visible, ensure that it is enabled by clicking the __Screen Options__ tab in the upper right corner, and under the __Show on screen__ heading select/tick the __Background__ option.
+
+You will be able to select any of your existing Image Sets, as well as a different overlay, or disable either entirely.
 

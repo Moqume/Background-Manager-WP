@@ -607,6 +607,17 @@ class Main extends \Pf4wp\WordpressPlugin
         return $importers;
     }
     
+    /**
+     * Clears all transients related to Background Manager
+     */
+    protected function clearTransients()
+    {
+        global $wpdb;
+        
+        return $wpdb->get_results("DELETE FROM `{$wpdb->options}` WHERE `option_name` LIKE '_transient%_myatu_bgm_%'");
+
+    }
+    
     /* ----------- Events ----------- */
     
     /**
@@ -707,6 +718,22 @@ class Main extends \Pf4wp\WordpressPlugin
         }
         
         unset($galleries);
+    }
+    
+    /**
+     * Called when the plugin is de-activated
+     */
+    public function onDeactivation()
+    {
+        $this->clearTransients();
+    }
+    
+    /**
+     * Called when the plugin has been upgraded
+     */
+    public function onUpgrade($previous_version, $current_version)
+    {
+        $this->clearTransients();
     }
     
     /**
@@ -1816,7 +1843,7 @@ class Main extends \Pf4wp\WordpressPlugin
         } else {
             $change_freq = 0; // Disabled
         }
-
+        
         // Spit out variables for JavaScript to use
         wp_localize_script(
             $this->getName() . '-pub', 'background_manager_vars', array(

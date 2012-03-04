@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -17,6 +17,27 @@
 .fixed .column-images {
     width:10%;
 }
+
+.myatu_inline_block {
+    display:-moz-inline-stack;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
+}
+.pinterest_logo {
+    width: 59px; 
+    height: 15px;
+    white-space: nowrap;
+    text-indent: -9999px;
+    overflow: hidden;
+    background-image: url('../images/Pinterest_Logo_small.png');
+}
+
+
+.bg_pos, .info_tab_location, .pin_it_btn_location {
+    width: 130px;
+}
+
 
 #imagediv_nav {
     float:right; 
@@ -82,16 +103,6 @@
     padding: 10px;
 }
 
-.pinterest_logo {
-    width: 59px; 
-    height: 15px;
-    white-space: nowrap;
-    text-indent: -9999px;
-    overflow: hidden;
-    display: inline-block;
-    background-image: url('../images/Pinterest_Logo_small.png');
-}
-
 #image_container .image img {
     width: 150px;
     height: 150px;
@@ -103,7 +114,6 @@
 }
 
 #image_container .image {
-    display: inline-block;
     border: 1px solid #CCC;
     padding: 8px;
     -moz-border-radius: 5px;
@@ -179,11 +189,6 @@
     min-width: 400px;
 }
 
-.bg_pos, .info_tab_location, .pin_it_btn_location {
-    display: inline-block;
-    width: 130px;
-}
-
 #bg_preview_div {
     position: absolute;
     top: 0;
@@ -254,13 +259,11 @@
 
 #transition_speed_picker {
     width: 200px;
-    display: inline-block;
     margin: 0 10px;
 }
 
 #ov_opacity_picker, #opacity_picker {
     width: 200px;
-    display: inline-block;
     margin-right: 10px;
 }
 

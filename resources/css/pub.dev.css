@@ -6,33 +6,25 @@
  *
  */
 
-
-/* Courtesy http://css-tricks.com/3458-perfect-full-page-background-image/ */
 .myatu_bgm_fs {
+    /* Let CSS decide whether to stretch by width or height (or both) */
+    min-width: 100%;
     min-height: 100%;
-    min-width: 1024px;
-    width: 100%;
-    height: auto;
     position: fixed;
     top: 0;
     left: 0;
 }
 
-/* Courtesy http://css-tricks.com/3458-perfect-full-page-background-image/ */
-@media screen and (max-width: 1024px) {
-    .myatu_bgm_fs {
-        left: 50%;
-        margin-left: -512px;
-    }
-}
-
-#myatu_bgm_pin_it_btn {
+.myatu_bgm_info_blk {
     display: block;
-    height: 25px !important;
-    width: 45px !important;
     padding: 0 !important;
     position: fixed !important;
     z-index: 19999;
+}
+
+#myatu_bgm_pin_it_btn {
+    height: 25px !important;
+    width: 45px !important;
 }
 
 #myatu_bgm_info_tab {
@@ -42,23 +34,16 @@
     font-weight: bold;
     text-align: center;
     text-shadow: 0.1em 0.1em 0.2em black;
-    display: block;
     height: 25px !important;
     width: 25px !important;
-    padding: 0 !important;
-    position: fixed !important;
-    z-index: 19999;
+    cursor: help;
+    cursor: -webkit-zoom-in;
+    cursor: -moz-zoom-in;
 }
 
 #myatu_bgm_info_tab a {
     color: #fff;
     text-decoration: none;
-}
-
-#myatu_bgm_info_tab {
-    cursor: help;
-    cursor: -webkit-zoom-in;
-    cursor: -moz-zoom-in;
 }
 
 .myatu_bgm_info_tab_content {

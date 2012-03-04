@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Background Manager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-06 00:12-0000\n"
-"PO-Revision-Date: 2012-02-06 00:12-0000\n"
+"POT-Creation-Date: 2012-03-04 19:18-0000\n"
+"PO-Revision-Date: 2012-03-04 19:19-0000\n"
 "Last-Translator: Mike Green <myatus@gmail.com>\n"
 "Language-Team: \n"
 "Language: \n"
@@ -48,7 +48,7 @@ msgstr ""
 msgid "Title:"
 msgstr ""
 
-#: ../../vendor/pf4wp/lib/Pf4wp/Menu/MenuEntry.php:327
+#: ../../vendor/pf4wp/lib/Pf4wp/Menu/MenuEntry.php:330
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
@@ -56,200 +56,218 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: ../../vendor/pf4wp/lib/Pf4wp/Menu/StandardMenu.php:375
+#: ../../vendor/pf4wp/lib/Pf4wp/Menu/StandardMenu.php:378
 msgid "Overview"
 msgstr ""
 
-#: ../../vendor/pf4wp/lib/Pf4wp/Menu/StandardMenu.php:424
+#: ../../vendor/pf4wp/lib/Pf4wp/Menu/StandardMenu.php:427
 msgid "items per page"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:589
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:28
+msgid "<p>Start by adding a new <em>Image Set</em><p><p>Once you're done, come back here and set it as the active <em>Background Image Set</em>.</p>"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:29
+msgid "Let's Get Started!"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:43
+msgid "<p>Click on this icon to start adding some images.</p><p>Save using the <strong>Add Image Set</strong> button. Don't forget to add a title once you're done!</p>"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:44
+msgid "Add Some Images!"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:645
 msgid "Background Image Sets"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:590
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:646
 msgid "Background Image Set"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:651
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:707
 msgid "Imported Background"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:651
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:707
 msgid "Automatically created Image Set, containing the original background image specified in WordPress."
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:774
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1594
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:846
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1674
 msgid "&laquo;"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:775
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1595
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:847
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1675
 msgid "&raquo;"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:889
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:904
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:961
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:976
 msgid "Background"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:910
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:982
 msgid "Image Sets"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:918
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:334
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:990
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:360
 msgid "Trash"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:925
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:997
 msgid "Import"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:965
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1037
 msgid "Add New Image Set"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1038
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1397
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1430
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1556
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1110
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1477
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1510
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1636
 #: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:81
 #: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:279
 #: ../../app/Myatu/WordPress/BackgroundManager/Galleries.php:390
 msgid "You do not have permission to do that [nonce]."
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1091
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1165
 msgid "Settings have been saved"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1106
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1115
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1142
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1180
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1189
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1216
 #: ../../app/Myatu/WordPress/BackgroundManager/Meta/Taxonomy.php:55
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Single.php:65
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Single.php:79
 msgid "-- None (deactivated) --"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1123
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1136
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1197
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1210
 msgid "Top Left"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1123
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1197
 msgid "Top Center"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1123
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1136
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1197
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1210
 msgid "Top Right"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1124
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1198
 msgid "Center Left"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1124
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1198
 msgid "Center"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1124
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1198
 msgid "Center Right"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1125
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1137
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1199
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1211
 msgid "Bottom Left"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1125
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1199
 msgid "Bottom Center"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1125
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1137
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1199
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1211
 msgid "Bottom Right"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1130
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1204
 msgid "Tile horizontal and vertical"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1130
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1204
 msgid "Tile horizontal"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1131
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1205
 msgid "Tile vertical"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1131
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1205
 msgid "No Tiling"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1142
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1216
 msgid "Random"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1143
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1217
 msgid "Slide Downward"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1143
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1217
 msgid "Slide Upward"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1143
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1217
 msgid "Slide to Left"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1143
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1217
 msgid "Slide to Right"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1144
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1218
 msgid "Cover Downward"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1144
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1218
 msgid "Cover Upward"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1144
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1218
 msgid "Cover to Left"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1144
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1218
 msgid "Cover to Right"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1145
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1219
 msgid "Crossfade"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1297
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1377
 msgid "You are about to permanently delete the selected images. Are you sure?"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1298
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1378
 msgid "You are about to permanently delete this image. Are you sure?"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1312
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1392
 msgid "images per page"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1461
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1541
 msgid "Continue Import"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1508
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1588
 msgid "Add an Image"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1649
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1729
 #: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:431
 msgid "Save all changes"
 msgstr ""
@@ -319,61 +337,69 @@ msgid "Description"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:188
+msgid "Categories"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:189
+msgid "Tags"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:190
 msgid "Images"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:235
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:237
 #: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:141
 msgid "Move to Trash"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:238
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:346
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:240
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:372
 msgid "Restore"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:240
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:340
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:242
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:366
 #: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:119
 msgid "Delete Permanently"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:260
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:262
 msgid "Add New"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:266
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:268
 msgid "Empty Trash"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:327
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:353
 msgid "Edit this Image Set"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:328
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:354
 msgid "Edit"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:333
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:359
 #: ../../app/Myatu/WordPress/BackgroundManager/Meta/Submit.php:50
 msgid "Move this Image Set to the Trash"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:339
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:365
 #: ../../app/Myatu/WordPress/BackgroundManager/Meta/Submit.php:55
 msgid "Delete this Image Set permanently"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:345
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:371
 msgid "Restore this Image Set from the Trash"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:361
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:387
 #, php-format
 msgid "Edit &#8220;%s&#8221;"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:365
+#: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:391
 msgid "Active Background"
 msgstr ""
 
@@ -464,6 +490,7 @@ msgid "Download from URL"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:392
+#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Flickr.php:214
 #, php-format
 msgid "<p>%s</p><p>By: <a href=\"http://www.flickr.com/photos/%s/%s/\">%s</a> (%s)</p>"
 msgstr ""
@@ -477,6 +504,7 @@ msgid "Download"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Meta/Taxonomy.php:60
+#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Single.php:84
 msgid "Default Overlay"
 msgstr ""
 
@@ -506,7 +534,6 @@ msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:98
 #: ../../app/Myatu/WordPress/BackgroundManager/Importers/Flickr.php:179
-#: ../../app/Myatu/WordPress/BackgroundManager/Importers/WpFlickrBackground.php:69
 #, php-format
 msgid "%s (Imported)"
 msgstr ""
@@ -514,14 +541,11 @@ msgstr ""
 #: ../../app/Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:102
 #: ../../app/Myatu/WordPress/BackgroundManager/Importers/Local.php:109
 #: ../../app/Myatu/WordPress/BackgroundManager/Importers/Flickr.php:183
-#: ../../app/Myatu/WordPress/BackgroundManager/Importers/WpFlickrBackground.php:73
 #, php-format
 msgid "Unable to create Image Set <strong>%s</strong>"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:120
-#: ../../app/Myatu/WordPress/BackgroundManager/Importers/WpFlickrBackground.php:87
-#: ../../app/Myatu/WordPress/BackgroundManager/Importers/WpFlickrBackground.php:100
 #, php-format
 msgid "Unable to import image <em>%s</em> into Image Set <strong>%s</strong>"
 msgstr ""
@@ -661,7 +685,7 @@ msgid "Single page"
 msgstr ""
 
 #: ../../resources/views/settings.html.twig:112
-msgid "Archive pages"
+msgid "Archive (Category, Tag, History) pages"
 msgstr ""
 
 #: ../../resources/views/settings.html.twig:117
@@ -784,6 +808,7 @@ msgid "Display icon"
 msgstr ""
 
 #: ../../resources/views/settings.html.twig:338
+#: ../../resources/views/settings.html.twig:401
 msgid "Enabled"
 msgstr ""
 
@@ -813,19 +838,37 @@ msgstr ""
 
 #: ../../resources/views/settings.html.twig:370
 #: ../../resources/views/settings.html.twig:375
+#: ../../resources/views/settings.html.twig:409
+#: ../../resources/views/settings.html.twig:414
 msgid "Location"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:397
+#: ../../resources/views/settings.html.twig:390
+msgid "Pinterest"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:395
+msgid "Display \"Pin It\" Button"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:402
+msgid "This will display a \"Pin It\" button for the <a href=\"http://pinterest.com\" target=\"_blank\" class=\"pinterest_logo myatu_inline_block\">Pinterest</a> service in one of the selected locations"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:437
 msgid "Debug"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:398
+#: ../../resources/views/settings.html.twig:438
 msgid "Rate It"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:399
+#: ../../resources/views/settings.html.twig:439
 msgid "Forum"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:440
+msgid "Donate"
 msgstr ""
 
 #: ../../resources/views/meta_gallery_submit.html.twig:16
@@ -833,7 +876,7 @@ msgid "Short Description"
 msgstr ""
 
 #: ../../resources/views/meta_gallery_tags.html.twig:10
-msgid "Override the default Image Set, or the one specified in an individual post, with this Image Set if a post contains one or more of the selected tags:"
+msgid "Override the default Image Set with this one, if a post contains one or more of the selected tags:"
 msgstr ""
 
 #: ../../resources/views/meta_gallery_tags.html.twig:35
@@ -894,7 +937,7 @@ msgid "Image Set"
 msgstr ""
 
 #: ../../resources/views/meta_gallery_categories.html.twig:10
-msgid "Override the default Image Set, or the one specified in an individual post, with this Image Set if a post belongs to one or more of the selected categories:"
+msgid "Override the default Image Set with this one, if a post belongs to one or more of the selected categories:"
 msgstr ""
 
 #: ../../resources/views/gallery_image.html.twig:12

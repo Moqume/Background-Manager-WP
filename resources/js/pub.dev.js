@@ -27,55 +27,44 @@
 
         /** Slides a new background image into position */
         AnimateSlide: function(scroll_in_from, duration, cover) {
-            var new_img = $('#myatu_bgm_top'), old_img = $('#myatu_bgm_prev'),              // Images selectors
-                pos_new_img = '-9000px', pos_old_img = '9000px',                            // Failsafe image positions
-                dir   = 'top',                                                              // Default CSS positioning
-                css   = new Object,
-                ww    = $(window).width(),                                                  // Window width
-                wp    = ((new_img.width() - ww) * 100) / ww,                                // Window image overflow %
-                pos_p = (150 + wp) + '%',
-                neg_p = '-' + (50 + wp) + '%',
-                _isp  = function(s) { s = String(s); return (s.charAt(s.length-1) == '%') }; // Macro to check if value is a percentage
+            $('#myatu_bgm_top').show().hide(); // Allow browser to re-adjust image size (as it won't do this on hidden elements);
+
+            var new_img = $('#myatu_bgm_top'), 
+                old_img = $('#myatu_bgm_prev'),
+                css     = new Object,
+                start_position, dir;
 
             // Determine starting position for new image, and ending position for old image
             switch (scroll_in_from) {
-                // Vertical movement - the show/hide is to permit the browser to adjust the image to the window size (CSS styling)
-                case 'top'   : new_img.show(); pos_new_img = '-'+new_img.height()+'px'; pos_old_img = new_img.height()+'px'; new_img.hide(); break;
-                case 'bottom': pos_new_img = old_img.height()+'px'; pos_old_img = '-'+old_img.height()+'px'; break; //!!
-
-                // Horizontla movement
-                case 'left'  : 
-                    dir = 'left';
-
-                    var p = _isp(new_img.css(dir));
-                    pos_new_img = (p) ? neg_p : '-'+ww+'px';
-                    pos_old_img = (p) ? pos_p :     ww+'px';
-
-                    break;
-
-                case 'right' : 
-                    dir = 'left';
-
-                    var p = _isp(new_img.css(dir));
-
-                    pos_new_img = (p) ? pos_p :     ww+'px';
-                    pos_old_img = (p) ? neg_p : '-'+ww+'px';
-                    break;
+                case 'top'    : dir = 'top'; start_position = '-'+new_img.height()+'px'; break;
+                case 'bottom' : dir = 'top'; start_position =     old_img.height()+'px'; break;
+                case 'left'   : dir = 'left'; start_position = '-'+new_img.width()+'px'; break;
+                case 'right'  : dir = 'left'; start_position =     old_img.width()+'px'; break;
             }
 
-            // Store original position and move new image out of view
-            var pos_orig = new_img.css(dir);
-            new_img.css(dir, pos_new_img).show();
+            css[dir] = '0px';
+            new_img.css(dir, start_position).show();  // Move the new image to one of the edges of the old image
 
-            // Slide (scroll) old image out of the way, unless we're covering it
-            if (cover == undefined || cover == false) {
-                css[dir] = pos_old_img;
-                old_img.animate(css, {'duration': duration, 'queue': false});
+            // Slide
+            if (cover === undefined || cover === false) {
+                new_img.animate(css, {
+                    'duration': duration, 
+                    'complete': myatu_bgm.AnimationCompleted,
+                    'step': function(now,fx) {
+                        // Keep old image "sticking" to edge of new image
+                        switch (scroll_in_from) {
+                            case 'top'    : old_img.css(dir, (new_img.height() + now) + 'px'); break;
+                            case 'bottom' : old_img.css(dir, (now - old_img.height()) + 'px'); break;
+                            case 'left'   : old_img.css(dir, (new_img.width() + now)  + 'px'); break;
+                            case 'right'  : old_img.css(dir, (now - old_img.width())  + 'px'); break;
+                        }
+                    }
+                });
+
+            } else {
+                // Cover
+                new_img.animate(css, {'duration': duration, 'complete': myatu_bgm.AnimationCompleted});
             }
-
-            // Slide new image into orignal position
-            css[dir] = pos_orig;
-            new_img.animate(css, {'duration': duration, 'queue': false, 'complete': myatu_bgm.AnimationCompleted});
         },
 
         /** Event on background click */
@@ -129,11 +118,13 @@
                 $('#myatu_bgm_top').clone().attr('id', 'myatu_bgm_prev').appendTo('body');
 
                 // Hide and then set new top image (unbinding previous imgLoaded event)
-                $('#myatu_bgm_top').hide().unbind('load').attr({
+                $('#myatu_bgm_top').hide().attr({
                     'src'   : new_image.url,
                     'alt'   : new_image.alt
                 }).imgLoaded(function() {
                     var s = new_image.transition_speed, c = false;
+
+                    $(this).unbind('load'); // Unbind load handler
 
                     switch (new_image.transition) {
                         // No transition
