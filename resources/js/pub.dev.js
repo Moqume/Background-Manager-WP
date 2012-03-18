@@ -27,8 +27,6 @@
 
         /** Slides a new background image into position */
         AnimateSlide: function(scroll_in_from, duration, cover) {
-            $('#myatu_bgm_top').show().hide(); // Allow browser to re-adjust image size (as it won't do this on hidden elements);
-
             var new_img = $('#myatu_bgm_top'), 
                 old_img = $('#myatu_bgm_prev'),
                 css     = new Object,

@@ -4,7 +4,7 @@ Donate link: http://pledgie.com/campaigns/16906
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.3.1
-Stable tag: 1.0.24
+Stable tag: 1.0.25
 
 Display a random image as the website background at each visit or as a timed slideshow, without the need to edit the theme.
 
@@ -86,6 +86,9 @@ with PHP versions older than 5.3.
 3. Editing an Image Set within Background Manager
 
 == Changelog ==
+
+= 1.0.25 (March 18, 2012) =
+* Fixed: Resolved the "flickering" before each transition
 
 = 1.0.24 (March 4, 2012) =
 * Changed: Image ratios are now retained, regardless of their width
