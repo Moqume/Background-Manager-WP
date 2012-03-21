@@ -350,6 +350,11 @@ class Main extends \Pf4wp\WordpressPlugin
             if (!defined('BACKGROUND_IMAGE'))
                 define('BACKGROUND_IMAGE', $random_image);
             
+            // Since 3.4
+            if ($this->checkWPVersion('3.4', '>=')) {
+                add_theme_support('custom-background', array('default-image' => $random_image));
+            }
+            
             // Get the ALT image meta
             $alt  = get_post_meta($random_id, '_wp_attachment_image_alt', true);
             $link = post_permalink($random_id);
@@ -618,6 +623,34 @@ class Main extends \Pf4wp\WordpressPlugin
 
     }
     
+    /**
+     * Check if WP Version is higher, lower or equal to a certain version
+     *
+     * @param string $version Version to compare against
+     * @param string $operator Operator for comparision (default is '=')
+     */
+    protected function checkWPVersion($version, $operator = '=')
+    {
+        global $wp_version;
+        
+        return version_compare($version, $wp_version, $operator);
+    }
+    
+    /**
+     * Removes the original WP Background manager menu and callback
+     */
+    protected function doRemoveWPBackground()
+    {
+        if ($this->checkWPVersion('3.4', '<')) {
+            remove_custom_background(); // Since WP 3.1
+        } else {
+            // Since WP 3.4
+            if (get_theme_support('custom-background')) {
+                remove_theme_support('custom-background');
+            }
+        }
+    }
+    
     /* ----------- Events ----------- */
     
     /**
@@ -629,10 +662,8 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         parent::registerActions();
         
-        // Remove the original 'Background' menu and WP's callback
-        remove_custom_background(); // Since WP 3.1
-        
         // Register additional actions
+        add_action('admin_menu', array($this, 'onRemoveWPBackground'), 5, 0);
         add_action('wp_head', array($this, 'onWpHead'));
         add_action('get_edit_post_link', array($this, 'onGetEditPostLink'), 10, 3);
         add_action('add_attachment', array($this, 'onAddAttachment'), 20);      // Adds 'Background Image' to Library
@@ -760,6 +791,9 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onPublicInit()
     {
+        // Remove the original WP Background callback
+        $this->doRemoveWPBackground();
+        
         // This activates the *filters* provided by the Meta Boxes
         new Meta\Stylesheet($this);
         new Meta\Single($this);
@@ -963,6 +997,14 @@ class Main extends \Pf4wp\WordpressPlugin
                 ));
             }
         } catch (\Exception $e) { /* Silent, to prevent public side from becoming inaccessible on error */ }
+    }
+    
+    /**
+     * Event called that remove WP's original Background manager from the Admin menu's
+     */
+    public function onRemoveWPBackground()
+    {
+        $this->doRemoveWPBackground();
     }
     
     /**
@@ -1237,6 +1279,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $mem_peak  = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() / 1048576 : 0;
         $mem_usage = (function_exists('memory_get_usage')) ? memory_get_usage() / 1048576 : 0;
         $mem_max   = (int) @ini_get('memory_limit');
+        $current_theme = $this->checkWPVersion('3.4', '<') ? get_current_theme() : wp_get_theme();
         
         foreach (\Pf4wp\Info\PluginInfo::getInfo(true) as $plugin)
             $active_plugins[] = sprintf("'%s' by %s", $plugin['Name'], $plugin['Author']);
@@ -1251,7 +1294,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'Pf4wp APC Enabled'                  => (PF4WP_APC) ? 'Yes' : 'No',
             'WordPress Version'                  => $wp_version,
             'WordPress Debug Mode'               => (defined('WP_DEBUG') && WP_DEBUG) ? 'Yes' : 'No',
-            'Active WordPress Theme'             => get_current_theme(),
+            'Active WordPress Theme'             => $current_theme,
             'Active Wordpress Plugins'           => implode(', ', $active_plugins),
             'Browser'                            => $_SERVER['HTTP_USER_AGENT'],
             'Server'                             => $_SERVER['SERVER_SOFTWARE'],
