@@ -650,7 +650,7 @@ class Main extends \Pf4wp\WordpressPlugin
     protected function doRemoveWPBackground()
     {
         if ($this->checkWPVersion('3.4', '<')) {
-            remove_custom_background(); // Since WP 3.1
+            @remove_custom_background(); // Since WP 3.1
         } else {
             // Since WP 3.4
             if (get_theme_support('custom-background')) {
