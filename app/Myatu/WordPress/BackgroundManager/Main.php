@@ -633,7 +633,15 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         global $wp_version;
         
-        return version_compare($version, $wp_version, $operator);
+        $_wp_version = $wp_version;
+        $spacer      = strpos($_wp_version, '-');
+        
+        // Remove any extra data
+        if ($spacer >= 0) {
+            $_wp_version = substr($_wp_version, 0, $spacer);
+        }
+        
+        return version_compare($_wp_version, $version, $operator);
     }
     
     /**
