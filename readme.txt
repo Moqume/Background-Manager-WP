@@ -87,6 +87,11 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
+= 1.0.28 =
+* __Added:__ Initial support for WordPress 3.4 (deprecated functions)
+* __Added:__ Support for [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/) categories
+* Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
+
 = 1.0.25 (March 18, 2012) =
 * Fixed: Resolved the "flickering" before each transition
 

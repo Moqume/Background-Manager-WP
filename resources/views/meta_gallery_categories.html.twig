@@ -11,11 +11,18 @@
     </p>
 
     <div id="taxonomy-category" class="categorydiv">
-        <div id="category-all" class="tabs-panel">
-            <ul id="categorychecklist" class="list:category categorychecklist form-no-clear">
-                {{ categories | raw }}
+        <ul id="category-tabs" class="category-tabs">
+            {% for category_key,category in categories %}
+            <li class="{% if loop.first %}tabs{% else %}hide-if-no-js{% endif %}"><a href="#category-{{ category_key }}">{{ category.label }}</a></li>
+            {% endfor %}
+        </ul>
+        {% for category_key,category in categories %}
+        <div id="category-{{ category_key }}" class="tabs-panel" {% if not loop.first %}style="display: none;"{% endif %}>
+            <ul id="categorychecklist-{{ category_key }}" class="categorychecklist form-no-clear">
+                {{ category.checklist | raw }}
             </ul>
         </div>
+        {% endfor %}
     </div>
 </div>
 

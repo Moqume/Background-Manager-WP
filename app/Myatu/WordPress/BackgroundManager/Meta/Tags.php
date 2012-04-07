@@ -28,6 +28,16 @@ class Tags extends Taxonomy
     protected $context          = 'side';
     
     /**
+     * Mark as active dynamic class
+     *
+     * @return bool
+     */
+    public static function isActive()
+    {
+        return true;
+    }    
+    
+    /**
      * Event called when ready to render the Metabox contents 
      *
      * @param int $id ID of the gallery

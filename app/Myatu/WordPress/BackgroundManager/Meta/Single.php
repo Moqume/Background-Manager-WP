@@ -18,10 +18,11 @@ use Pf4wp\Meta\PostMetabox;
  * @package BackgroundManager
  * @subpackage Meta
  */
-class Single extends PostMetabox
+class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
 {
-    const MT_ACTIVE_GALLERY = 'myatu_bgm_active_gallery';
-    const MT_ACTIVE_OVERLAY = 'myatu_bgm_active_overlay';
+    const 
+        MT_ACTIVE_GALLERY = 'myatu_bgm_active_gallery',
+        MT_ACTIVE_OVERLAY = 'myatu_bgm_active_overlay';
     
     protected $title    = 'Background';
     protected $context  = 'advanced';
@@ -45,6 +46,18 @@ class Single extends PostMetabox
         
         // An is_admin() check in the parent will automatically avoid things not needed for the public side
         parent::__construct($owner, $auto_register);
+    }
+    
+    /**
+     * Info for dynamic loading
+     */
+    public static function info()
+    {
+        return array(
+            'name'   => '', // Not used
+            'desc'   => '', // Not used
+            'active' => true,
+        );
     }
     
     /**

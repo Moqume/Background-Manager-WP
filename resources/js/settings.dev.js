@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -188,12 +188,12 @@
 
         // Transition Speed picker
 	    $('#transition_speed_picker').slider({
-		    value: 7600 - $('#transition_speed').val(),
+		    value: 15100 - $('#transition_speed').val(),
 		    min: 100,
-		    max: 7500,
+		    max: 15000,
             step: 100,
 		    slide: function(event, ui) {
-			    $("#transition_speed").val(7600 - ui.value);
+			    $("#transition_speed").val(15100 - ui.value);
                 myatu_bgm.updateOpacity();
 		    }
 	    });

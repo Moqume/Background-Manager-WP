@@ -24,15 +24,15 @@ use Myatu\WordPress\BackgroundManager\Images;
 class NextGenGallery extends Importer
 {
     // Overrides
-    const NAME = 'NextGEN Gallery Importer';
-    const DESC = 'Imports one or more galleries from NextGEN Gallery into the Background Manager.';
+    const DYN_NAME = 'NextGEN Gallery Importer';
+    const DYN_DESC = 'Imports one or more galleries from NextGEN Gallery into the Background Manager.';
     
     /**
      * Returns the active status of the importer
      *
      * @return bool
      */
-    static public function active()
+    static public function isActive()
     {
         global $wpdb;
         

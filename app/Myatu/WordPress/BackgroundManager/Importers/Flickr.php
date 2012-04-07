@@ -25,13 +25,13 @@ use Myatu\WordPress\BackgroundManager\Images;
  */
 class Flickr extends Importer
 {
-    const NAME = 'Flickr Photo Sets';
-    const DESC = 'Imports photo sets at from Flickr. This product uses the Flickr API but is not endorsed or certified by Flickr.';
+    const DYN_NAME = 'Flickr Photo Sets';
+    const DYN_DESC = 'Imports photo sets at from Flickr. This product uses the Flickr API but is not endorsed or certified by Flickr.';
     
     /**
      * Check if the user has permission to add (upload) files
      */
-    static public function active()
+    static public function isActive()
     {
         if (!current_user_can('upload_files')) 
             return false;

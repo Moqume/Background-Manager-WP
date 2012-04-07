@@ -83,6 +83,7 @@ class Main extends \Pf4wp\WordpressPlugin
     const DIR_IMAGES    = 'resources/images/';
     const DIR_OVERLAYS  = 'resources/images/overlays/';
     const DIR_IMPORTERS = 'app/Myatu/WordPress/BackgroundManager/Importers/';
+    const DIR_META      = 'app/Myatu/WordPress/BackgroundManager/Meta/';
     
     /* Possible background positions */
     private $bg_positions = array('top-left', 'top-center', 'top-right', 'center-left', 'center-center', 'center-right', 'bottom-left', 'bottom-center', 'bottom-right');
@@ -582,25 +583,12 @@ class Main extends \Pf4wp\WordpressPlugin
         if (isset($this->np_cache['importers']))
             return $this->np_cache['importers'];
         
-        $importers = array();
-        $iterator  = new \RecursiveIteratorIterator(new \Pf4wp\Storage\IgnorantRecursiveDirectoryIterator($this->getPluginDir() . static::DIR_IMPORTERS, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
-        $files     = iterator_to_array(new \RegexIterator($iterator, '/^.+\.php?$/i', \RecursiveRegexIterator::GET_MATCH));
+        $base_namespace = __NAMESPACE__ . '\\Importers';
+        $importers      = apply_filters('myatu_bgm_importers', \Pf4wp\Dynamic\Loader::get($base_namespace, $this->getPluginDir() . static::DIR_IMPORTERS));
         
-        foreach ($files as $file) {
-            $class_name = basename($file[0], '.php');
-            $class      = __NAMESPACE__ . '\\Importers\\' . $class_name;
-            
-            // Obtain information about the Importer, and add it to the array
-            if (is_callable($class . '::info'))
-                $importers[$class_name] = array_merge($class::info(), array('class' => $class));
-        }
-        
-        // Allow filtering of importers
-        $importers = apply_filters('myatu_bgm_importers', $importers);
-        
-        // Classes must be a subclass of Importers\Importer
+        // Classes must be a subclass of Importers\Importer (checked, as we apply a filter)
         foreach ($importers as $importer_key => $importer)
-            if (!is_subclass_of($importer['class'], __NAMESPACE__ . '\\Importers\\Importer'))
+            if (!is_subclass_of($importer['class'], $base_namespace . '\\Importer'))
                 unset($importers[$importer_key]);
         
         // Sort importers by name
@@ -610,6 +598,19 @@ class Main extends \Pf4wp\WordpressPlugin
         $this->np_cache['importers'] = $importers;
         
         return $importers;
+    }
+    
+    /**
+     * Obtains an array of available Meta boxes
+     *
+     * @return array Array containing a list of meta boxes
+     */
+    protected function getMetaBoxes()
+    {
+        if (!isset($this->np_cache['meta_boxes']))
+            $this->np_cache['meta_boxes'] = \Pf4wp\Dynamic\Loader::get(__NAMESPACE__ . '\\Meta', $this->getPluginDir() . static::DIR_META, true);
+        
+        return $this->np_cache['meta_boxes'];
     }
     
     /**
@@ -662,15 +663,12 @@ class Main extends \Pf4wp\WordpressPlugin
     /* ----------- Events ----------- */
     
     /**
-     * Perform additional registerActions()
+     * Perform additional action registration
      *
      * This will replace WordPress' Custom Background with ours
      */
-    public function registerActions()
-    {
-        parent::registerActions();
-        
-        // Register additional actions
+    public function onRegisterActions()
+    {   
         add_action('admin_menu', array($this, 'onRemoveWPBackground'), 5, 0);
         add_action('wp_head', array($this, 'onWpHead'));
         add_action('get_edit_post_link', array($this, 'onGetEditPostLink'), 10, 3);
@@ -697,34 +695,18 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // @see: onAddAttachment()
         add_theme_support('custom-background');
-        
-        // Check if there are any on-demand filters requested
-        $filters = array();
-        if (isset($_REQUEST['filter']))
-            $filters = explode(',', $_REQUEST['filter']);
-        
-        // And check the referer arguments as well if this is a POST request
-        if (!empty($_POST) && isset($_SERVER['HTTP_REFERER'])) {
-            $referer_args = explode('&', ltrim(strstr($_SERVER['HTTP_REFERER'], '?'), '?'));
-            foreach ($referer_args as $referer_arg)
-                if (!empty($referer_arg) && strpos($referer_arg, '=') !== false) {
-                    list($arg_name, $arg_value) = explode('=', $referer_arg);
-                    if ($arg_name == 'filter') {
-                        $filters = array_replace($filters, explode(',', $arg_value));
-                        break;
-                    }
-                }
+    }
+    
+    /**
+     * Called when a filter needs to be activated
+     */
+    public function onFilter($filter)
+    {
+        switch ($filter) {
+            case Filter\MediaLibrary::FILTER :
+                new Filter\MediaLibrary($this);
+                break;
         }
-        
-        // Remove any possible duplicates
-        $filters = array_unique($filters);
-        
-        foreach ($filters as $filter)
-            switch ($filter) {
-                case Filter\MediaLibrary::FILTER :
-                    new Filter\MediaLibrary($this);
-                    break;
-            }
     }
     
     /**
@@ -786,11 +768,8 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // Initialize meta boxes
         if (current_user_can('edit_theme_options')) {
-            new Meta\Submit($this);
-            new Meta\Stylesheet($this);
-            new Meta\Single($this); // for Posts and Pages
-            new Meta\Tags($this);
-            new Meta\Categories($this);
+            foreach ($this->getMetaBoxes() as $meta_box)
+                new $meta_box['class']($this);
         }
     }
     
@@ -803,10 +782,8 @@ class Main extends \Pf4wp\WordpressPlugin
         $this->doRemoveWPBackground();
         
         // This activates the *filters* provided by the Meta Boxes
-        new Meta\Stylesheet($this);
-        new Meta\Single($this);
-        new Meta\Tags($this);
-        new Meta\Categories($this);
+        foreach ($this->getMetaBoxes() as $meta_box)
+            new $meta_box['class']($this);
     }
     
     /**
@@ -941,7 +918,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 }
                 
                 // Add transition speed
-                $random_image['transition_speed'] = ((int)$this->options->transition_speed >= 100 && (int)$this->options->transition_speed <= 7500) ? $this->options->transition_speed : 600;
+                $random_image['transition_speed'] = ((int)$this->options->transition_speed >= 100 && (int)$this->options->transition_speed <= 15000) ? $this->options->transition_speed : 600;
                 
                 $this->ajaxResponse((object)$random_image, empty($random_image['url']));
                 
@@ -1326,7 +1303,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'background_opacity'            => $this->options->background_opacity,
             'overlay_opacity'               => $this->options->overlay_opacity,
             'background_transition'         => $this->options->background_transition,
-            'transition_speed'              => ((int)$this->options->transition_speed >= 100 && (int)$this->options->transition_speed <= 7500) ? $this->options->transition_speed : 600,
+            'transition_speed'              => ((int)$this->options->transition_speed >= 100 && (int)$this->options->transition_speed <= 15000) ? $this->options->transition_speed : 600,
             'change_freq_custom'            => ((int)$this->options->change_freq_custom >= 10) ? $this->options->change_freq_custom : 10,
             'change_freq'                   => $this->options->change_freq,
             'display_on_front_page'         => $this->options->display_on_front_page,

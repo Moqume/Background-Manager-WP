@@ -20,7 +20,7 @@ use Pf4wp\Meta\PostMetabox;
  * @package BackgroundManager
  * @subpackage Meta
  */
-class Submit extends PostMetabox
+class Submit extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
 {
     protected $title    = 'Save Image Set';
     protected $pages    = array(\Myatu\WordPress\BackgroundManager\Main::PT_GALLERY);
@@ -37,6 +37,18 @@ class Submit extends PostMetabox
         if ($auto_register == true)
             $this->register();
     }
+    
+    /**
+     * Info for dynamic loading
+     */
+    public static function info()
+    {
+        return array(
+            'name'   => '', // Not used
+            'desc'   => '', // Not used
+            'active' => true,
+        );
+    }   
     
     /** Returns an array containing details for the Trash/Delete link */
     protected function deleteLink($id)

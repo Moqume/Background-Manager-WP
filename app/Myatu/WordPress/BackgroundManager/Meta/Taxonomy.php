@@ -19,7 +19,7 @@ use Pf4wp\Meta\PostMetabox;
  * @subpackage Meta
  * @since 1.0.14
  */
-abstract class Taxonomy extends PostMetabox
+abstract class Taxonomy extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
 {
     protected $meta_tax         = '';       // The name of the Meta under which taxonomy overrides are stored
     protected $taxonomy         = '';       // The taxonomy being handled
@@ -36,6 +36,28 @@ abstract class Taxonomy extends PostMetabox
         
         parent::__construct($owner, $auto_register);
     }
+    
+    /**
+     * Return whether the dynamic class is active
+     *
+     * @return bool
+     */
+    public static function isActive()
+    {
+        return false;
+    }
+    
+    /**
+     * Info for dynamic loading
+     */
+    public static function info()
+    {
+        return array(
+            'name'   => '', // Not used
+            'desc'   => '', // Not used
+            'active' => static::isActive(),
+        );
+    }        
     
     /**
      * Renders the Metabox Contents

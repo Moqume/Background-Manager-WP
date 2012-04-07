@@ -26,15 +26,15 @@ class WpFlickrBackground extends Importer
     const WP_OPTION_NAME = 'wp-flickr-background';
     
     // Overrides
-    const NAME = 'WP Flickr Background Importer';
-    const DESC = 'Imports the galleries from WP Flickr Background into the Background Manager. Note: This will import ALL available galleries.';
+    const DYN_NAME = 'WP Flickr Background Importer';
+    const DYN_DESC = 'Imports the galleries from WP Flickr Background into the Background Manager. Note: This will import ALL available galleries.';
     
     /**
      * Returns the active status of the importer
      *
      * @return bool
      */
-    static public function active()
+    static public function isActive()
     {
         // Only active if ...
         if (!current_user_can('upload_files') ||                            // the user is permitted to add files to the Media Library

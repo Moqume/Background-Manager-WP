@@ -310,16 +310,41 @@ class Galleries extends \WP_List_Table
         $this->column_description($item);
     }
     
-    /** Displays the `Categories` column */
+    /** Displays the `Categories` (terms) column */
     function column_categories($item)
     {
-        $cats   = get_post_meta($item->ID, 'myatu_bgm_override_cats', true);
-        $result = array();
+        $result         = array();
+        $reg_taxonomies = get_taxonomies(array('public' => true, 'show_ui' => true), 'objects');
         
-        if (is_array($cats))
-            foreach($cats as $cat)
-                $result[] = get_cat_name($cat);
-
+        foreach ($reg_taxonomies as $reg_taxonomy_key => $reg_taxonomy) {
+            if (stristr($reg_taxonomy_key, 'categor')) {
+                $non_wp_term = !$reg_taxonomy->_builtin;
+                
+                if ($reg_taxonomy_key == 'category') {
+                    $meta_tax = \Myatu\WordPress\BackgroundManager\Meta\Categories::META_TAX_PREFIX . 'cats';
+                } else {
+                    $meta_tax = \Myatu\WordPress\BackgroundManager\Meta\Categories::META_TAX_PREFIX . $reg_taxonomy_key;
+                }
+                
+                // Obtain selected terms in this taxonomy for the gallery
+                $terms = get_post_meta($item->ID, $meta_tax, true);
+                
+                // Convert Category ID's into names
+                if (is_array($terms)) {
+                    $is_first = true;
+                    foreach($terms as $term) {
+                        $term_name = get_term_field('name', $term, $reg_taxonomy_key);
+                        
+                        if ($is_first && $non_wp_term)
+                            $term_name = '<em>' . $reg_taxonomy->label . '</em>: ' . $term_name;
+                        
+                        $result[] = $term_name;
+                        $is_first = false;
+                    }
+                }
+            }
+        }        
+        
         echo implode(', ', $result);
     }
     

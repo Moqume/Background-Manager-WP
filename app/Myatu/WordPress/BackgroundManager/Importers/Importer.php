@@ -18,39 +18,12 @@ use Myatu\WordPress\BackgroundManager\Main;
  * @package BackgroundManager
  * @subpackage Importers
  */
-class Importer
+class Importer extends \Pf4wp\Dynamic\DynamicBase
 {
-    const NAME = 'Name';
-    const DESC = 'Description';
-    
     /**
      * Protected constructor, as this is a purely static class
      */
     protected function __construct() {}
-    
-    /**
-     * Returns whether this importer is active
-     *
-     * @return bool
-     */
-    static public function active()
-    {
-        return true;
-    }
-    
-    /**
-     * Returns information about the importer
-     *
-     * @return array An array containing a short name (`name`), description (`desc`) and whether it is active (`active`)
-     */
-    final static public function info()
-    {        
-        return array(
-            'name'   => static::NAME,
-            'desc'   => static::DESC,
-            'active' => static::active(),
-        );
-    }
     
     /**
      * Returns a screen to display prior to performing the actual import

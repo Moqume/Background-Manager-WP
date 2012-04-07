@@ -18,7 +18,7 @@ use Pf4wp\Meta\PostMetabox;
  * @package BackgroundManager
  * @subpackage Meta
  */
-class Stylesheet extends PostMetabox
+class Stylesheet extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
 {
     const MT_CSS = 'myatu_bgm_css';
     
@@ -37,6 +37,18 @@ class Stylesheet extends PostMetabox
         
         parent::__construct($owner, $auto_register);
     }
+    
+    /**
+     * Info for dynamic loading
+     */
+    public static function info()
+    {
+        return array(
+            'name'   => '', // Not used
+            'desc'   => '', // Not used
+            'active' => true,
+        );
+    }    
     
     /**
      * Event called when ready to render the Metabox contents 
