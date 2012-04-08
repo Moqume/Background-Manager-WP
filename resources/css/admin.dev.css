@@ -15,7 +15,11 @@
 }
 
 .fixed .column-images {
-    width:10%;
+    width:7%;
+}
+
+.fixed .column-modified {
+    width: 12%;
 }
 
 .myatu_inline_block {

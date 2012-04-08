@@ -68,21 +68,27 @@ mainWin = window.dialogArguments || opener || parent || top;
          *
          * @param string ajaxFunc The Ajax function to perform
          * @param mixed ajaxData the data to send along with the function
+         * @param function callback A callback to trigger on an asynchronous call
          * @return mixed Returns the response from the Ajax function, or `false` if there was an error
          */
-        GetAjaxData: function(ajaxFunc, ajaxData) {
-            var resp = false;
+        GetAjaxData: function(ajaxFunc, ajaxData, callback) {
+            var has_callback = (callback !== undefined && typeof(callback) === 'function'), resp = false;
 
             $.ajax({
                 type     : 'POST',
                 dataType : 'json',
                 url      : background_manager_ajax.url,
                 timeout  : 5000,
-                async    : false,
+                async    : has_callback,
                 data     : { action: background_manager_ajax.action, func: ajaxFunc, data: ajaxData, _ajax_nonce: background_manager_ajax.nonce },
                 success  : function(ajaxResp) {
-                    if (ajaxResp.nonce == background_manager_ajax.nonceresponse && ajaxResp.stat == 'ok')
+                    if (ajaxResp.nonce == background_manager_ajax.nonceresponse && ajaxResp.stat == 'ok') {
                         resp = ajaxResp.data;
+
+                        if (has_callback) {
+                            callback(resp);
+                        }
+                    }
                 }
             });
 

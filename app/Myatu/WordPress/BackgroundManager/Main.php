@@ -1867,7 +1867,7 @@ class Main extends \Pf4wp\WordpressPlugin
         // Make the change frequency available to JavaScript
         $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
         if ($this->options->change_freq == static::CF_CUSTOM && $this->getGallery($gallery_id) != false) {
-            $change_freq = ($this->options->change_freq_custom) ? $this->options->change_freq_custom : 10;
+            $change_freq = ((int)$this->options->change_freq_custom >= 10) ? $this->options->change_freq_custom : 10;
         } else {
             $change_freq = 0; // Disabled
         }
