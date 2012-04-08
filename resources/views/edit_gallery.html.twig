@@ -16,62 +16,74 @@
     {{ nonce_meta_order | raw }}
     {{ nonce_meta_clsd | raw }}
 
-    <div id="poststuff" class="metabox-holder {{ has_right_sidebar }}">
-        <div id="side-info-column" class="inner-sidebar">
-            {{ meta_boxes_side | raw }}
-        </div>
-        <div id="post-body">
-            <div id="post-body-content">
-                <div id="titlediv">
-                    <div id="titlewrap">
-                        <label class="hide-if-no-js" style="visibility:hidden" id="title-prompt-text" for="title">{{ __('Enter title here') }}</label>
-                        <input id="title" type="text" autocomplete="off" value="{{ gallery.post_title }}" tabindex="1" size="30" name="post_title" />
+    <div id="poststuff">
+        <div id="post-body" class="metabox-holder {{ has_right_sidebar }}">
+            <div id="post-body">
+                <div id="post-body-content">
+                    <div id="titlediv">
+                        <div id="titlewrap">
+                            <label class="hide-if-no-js" style="visibility:hidden" id="title-prompt-text" for="title">{{ __('Enter title here') }}</label>
+                            <input id="title" type="text" autocomplete="off" value="{{ gallery.post_title }}" tabindex="1" size="30" name="post_title" />
+                        </div>
                     </div>
-                </div>
 
-                <div id="imagediv" class="postarea">
-                    <div id="editor-toolbar" class="hide-if-no-js">
-                        <div id="imagediv_nav" class="tablenav">
-                             <div class="tablenav-pages"></div>
-                        </div>
-                        <div id="media-buttons">
-                            {{ __('Upload/Insert') }}
-                            {% for button in media_buttons %}
-                            <a href="{{ button.url }}" id="add_{{ button.id }}" class="thickbox" title="{{ button.title }}"><img src="{{ button.icon }}" alt="{{ button.title }}" onclick="return false;" /></a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div id="image_editor_container" class="wp-editor-container">
-                        <div id="quicktags" class="quicktags-toolbar">
-                            <div id="ed_toolbar">
-                                <input id="ed_delete_selected" class="ed_button" type="button" value="{{ __('Delete Selected') }}" onclick="return false;" title="{{ __('Delete the selected images') }}" accesskey="l" />
-                                <input id="ed_clear_selected" class="ed_button" type="button" value="{{ __('Clear') }}" onclick="return false;" title="{{ __('Clear selected images') }}" accesskey="c" />
+                    <div id="imagediv" class="postarea">
+                        <div id="editor-toolbar" class="hide-if-no-js">
+                            <div id="imagediv_nav" class="tablenav">
+                                 <div class="tablenav-pages"></div>
+                            </div>
+                            <div id="media-buttons">
+                                {{ __('Upload/Insert') }}
+                                {% for button in media_buttons %}
+                                <a href="{{ button.url }}" id="add_{{ button.id }}" class="thickbox" title="{{ button.title }}"><img src="{{ button.icon }}" alt="{{ button.title }}" onclick="return false;" /></a>
+                                {% endfor %}
                             </div>
                         </div>
-                        <div id="editorcontainer">
-                            <div id="image_iframe_overlay">
-                                <div id="overlay"></div>
-                                <div id="loader">
-                                    <img src="{{ img_large_loader }}" alt="{{ __('Loading') }}..." />
+                        <div id="image_editor_container" class="wp-editor-container">
+                            <div id="quicktags" class="quicktags-toolbar">
+                                <div id="ed_toolbar">
+                                    <input id="ed_delete_selected" class="ed_button" type="button" value="{{ __('Delete Selected') }}" onclick="return false;" title="{{ __('Delete the selected images') }}" accesskey="l" />
+                                    <input id="ed_clear_selected" class="ed_button" type="button" value="{{ __('Clear') }}" onclick="return false;" title="{{ __('Clear selected images') }}" accesskey="c" />
                                 </div>
                             </div>
-                            <iframe id="images_iframe" src="{{ images_iframe_src }}" tabindex="2"></iframe>
+                            <div id="editorcontainer">
+                                <div id="image_iframe_overlay">
+                                    <div id="overlay"></div>
+                                    <div id="loader">
+                                        <img src="{{ img_large_loader }}" alt="{{ __('Loading') }}..." />
+                                    </div>
+                                </div>
+                                <iframe id="images_iframe" src="{{ images_iframe_src }}" tabindex="2"></iframe>
+                            </div>
                         </div>
+                        <table id="post-status-info">
+                            <tbody>
+                                <tr>
+                                    <td id="wp-word-count">
+                                        {{ __('Image count') }}: <span id="image-count">{{ images_count }}</span>
+                                        <span id="selected-count">(<span id="select-count">0</span> {{ __('selected') }})</span>
+                                    </td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <table id="post-status-info">
-                        <tbody>
-                            <tr>
-                                <td id="wp-word-count">
-                                    {{ __('Image count') }}: <span id="image-count">{{ images_count }}</span>
-                                    <span id="selected-count">(<span id="select-count">0</span> {{ __('selected') }})</span>
-                                </td>
-                                <td>&nbsp;</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                    {% if not is_wp34 %}
+                    {{ meta_boxes_main | raw }}
+                    {% endif %}
+                </div> {# /postbody-content #}
+
+                <div id="{% if is_wp34 %}postbox-container-1{% else %}side-info-column{% endif %}" class="{% if is_wp34 %}postbox-container{% else %}inner-sidebar{% endif %}">
+                    {{ meta_boxes_side | raw }}
                 </div>
 
-                {{ meta_boxes_main | raw }}
+                {% if is_wp34 %}
+                <div id="postbox-container-2" class="postbox-container">
+                    {{ meta_boxes_main | raw }}
+                </div>
+                {% endif %}
+
             </div>
         </div>
         <br class="clear" />

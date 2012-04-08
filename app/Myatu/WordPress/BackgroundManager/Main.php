@@ -1629,7 +1629,8 @@ class Main extends \Pf4wp\WordpressPlugin
         $image_edit_src    = add_query_arg(array('iframe' => 'edit_image', 'edit' => false, 'orderby' => false, 'order' => false, 'post_id' => $this->gallery->ID, 'filter' => Filter\MediaLibrary::FILTER));
         
         $vars = array(
-            'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar' : '',
+            'is_wp34'           => $this->checkWPVersion('3.4', '>='),
+            'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar columns-2' : '',
             'nonce'             => wp_nonce_field(self::NONCE_EDIT_GALLERY . $this->gallery->ID, '_nonce', true, false),
             'nonce_meta_order'  => wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false),
             'nonce_meta_clsd'   => wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false),
