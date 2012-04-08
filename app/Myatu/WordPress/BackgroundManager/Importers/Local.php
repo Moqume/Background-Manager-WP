@@ -30,6 +30,9 @@ class Local extends Importer
      */
     static public function isActive()
     {
+        if (!current_user_can('upload_files'))
+            return false;
+            
         return true;
     }    
     

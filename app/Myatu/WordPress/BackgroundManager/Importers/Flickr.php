@@ -26,7 +26,7 @@ use Myatu\WordPress\BackgroundManager\Images;
 class Flickr extends Importer
 {
     const DYN_NAME = 'Flickr Photo Sets';
-    const DYN_DESC = 'Imports photo sets at from Flickr. This product uses the Flickr API but is not endorsed or certified by Flickr.';
+    const DYN_DESC = 'Imports photo sets from Flickr. This product uses the Flickr API but is not endorsed or certified by Flickr.';
     
     /**
      * Check if the user has permission to add (upload) files

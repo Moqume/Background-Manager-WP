@@ -81,7 +81,7 @@ class Importer extends \Pf4wp\Dynamic\DynamicBase
         echo '0%';
 
         // Only perform this if actually active
-        if (static::active())
+        if (static::isActive())
             static::doImport($main);
         
         // Finalize progress
