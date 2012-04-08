@@ -101,7 +101,9 @@
         /** Switch the background */
         SwitchBackground: function() {
             var is_fullsize = (background_manager_vars.is_fullsize == 'true'),
-                prev_img = (is_fullsize) ? $('#myatu_bgm_top').attr('src') : $('body').css('background-image');
+                info_tab    = $('#myatu_bgm_info_tab'),
+                prev_img    = (is_fullsize) ? $('#myatu_bgm_top').attr('src') : $('body').css('background-image'),
+                prev_style  = '';
 
             // Async call
             myatu_bgm.GetAjaxData('random_image', { 'prev_img' : prev_img, 'active_gallery': background_manager_vars.active_gallery }, function(new_image) {
@@ -112,15 +114,24 @@
                 myatu_bgm.SetBackgroundLink(new_image.bg_link);
 
                 if (is_fullsize) {
-                    // Clone to a 'prev' full-size image
-                    $('#myatu_bgm_top').clone().attr('id', 'myatu_bgm_prev').appendTo('body');
+                    // Grab the current style (grabs the opacity)
+                    prev_style = $('#myatu_bgm_top').attr('style');
 
-                    // Hide and then set new top image (unbinding previous imgLoaded event)
-                    $('#myatu_bgm_top').hide().attr({
-                        'src'   : new_image.url,
+                    // Switch image ID ('top' becomes 'prev')
+                    $('#myatu_bgm_top').attr('id', 'myatu_bgm_prev');
+
+                    // Create new (hidden) image element as the 'top' image
+                    $('<img>').attr({
+                        'style' : prev_style,
+                        'class' : 'myatu_bgm_fs',
+                        'id'    : 'myatu_bgm_top',
                         'alt'   : new_image.alt
-                    }).imgLoaded(function() {
-                        var s = new_image.transition_speed, c = false;
+                    }).hide().appendTo('body');
+
+                    // Set image source and when done loading, perform animation magic
+                    $('#myatu_bgm_top').attr('src', new_image.url).imgLoaded(function() {
+                        var s = new_image.transition_speed, // Transition speed
+                            c = false;                      // Cover or slide?
 
                         $(this).unbind('load'); // Unbind load handler
 
@@ -146,9 +157,9 @@
                             // Crossfade is standard transition
                             default:
                                 // Fade-out the previous image at the same time the new image is being faded in.
-                                $('#myatu_bgm_prev').animate({opacity:0}, {'duration': new_image.transition_speed, 'queue': false});
+                                $('#myatu_bgm_prev').animate({opacity:0}, {'duration': s, 'queue': false});
 
-                                $(this).fadeIn(new_image.transition_speed, myatu_bgm.AnimationCompleted);
+                                $(this).fadeIn(s, myatu_bgm.AnimationCompleted);
                                 break;
                         }
                     });
@@ -159,10 +170,10 @@
                 }
 
                 // Info tab
-                if ($('#myatu_bgm_info_tab').length) {
+                if (info_tab.length) {
                     // Close the balloon tip, if it is showing.
-                    if ($.isFunction($('#myatu_bgm_info_tab').qtip))
-                        $('#myatu_bgm_info_tab').qtip('api').hide();
+                    if ($.isFunction(info_tab.qtip))
+                        info_tab.qtip('api').hide();
 
                     // Set info tab content and link
                     $('.myatu_bgm_info_tab a').attr('href', new_image.link);
@@ -186,16 +197,20 @@
     });
 
     $(document).ready(function($){
+        var bg_link = $('#myatu_bgm_bg_link'), info_tab = $('#myatu_bgm_info_tab');
+
         myatu_bgm.SetTimer();
 
-        // Pre-set background link
-        myatu_bgm.SetBackgroundLink($('#myatu_bgm_bg_link').attr('href'));
+        if (bg_link.length) {
+            // Pre-set background link
+            myatu_bgm.SetBackgroundLink(bg_link.attr('href'));
 
-        // Remove fall-back background link (prefer the Javascript method)
-        $('#myatu_bgm_bg_link').remove();
+            // Remove fall-back background link (prefer the Javascript method)
+            bg_link.remove();
+        }
 
-        if ($.isFunction($('#myatu_bgm_info_tab').qtip)) {
-            $('#myatu_bgm_info_tab').qtip({
+        if ($.isFunction(info_tab.qtip)) {
+            info_tab.qtip({
                 content: {
                     text: function(api) {
                         var text = $('.myatu_bgm_info_tab_content').clone();
