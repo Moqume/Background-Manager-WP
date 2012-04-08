@@ -119,6 +119,9 @@ class Main extends \Pf4wp\WordpressPlugin
     
     /** Instance of Galleries - @see onAdminInit() */
     public $galleries;
+    
+    /** Instance of Customizer - @see onRegisterActions() */
+    public $customizer;
 
     /** Non-persistent Cache */
     private $np_cache = array();
@@ -460,6 +463,9 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function getSettingGalleries($active_gallery)
     {
+        if (!isset($this->images))
+            $this->images = new Images($this);
+        
         if (isset($this->np_cache['setting_galleries'])) {
             $galleries = $this->np_cache['setting_galleries'];
             
@@ -675,6 +681,11 @@ class Main extends \Pf4wp\WordpressPlugin
         add_action('add_attachment', array($this, 'onAddAttachment'), 20);      // Adds 'Background Image' to Library
         add_action('edit_attachment', array($this, 'onAddAttachment'), 20);
         add_action('admin_bar_menu', array($this, 'onAdminBarMenu'), 90);
+        
+        // Since 1.0.30 - Customize Theme screen for WP 3.4
+        if ($this->checkWPVersion('3.4', '>=')) {
+            $this->customizer = new Customizer($this);
+        }
         
         // Register post types
         register_post_type(self::PT_GALLERY, array(
@@ -1775,7 +1786,7 @@ class Main extends \Pf4wp\WordpressPlugin
      * This will provide a basic background image and colors, along with 
      * tiling options.
      *
-     * @filter myatu_bgm_custom_styles, myatu_bgm_active_gallery
+     * @filter myatu_bgm_custom_styles, myatu_bgm_active_gallery, myatu_bgm_bg_color
      */
     public function onWpHead()
     {
@@ -1784,6 +1795,7 @@ class Main extends \Pf4wp\WordpressPlugin
         
         $style      = '';
         $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
+        $bg_color   = apply_filters('myatu_bgm_bg_color', get_background_color());
         
         // Only add a background image here if we have a valid gallery and we're not using a full-screen image
         if ($this->getGallery($gallery_id) != false && $this->options->background_size != static::BS_FULL) {
@@ -1815,8 +1827,8 @@ class Main extends \Pf4wp\WordpressPlugin
             $style .= sprintf('background-image: none !important;');
         }
             
-        if ($color = get_background_color())
-            $style .= sprintf('background-color: #%s;', $color);
+        if ($bg_color)
+            $style .= sprintf('background-color: #%s;', $bg_color);
             
         $custom_styles = apply_filters('myatu_bgm_custom_styles', $gallery_id, '');
         
