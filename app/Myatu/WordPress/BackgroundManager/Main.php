@@ -442,6 +442,23 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
+     * Returns if the image can be displayed
+     *
+     * @param string $path Path to the image
+     * @return bool
+     */
+    public function isDisplayableImage($path)
+    {
+        $info   = @getimagesize($path);
+        $result = false;
+        
+        if (!empty($info) && in_array($info[2], array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG)))
+            $result = true;
+        
+        return $result;
+    }
+    
+    /**
      * Returns the gallery (post) object
      *
      * @param int $gallery_id The gallery ID
@@ -540,7 +557,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $overlays = array();
         $iterator = new \RecursiveIteratorIterator(new \Pf4wp\Storage\IgnorantRecursiveDirectoryIterator($this->getPluginDir() . static::DIR_OVERLAYS, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($iterator as $fileinfo) {
-            if ($fileinfo->isFile() && file_is_displayable_image($fileinfo->getPathname())) {
+            if ($fileinfo->isFile() && $this->isDisplayableImage($fileinfo->getPathname())) {
                 $img_file  = $fileinfo->getPathname();
                 $desc      = basename($img_file);
                 $desc_file = dirname($img_file) . '/' . basename($img_file, '.' . pathinfo($img_file, PATHINFO_EXTENSION)) . '.txt';
@@ -684,7 +701,7 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // Since 1.0.30 - Customize Theme screen for WP 3.4
         if ($this->checkWPVersion('3.4', '>=')) {
-            $this->customizer = new Customizer($this);
+            $this->customizer = new \Myatu\WordPress\BackgroundManager\Customizer\Customizer($this);
         }
         
         // Register post types
@@ -1898,7 +1915,7 @@ class Main extends \Pf4wp\WordpressPlugin
     /**
      * Load public styles
      *
-     * @filter myatu_bgm_active_overlay
+     * @filter myatu_bgm_active_overlay, myatu_bgm_overlay_opacity
      */
     public function onPublicStyles()
     {
@@ -1919,11 +1936,13 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // The image for the overlay, as CSS embedded data
         if ($overlay && ($data = Helpers::embedDataUri($overlay, false, (defined('WP_DEBUG') && WP_DEBUG))) != false) {
-            $opacity = '';
-            if ($this->options->overlay_opacity < 100)
-                $opacity = sprintf('-moz-opacity:.%s; filter:alpha(opacity=%1$s); opacity:.%1$s', str_pad($this->options->overlay_opacity, 2, '0', STR_PAD_LEFT));
+            $opacity_style = '';
+            $opacity = apply_filters('myatu_bgm_overlay_opacity', $this->options->overlay_opacity);
             
-            $style .= sprintf('#myatu_bgm_overlay{background:url(\'%s\') repeat fixed top left transparent; %s}', $data, $opacity);
+            if ($opacity < 100)
+                $opacity_style = sprintf('-moz-opacity:.%s; filter:alpha(opacity=%1$s); opacity:.%1$s', str_pad($opacity, 2, '0', STR_PAD_LEFT));
+            
+            $style .= sprintf('#myatu_bgm_overlay{background:url(\'%s\') repeat fixed top left transparent; %s}', $data, $opacity_style);
         }
         
         // The info icon

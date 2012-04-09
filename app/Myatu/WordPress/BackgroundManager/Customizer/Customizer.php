@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
  
-namespace Myatu\WordPress\BackgroundManager;
+namespace Myatu\WordPress\BackgroundManager\Customizer;
 
 use Myatu\WordPress\BackgroundManager\Main;
 
@@ -16,13 +16,15 @@ use Myatu\WordPress\BackgroundManager\Main;
  *
  * @since 1.0.30
  * @author Mike Green <myatus@gmail.com>
- * @package BackgroundManager
+ * @package BackgroundManager\Customizer
  */
 class Customizer
 {
-    const PG_BGM    = 'myatu_bgm_background';
-    const P_GALLERY = 'myatu_bgm_active_gallery';
-    const P_COLOR   = 'myatu_bgm_active_color';
+    const PG_BGM      = 'myatu_bgm_background';
+    const P_GALLERY   = 'myatu_bgm_active_gallery';     // same as filter
+    const P_OVERLAY   = 'myatu_bgm_active_overlay';     // same as filter
+    const P_OVERLAY_O = 'myatu_bgm_overlay_opacity';
+    const P_COLOR     = 'myatu_bgm_bg_color';           // same as filter
     
     protected $owner;
     protected $preview_values = array();
@@ -40,12 +42,16 @@ class Customizer
         add_action('customize_preview_init', array($this, 'onPreviewInit'), 20);    // Called when a preview is requested
         
         // Actions to obtain preview values
-        add_action('customize_preview_' . static::P_GALLERY, array($this, 'onActiveGalleryPreview'), 20);
-        add_action('customize_preview_' . static::P_COLOR,   array($this, 'onBgColorPreview'), 20);
+        add_action('customize_preview_' . static::P_GALLERY,   array($this, 'onActiveGalleryPreview'), 20);
+        add_action('customize_preview_' . static::P_OVERLAY,   array($this, 'onActiveOverlayPreview'), 20);
+        add_action('customize_preview_' . static::P_OVERLAY_O, array($this, 'onOverlayOpacityPreview'), 20);
+        add_action('customize_preview_' . static::P_COLOR,     array($this, 'onBgColorPreview'), 20);
         
         // Actions to save the values
-        add_action('customize_save_' . static::P_GALLERY, array($this, 'onActiveGallerySave'), 20);
-        add_action('customize_save_' . static::P_COLOR,   array($this, 'onBgColorSave'), 20);
+        add_action('customize_save_' . static::P_GALLERY,   array($this, 'onActiveGallerySave'), 20);
+        add_action('customize_save_' . static::P_OVERLAY,   array($this, 'onActiveOverlaySave'), 20);
+        add_action('customize_save_' . static::P_OVERLAY_O, array($this, 'onOverlayOpacitySave'), 20);
+        add_action('customize_save_' . static::P_COLOR,     array($this, 'onBgColorSave'), 20);
     }
     
     /* ----------- Helpers ----------- */
@@ -122,29 +128,60 @@ class Customizer
 		));
         
         /* Background Image Set */
-        $galleries = array(0 => __('-- None (deactivated) --', $this->owner->getName()));
+        $choices = array(0 => __('-- None (deactivated) --', $this->owner->getName()));
         
         foreach($this->owner->getSettingGalleries($this->owner->options->active_gallery) as $gallery) {
-            $galleries[$gallery['id']] = $gallery['name'];
+            $choices[$gallery['id']] = $gallery['name'];
         }
         
         $customize->add_setting(static::P_GALLERY, array(
             'default'   => $this->owner->options->active_gallery,
-            'type'      => 'custom',
+            'type'      => 'myatu_bgm',
         ));
         
         $customize->add_control(static::P_GALLERY, array(
-            'label'     => __('Backgrond Image Set', $this->owner->getName()),
+            'label'     => __('Image Set', $this->owner->getName()),
             'section'   => static::PG_BGM,
             'type'      => 'select',
-            'choices'   => $galleries,
+            'choices'   => $choices,
         ));
+        
+        /* Overlay */
+        $choices = array('' => __('-- None (deactivated) --', $this->owner->getName()));
+        
+        foreach($this->owner->getSettingOverlays($this->owner->options->active_overlay) as $overlay) {
+            $choices[$overlay['value']] = $overlay['desc'];
+        }
+        
+        $customize->add_setting(static::P_OVERLAY, array(
+            'default'   => $this->owner->options->active_overlay,
+            'type'      => 'myatu_bgm',
+        ));
+        
+        $customize->add_control(static::P_OVERLAY, array(
+            'label'     => __('Overlay', $this->owner->getName()),
+            'section'   => static::PG_BGM,
+            'type'      => 'select',
+            'choices'   => $choices,
+        ));
+        
+        /* Overlay Opacity */
+        $customize->add_setting(static::P_OVERLAY_O, array(
+            'default'   => $this->owner->options->overlay_opacity,
+            'type'      => 'myatu_bgm',
+        ));
+        
+        $customize->add_control(new SlideControl($customize, static::P_OVERLAY_O, array(
+            'label'     => __('Overlay Opacity', $this->owner->getName()),
+            'section'   => static::PG_BGM,
+            'owner'     => $this->owner,
+        )));
         
         /* Background Color */
 		$customize->add_setting(static::P_COLOR, array(
 			'default'           => get_background_color(),
 			'sanitize_callback' => 'sanitize_hexcolor',
-            'type'              => 'custom',
+            'type'              => 'myatu_bgm',
 		));
         
         $customize->add_control(static::P_COLOR, array(
@@ -159,18 +196,36 @@ class Customizer
      */
     public function onPreviewInit()
     {
-        // Add a filters (late!)
-        add_filter('myatu_bgm_active_gallery', array($this, 'onActiveGalleryFilter'), 90);
-        add_filter('myatu_bgm_bg_color',       array($this, 'onBgColorFilter'), 90);
+        // Add a filters (late binding - note the ID's are the same as the filter names)
+        add_filter(static::P_GALLERY,   array($this, 'onActiveGalleryFilter'), 90);
+        add_filter(static::P_OVERLAY,   array($this, 'onActiveOverlayFilter'), 90);
+        add_filter(static::P_OVERLAY_O, array($this, 'onOverlayOpacityFilter'), 90);
+        add_filter(static::P_COLOR,     array($this, 'onBgColorFilter'), 90);
     }
     
     
-    /* ----------- Updaters ----------- */
+    /* ----------- Save Events ----------- */
     
     public function onActiveGallerySave()
     {
         if ($this->getSaveValue(static::P_GALLERY, $value))
             $this->owner->options->active_gallery = $value;
+    }
+    
+    public function onActiveOverlaySave()
+    {
+        if ($this->getSaveValue(static::P_OVERLAY, $value))
+            $this->owner->options->active_overlay = $value;
+    }
+    
+    public function onOverlayOpacitySave()
+    {
+        if (!$this->getSaveValue(static::P_OVERLAY_O, $value))
+            return;
+        
+        // If valid percentage
+        if ((int)$value < 100 && (int)$value > 0)
+            $this->owner->options->overlay_opacity = (int)$value;
     }
     
     public function onBgColorSave()
@@ -180,6 +235,7 @@ class Customizer
         
         $background_color = ltrim($value, '#');
         
+        // If empty, remove the theme_mod, else check validity and save
         if (empty($background_color)) {
             remove_theme_mod('background_color');
         } else if (preg_match('/^([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?$/', $background_color)) {
@@ -194,6 +250,16 @@ class Customizer
         $this->setPreviewValue(static::P_GALLERY);
     }
     
+    public function onActiveOverlayPreview()
+    {
+        $this->setPreviewValue(static::P_OVERLAY);
+    }
+    
+    public function onOverlayOpacityPreview()
+    {
+        $this->setPreviewValue(static::P_OVERLAY_O);
+    }    
+    
     public function onBgcolorPreview()
     {
         $this->setPreviewValue(static::P_COLOR);
@@ -206,6 +272,16 @@ class Customizer
     {
         return $this->getPreviewValue(static::P_GALLERY, $orig);
     }
+    
+    public function onActiveOverlayFilter($orig)
+    {
+        return $this->getPreviewValue(static::P_OVERLAY, $orig);
+    }
+    
+    public function onOverlayOpacityFilter($orig)
+    {
+        return $this->getPreviewValue(static::P_OVERLAY_O, $orig);
+    }       
     
     public function onBgColorFilter($orig)
     {
