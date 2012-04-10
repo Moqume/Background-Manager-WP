@@ -8,7 +8,7 @@
 {% spaceless %}
 <label>
 	<span class="customize-control-title">{{ label }}</span>
-    <div id="slider_{{ id }}" style="float:left; clear:right; line-height:28px;">
+    <div id="slider_{{ id }}" style="{% if is_rtl %}float:right; clear: left;{% else %}float:left; clear:right;{% endif %} line-height:28px;">
         <input type="text" value="{{ value }}" {{ link | raw }} style="display: none;" />
 
         <span>{{ left_label }}</span>
@@ -23,7 +23,7 @@
 
 <script type="text/javascript">
 /*<![CDATA[*/
-{# UNCOMPRESSED 
+{# UNCOMPRESSED
 (function($){
     var slider_{{ id }}_timer;
 
@@ -37,15 +37,15 @@
                 var v = {% if reverse %}({{ max }} + {{ min }}) - {% endif %} ui.value;
                 {% if show_value %} $("#slider_{{ id }}_val").text(v + '{{ right_label }}'); {% endif %}
 			    $("#slider_{{ id }} input").val(v);
-
-                if (slider_{{ id }}_timer !== undefined) { clearTimeout(slider_{{ id }}_timer); }
-                slider_{{ id }}_timer = setTimeout(function(){ $("#slider_{{ id }} input").change(); }, 1000);
-		    }
+		    },
+            stop: function(event, ui) {
+                $("#slider_{{ id }} input").change();
+            }
 	    });
     });
 })(jQuery);
 #}
-(function($){var slider_{{ id }}_timer;$(document).ready(function($){$('#slider_{{ id }}_control').slider({value:{% if reverse %}({{ max }}+{{ min }})-{% endif %}$("#slider_{{ id }} input").val(),range:'min',min:{{ min }},max:{{ max }},slide:function(event, ui){var v={% if reverse %}({{ max }}+{{ min }})-{% endif %}ui.value;{% if show_value %}$("#slider_{{ id }}_val").text(v+'{{ right_label }}');{% endif %}$("#slider_{{ id }} input").val(v);if (slider_{{ id }}_timer !== undefined){clearTimeout(slider_{{ id }}_timer);}slider_{{ id }}_timer=setTimeout(function(){$("#slider_{{ id }} input").change();}, 1000);}});});})(jQuery);
+(function($){var slider_{{ id }}_timer;$(document).ready(function($){$('#slider_{{ id }}_control').slider({value:{% if reverse %}({{ max }}+{{ min }})-{% endif %}$("#slider_{{ id }} input").val(),range:'min',min:{{ min }},max:{{ max }},slide:function(event,ui){var v={% if reverse %}({{ max }}+{{ min }})-{% endif %}ui.value;{% if show_value %}$("#slider_{{ id }}_val").text(v+'{{ right_label }}');{% endif %}$("#slider_{{ id }} input").val(v);},stop:function(event,ui){$("#slider_{{ id }} input").change();}});});})(jQuery);
 /*]]>*/
 </script>
 

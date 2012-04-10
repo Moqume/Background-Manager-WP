@@ -23,7 +23,7 @@ class Customizer
     const PG_BGM      = 'myatu_bgm_background';
     const P_GALLERY   = 'myatu_bgm_active_gallery';     // same as filter
     const P_OVERLAY   = 'myatu_bgm_active_overlay';     // same as filter
-    const P_OVERLAY_O = 'myatu_bgm_overlay_opacity';
+    const P_OVERLAY_O = 'myatu_bgm_overlay_opacity';    // same as filter
     const P_COLOR     = 'myatu_bgm_bg_color';           // same as filter
     
     protected $owner;
@@ -120,8 +120,6 @@ class Customizer
         if (!is_a($customize, '\WP_Customize'))
             return;
         
-        /* Section -> Setting -> Control */
-        
         $customize->add_section(static::PG_BGM, array(
             'title'     => __('Background', $this->owner->getName()),
             'priority'  => 30,
@@ -145,6 +143,19 @@ class Customizer
             'type'      => 'select',
             'choices'   => $choices,
         ));
+        
+        /* Background Color */
+		$customize->add_setting(static::P_COLOR, array(
+			'default'           => get_background_color(),
+			'sanitize_callback' => 'sanitize_hexcolor',
+            'type'              => 'myatu_bgm',
+		));
+        
+        $customize->add_control(static::P_COLOR, array(
+			'label'     => __('Background Color', $this->owner->getName()),
+			'section'   => static::PG_BGM,
+			'type'      => 'color',
+		));        
         
         /* Overlay */
         $choices = array('' => __('-- None (deactivated) --', $this->owner->getName()));
@@ -176,19 +187,6 @@ class Customizer
             'section'   => static::PG_BGM,
             'owner'     => $this->owner,
         )));
-        
-        /* Background Color */
-		$customize->add_setting(static::P_COLOR, array(
-			'default'           => get_background_color(),
-			'sanitize_callback' => 'sanitize_hexcolor',
-            'type'              => 'myatu_bgm',
-		));
-        
-        $customize->add_control(static::P_COLOR, array(
-			'label'     => __('Background Color', $this->owner->getName()),
-			'section'   => static::PG_BGM,
-			'type'      => 'color',
-		));       
     }
     
     /**

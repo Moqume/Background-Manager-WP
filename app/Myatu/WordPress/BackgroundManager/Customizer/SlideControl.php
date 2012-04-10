@@ -56,6 +56,7 @@ class SlideControl extends \WP_Customize_Control
             'label'         => $this->label,
             'value'         => $this->value(),
             'link'          => $this->get_link(),
+            'is_rtl'        => is_rtl(),
             'min'           => $this->min,
             'max'           => $this->max,
             'reverse'       => $this->reverse,
