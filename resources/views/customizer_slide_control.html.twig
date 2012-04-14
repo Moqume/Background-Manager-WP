@@ -45,7 +45,7 @@
     });
 })(jQuery);
 #}
-(function($){var slider_{{ id }}_timer;$(document).ready(function($){$('#slider_{{ id }}_control').slider({value:{% if reverse %}({{ max }}+{{ min }})-{% endif %}$("#slider_{{ id }} input").val(),range:'min',min:{{ min }},max:{{ max }},slide:function(event,ui){var v={% if reverse %}({{ max }}+{{ min }})-{% endif %}ui.value;{% if show_value %}$("#slider_{{ id }}_val").text(v+'{{ right_label }}');{% endif %}$("#slider_{{ id }} input").val(v);},stop:function(event,ui){$("#slider_{{ id }} input").change();}});});})(jQuery);
+(function($){var slider_{{ id }}_timer;$(document).ready(function($){$('#slider_{{ id }}_control').slider({value:{% if reverse %}({{ max }}+{{ min }})-{% endif %}$("#slider_{{ id }} input").val(),range:'min',min:{{ min }},max:{{ max }},slide:function(e,u){var v={% if reverse %}({{ max }}+{{ min }})-{% endif %}u.value;{% if show_value %}$("#slider_{{ id }}_val").text(v+'{{ right_label }}');{% endif %}$("#slider_{{ id }} input").val(v);},stop:function(e,u){$("#slider_{{ id }} input").change();}});});})(jQuery);
 /*]]>*/
 </script>
 

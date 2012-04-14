@@ -203,7 +203,7 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function inEdit()
     {
-        global $wpdb;
+        global $wpdb, $post;
         
         if (!current_user_can('edit_theme_options'))
             return false;
@@ -238,6 +238,9 @@ class Main extends \Pf4wp\WordpressPlugin
                 
                 if ($is_new)
                     $this->gallery->post_title = '';
+                
+                // Set the 'post' global
+                $post = $this->gallery;
             }
         } // else empty, return default (false)
         
@@ -991,7 +994,7 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * This replaces the `Background` menu on the public Admin Bar with our own, if it is shown
+     * This modifies the Admin Bar
      *
      * @param mixed $wp_admin_bar Admin bar object
      * @internal
@@ -1009,6 +1012,10 @@ class Main extends \Pf4wp\WordpressPlugin
                     'href'   => $home_url
                 ));
             }
+            
+            // Remove the 'View Post' from the admin bar
+            if (is_admin())
+                $wp_admin_bar->remove_node('view');
         } catch (\Exception $e) { /* Silent, to prevent public side from becoming inaccessible on error */ }
     }
     
@@ -1093,7 +1100,7 @@ class Main extends \Pf4wp\WordpressPlugin
             );
         }
         
-        // Display is usually called automatically, but we use it to grab the parent menu URL and set it in the user option (varies by translation!)
+        // Display is usually called automatically, but we use it to grab the parent menu URL and set it in the user option
         $mymenu->display();
         
         if (($user = wp_get_current_user()) instanceof \WP_User)
@@ -1292,7 +1299,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $mem_peak  = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() / 1048576 : 0;
         $mem_usage = (function_exists('memory_get_usage')) ? memory_get_usage() / 1048576 : 0;
         $mem_max   = (int) @ini_get('memory_limit');
-        $current_theme = $this->checkWPVersion('3.4', '<') ? get_current_theme() : wp_get_theme();
+        $current_theme = (function_exists('wp_get_theme')) ? wp_get_theme() : get_current_theme(); // WP 3.4
         
         foreach (\Pf4wp\Info\PluginInfo::getInfo(true) as $plugin)
             $active_plugins[] = sprintf("'%s' by %s", $plugin['Name'], $plugin['Author']);
@@ -1616,7 +1623,7 @@ class Main extends \Pf4wp\WordpressPlugin
      * @see onGalleriesMenu()
      */
     public function editGallery($per_page)
-    {
+    {        
         // Get the main meta box output (for Twig)
         ob_start();
         do_meta_boxes(self::PT_GALLERY, 'normal', $this->gallery);

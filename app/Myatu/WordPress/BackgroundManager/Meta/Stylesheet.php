@@ -58,7 +58,9 @@ class Stylesheet extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
      */
     public function onRender($id, $gallery)
     {
-        $vars = array('custom_css' => get_post_meta($id, self::MT_CSS, true), 'theme_name' => get_current_theme());
+        $current_theme = (function_exists('wp_get_theme')) ? wp_get_theme() : get_current_theme(); // WP 3.4
+        
+        $vars = array('custom_css' => get_post_meta($id, self::MT_CSS, true), 'theme_name' => $current_theme);
         
         $this->owner->template->display('meta_gallery_css.html.twig', $vars);    
     }
