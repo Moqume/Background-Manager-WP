@@ -16,19 +16,34 @@ use Myatu\WordPress\BackgroundManager\Main;
  *
  * @since 1.0.30
  * @author Mike Green <myatus@gmail.com>
- * @package BackgroundManager\Customizer
+ * @package BackgroundManager\Customize
  */
 class Customizer
 {
     const PG_BGM      = 'myatu_bgm_background';
-    const P_GALLERY   = 'myatu_bgm_active_gallery';     // same as filter
-    const P_OVERLAY   = 'myatu_bgm_active_overlay';     // same as filter
-    const P_OVERLAY_O = 'myatu_bgm_overlay_opacity';    // same as filter
-    const P_COLOR     = 'myatu_bgm_bg_color';           // same as filter
+    
+    /** Preview Options (same names as filters) */
+    const P_GALLERY   = 'myatu_bgm_active_gallery';
+    const P_OPACITY   = 'myatu_bgm_opacity';
+    const P_OVERLAY   = 'myatu_bgm_active_overlay';
+    const P_OVERLAY_O = 'myatu_bgm_overlay_opacity';
+    const P_COLOR     = 'myatu_bgm_bg_color';
+    const P_BG_SIZE   = 'myatu_bgm_bg_size';
+    const P_BG_POS    = 'myatu_bgm_bg_pos';
+    const P_BG_TILE   = 'myatu_bgm_bg_repeat';
+    const P_BG_SCROLL = 'myatu_bgm_bg_scroll';
+    const P_BG_ST_VER = 'myatu_bgm_bg_stretch_ver';
+    const P_BG_ST_HOR = 'myatu_bgm_bg_stretch_hor';
+    
+    /** Magics */
+    const M_PREVIEW = 'OnPreview_';
+    const M_SAVE    = 'OnSave_';
+    const M_FILTER  = 'OnFilter_';
     
     protected $owner;
     protected $preview_values = array();
-        
+    protected $active_customizations = array();
+    
     /** 
      * Constructor
      *
@@ -37,21 +52,76 @@ class Customizer
     public function __construct(Main $owner)
     {
         $this->owner = $owner;
+        $this->active_customizations = array(
+            // ID => array('option' => under what name to save the option, 'label' => Display label, 'priority' => Display order priority (optional), 'sanitize' => Sanitize callback name (optional)
+            static::P_GALLERY       => array('option' => 'active_gallery',              'label' => __('Image Set', $this->owner->getName()),            'priority' => 10),
+            static::P_COLOR         => array('option' => array($this, 'onSaveColor'),   'label' => __('Background Color', $this->owner->getName()),     'priority' => 11, 'sanitize' => 'onSanitizeColor'),
+            static::P_BG_SIZE       => array('option' => 'background_size',             'label' => __('Size', $this->owner->getName()),                 'priority' => 20), 
+            static::P_BG_POS        => array('option' => 'background_position',         'label' => __('Position', $this->owner->getName()),             'priority' => 21),
+            static::P_BG_TILE       => array('option' => 'background_repeat',           'label' => __('Tiling', $this->owner->getName()),               'priority' => 21),
+            static::P_BG_SCROLL     => array('option' => 'background_scroll',           'label' => __('Scrolling', $this->owner->getName()),            'priority' => 21),
+            static::P_BG_ST_VER     => array('option' => 'background_stretch_vertical', 'label' => __('Stretch Vertical', $this->owner->getName()),     'priority' => 21, 'sanitize' => 'onSanitizeCheckbox'),
+            static::P_BG_ST_HOR     => array('option' => 'background_stretch_horizontal', 'label' => __('Stretch Horizontal', $this->owner->getName()), 'priority' => 21, 'sanitize' => 'onSanitizeCheckbox'),
+            static::P_OPACITY       => array('option' => 'background_opacity',          'label' => __('Opacity', $this->owner->getName()),              'priority' => 21, 'sanitize' => 'onSanitizeOpacity'),
+            static::P_OVERLAY       => array('option' => 'active_overlay',              'label' => __('Overlay', $this->owner->getName()),              'priority' => 30), 
+            static::P_OVERLAY_O     => array('option' => 'overlay_opacity',             'label' => __('Overlay Opacity', $this->owner->getName()),      'priority' => 31, 'sanitize' => 'onSanitizeOpacity'),
+        );        
         
-        add_action('customize_register', array($this, 'onCustomizeRegister'), 20);  // Controls on Theme Customizer
-        add_action('customize_preview_init', array($this, 'onPreviewInit'), 20);    // Called when a preview is requested
+        // Set actions
+        add_action('customize_register', array($this, 'onCustomizeRegister'));          // Controls on Theme Customizer
+        add_action('customize_preview_init', array($this, 'onPreviewInit'));            // Called when a preview is requested
+        add_action('customize_controls_enqueue_scripts', array($this, 'onEnqueue'));    // Called when ready to queue control scripts
         
-        // Actions to obtain preview values
-        add_action('customize_preview_' . static::P_GALLERY,   array($this, 'onActiveGalleryPreview'), 20);
-        add_action('customize_preview_' . static::P_OVERLAY,   array($this, 'onActiveOverlayPreview'), 20);
-        add_action('customize_preview_' . static::P_OVERLAY_O, array($this, 'onOverlayOpacityPreview'), 20);
-        add_action('customize_preview_' . static::P_COLOR,     array($this, 'onBgColorPreview'), 20);
+        // "Magic" actions (@see __call)
+        foreach (array_keys($this->active_customizations) as $customization) {
+            add_action('customize_preview_' . $customization, array($this, static::M_PREVIEW . $customization));
+            add_action('customize_save_' . $customization, array($this, static::M_SAVE . $customization));
+        }
+    }
+    
+    /**
+     * Magic handler
+     *
+     * @param string $name Full function name
+     * @param array $arguments Arguments passed to the function
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        list($func, $id) = explode('_', $name, 2);
         
-        // Actions to save the values
-        add_action('customize_save_' . static::P_GALLERY,   array($this, 'onActiveGallerySave'), 20);
-        add_action('customize_save_' . static::P_OVERLAY,   array($this, 'onActiveOverlaySave'), 20);
-        add_action('customize_save_' . static::P_OVERLAY_O, array($this, 'onOverlayOpacitySave'), 20);
-        add_action('customize_save_' . static::P_COLOR,     array($this, 'onBgColorSave'), 20);
+        // Re-add trailing delimiter
+        $func .= '_';
+        
+        switch ($func) {
+            case static::M_PREVIEW :
+                $this->setPreviewValue($id);
+                break;
+                
+            case static::M_FILTER :
+                return $this->getPreviewValue($id, $arguments[0]);
+                break;
+                
+            case static::M_SAVE :
+                if ($this->getSaveValue($id, $value)) {
+                    $save_details = $this->active_customizations[$id];
+                    
+                    if (isset($save_details['option'])) {
+                        if (is_string($save_details['option'])) {
+                            // Simple save
+                            $this->owner->options->$save_details['option'] = $value;
+                        } else {
+                            // Complex save
+                            call_user_func($save_details['option'], $value);
+                        }                    
+                    }
+                }
+                break;
+                
+            default :
+                throw new \BadFunctionCallException('Function ' . $name . ' does not exist');
+                break;
+        }
     }
     
     /* ----------- Helpers ----------- */
@@ -65,7 +135,7 @@ class Customizer
      */
     protected function getPreviewValue($id, $original = null)
     {
-       if (isset($this->preview_values[$id]) && !is_null($this->preview_values[$id]))
+        if (isset($this->preview_values[$id]) && !is_null($this->preview_values[$id]))
             return $this->preview_values[$id];
             
         return $original;
@@ -85,10 +155,14 @@ class Customizer
         
         $setting = $customize->get_setting($id);
         
-        if (!is_a($setting, '\WP_Customize_Setting'))
-            return;
+        if (is_a($setting, '\WP_Customize_Setting')) {
+            $value = $setting->post_value();
             
-        $this->preview_values[$id] = $setting->post_value();
+            if (!is_null($value) && array_key_exists('sanitize', $this->active_customizations[$id]))
+                $value = call_user_func(array($this, $this->active_customizations[$id]['sanitize']), $value);
+                
+            $this->preview_values[$id] = $value;
+        }
     }
     
     /**
@@ -105,8 +179,90 @@ class Customizer
         return !is_null($value);
     }
     
+    /**
+     * Adds a setting and control in one go
+     *
+     * @param string $id ID of control item
+     * @param array $details Array containing extra details about the item
+     * @param string $type A string specifying the control type
+     * @param array $choices Array containing key=>value pairs of possible choices (valid for 'radio', 'select')
+     */
+    protected function addSettingControl($id, $details, $type = 'text', $choices = array())
+    {
+        global $customize;
+        
+        if (!is_a($customize, '\WP_Customize'))
+            return;
+            
+        $priority = isset($details['priority']) ? $details['priority'] : 10;
+            
+        $customize->add_setting($id, array(
+            'default'   => $this->owner->options->$details['option'],
+            'type'      => 'myatu_bgm',
+        ));
+        
+        if (is_string($type)) {
+            $customize->add_control($id, array(
+                'label'     => $details['label'],
+                'priority'  => $priority,
+                'section'   => static::PG_BGM,
+                'type'      => $type,
+                'choices'   => $choices,
+            ));
+        }
+    }
+    
+    /**
+     * Adds a divider control
+     *
+     * @param int $priority Display priority
+     * @param string $label Optional label to display
+     */
+    protected function addDividerControl($priority, $label = '')
+    {
+        global $customize;
+        
+        if (!is_a($customize, '\WP_Customize'))
+            return;
+            
+        $id = 'divider_' . rand();
+            
+        $customize->add_setting($id, array('type' => 'none'));
+        $customize->add_control(new DividerControl($customize, $id, array(
+            'priority'  => $priority,
+            'section'   => static::PG_BGM,
+            'owner'     => $this->owner,
+            'label'     => $label,
+        )));
+    }
     
     /* ----------- Events ----------- */
+    
+    /**
+     * Enqueue Scripts
+     */
+    public function onEnqueue()
+    {
+        // Enqueue JS
+        list($js_url, $version, $debug) = $this->owner->getResourceUrl();
+        wp_enqueue_script($this->owner->getName() . '-customize', $js_url . 'customize' . $debug . '.js', array('jquery'), $version);
+    }
+    
+    
+    /**
+     * Event called when a preview is requested
+     *
+     * Registers the filters for retrieving the preview values
+     */
+    public function onPreviewInit()
+    { 
+        global $customize;
+        
+        // Initialize the filters
+        foreach (array_keys($this->active_customizations) as $customization) {
+            add_filter($customization, array($this, static::M_FILTER . $customization), 90);
+        }
+    }
     
     /**
      * Register controls for Customize Theme settings
@@ -125,165 +281,158 @@ class Customizer
             'priority'  => 30,
 		));
         
-        /* Background Image Set */
-        $choices = array(0 => __('-- None (deactivated) --', $this->owner->getName()));
-        
-        foreach($this->owner->getSettingGalleries($this->owner->options->active_gallery) as $gallery) {
-            $choices[$gallery['id']] = $gallery['name'];
-        }
-        
-        $customize->add_setting(static::P_GALLERY, array(
-            'default'   => $this->owner->options->active_gallery,
-            'type'      => 'myatu_bgm',
-        ));
-        
-        $customize->add_control(static::P_GALLERY, array(
-            'label'     => __('Image Set', $this->owner->getName()),
-            'section'   => static::PG_BGM,
-            'type'      => 'select',
-            'choices'   => $choices,
-        ));
-        
-        /* Background Color */
-		$customize->add_setting(static::P_COLOR, array(
-			'default'           => get_background_color(),
-			'sanitize_callback' => 'sanitize_hexcolor',
-            'type'              => 'myatu_bgm',
-		));
-        
-        $customize->add_control(static::P_COLOR, array(
-			'label'     => __('Background Color', $this->owner->getName()),
-			'section'   => static::PG_BGM,
-			'type'      => 'color',
-		));        
-        
-        /* Overlay */
-        $choices = array('' => __('-- None (deactivated) --', $this->owner->getName()));
-        
-        foreach($this->owner->getSettingOverlays($this->owner->options->active_overlay) as $overlay) {
-            $choices[$overlay['value']] = $overlay['desc'];
-        }
-        
-        $customize->add_setting(static::P_OVERLAY, array(
-            'default'   => $this->owner->options->active_overlay,
-            'type'      => 'myatu_bgm',
-        ));
-        
-        $customize->add_control(static::P_OVERLAY, array(
-            'label'     => __('Overlay', $this->owner->getName()),
-            'section'   => static::PG_BGM,
-            'type'      => 'select',
-            'choices'   => $choices,
-        ));
-        
-        /* Overlay Opacity */
-        $customize->add_setting(static::P_OVERLAY_O, array(
-            'default'   => $this->owner->options->overlay_opacity,
-            'type'      => 'myatu_bgm',
-        ));
-        
-        $customize->add_control(new SlideControl($customize, static::P_OVERLAY_O, array(
-            'label'     => __('Overlay Opacity', $this->owner->getName()),
-            'section'   => static::PG_BGM,
-            'owner'     => $this->owner,
-        )));
+        // Iterate active customizations and create controls for them
+        foreach ($this->active_customizations as $id=>$details) {
+            if (!isset($details['option']))
+                continue;
+            
+            // Determine display priority for controls
+            $priority = isset($details['priority']) ? $details['priority'] : 10;
+            
+            switch($id) {
+                case static::P_GALLERY :
+                    // Background Image Set
+                    $choices = array(0 => __('-- None (deactivated) --', $this->owner->getName()));
+                    
+                    foreach($this->owner->getSettingGalleries($this->owner->options->active_gallery) as $gallery) {
+                        $choices[$gallery['id']] = $gallery['name'];
+                    }
+                    
+                    $this->addSettingControl($id, $details, 'select', $choices);
+                    break;
+                
+                case static::P_COLOR :
+                    // Background Color
+                    $customize->add_setting($id, array(
+                        'default'           => get_background_color(),
+                        'type'              => 'myatu_bgm',
+                    ));
+                    
+                    $customize->add_control($id, array(
+                        'label'     => __('Background Color', $this->owner->getName()),
+                        'priority'  => $priority,
+                        'section'   => static::PG_BGM,
+                        'type'      => 'color',
+                    ));
+                    break;
+                
+                case static::P_BG_SIZE :
+                    // Background Layout (Size) 
+                    $choices = array(
+                        'as-is' => __('Normal', $this->owner->getName()),
+                        'full'  => __('Full Screen', $this->owner->getName()),
+                    );
+                    
+                    $this->addSettingControl($id, $details, 'radio', $choices);
+                    $this->addDividerControl($priority-1, __('Background Layout', $this->owner->getName()));
+                    break;
+                
+                case static::P_BG_POS :
+                    // Background Layout (Position)
+                    $this->addSettingControl($id, $details, 'radio', $this->owner->getBgOptions('position', true));
+                    break;
+                
+                case static::P_BG_TILE :
+                    // Background Layout (Tiling/Repeat)
+                    $this->addSettingControl($id, $details, 'radio', $this->owner->getBgOptions('repeat', true));
+                    break;
+                
+                case static::P_OVERLAY :
+                    // Overlay
+                    $choices = array('' => __('-- None (deactivated) --', $this->owner->getName()));
+                    
+                    foreach($this->owner->getSettingOverlays($this->owner->options->active_overlay) as $overlay) {
+                        $choices[$overlay['value']] = $overlay['desc'];
+                    }
+                    
+                    $this->addSettingControl($id, $details, 'select', $choices);
+                    $this->addDividerControl($priority-1, __('Background Overlay', $this->owner->getName()));
+                    break;
+                
+                case static::P_OPACITY :
+                case static::P_OVERLAY_O :
+                    // Overlay Opacity
+                    $customize->add_setting($id, array(
+                        'default'   => $this->owner->options->$details['option'],
+                        'type'      => 'myatu_bgm',
+                    ));
+                    
+                    $customize->add_control(new SlideControl($customize, $id, array(
+                        'label'     => $details['label'],
+                        'priority'  => $priority,
+                        'section'   => static::PG_BGM,
+                        'owner'     => $this->owner,
+                    )));
+                    break;                    
+                    
+                case static::P_BG_SCROLL :
+                    $choices = array(
+                        'scroll' => __('Scroll with the screen'),
+                        'fixed'  => __('Fixed'),
+                    );
+                    
+                    $this->addSettingControl($id, $details, 'radio', $choices);
+                    break;
+                    
+                case static::P_BG_ST_VER :
+                case static::P_BG_ST_HOR :
+                    $this->addSettingControl($id, $details, 'checkbox');
+                    break;
+                
+            } // switch
+        } // foreach
     }
     
     /**
-     * Event called when a preview is requested
+     * Sanitize the color
+     *
+     * @param mixed $value The value obtained from the customizer
      */
-    public function onPreviewInit()
+    public function onSanitizeColor($value)
     {
-        // Add a filters (late binding - note the ID's are the same as the filter names)
-        add_filter(static::P_GALLERY,   array($this, 'onActiveGalleryFilter'), 90);
-        add_filter(static::P_OVERLAY,   array($this, 'onActiveOverlayFilter'), 90);
-        add_filter(static::P_OVERLAY_O, array($this, 'onOverlayOpacityFilter'), 90);
-        add_filter(static::P_COLOR,     array($this, 'onBgColorFilter'), 90);
-    }
-    
-    
-    /* ----------- Save Events ----------- */
-    
-    public function onActiveGallerySave()
-    {
-        if ($this->getSaveValue(static::P_GALLERY, $value))
-            $this->owner->options->active_gallery = $value;
-    }
-    
-    public function onActiveOverlaySave()
-    {
-        if ($this->getSaveValue(static::P_OVERLAY, $value))
-            $this->owner->options->active_overlay = $value;
-    }
-    
-    public function onOverlayOpacitySave()
-    {
-        if (!$this->getSaveValue(static::P_OVERLAY_O, $value))
-            return;
+        $value = ltrim($value, '#');
         
-        // If valid percentage
-        if ((int)$value < 100 && (int)$value > 0)
-            $this->owner->options->overlay_opacity = (int)$value;
+        if (!empty($value) && !preg_match('/^([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?$/', $value))
+            return null;
+            
+        return $value;
     }
     
-    public function onBgColorSave()
+    /**
+     * Saves the color
+     *
+     * The color is saved in the 'background_color' theme modification instead of an option
+     *
+     * @param string $value The color value to save
+     */
+    public function onSaveColor($value)
     {
-        if (!$this->getSaveValue(static::P_COLOR, $value))
-            return;
-        
-        $background_color = ltrim($value, '#');
-        
-        // If empty, remove the theme_mod, else check validity and save
-        if (empty($background_color)) {
-            remove_theme_mod('background_color');
-        } else if (preg_match('/^([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?$/', $background_color)) {
-            set_theme_mod('background_color', $background_color);
-        }
-    }
-    
-    /* ----------- Preview Value Setters ----------- */
-    
-    public function onActiveGalleryPreview()
-    {
-        $this->setPreviewValue(static::P_GALLERY);
-    }
-    
-    public function onActiveOverlayPreview()
-    {
-        $this->setPreviewValue(static::P_OVERLAY);
-    }
-    
-    public function onOverlayOpacityPreview()
-    {
-        $this->setPreviewValue(static::P_OVERLAY_O);
-    }    
-    
-    public function onBgcolorPreview()
-    {
-        $this->setPreviewValue(static::P_COLOR);
-    }
-    
-    
-    /* ----------- Filters (Preview values passed back to BGM) ----------- */
-    
-    public function onActiveGalleryFilter($orig)
-    {
-        return $this->getPreviewValue(static::P_GALLERY, $orig);
-    }
-    
-    public function onActiveOverlayFilter($orig)
-    {
-        return $this->getPreviewValue(static::P_OVERLAY, $orig);
-    }
-    
-    public function onOverlayOpacityFilter($orig)
-    {
-        return $this->getPreviewValue(static::P_OVERLAY_O, $orig);
-    }       
-    
-    public function onBgColorFilter($orig)
-    {
-        return $this->getPreviewValue(static::P_COLOR, $orig);
+        (empty($value)) ? remove_theme_mod('background_color') : set_theme_mod('background_color', $value);
     }
 
+    /**
+     * Sanitize the opacity
+     *
+     * @param mixed $value The value obtained from the customizer
+     */
+    public function onSanitizeOpacity($value)
+    {
+        $value = (int)$value;
+        
+        if ($value > 100 || $value < 1)
+            return null;
+            
+        return $value;
+    }
+    
+    /**
+     * Sanitize the checkbox return value
+     */
+    public function onSanitizeCheckbox($value)
+    {
+        if ($value == 'true')
+            return true;
+            
+        return false;
+    }
 }

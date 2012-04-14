@@ -85,23 +85,6 @@ class Main extends \Pf4wp\WordpressPlugin
     const DIR_IMPORTERS = 'app/Myatu/WordPress/BackgroundManager/Importers/';
     const DIR_META      = 'app/Myatu/WordPress/BackgroundManager/Meta/';
     
-    /* Possible background positions */
-    private $bg_positions = array('top-left', 'top-center', 'top-right', 'center-left', 'center-center', 'center-right', 'bottom-left', 'bottom-center', 'bottom-right');
-    
-    /* Possible background tiling options */
-    private $bg_repeats = array('repeat', 'repeat-x', 'repeat-y', 'no-repeat');
-    
-    /* Possible corner locations */
-    private $corner_locations = array('top-left', 'top-right', 'bottom-left', 'bottom-right');
-    
-    /* Possible transition options */
-    private $bg_transitions = array(
-        'none', 'random',
-        'slidedown', 'slideup', 'slideleft', 'slideright',
-        'coverdown', 'coverup', 'coverleft', 'coverright',
-        'crossfade',
-    );
-    
     /** Instance containing current gallery being edited (if any) */
     private $gallery = null;
     
@@ -155,6 +138,74 @@ class Main extends \Pf4wp\WordpressPlugin
   
     
     /* ----------- Helpers ----------- */
+    
+    /**
+     * Helper to return possible background positions, repeats, corners and transitions options
+     *
+     * @param string $opt The option to return
+     * @param bool $withLabel Whether to include a label
+     */
+    public function getBgOptions($opt, $withLabel = false)
+    {
+        // Possible background positions
+        $bg_positions = array(
+            'top-left'      => __('Top Left', $this->getName()), 
+            'top-center'    => __('Top Center', $this->getName()),
+            'top-right'     => __('Top Right', $this->getName()),
+            'center-left'   => __('Center Left', $this->getName()),
+            'center-center' => __('Center', $this->getName()),
+            'center-right'  => __('Center Right', $this->getName()),
+            'bottom-left'   => __('Bottom Left', $this->getName()),
+            'bottom-center' => __('Bottom Center', $this->getName()),
+            'bottom-right'  => __('Bottom Right', $this->getName()),
+        );
+        
+        // Possible background tiling options
+        $bg_repeats = array(
+            'repeat'    => __('Tile horizontal and vertical', $this->getName()), 
+            'repeat-x'  => __('Tile horizontal', $this->getName()),
+            'repeat-y'  => __('Tile vertical', $this->getName()),
+            'no-repeat' => __('No Tiling', $this->getName()),
+        );
+        
+        // Possible corner locations
+        $corner_locations = array(
+            'top-left'      => __('Top Left', $this->getName()),
+            'top-right'     => __('Top Right', $this->getName()),
+            'bottom-left'   => __('Bottom Left', $this->getName()),
+            'bottom-right'  => __('Bottom Right', $this->getName()),
+        );
+        
+        // Possible transition options        
+        $bg_transitions = array(
+            'none'       => __('-- None (deactivated) --', $this->getName()),
+            'random'     => __('Random', $this->getName()),
+            'slidedown'  => __('Slide Downward', $this->getName()),
+            'slideup'    => __('Slide Updward', $this->getName()),
+            'slideleft'  => __('Slide to Left', $this->getName()),
+            'slideright' => __('Slide to Right', $this->getName()),
+            'coverdown'  => __('Cover Downward', $this->getName()),
+            'coverup'    => __('Cover Upward', $this->getName()),
+            'coverleft'  => __('Cover to Left', $this->getName()),
+            'coverright' => __('Cover to Right', $this->getName()),
+            'crossfade'  => __('Crossfade', $this->getName()),
+        );
+        
+        $result = array();
+        
+        switch ($opt) {
+            case 'position'   : $result = $bg_positions;     break;
+            case 'repeat'     : $result = $bg_repeats;       break;
+            case 'corner'     : $result = $corner_locations; break;
+            case 'transition' : $result = $bg_transitions;   break;
+        }
+        
+        // Return the keys as values if we don't need the labels
+        if (!$withLabel)
+            $result = array_keys($result);
+        
+        return $result;
+    }
     
     /**
      * Helper function to get the CSS location for an element placed in a corner
@@ -940,7 +991,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 // Add transition type
                 if ($this->options->background_transition == 'random') {
                     // Filter and select random transition
-                    $transitions = array_diff_key($this->bg_transitions, array('none', 'random'));
+                    $transitions = array_diff_key($this->getBgOptions('transition'), array('none', 'random'));
                     $rand_sel    = array_rand($transitions);
 
                     $random_image['transition'] = $transitions[$rand_sel];
@@ -1176,9 +1227,9 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->change_freq_custom            = (int)$_POST['change_freq_custom'];
             $this->options->background_size               = (in_array($_POST['background_size'], array(static::BS_FULL, static::BS_ASIS))) ? $_POST['background_size'] : null;
             $this->options->background_scroll             = (in_array($_POST['background_scroll'], array(static::BST_FIXED, static::BST_SCROLL))) ? $_POST['background_scroll'] : null;
-            $this->options->background_position           = (in_array($_POST['background_position'], $this->bg_positions)) ? $_POST['background_position'] : null;
-            $this->options->background_repeat             = (in_array($_POST['background_repeat'], $this->bg_repeats)) ? $_POST['background_repeat'] : null;
-            $this->options->background_transition         = (in_array($_POST['background_transition'], $this->bg_transitions)) ? $_POST['background_transition'] : null;
+            $this->options->background_position           = (in_array($_POST['background_position'], $this->getBgOptions('position'))) ? $_POST['background_position'] : null;
+            $this->options->background_repeat             = (in_array($_POST['background_repeat'], $this->getBgOptions('repeat'))) ? $_POST['background_repeat'] : null;
+            $this->options->background_transition         = (in_array($_POST['background_transition'], $this->getBgOptions('transition'))) ? $_POST['background_transition'] : null;
             $this->options->transition_speed              = (int)$_POST['transition_speed'];
             $this->options->background_stretch_vertical   = (!empty($_POST['background_stretch_vertical']));
             $this->options->background_stretch_horizontal = (!empty($_POST['background_stretch_horizontal']));
@@ -1190,12 +1241,12 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->display_on_search             = (!empty($_POST['display_on_search']));
             $this->options->display_on_error              = (!empty($_POST['display_on_error']));
             $this->options->info_tab                      = (!empty($_POST['info_tab']));
-            $this->options->info_tab_location             = (in_array($_POST['info_tab_location'], $this->corner_locations)) ? $_POST['info_tab_location'] : null;
+            $this->options->info_tab_location             = (in_array($_POST['info_tab_location'], $this->getBgOptions('corner'))) ? $_POST['info_tab_location'] : null;
             $this->options->info_tab_thumb                = (!empty($_POST['info_tab_thumb']));
             $this->options->info_tab_link                 = (!empty($_POST['info_tab_link']));
             $this->options->info_tab_desc                 = (!empty($_POST['info_tab_desc']));
             $this->options->pin_it_btn                    = (!empty($_POST['pin_it_btn']));
-            $this->options->pin_it_btn_location           = (in_array($_POST['pin_it_btn_location'], $this->corner_locations)) ? $_POST['pin_it_btn_location'] : null;
+            $this->options->pin_it_btn_location           = (in_array($_POST['pin_it_btn_location'], $this->getBgOptions('corner'))) ? $_POST['pin_it_btn_location'] : null;
             
             // Opacity (1-100)
             if (($opacity = (int)$_POST['background_opacity']) <= 100 && $opacity > 0)
@@ -1252,34 +1303,6 @@ class Main extends \Pf4wp\WordpressPlugin
                 'selected' => ($this->options->active_overlay == false),
             ),
         ), $this->getSettingOverlays($this->options->active_overlay));
-        
-        
-        // Give the background positions a human readable titles
-        $bg_position_titles = array(
-            __('Top Left', $this->getName()), __('Top Center', $this->getName()), __('Top Right', $this->getName()), 
-            __('Center Left', $this->getName()), __('Center', $this->getName()), __('Center Right', $this->getName()), 
-            __('Bottom Left', $this->getName()), __('Bottom Center', $this->getName()), __('Bottom Right', $this->getName())
-        );
-        
-        // Give the background tiling options human readable titles
-        $bg_repeat_titles = array(
-            __('Tile horizontal and vertical', $this->getName()), __('Tile horizontal', $this->getName()), 
-            __('Tile vertical', $this->getName()), __('No Tiling', $this->getName()),
-        );
-        
-        // Give the corner locations titles
-        $corner_location_titles = array(
-            __('Top Left', $this->getName()), __('Top Right', $this->getName()), 
-            __('Bottom Left', $this->getName()), __('Bottom Right', $this->getName())
-        );
-        
-        // Give the transitions titles
-        $bg_transition_titles = array(
-            __('-- None (deactivated) --', $this->getName()), __('Random', $this->getName()),
-            __('Slide Downward', $this->getName()), __('Slide Upward', $this->getName()), __('Slide to Left', $this->getName()), __('Slide to Right', $this->getName()),
-            __('Cover Downward', $this->getName()), __('Cover Upward', $this->getName()), __('Cover to Left', $this->getName()), __('Cover to Right', $this->getName()),
-            __('Crossfade', $this->getName()),
-        );        
         
         // Grab Custom Post Types
         $custom_post_types         = array();
@@ -1353,10 +1376,10 @@ class Main extends \Pf4wp\WordpressPlugin
             'info_tab_thumb'                => $this->options->info_tab_thumb,
             'info_tab_link'                 => $this->options->info_tab_link,
             'info_tab_desc'                 => $this->options->info_tab_desc,
-            'bg_positions'                  => array_combine($this->bg_positions, $bg_position_titles),
-            'bg_repeats'                    => array_combine($this->bg_repeats, $bg_repeat_titles),
-            'bg_transitions'                => array_combine($this->bg_transitions, $bg_transition_titles),
-            'corner_locations'              => array_combine($this->corner_locations, $corner_location_titles),
+            'bg_positions'                  => $this->getBgOptions('position', true),
+            'bg_repeats'                    => $this->getBgOptions('repeat', true),
+            'bg_transitions'                => $this->getBgOptions('transition', true),
+            'corner_locations'              => $this->getBgOptions('corner', true),
             'plugin_base_url'               => $this->getPluginUrl(),
             'debug_info'                    => $debug_info,
             'plugin_name'                   => $this->getDisplayName(),
@@ -1810,7 +1833,9 @@ class Main extends \Pf4wp\WordpressPlugin
      * This will provide a basic background image and colors, along with 
      * tiling options.
      *
-     * @filter myatu_bgm_custom_styles, myatu_bgm_active_gallery, myatu_bgm_bg_color
+     * @filter myatu_bgm_custom_styles, myatu_bgm_active_gallery, myatu_bgm_bg_color, 
+     *      myatu_bgm_bg_size, myatu_bgm_bg_pos, myatu_bgm_bg_repeat, myatu_bgm_bg_scroll,
+     *      myatu_bgm_bg_stretch_ver, myatu_bgm_bg_stretch_hor, myatu_bgm_custom_styles
      */
     public function onWpHead()
     {
@@ -1818,33 +1843,44 @@ class Main extends \Pf4wp\WordpressPlugin
             return;
         
         $style      = '';
-        $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
-        $bg_color   = apply_filters('myatu_bgm_bg_color', get_background_color());
+        
+        // Get option values after applying filters
+        $gallery_id    = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
+        $bg_color      = apply_filters('myatu_bgm_bg_color', get_background_color());
+        $bg_size       = apply_filters('myatu_bgm_bg_size', $this->options->background_size);
+        $bg_pos        = apply_filters('myatu_bgm_bg_pos', $this->options->background_position);
+        $bg_repeat     = apply_filters('myatu_bgm_bg_repeat', $this->options->background_repeat);
+        $bg_scroll     = apply_filters('myatu_bgm_bg_scroll', $this->options->background_scroll);
+        $bg_st_ver     = apply_filters('myatu_bgm_bg_stretch_ver', $this->options->background_stretch_vertical);
+        $bg_st_hor     = apply_filters('myatu_bgm_bg_stretch_hor', $this->options->background_stretch_horizontal);
+        $custom_styles = apply_filters('myatu_bgm_custom_styles', $gallery_id, '');
         
         // Only add a background image here if we have a valid gallery and we're not using a full-screen image
-        if ($this->getGallery($gallery_id) != false && $this->options->background_size != static::BS_FULL) {
+        if ($this->getGallery($gallery_id) != false && $bg_size != static::BS_FULL) {
             $random_image = $this->getRandomImage();
             
             if ($random_image['url'])
                 $style .= sprintf('background-image: url(\'%s\');', $random_image['url']);
             
             // Set the background position
-            $bg_position = ($this->options->background_position) ? $this->options->background_position : $this->bg_positions[0];
-            $bg_position = explode('-', $bg_position);
+            $bg_positions = $this->getBgOptions('position');
+            $bg_position  = ($bg_pos) ? $bg_pos : $bg_positions[0];
+            $bg_position  = explode('-', $bg_position);
             
             $style .= sprintf('background-position: %s %s;', $bg_position[0], $bg_position[1]);
             
-            // Set the background tiling          
-            $style .= sprintf('background-repeat: %s;', ($this->options->background_repeat) ? $this->options->background_repeat : $this->bg_repeats[0]);
+            // Set the background tiling
+            $bg_repeats = $this->getBgOptions('repeat');
+            $style .= sprintf('background-repeat: %s;', ($bg_repeat) ? $bg_repeat : $bg_repeats[0]);
             
             // Set background scrolling
-            $style .= sprintf('background-attachment: %s;', ($this->options->background_scroll) ? $this->options->background_scroll : static::BST_SCROLL);
+            $style .= sprintf('background-attachment: %s;', ($bg_scroll) ? $bg_scroll : static::BST_SCROLL);
             
             // Set background sizing (stretching)
-            if ($this->options->background_stretch_vertical || $this->options->background_stretch_horizontal) {
+            if ($bg_st_ver || $bg_st_hor) {
                 $style .= sprintf('background-size: %s %s;',
-                    ($this->options->background_stretch_horizontal) ? '100%' : 'auto',
-                    ($this->options->background_stretch_vertical) ? '100%' : 'auto'
+                    ($bg_st_hor) ? '100%' : 'auto',
+                    ($bg_st_ver) ? '100%' : 'auto'
                 );
             }
         } else {
@@ -1853,8 +1889,6 @@ class Main extends \Pf4wp\WordpressPlugin
             
         if ($bg_color)
             $style .= sprintf('background-color: #%s;', $bg_color);
-            
-        $custom_styles = apply_filters('myatu_bgm_custom_styles', $gallery_id, '');
         
         if ($style || $custom_styles )
             printf('<style type="text/css" media="screen">body { %s } %s</style>'.PHP_EOL, $style, $custom_styles);
@@ -1863,12 +1897,16 @@ class Main extends \Pf4wp\WordpressPlugin
     /**
      * Load public scripts
      *
-     * @filter myatu_bgm_active_gallery
+     * @filter myatu_bgm_active_gallery, myatu_bgm_bg_size
      */
     public function onPublicScripts()
     {
         if (!$this->canDisplayBackground())
             return;
+        
+        // Filter options
+        $bg_size       = apply_filters('myatu_bgm_bg_size', $this->options->background_size);
+        $gallery_id    = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
         
         // If image is selected per browser session, set a cookie now (before headers are sent)
         if ($this->options->change_freq == static::CF_SESSION)
@@ -1880,7 +1918,7 @@ class Main extends \Pf4wp\WordpressPlugin
          * - or, there's an info tab with a short description
          */
         if ($this->options->change_freq != static::CF_CUSTOM && 
-            $this->options->background_size != static::BS_FULL && 
+            $bg_size != static::BS_FULL && 
             !($this->options->info_tab && $this->options->info_tab_desc))
             return;
         
@@ -1902,7 +1940,6 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_script($this->getName() . '-pub', $js_url . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
         
         // Make the change frequency available to JavaScript
-        $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
         if ($this->options->change_freq == static::CF_CUSTOM && $this->getGallery($gallery_id) != false) {
             $change_freq = ((int)$this->options->change_freq_custom >= 10) ? $this->options->change_freq_custom : 10;
         } else {
@@ -1914,7 +1951,7 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->getName() . '-pub', 'background_manager_vars', array(
                 'change_freq'    => $change_freq,
                 'active_gallery' => $gallery_id,
-                'is_fullsize'    => ($this->options->background_size == static::BS_FULL) ? 'true' : 'false',
+                'is_fullsize'    => ($bg_size == static::BS_FULL) ? 'true' : 'false',
             ) 
         );
     }    
@@ -1939,15 +1976,17 @@ class Main extends \Pf4wp\WordpressPlugin
             wp_enqueue_style('jquery.qtip', $css_url . 'vendor/jquery.qtip.min.css', false, $version);
         
         $style   = '';
-        $overlay = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
+        
+        // Apply filters over options
+        $overlay         = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
+        $overlay_opacity = apply_filters('myatu_bgm_overlay_opacity', $this->options->overlay_opacity);
         
         // The image for the overlay, as CSS embedded data
         if ($overlay && ($data = Helpers::embedDataUri($overlay, false, (defined('WP_DEBUG') && WP_DEBUG))) != false) {
             $opacity_style = '';
-            $opacity = apply_filters('myatu_bgm_overlay_opacity', $this->options->overlay_opacity);
             
-            if ($opacity < 100)
-                $opacity_style = sprintf('-moz-opacity:.%s; filter:alpha(opacity=%1$s); opacity:.%1$s', str_pad($opacity, 2, '0', STR_PAD_LEFT));
+            if ($overlay_opacity < 100)
+                $opacity_style = sprintf('-moz-opacity:.%s; filter:alpha(opacity=%1$s); opacity:.%1$s', str_pad($overlay_opacity, 2, '0', STR_PAD_LEFT));
             
             $style .= sprintf('#myatu_bgm_overlay{background:url(\'%s\') repeat fixed top left transparent; %s}', $data, $opacity_style);
         }
@@ -1975,7 +2014,7 @@ class Main extends \Pf4wp\WordpressPlugin
      * screen rendering of a random image and an overlay, provided either of
      * these options have been enabled by the user
      *
-     * @filter myatu_bgm_active_overlay
+     * @filter myatu_bgm_active_overlay, myatu_bgm_active_gallery, myatu_bgm_bg_size, myatu_bgm_bg_size, myatu_bgm_opacity
      */
     public function onPublicFooter()
     {
@@ -1984,6 +2023,8 @@ class Main extends \Pf4wp\WordpressPlugin
             
         $overlay    = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
         $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
+        $bg_size    = apply_filters('myatu_bgm_bg_size', $this->options->background_size);
+        $opacity    = apply_filters('myatu_bgm_opacity', $this->options->background_opacity);
         
         $vars = array(
             'has_info_tab'   => $this->options->info_tab && ($this->getGallery($gallery_id) != false), // Only display if we have a valid gallery
@@ -1992,8 +2033,8 @@ class Main extends \Pf4wp\WordpressPlugin
             'info_tab_desc'  => $this->options->info_tab_desc,
             'has_pin_it_btn' => $this->options->pin_it_btn  && ($this->getGallery($gallery_id) != false),
             'has_overlay'    => ($overlay != false),
-            'opacity'        => str_pad($this->options->background_opacity, 2, '0', STR_PAD_LEFT), // Only available to full size background
-            'is_fullsize'    => $this->options->background_size == static::BS_FULL,
+            'opacity'        => str_pad($opacity, 2, '0', STR_PAD_LEFT), // Only available to full size background
+            'is_fullsize'    => $bg_size == static::BS_FULL,
             'random_image'   => $this->getRandomImage(),
             'permalink'      => get_site_url() . $_SERVER['REQUEST_URI'],
         );
