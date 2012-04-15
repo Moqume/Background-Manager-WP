@@ -23,17 +23,19 @@ class Customizer
     const PG_BGM      = 'myatu_bgm_background';
     
     /** Preview Options (same names as filters) */
-    const P_GALLERY   = 'myatu_bgm_active_gallery';
-    const P_OPACITY   = 'myatu_bgm_opacity';
-    const P_OVERLAY   = 'myatu_bgm_active_overlay';
-    const P_OVERLAY_O = 'myatu_bgm_overlay_opacity';
-    const P_COLOR     = 'myatu_bgm_bg_color';
-    const P_BG_SIZE   = 'myatu_bgm_bg_size';
-    const P_BG_POS    = 'myatu_bgm_bg_pos';
-    const P_BG_TILE   = 'myatu_bgm_bg_repeat';
-    const P_BG_SCROLL = 'myatu_bgm_bg_scroll';
-    const P_BG_ST_VER = 'myatu_bgm_bg_stretch_ver';
-    const P_BG_ST_HOR = 'myatu_bgm_bg_stretch_hor';
+    const P_GALLERY     = 'myatu_bgm_active_gallery';
+    const P_OPACITY     = 'myatu_bgm_opacity';
+    const P_OVERLAY     = 'myatu_bgm_active_overlay';
+    const P_OVERLAY_O   = 'myatu_bgm_overlay_opacity';
+    const P_COLOR       = 'myatu_bgm_bg_color';
+    const P_BG_SIZE     = 'myatu_bgm_bg_size';
+    const P_BG_POS      = 'myatu_bgm_bg_pos';
+    const P_BG_TILE     = 'myatu_bgm_bg_repeat';
+    const P_BG_SCROLL   = 'myatu_bgm_bg_scroll';
+    const P_BG_ST_VER   = 'myatu_bgm_bg_stretch_ver';
+    const P_BG_ST_HOR   = 'myatu_bgm_bg_stretch_hor';
+    const P_TRANSITION  = 'myatu_bgm_active_transition';
+    const P_TRANS_SPD   = 'myatu_bgm_transition_speed';
     
     /** Magics */
     const M_PREVIEW = 'OnPreview_';
@@ -63,8 +65,10 @@ class Customizer
             static::P_BG_ST_VER     => array('option' => 'background_stretch_vertical', 'label' => __('Stretch Vertical', $this->owner->getName()),     'priority' => 21, 'sanitize' => 'onSanitizeCheckbox'),
             static::P_BG_ST_HOR     => array('option' => 'background_stretch_horizontal', 'label' => __('Stretch Horizontal', $this->owner->getName()), 'priority' => 21, 'sanitize' => 'onSanitizeCheckbox'),
             static::P_OPACITY       => array('option' => 'background_opacity',          'label' => __('Opacity', $this->owner->getName()),              'priority' => 21, 'sanitize' => 'onSanitizeOpacity'),
-            static::P_OVERLAY       => array('option' => 'active_overlay',              'label' => __('Overlay', $this->owner->getName()),              'priority' => 30), 
-            static::P_OVERLAY_O     => array('option' => 'overlay_opacity',             'label' => __('Overlay Opacity', $this->owner->getName()),      'priority' => 31, 'sanitize' => 'onSanitizeOpacity'),
+            static::P_OVERLAY       => array('option' => 'active_overlay',              'label' => __('Overlay', $this->owner->getName()),              'priority' => 40), 
+            static::P_OVERLAY_O     => array('option' => 'overlay_opacity',             'label' => __('Overlay Opacity', $this->owner->getName()),      'priority' => 41, 'sanitize' => 'onSanitizeOpacity'),
+            static::P_TRANSITION    => array('option' => 'background_transition',       'label' => __('Transition Effect', $this->owner->getName()),    'priority' => 30),
+            static::P_TRANS_SPD     => array('option' => 'transition_speed',            'label' => __('Transition Speed', $this->owner->getName()),     'priority' => 31, 'sanitize' => 'onSanitizeTransitionSpeed'),
         );        
         
         // Set actions
@@ -225,7 +229,7 @@ class Customizer
         if (!is_a($customize, '\WP_Customize'))
             return;
             
-        $id = 'divider_' . rand();
+        $id = 'divider_' . strtr(strtolower($label), ' -', '__');
             
         $customize->add_setting($id, array('type' => 'none'));
         $customize->add_control(new DividerControl($customize, $id, array(
@@ -246,9 +250,12 @@ class Customizer
         // Enqueue JS
         list($js_url, $version, $debug) = $this->owner->getResourceUrl();
         wp_enqueue_script($this->owner->getName() . '-customize', $js_url . 'customize' . $debug . '.js', array('jquery'), $version);
+        
+        // Enueue CSS
+        list($css_url, $version, $debug) = $this->owner->getResourceUrl('css');
+        wp_enqueue_style($this->owner->getName() . '-customize', $css_url . 'customize' . $debug . '.css', false, $version);
     }
-    
-    
+        
     /**
      * Event called when a preview is requested
      *
@@ -378,7 +385,35 @@ class Customizer
                 case static::P_BG_ST_HOR :
                     $this->addSettingControl($id, $details, 'checkbox');
                     break;
+                    
+                case static::P_TRANSITION :
+                    $this->addSettingControl($id, $details, 'select', $this->owner->getBgOptions('transition', true));
+                    $this->addDividerControl($priority-1, __('Background Transitioning Effect', $this->owner->getName()));
+                    break;
+                    
+                case static::P_TRANS_SPD :
+                    // Overlay Opacity
+                    $customize->add_setting($id, array(
+                        'default'   => $this->owner->options->$details['option'],
+                        'type'      => 'myatu_bgm',
+                    ));
+                    
+                    $customize->add_control(new SlideControl($customize, $id, array(
+                        'label'       => $details['label'],
+                        'priority'    => $priority,
+                        'section'     => static::PG_BGM,
+                        'owner'       => $this->owner,
+                        'show_value'  => false,
+                        'left_label'  => '-',
+                        'right_label' => '+',
+                        'reverse'     => true,
+                        'min'         => 100,
+                        'max'         => 15000,
+                        'step'        => 100,
+                        'range'       => false,
+                    )));
                 
+                    break;
             } // switch
         } // foreach
     }
@@ -427,6 +462,8 @@ class Customizer
     
     /**
      * Sanitize the checkbox return value
+     *
+     * @param mixed $value The value obtained from the customizer
      */
     public function onSanitizeCheckbox($value)
     {
@@ -434,5 +471,20 @@ class Customizer
             return true;
             
         return false;
+    }
+    
+    /**
+     * Sanitize the transition speed
+     *
+     * @param mixed $value The value obtained from the customizer
+     */
+    public function onSanitizeTransitionSpeed($value)
+    {
+        $value = (int)$value;
+        
+        if ($value > 15000 || $value < 100)
+            return null;
+            
+        return $value;
     }
 }

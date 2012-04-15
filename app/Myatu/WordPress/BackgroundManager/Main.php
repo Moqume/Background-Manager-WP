@@ -1897,16 +1897,32 @@ class Main extends \Pf4wp\WordpressPlugin
     /**
      * Load public scripts
      *
-     * @filter myatu_bgm_active_gallery, myatu_bgm_bg_size
+     * @filter myatu_bgm_active_gallery, myatu_bgm_bg_size, myatu_bgm_active_transition, myatu_bgm_transition_speed
      */
     public function onPublicScripts()
     {
         if (!$this->canDisplayBackground())
             return;
         
+        $is_preview = false; // If we're in the 3.4 Customize Theme Preview, this will be set to true.
+        
         // Filter options
         $bg_size       = apply_filters('myatu_bgm_bg_size', $this->options->background_size);
         $gallery_id    = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
+        
+        // 3.4+ filters
+        if ($this->checkWPVersion('3.4', '>=')) {
+            global $customize;
+            
+            if (is_a($customize, '\WP_Customize')) {
+                $is_preview = $customize->is_preview();
+            }
+            
+            if ($is_preview) {
+                $active_transition = apply_filters('myatu_bgm_active_transition', $this->options->background_transition);
+                $transition_speed  = (int)apply_filters('myatu_bgm_transition_speed', $this->options->transition_speed);
+            }
+        }
         
         // If image is selected per browser session, set a cookie now (before headers are sent)
         if ($this->options->change_freq == static::CF_SESSION)
@@ -1947,13 +1963,22 @@ class Main extends \Pf4wp\WordpressPlugin
         }
         
         // Spit out variables for JavaScript to use
-        wp_localize_script(
-            $this->getName() . '-pub', 'background_manager_vars', array(
-                'change_freq'    => $change_freq,
-                'active_gallery' => $gallery_id,
-                'is_fullsize'    => ($bg_size == static::BS_FULL) ? 'true' : 'false',
-            ) 
+        $script_vars = array(
+            'change_freq'    => $change_freq,
+            'active_gallery' => $gallery_id,
+            'is_fullsize'    => ($bg_size == static::BS_FULL) ? 'true' : 'false',
+            'is_preview'     => ($is_preview) ? 'true' : 'false',
         );
+        
+        if ($is_preview) {
+            $script_vars = array_merge($script_vars, array(
+                'active_transition' => $active_transition,
+                'transition_speed'  => $transition_speed,
+                'transitions'       => array_values(array_diff_key($this->getBgOptions('transition'), array('none', 'random'))),
+            ));
+        }
+        
+        wp_localize_script($this->getName() . '-pub', 'background_manager_vars', $script_vars);
     }    
     
     /**
@@ -1975,7 +2000,7 @@ class Main extends \Pf4wp\WordpressPlugin
         if ($this->options->info_tab && $this->options->info_tab_desc)
             wp_enqueue_style('jquery.qtip', $css_url . 'vendor/jquery.qtip.min.css', false, $version);
         
-        $style   = '';
+        $style = '';
         
         // Apply filters over options
         $overlay         = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);

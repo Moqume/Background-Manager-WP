@@ -30,12 +30,18 @@ if (myatu_bgm === undefined)
         showHideBgSize: function() {
             var base = '#customize-control-myatu_bgm', show = $(base + '_bg_size input:checked').val() != 'full';
 
+            // Show on !full:
             myatu_bgm.showHide($(base + '_bg_pos'), show);
             myatu_bgm.showHide($(base + '_bg_repeat'), show);
             myatu_bgm.showHide($(base + '_bg_scroll'), show);
             myatu_bgm.showHide($(base + '_bg_stretch_hor'), show);
             myatu_bgm.showHide($(base + '_bg_stretch_ver'), show);
+
+            // Show on full:
             myatu_bgm.showHide($(base + '_opacity'), !(show));
+            myatu_bgm.showHide($('#customize-control-divider_background_transitioning_effect'), !(show));
+            myatu_bgm.showHide($(base + '_active_transition'), !(show));
+            myatu_bgm.showHide($(base + '_transition_speed'), !(show));
         },
     });
 

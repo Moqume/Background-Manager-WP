@@ -8,11 +8,11 @@
 {% spaceless %}
 <label>
 	<span class="customize-control-title">{{ label }}</span>
-    <div id="slider_{{ id }}" style="{% if is_rtl %}float:right; clear: left;{% else %}float:left; clear:right;{% endif %} line-height:28px;">
+    <div id="slider_{{ id }}" class="myatu_bgm_slider" style="{% if is_rtl %}float:right; clear: left;{% else %}float:left; clear:right;{% endif %}s">
         <input type="text" value="{{ value }}" {{ link | raw }} style="display: none;" />
 
         <span>{{ left_label }}</span>
-        <div id="slider_{{ id }}_control" style="width:80px; {% if left_label == '' %}margin-right:10px;{% else %}margin:0 10px;{% endif %} display:-moz-inline-stack; display:inline-block; zoom:1; *display:inline;"></div>
+        <div id="slider_{{ id }}_control" class="myatu_bgm_inline myatu_bgm_slider_control" style="{% if left_label == '' %}margin-right:10px;{% else %}margin:0 10px;{% endif %}"></div>
         {% if show_value %}
             <span id="slider_{{ id }}_val">{{ value }}{{ right_label }}</span>
         {% else %}
@@ -30,9 +30,10 @@
     $(document).ready(function($){
 	    $('#slider_{{ id }}_control').slider({
 		    value: {% if reverse %}({{ max }} + {{ min }}) - {% endif %} $("#slider_{{ id }} input").val(),
-            range: 'min',
+            {% if range %}range: '{{ range }}',{% endif %}
 		    min: {{ min }},
 		    max: {{ max }},
+            step: {{ step }},
 		    slide: function(event, ui) {
                 var v = {% if reverse %}({{ max }} + {{ min }}) - {% endif %} ui.value;
                 {% if show_value %} $("#slider_{{ id }}_val").text(v + '{{ right_label }}'); {% endif %}
@@ -45,7 +46,7 @@
     });
 })(jQuery);
 #}
-(function($){var slider_{{ id }}_timer;$(document).ready(function($){$('#slider_{{ id }}_control').slider({value:{% if reverse %}({{ max }}+{{ min }})-{% endif %}$("#slider_{{ id }} input").val(),range:'min',min:{{ min }},max:{{ max }},slide:function(e,u){var v={% if reverse %}({{ max }}+{{ min }})-{% endif %}u.value;{% if show_value %}$("#slider_{{ id }}_val").text(v+'{{ right_label }}');{% endif %}$("#slider_{{ id }} input").val(v);},stop:function(e,u){$("#slider_{{ id }} input").change();}});});})(jQuery);
+(function($){var slider_{{ id }}_timer;$(document).ready(function($){$('#slider_{{ id }}_control').slider({value:{% if reverse %}({{ max }}+{{ min }})-{% endif %}$("#slider_{{ id }} input").val(),{% if range %}range:'{{ range }}',{% endif %}min:{{ min }},max:{{ max }},step:{{ step }},slide:function(e,u){var v={% if reverse %}({{ max }}+{{ min }})-{% endif %}u.value;{% if show_value %}$("#slider_{{ id }}_val").text(v+'{{ right_label }}');{% endif %}$("#slider_{{ id }} input").val(v);},stop:function(e,u){$("#slider_{{ id }} input").change();}});});})(jQuery);
 /*]]>*/
 </script>
 

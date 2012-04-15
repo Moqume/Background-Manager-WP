@@ -21,6 +21,8 @@ class SlideControl extends \WP_Customize_Control
     public $type        = 'slide';
     public $min         = 1;
     public $max         = 100;
+    public $step        = 1;
+    public $range       = 'min';
     public $show_value  = true;
     public $reverse     = false;
     public $left_label  = '';
@@ -59,6 +61,8 @@ class SlideControl extends \WP_Customize_Control
             'is_rtl'        => is_rtl(),
             'min'           => $this->min,
             'max'           => $this->max,
+            'step'          => $this->step,
+            'range'         => $this->range,
             'reverse'       => $this->reverse,
             'show_value'    => $this->show_value,
             'left_label'    => $this->left_label,

@@ -34,10 +34,10 @@
 
             // Determine starting position for new image, and ending position for old image
             switch (scroll_in_from) {
-                case 'top'    : dir = 'top'; start_position = '-'+new_img.height()+'px'; break;
-                case 'bottom' : dir = 'top'; start_position =     old_img.height()+'px'; break;
-                case 'left'   : dir = 'left'; start_position = '-'+new_img.width()+'px'; break;
-                case 'right'  : dir = 'left'; start_position =     old_img.width()+'px'; break;
+                case 'top'    : dir = 'top';  start_position = '-'+new_img.height()+'px'; break;
+                case 'bottom' : dir = 'top';  start_position =     old_img.height()+'px'; break;
+                case 'left'   : dir = 'left'; start_position = '-'+new_img.width()+'px';  break;
+                case 'right'  : dir = 'left'; start_position =     old_img.width()+'px';  break;
             }
 
             css[dir] = '0px';
@@ -101,9 +101,11 @@
         /** Switch the background */
         SwitchBackground: function() {
             var is_fullsize = (background_manager_vars.is_fullsize == 'true'),
+                is_preview  = (background_manager_vars.is_preview  == 'true'),
                 info_tab    = $('#myatu_bgm_info_tab'),
                 prev_img    = (is_fullsize) ? $('#myatu_bgm_top').attr('src') : $('body').css('background-image'),
-                prev_style  = '';
+                prev_style  = '',
+                transition_speed, active_transition;
 
             // Async call
             myatu_bgm.GetAjaxData('random_image', { 'prev_img' : prev_img, 'active_gallery': background_manager_vars.active_gallery }, function(new_image) {
@@ -114,6 +116,22 @@
                 myatu_bgm.SetBackgroundLink(new_image.bg_link);
 
                 if (is_fullsize) {
+                    // Set transition speed to what's returned by AJAX, or what's specified in preview
+                    if (is_preview) {
+                        // Preview variables
+                        transition_speed  = Number(background_manager_vars.transition_speed);
+                        active_transition = background_manager_vars.active_transition;
+
+                        // We do the random picking here when in a preview
+                        if (active_transition == 'random') {
+                            active_transition = background_manager_vars.transitions[Math.floor(Math.random()*background_manager_vars.transitions.length)];
+                        }
+                    } else {
+                        // AJAX variables
+                        transition_speed  = new_image.transition_speed;
+                        active_transition = new_image.transition;
+                    }
+
                     // Grab the current style (grabs the opacity)
                     prev_style = $('#myatu_bgm_top').attr('style');
 
@@ -130,12 +148,11 @@
 
                     // Set image source and when done loading, perform animation magic
                     $('#myatu_bgm_top').attr('src', new_image.url).imgLoaded(function() {
-                        var s = new_image.transition_speed, // Transition speed
-                            c = false;                      // Cover or slide?
+                        var c = false; // Cover or slide?
 
-                        $(this).unbind('load'); // Unbind load handler
+                        $(this).unbind('load'); // Unbind imgLoaded handler
 
-                        switch (new_image.transition) {
+                        switch (active_transition) {
                             // No transition
                             case 'none' :
                                 $(this).show();
@@ -143,23 +160,23 @@
                                 break;
 
                             case 'coverdown' : c = true; // Cover instead of slide. Remember nobreak
-                            case 'slidedown' : myatu_bgm.AnimateSlide('top', s, c); break;
+                            case 'slidedown' : myatu_bgm.AnimateSlide('top', transition_speed, c); break;
 
                             case 'coverup'   : c = true;
-                            case 'slideup'   : myatu_bgm.AnimateSlide('bottom', s, c); break;
+                            case 'slideup'   : myatu_bgm.AnimateSlide('bottom', transition_speed, c); break;
 
                             case 'coverright': c = true;
-                            case 'slideright': myatu_bgm.AnimateSlide('left', s, c); break;
+                            case 'slideright': myatu_bgm.AnimateSlide('left', transition_speed, c); break;
 
                             case 'coverleft' : c = true;
-                            case 'slideleft' : myatu_bgm.AnimateSlide('right', s, c); break;
+                            case 'slideleft' : myatu_bgm.AnimateSlide('right', transition_speed, c); break;
 
                             // Crossfade is standard transition
                             default:
                                 // Fade-out the previous image at the same time the new image is being faded in.
-                                $('#myatu_bgm_prev').animate({opacity:0}, {'duration': s, 'queue': false});
+                                $('#myatu_bgm_prev').animate({opacity:0}, {'duration': transition_speed, 'queue': false});
 
-                                $(this).fadeIn(s, myatu_bgm.AnimationCompleted);
+                                $(this).fadeIn(transition_speed, myatu_bgm.AnimationCompleted);
                                 break;
                         }
                     });
