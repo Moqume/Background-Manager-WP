@@ -20,6 +20,7 @@ use Pf4wp\Meta\PostMetabox;
  */
 class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
 {
+    /** Meta Filters */
     const 
         MT_ACTIVE_GALLERY = 'myatu_bgm_active_gallery',
         MT_ACTIVE_OVERLAY = 'myatu_bgm_active_overlay';

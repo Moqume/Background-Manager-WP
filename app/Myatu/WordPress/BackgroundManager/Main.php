@@ -57,6 +57,9 @@ class PointerAddNewStep2 extends \Pf4wp\Pointers\FeaturePointer
  */
 class Main extends \Pf4wp\WordpressPlugin
 {
+    /* Base public prefix, used for exposing variables to JS, filters, etc.  */
+    const BASE_PUB_PREFIX = 'myatu_bgm_';
+    
     /* Post Types */
     const PT_GALLERY = 'myatu_bgm_gallery';
     
@@ -132,6 +135,28 @@ class Main extends \Pf4wp\WordpressPlugin
         'info_tab_desc'          => true,
         'pin_it_btn_location'    => 'bottom-left', // Since 1.0.20
     );
+    
+    /** The options can be filtered (prefixed by BASE_PUB_PREFIX in `apply_filters`) - @see getFilteredOptions */
+    protected $filtered_options = array(
+        'active_gallery',
+        'background_opacity',
+        'change_freq',
+        'change_freq_custom',
+        'active_overlay',
+        'overlay_opacity',        
+        'background_size',
+        'background_position',
+        'background_repeat',
+        'background_scroll',
+        'background_stretch_vertical',
+        'background_stretch_horizontal',
+        'background_transition',
+        'transition_speed',
+        'info_tab',
+        'info_tab_location',
+        'pin_it_btn',
+        'pin_it_btn_location',
+    );
         
     /* Enable public-side Ajax - @see onAjaxRequest() */
     public $public_ajax = true;
@@ -205,6 +230,46 @@ class Main extends \Pf4wp\WordpressPlugin
             $result = array_keys($result);
         
         return $result;
+    }
+    
+    /**
+     * Helper function that returns the filtered results of options
+     *
+     * This stores the filtered options into the Non-persistent cache for performance
+     *
+     * @param string $option Option to return (if none specified, all filtered settings are returned as an array)
+     * @return mixed
+     */
+    public function getFilteredOptions($option = null)
+    {
+        $options = array();
+        
+        if (!isset($this->np_cache['filtered_options'])) {
+            // Not yet filtered
+            
+            // SPECIAL CASE:
+            $options['background_color'] = apply_filters(static::BASE_PUB_PREFIX . 'background_color', get_background_color());
+            
+            // Filter all possible options
+            foreach ($this->filtered_options as $filtered_option) {
+                $options[$filtered_option] = apply_filters(static::BASE_PUB_PREFIX . $filtered_option, $this->options->$filtered_option);
+            }
+            
+            $this->np_cache['filtered_options'] = $options;
+        } else {
+            // We've already applied the filters, and it's stored in NP cache
+            $options = $this->np_cache['filtered_options'];
+        }
+        
+        if (!is_null($option)) {
+            if (array_key_exists($option, $options)) {
+                return $options[$option];
+            } else {
+                return null;
+            }
+        }
+        
+        return $options;
     }
     
     /**
@@ -303,7 +368,6 @@ class Main extends \Pf4wp\WordpressPlugin
     /**
      * Helper that obtains a random image, including all details about it
      *
-     * @filter myatu_bgm_active_gallery
      * @param string $previous_image The URL of the previous image, if any (to avoid duplicates)
      * @param id $active_id Active gallery, or `false` if to be determined automatically (default)
      * @param string $size The size of the image to return (original size by default)
@@ -321,9 +385,10 @@ class Main extends \Pf4wp\WordpressPlugin
         $thumb        = '';
         $meta         = '';
         $bg_link      = '';
+        $change_freq  = $this->getFilteredOptions('change_freq');
         
         if ($active_id === false) {
-            $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
+            $gallery_id = $this->getFilteredOptions('active_gallery');
         } else {
             $gallery_id = $active_id;
         }
@@ -333,7 +398,7 @@ class Main extends \Pf4wp\WordpressPlugin
             if (!isset($this->images))
                 $this->images = new Images($this);
             
-            switch ($this->options->change_freq) {
+            switch ($change_freq) {
                 case static::CF_SESSION:
                     $cookie_id = 'myatu_bgm_bg_id_' . $gallery_id; // Cookie ID for stored background image ID
                     
@@ -587,7 +652,6 @@ class Main extends \Pf4wp\WordpressPlugin
      * containing the full pathname (not URL!) to the overlay image and a short one-line description
      * in `desc`. A `selected` key will be handled by this function.
      *
-     * @filter myatu_bgm_overlays
      * @param string $active_overlays The active overlay (to set 'select')
      * @return array Array containing the overlays, by Value, Description, Preview (embedded data image preview) and Selected
      */    
@@ -630,7 +694,7 @@ class Main extends \Pf4wp\WordpressPlugin
         }
         
         // Allow WP filtering of overlays
-        $overlays = apply_filters('myatu_bgm_overlays', $overlays);
+        $overlays = apply_filters(static::BASE_PUB_PREFIX . 'overlays', $overlays);
         
         // Ensure we have a 'selected' item.
         foreach ($overlays as $overlay_key => $overlay)
@@ -652,7 +716,6 @@ class Main extends \Pf4wp\WordpressPlugin
     /**
      * Obtains an array of available Importers
      *
-     * @filter myatu_bgm_importers
      * @return array Array containing a list of importers, indexed by classname, containing a display name, description and namespace+class.
      */
     protected function getImporters()
@@ -661,7 +724,7 @@ class Main extends \Pf4wp\WordpressPlugin
             return $this->np_cache['importers'];
         
         $base_namespace = __NAMESPACE__ . '\\Importers';
-        $importers      = apply_filters('myatu_bgm_importers', \Pf4wp\Dynamic\Loader::get($base_namespace, $this->getPluginDir() . static::DIR_IMPORTERS));
+        $importers      = apply_filters(static::BASE_PUB_PREFIX . 'importers', \Pf4wp\Dynamic\Loader::get($base_namespace, $this->getPluginDir() . static::DIR_IMPORTERS));
         
         // Classes must be a subclass of Importers\Importer (checked, as we apply a filter)
         foreach ($importers as $importer_key => $importer)
@@ -1642,7 +1705,6 @@ class Main extends \Pf4wp\WordpressPlugin
      * This will render the edit form, in place of the gallery list, unless
      * the user does not have the privileges to edit any theme options.
      *
-     * @filter image_upload_iframe_src, myatu_bgm_media_buttons
      * @see onGalleriesMenu()
      */
     public function editGallery($per_page)
@@ -1674,7 +1736,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $media_buttons['image']['title'] = __('Add an Image', $this->getName());
         
         // Allow additional media buttons to be specified
-        $media_buttons = apply_filters('myatu_bgm_media_buttons', $media_buttons);
+        $media_buttons = apply_filters(static::BASE_PUB_PREFIX . 'media_buttons', $media_buttons);
         
         // Ensure that media buttons have a `TB_iframe` as the last query arg
         foreach ($media_buttons as $media_button_key => $media_button_value) {
@@ -1832,83 +1894,69 @@ class Main extends \Pf4wp\WordpressPlugin
      *
      * This will provide a basic background image and colors, along with 
      * tiling options.
-     *
-     * @filter myatu_bgm_custom_styles, myatu_bgm_active_gallery, myatu_bgm_bg_color, 
-     *      myatu_bgm_bg_size, myatu_bgm_bg_pos, myatu_bgm_bg_repeat, myatu_bgm_bg_scroll,
-     *      myatu_bgm_bg_stretch_ver, myatu_bgm_bg_stretch_hor, myatu_bgm_custom_styles
      */
     public function onWpHead()
     {
         if (is_admin() || !$this->canDisplayBackground())
             return;
         
-        $style      = '';
+        $style = '';
         
         // Get option values after applying filters
-        $gallery_id    = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
-        $bg_color      = apply_filters('myatu_bgm_bg_color', get_background_color());
-        $bg_size       = apply_filters('myatu_bgm_bg_size', $this->options->background_size);
-        $bg_pos        = apply_filters('myatu_bgm_bg_pos', $this->options->background_position);
-        $bg_repeat     = apply_filters('myatu_bgm_bg_repeat', $this->options->background_repeat);
-        $bg_scroll     = apply_filters('myatu_bgm_bg_scroll', $this->options->background_scroll);
-        $bg_st_ver     = apply_filters('myatu_bgm_bg_stretch_ver', $this->options->background_stretch_vertical);
-        $bg_st_hor     = apply_filters('myatu_bgm_bg_stretch_hor', $this->options->background_stretch_horizontal);
-        $custom_styles = apply_filters('myatu_bgm_custom_styles', $gallery_id, '');
+        extract($this->getFilteredOptions());
+        $custom_styles = apply_filters(static::BASE_PUB_PREFIX . 'custom_styles', $active_gallery, '');
         
         // Only add a background image here if we have a valid gallery and we're not using a full-screen image
-        if ($this->getGallery($gallery_id) != false && $bg_size != static::BS_FULL) {
+        if ($this->getGallery($active_gallery) != false && $background_size != static::BS_FULL) {
             $random_image = $this->getRandomImage();
             
             if ($random_image['url'])
                 $style .= sprintf('background-image: url(\'%s\');', $random_image['url']);
             
-            // Set the background position
-            $bg_positions = $this->getBgOptions('position');
-            $bg_position  = ($bg_pos) ? $bg_pos : $bg_positions[0];
-            $bg_position  = explode('-', $bg_position);
+            // Grab the background position
+            if (!$background_position) {
+                $bg_positions        = $this->getBgOptions('position');
+                $background_position = $bg_positions[0];
+            }
+            $background_position  = explode('-', $background_position);
             
-            $style .= sprintf('background-position: %s %s;', $bg_position[0], $bg_position[1]);
+            $style .= sprintf('background-position: %s %s;', $background_position[0], $background_position[1]);
             
             // Set the background tiling
             $bg_repeats = $this->getBgOptions('repeat');
-            $style .= sprintf('background-repeat: %s;', ($bg_repeat) ? $bg_repeat : $bg_repeats[0]);
+            $style .= sprintf('background-repeat: %s;', ($background_repeat) ? $background_repeat : $bg_repeats[0]);
             
             // Set background scrolling
-            $style .= sprintf('background-attachment: %s;', ($bg_scroll) ? $bg_scroll : static::BST_SCROLL);
+            $style .= sprintf('background-attachment: %s;', ($background_scroll) ? $background_scroll : static::BST_SCROLL);
             
             // Set background sizing (stretching)
-            if ($bg_st_ver || $bg_st_hor) {
+            if ($background_stretch_horizontal || $background_stretch_vertical) {
                 $style .= sprintf('background-size: %s %s;',
-                    ($bg_st_hor) ? '100%' : 'auto',
-                    ($bg_st_ver) ? '100%' : 'auto'
+                    ($background_stretch_horizontal) ? '100%' : 'auto',
+                    ($background_stretch_vertical) ? '100%' : 'auto'
                 );
             }
         } else {
             $style .= sprintf('background-image: none !important;');
         }
             
-        if ($bg_color)
-            $style .= sprintf('background-color: #%s;', $bg_color);
+        if ($background_color)
+            $style .= sprintf('background-color: #%s;', $background_color);
         
-        if ($style || $custom_styles )
+        if ($style || $custom_styles)
             printf('<style type="text/css" media="screen">body { %s } %s</style>'.PHP_EOL, $style, $custom_styles);
     }
     
     /**
      * Load public scripts
-     *
-     * @filter myatu_bgm_active_gallery, myatu_bgm_bg_size, myatu_bgm_active_transition, myatu_bgm_transition_speed
      */
     public function onPublicScripts()
     {
         if (!$this->canDisplayBackground())
             return;
         
-        $is_preview = false; // If we're in the 3.4 Customize Theme Preview, this will be set to true.
-        
-        // Filter options
-        $bg_size       = apply_filters('myatu_bgm_bg_size', $this->options->background_size);
-        $gallery_id    = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
+        extract($this->getFilteredOptions());
+        $is_preview  = false; // If we're in the 3.4 Customize Theme Preview, this will be set to true.
         
         // 3.4+ filters
         if ($this->checkWPVersion('3.4', '>=')) {
@@ -1917,15 +1965,10 @@ class Main extends \Pf4wp\WordpressPlugin
             if (is_a($customize, '\WP_Customize')) {
                 $is_preview = $customize->is_preview();
             }
-            
-            if ($is_preview) {
-                $active_transition = apply_filters('myatu_bgm_active_transition', $this->options->background_transition);
-                $transition_speed  = (int)apply_filters('myatu_bgm_transition_speed', $this->options->transition_speed);
-            }
         }
         
         // If image is selected per browser session, set a cookie now (before headers are sent)
-        if ($this->options->change_freq == static::CF_SESSION)
+        if ($change_freq == static::CF_SESSION)
             $this->getRandomImage();
 
         /* Only load the scripts if: 
@@ -1933,9 +1976,9 @@ class Main extends \Pf4wp\WordpressPlugin
          * - the background is full screen 
          * - or, there's an info tab with a short description
          */
-        if ($this->options->change_freq != static::CF_CUSTOM && 
-            $bg_size != static::BS_FULL && 
-            !($this->options->info_tab && $this->options->info_tab_desc))
+        if ($change_freq != static::CF_CUSTOM && 
+            $background_size != static::BS_FULL && 
+            !($info_tab && $this->options->info_tab_desc))
             return;
         
         // Enqueue jQuery and base functions
@@ -1945,51 +1988,56 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_script($this->getName() . '-functions', $js_url . 'functions' . $debug . '.js', array('jquery'), $version);
         
         // If the info tab is enabled along with the short description, also include qTip2
-        if ($this->options->info_tab && $this->options->info_tab_desc)
+        if ($info_tab && $this->options->info_tab_desc)
             wp_enqueue_script('jquery.qtip', $js_url . 'vendor/qtip/jquery.qtip.min.js', array('jquery'), $version);
         
-        // Don't worry about the rest if the change frequency isn't custom or there's no short description for the info tab
-        if ($this->options->change_freq != static::CF_CUSTOM && !$this->options->info_tab_desc)
+        // Don't worry about the rest if the change frequency isn't custom and there's no short description for the info tab
+        if ($change_freq != static::CF_CUSTOM && !$this->options->info_tab_desc)
             return;
         
         // (the rest)
         wp_enqueue_script($this->getName() . '-pub', $js_url . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
         
         // Make the change frequency available to JavaScript
-        if ($this->options->change_freq == static::CF_CUSTOM && $this->getGallery($gallery_id) != false) {
-            $change_freq = ((int)$this->options->change_freq_custom >= 10) ? $this->options->change_freq_custom : 10;
+        if ($change_freq == static::CF_CUSTOM && $this->getGallery($active_gallery) != false) {
+            $script_change_freq = ($change_freq_custom >= 10) ? $change_freq_custom : 10;
         } else {
-            $change_freq = 0; // Disabled
+            $script_change_freq = 0; // Disabled
         }
         
         // Spit out variables for JavaScript to use
         $script_vars = array(
-            'change_freq'    => $change_freq,
-            'active_gallery' => $gallery_id,
-            'is_fullsize'    => ($bg_size == static::BS_FULL) ? 'true' : 'false',
+            'change_freq'    => $script_change_freq,
+            'active_gallery' => $active_gallery,
+            'is_fullsize'    => ($background_size == static::BS_FULL) ? 'true' : 'false',
             'is_preview'     => ($is_preview) ? 'true' : 'false',
         );
         
+        // Allso add the activie transtion, transition speed and available transitions if we're in a preview
         if ($is_preview) {
             $script_vars = array_merge($script_vars, array(
-                'active_transition' => $active_transition,
+                'active_transition' => $background_transition,
                 'transition_speed'  => $transition_speed,
                 'transitions'       => array_values(array_diff_key($this->getBgOptions('transition'), array('none', 'random'))),
             ));
         }
         
+        // Spit out the script variables
         wp_localize_script($this->getName() . '-pub', 'background_manager_vars', $script_vars);
     }    
     
     /**
      * Load public styles
-     *
-     * @filter myatu_bgm_active_overlay, myatu_bgm_overlay_opacity
      */
     public function onPublicStyles()
     {
         if (!$this->canDisplayBackground())
             return;
+            
+        $style = '';
+        
+        // Extract filtered options
+        extract($this->getFilteredOptions());
         
         list($css_url, $version, $debug) = $this->getResourceUrl('css');
         
@@ -1997,17 +2045,11 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_style($this->getName() . '-pub', $css_url . 'pub' . $debug . '.css', false, $version);
         
         // qTip2 style, if required
-        if ($this->options->info_tab && $this->options->info_tab_desc)
+        if ($info_tab && $this->options->info_tab_desc)
             wp_enqueue_style('jquery.qtip', $css_url . 'vendor/jquery.qtip.min.css', false, $version);
         
-        $style = '';
-        
-        // Apply filters over options
-        $overlay         = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
-        $overlay_opacity = apply_filters('myatu_bgm_overlay_opacity', $this->options->overlay_opacity);
-        
         // The image for the overlay, as CSS embedded data
-        if ($overlay && ($data = Helpers::embedDataUri($overlay, false, (defined('WP_DEBUG') && WP_DEBUG))) != false) {
+        if ($active_overlay && ($data = Helpers::embedDataUri($active_overlay, false, (defined('WP_DEBUG') && WP_DEBUG))) != false) {
             $opacity_style = '';
             
             if ($overlay_opacity < 100)
@@ -2017,15 +2059,15 @@ class Main extends \Pf4wp\WordpressPlugin
         }
         
         // The info icon
-        if ($this->options->info_tab)
-            $style .= sprintf('#myatu_bgm_info_tab{%s}', $this->getCornerStyle($this->options->info_tab_location, 5, 5));
+        if ($info_tab)
+            $style .= sprintf('#myatu_bgm_info_tab{%s}', $this->getCornerStyle($info_tab_location, 5, 5));
         
         // The "Pin It" button
-        if ($this->options->pin_it_btn) {
+        if ($pin_it_btn) {
             // Horizontal spacer depends whether the info tab is shown as well
-            $hspacer = ($this->options->info_tab && ($this->options->info_tab_location == $this->options->pin_it_btn_location)) ? 35 : 10;
+            $hspacer = ($info_tab && ($info_tab_location == $pin_it_btn_location)) ? 35 : 10;
             
-            $style .= sprintf('#myatu_bgm_pin_it_btn{%s}', $this->getCornerStyle($this->options->pin_it_btn_location, $hspacer, 5));
+            $style .= sprintf('#myatu_bgm_pin_it_btn{%s}', $this->getCornerStyle($pin_it_btn_location, $hspacer, 5));
         }
         
         if ($style)
@@ -2039,27 +2081,28 @@ class Main extends \Pf4wp\WordpressPlugin
      * screen rendering of a random image and an overlay, provided either of
      * these options have been enabled by the user
      *
-     * @filter myatu_bgm_active_overlay, myatu_bgm_active_gallery, myatu_bgm_bg_size, myatu_bgm_bg_size, myatu_bgm_opacity
+     * @filter myatu_bgm_active_overlay, myatu_bgm_active_gallery, myatu_bgm_bg_size, 
+     *      myatu_bgm_bg_size, myatu_bgm_opacity, myatu_bgm_info_tab, myatu_bgm_pin_it_btn
      */
     public function onPublicFooter()
     {
         if (!$this->canDisplayBackground())
             return;
-            
-        $overlay    = apply_filters('myatu_bgm_active_overlay', $this->options->active_overlay);
-        $gallery_id = apply_filters('myatu_bgm_active_gallery', $this->options->active_gallery);
-        $bg_size    = apply_filters('myatu_bgm_bg_size', $this->options->background_size);
-        $opacity    = apply_filters('myatu_bgm_opacity', $this->options->background_opacity);
+
+        // Extract filtered options
+        extract($this->getFilteredOptions());
         
+        $valid_gallery = ($this->getGallery($active_gallery) != false);
+
         $vars = array(
-            'has_info_tab'   => $this->options->info_tab && ($this->getGallery($gallery_id) != false), // Only display if we have a valid gallery
+            'has_info_tab'   => $info_tab && $valid_gallery, // Only display if we have a valid gallery
             'info_tab_thumb' => $this->options->info_tab_thumb,
             'info_tab_link'  => $this->options->info_tab_link,
             'info_tab_desc'  => $this->options->info_tab_desc,
-            'has_pin_it_btn' => $this->options->pin_it_btn  && ($this->getGallery($gallery_id) != false),
-            'has_overlay'    => ($overlay != false),
-            'opacity'        => str_pad($opacity, 2, '0', STR_PAD_LEFT), // Only available to full size background
-            'is_fullsize'    => $bg_size == static::BS_FULL,
+            'has_pin_it_btn' => $pin_it_btn && $valid_gallery,
+            'has_overlay'    => ($active_overlay != false),
+            'opacity'        => str_pad($background_opacity, 2, '0', STR_PAD_LEFT), // Only available to full size background
+            'is_fullsize'    => $background_size == static::BS_FULL,
             'random_image'   => $this->getRandomImage(),
             'permalink'      => get_site_url() . $_SERVER['REQUEST_URI'],
         );

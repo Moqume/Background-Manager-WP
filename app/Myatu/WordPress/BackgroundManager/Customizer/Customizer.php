@@ -20,24 +20,30 @@ use Myatu\WordPress\BackgroundManager\Main;
  */
 class Customizer
 {
-    const PG_BGM      = 'myatu_bgm_background';
+    const PG_BGM      = 'background';
     
-    /** Preview Options (same names as filters) */
-    const P_GALLERY     = 'myatu_bgm_active_gallery';
-    const P_OPACITY     = 'myatu_bgm_opacity';
-    const P_OVERLAY     = 'myatu_bgm_active_overlay';
-    const P_OVERLAY_O   = 'myatu_bgm_overlay_opacity';
-    const P_COLOR       = 'myatu_bgm_bg_color';
-    const P_BG_SIZE     = 'myatu_bgm_bg_size';
-    const P_BG_POS      = 'myatu_bgm_bg_pos';
-    const P_BG_TILE     = 'myatu_bgm_bg_repeat';
-    const P_BG_SCROLL   = 'myatu_bgm_bg_scroll';
-    const P_BG_ST_VER   = 'myatu_bgm_bg_stretch_ver';
-    const P_BG_ST_HOR   = 'myatu_bgm_bg_stretch_hor';
-    const P_TRANSITION  = 'myatu_bgm_active_transition';
-    const P_TRANS_SPD   = 'myatu_bgm_transition_speed';
+    /** Preview Options */
+    const P_GALLERY      = 'active_gallery';
+    const P_OPACITY      = 'background_opacity';
+    const P_CHANGE_FREQ  = 'change_freq';
+    const P_CHANGE_FCST  = 'change_freq_custom';
+    const P_OVERLAY      = 'active_overlay';
+    const P_OVERLAY_O    = 'overlay_opacity';
+    const P_COLOR        = 'background_color';
+    const P_BG_SIZE      = 'background_size';
+    const P_BG_POS       = 'background_position';
+    const P_BG_TILE      = 'background_repeat';
+    const P_BG_SCROLL    = 'background_scroll';
+    const P_BG_ST_VER    = 'background_stretch_vertical';
+    const P_BG_ST_HOR    = 'background_stretch_horizontal';
+    const P_TRANSITION   = 'background_transition';
+    const P_TRANS_SPD    = 'transition_speed';
+    const P_INFO_TAB     = 'info_tab';
+    const P_INFO_TAB_L   = 'info_tab_location';
+    const P_PIN_IT_BTN   = 'pin_it_btn';
+    const P_PIN_IT_BTN_L = 'pin_it_btn_location';
     
-    /** Magics */
+    /** Magic method prefixes, see @__call */
     const M_PREVIEW = 'OnPreview_';
     const M_SAVE    = 'OnSave_';
     const M_FILTER  = 'OnFilter_';
@@ -55,20 +61,26 @@ class Customizer
     {
         $this->owner = $owner;
         $this->active_customizations = array(
-            // ID => array('option' => under what name to save the option, 'label' => Display label, 'priority' => Display order priority (optional), 'sanitize' => Sanitize callback name (optional)
-            static::P_GALLERY       => array('option' => 'active_gallery',              'label' => __('Image Set', $this->owner->getName()),            'priority' => 10),
-            static::P_COLOR         => array('option' => array($this, 'onSaveColor'),   'label' => __('Background Color', $this->owner->getName()),     'priority' => 11, 'sanitize' => 'onSanitizeColor'),
-            static::P_BG_SIZE       => array('option' => 'background_size',             'label' => __('Size', $this->owner->getName()),                 'priority' => 20), 
-            static::P_BG_POS        => array('option' => 'background_position',         'label' => __('Position', $this->owner->getName()),             'priority' => 21),
-            static::P_BG_TILE       => array('option' => 'background_repeat',           'label' => __('Tiling', $this->owner->getName()),               'priority' => 21),
-            static::P_BG_SCROLL     => array('option' => 'background_scroll',           'label' => __('Scrolling', $this->owner->getName()),            'priority' => 21),
-            static::P_BG_ST_VER     => array('option' => 'background_stretch_vertical', 'label' => __('Stretch Vertical', $this->owner->getName()),     'priority' => 21, 'sanitize' => 'onSanitizeCheckbox'),
-            static::P_BG_ST_HOR     => array('option' => 'background_stretch_horizontal', 'label' => __('Stretch Horizontal', $this->owner->getName()), 'priority' => 21, 'sanitize' => 'onSanitizeCheckbox'),
-            static::P_OPACITY       => array('option' => 'background_opacity',          'label' => __('Opacity', $this->owner->getName()),              'priority' => 21, 'sanitize' => 'onSanitizeOpacity'),
-            static::P_OVERLAY       => array('option' => 'active_overlay',              'label' => __('Overlay', $this->owner->getName()),              'priority' => 40), 
-            static::P_OVERLAY_O     => array('option' => 'overlay_opacity',             'label' => __('Overlay Opacity', $this->owner->getName()),      'priority' => 41, 'sanitize' => 'onSanitizeOpacity'),
-            static::P_TRANSITION    => array('option' => 'background_transition',       'label' => __('Transition Effect', $this->owner->getName()),    'priority' => 30),
-            static::P_TRANS_SPD     => array('option' => 'transition_speed',            'label' => __('Transition Speed', $this->owner->getName()),     'priority' => 31, 'sanitize' => 'onSanitizeTransitionSpeed'),
+            // ID => array('option' => special function called to save option, 'label' => Display label, 'priority' => Display order priority (optional), 'sanitize' => Sanitize callback name (optional)
+            static::P_GALLERY       => array('label' => __('Image Set', $this->owner->getName()),               'priority' => 10),
+            static::P_CHANGE_FREQ   => array('label' => __('Select a random image', $this->owner->getName()),   'priority' => 11),
+            static::P_CHANGE_FCST   => array('label' => __('Interval (in seconds)', $this->owner->getName()),   'priority' => 12, 'sanitize' => 'onSanitizeCustomFreq'),
+            static::P_COLOR         => array('label' => __('Background Color', $this->owner->getName()),        'priority' => 13, 'sanitize' => 'onSanitizeColor', 'option' => array($this, 'onSaveColor')),
+            static::P_BG_SIZE       => array('label' => __('Size', $this->owner->getName()),                    'priority' => 20), 
+            static::P_BG_POS        => array('label' => __('Position', $this->owner->getName()),                'priority' => 21),
+            static::P_BG_TILE       => array('label' => __('Tiling', $this->owner->getName()),                  'priority' => 21),
+            static::P_BG_SCROLL     => array('label' => __('Scrolling', $this->owner->getName()),               'priority' => 21),
+            static::P_OPACITY       => array('label' => __('Opacity', $this->owner->getName()),                 'priority' => 21, 'sanitize' => 'onSanitizeOpacity'),
+            static::P_BG_ST_VER     => array('label' => __('Stretch Vertical', $this->owner->getName()),        'priority' => 22, 'sanitize' => 'onSanitizeCheckbox'),
+            static::P_BG_ST_HOR     => array('label' => __('Stretch Horizontal', $this->owner->getName()),      'priority' => 22, 'sanitize' => 'onSanitizeCheckbox'),            
+            static::P_TRANSITION    => array('label' => __('Transition Effect', $this->owner->getName()),       'priority' => 30),
+            static::P_TRANS_SPD     => array('label' => __('Transition Speed', $this->owner->getName()),        'priority' => 31, 'sanitize' => 'onSanitizeTransitionSpeed'),            
+            static::P_OVERLAY       => array('label' => __('Overlay', $this->owner->getName()),                 'priority' => 40), 
+            static::P_OVERLAY_O     => array('label' => __('Overlay Opacity', $this->owner->getName()),         'priority' => 41, 'sanitize' => 'onSanitizeOpacity'),
+            static::P_INFO_TAB      => array('label' => __('Display [ + ] Icon', $this->owner->getName()),      'priority' => 50, 'sanitize' => 'onSanitizeCheckbox'),
+            static::P_INFO_TAB_L    => array('label' => __('Location', $this->owner->getName()),                'priority' => 51),
+            static::P_PIN_IT_BTN    => array('label' => __('Display "Pin It" Button', $this->owner->getName()), 'priority' => 60, 'sanitize' => 'onSanitizeCheckbox'),
+            static::P_PIN_IT_BTN_L  => array('label' => __('Location', $this->owner->getName()),                'priority' => 61),            
         );        
         
         // Set actions
@@ -78,8 +90,8 @@ class Customizer
         
         // "Magic" actions (@see __call)
         foreach (array_keys($this->active_customizations) as $customization) {
-            add_action('customize_preview_' . $customization, array($this, static::M_PREVIEW . $customization));
-            add_action('customize_save_' . $customization, array($this, static::M_SAVE . $customization));
+            add_action('customize_preview_' . Main::BASE_PUB_PREFIX . $customization, array($this, static::M_PREVIEW . $customization));
+            add_action('customize_save_' . Main::BASE_PUB_PREFIX . $customization, array($this, static::M_SAVE . $customization));
         }
     }
     
@@ -110,14 +122,12 @@ class Customizer
                 if ($this->getSaveValue($id, $value)) {
                     $save_details = $this->active_customizations[$id];
                     
-                    if (isset($save_details['option'])) {
-                        if (is_string($save_details['option'])) {
-                            // Simple save
-                            $this->owner->options->$save_details['option'] = $value;
-                        } else {
-                            // Complex save
-                            call_user_func($save_details['option'], $value);
-                        }                    
+                    if (array_key_exists('option', $save_details)) {
+                        // Complex save
+                        call_user_func($save_details['option'], $value);
+                    } else {
+                        // Simple save
+                        $this->owner->options->$id = $value;
                     }
                 }
                 break;
@@ -157,7 +167,7 @@ class Customizer
         if (!is_a($customize, '\WP_Customize'))
             return;
         
-        $setting = $customize->get_setting($id);
+        $setting = $customize->get_setting(Main::BASE_PUB_PREFIX . $id);
         
         if (is_a($setting, '\WP_Customize_Setting')) {
             $value = $setting->post_value();
@@ -186,6 +196,8 @@ class Customizer
     /**
      * Adds a setting and control in one go
      *
+     * NOTE! The exposed ID is $id prefixed by the BASE_PUB_PREFIX
+     *
      * @param string $id ID of control item
      * @param array $details Array containing extra details about the item
      * @param string $type A string specifying the control type
@@ -200,13 +212,13 @@ class Customizer
             
         $priority = isset($details['priority']) ? $details['priority'] : 10;
             
-        $customize->add_setting($id, array(
-            'default'   => $this->owner->options->$details['option'],
+        $customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
+            'default'   => $this->owner->options->$id,
             'type'      => 'myatu_bgm',
         ));
         
         if (is_string($type)) {
-            $customize->add_control($id, array(
+            $customize->add_control(Main::BASE_PUB_PREFIX . $id, array(
                 'label'     => $details['label'],
                 'priority'  => $priority,
                 'section'   => static::PG_BGM,
@@ -267,7 +279,8 @@ class Customizer
         
         // Initialize the filters
         foreach (array_keys($this->active_customizations) as $customization) {
-            add_filter($customization, array($this, static::M_FILTER . $customization), 90);
+            // 'myatu_bgm_' . 'active_overlay' ... array($this, 'OnFilter_' . 'active_overlay'
+            add_filter(Main::BASE_PUB_PREFIX . $customization, array($this, static::M_FILTER . $customization), 90);
         }
     }
     
@@ -290,9 +303,6 @@ class Customizer
         
         // Iterate active customizations and create controls for them
         foreach ($this->active_customizations as $id=>$details) {
-            if (!isset($details['option']))
-                continue;
-            
             // Determine display priority for controls
             $priority = isset($details['priority']) ? $details['priority'] : 10;
             
@@ -307,15 +317,29 @@ class Customizer
                     
                     $this->addSettingControl($id, $details, 'select', $choices);
                     break;
+                    
+                case static::P_CHANGE_FREQ :
+                    $choices = array(
+                        'session' => __('At each browser session', $this->owner->getName()),
+                        'load'    => __('On a page (re)load', $this->owner->getName()),
+                        'custom'  => __('At a specified interval', $this->owner->getName()),
+                    );
+                    
+                    $this->addSettingControl($id, $details, 'radio', $choices);
+                    break;
+                    
+                case static::P_CHANGE_FCST :
+                    $this->addSettingControl($id, $details, 'text');
+                    break;
                 
                 case static::P_COLOR :
-                    // Background Color
-                    $customize->add_setting($id, array(
+                    // Background Color - Note that the exposed ID needs to be prefixed
+                    $customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
                         'default'           => get_background_color(),
                         'type'              => 'myatu_bgm',
                     ));
                     
-                    $customize->add_control($id, array(
+                    $customize->add_control(Main::BASE_PUB_PREFIX . $id, array(
                         'label'     => __('Background Color', $this->owner->getName()),
                         'priority'  => $priority,
                         'section'   => static::PG_BGM,
@@ -359,12 +383,12 @@ class Customizer
                 case static::P_OPACITY :
                 case static::P_OVERLAY_O :
                     // Overlay Opacity
-                    $customize->add_setting($id, array(
-                        'default'   => $this->owner->options->$details['option'],
+                    $customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
+                        'default'   => $this->owner->options->$id,
                         'type'      => 'myatu_bgm',
                     ));
                     
-                    $customize->add_control(new SlideControl($customize, $id, array(
+                    $customize->add_control(new SlideControl($customize, Main::BASE_PUB_PREFIX . $id, array(
                         'label'     => $details['label'],
                         'priority'  => $priority,
                         'section'   => static::PG_BGM,
@@ -381,8 +405,8 @@ class Customizer
                     $this->addSettingControl($id, $details, 'radio', $choices);
                     break;
                     
-                case static::P_BG_ST_VER :
-                case static::P_BG_ST_HOR :
+                case static::P_BG_ST_VER  :
+                case static::P_BG_ST_HOR  :
                     $this->addSettingControl($id, $details, 'checkbox');
                     break;
                     
@@ -393,12 +417,12 @@ class Customizer
                     
                 case static::P_TRANS_SPD :
                     // Overlay Opacity
-                    $customize->add_setting($id, array(
-                        'default'   => $this->owner->options->$details['option'],
+                    $customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
+                        'default'   => $this->owner->options->$id, //$details['option'],
                         'type'      => 'myatu_bgm',
                     ));
                     
-                    $customize->add_control(new SlideControl($customize, $id, array(
+                    $customize->add_control(new SlideControl($customize, Main::BASE_PUB_PREFIX . $id, array(
                         'label'       => $details['label'],
                         'priority'    => $priority,
                         'section'     => static::PG_BGM,
@@ -411,9 +435,24 @@ class Customizer
                         'max'         => 15000,
                         'step'        => 100,
                         'range'       => false,
-                    )));
-                
+                    )));                
                     break;
+                
+                case static::P_INFO_TAB :
+                    $this->addSettingControl($id, $details, 'checkbox');
+                    $this->addDividerControl($priority-1, __('Background Information', $this->owner->getName()));
+                    break;
+                    
+                case static::P_PIN_IT_BTN :
+                    $this->addSettingControl($id, $details, 'checkbox');
+                    $this->addDividerControl($priority-1, __('Pinterest', $this->owner->getName()));
+                    break;
+                
+                case static::P_INFO_TAB_L :
+                case static::P_PIN_IT_BTN_L :
+                    $this->addSettingControl($id, $details, 'radio', $this->owner->getBgOptions('corner', true));
+                    break;
+                    
             } // switch
         } // foreach
     }
@@ -484,6 +523,21 @@ class Customizer
         
         if ($value > 15000 || $value < 100)
             return null;
+            
+        return $value;
+    }
+    
+    /**
+     * Sanitize the custom change frequency (seconds)
+     *
+     * @param mixed $value The value obtained from the customizer
+     */
+    public function onSanitizeCustomFreq($value)
+    {
+        $value = (int)$value;
+        
+        if ($value < 10)
+            $value = 10;
             
         return $value;
     }

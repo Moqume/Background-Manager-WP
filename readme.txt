@@ -88,7 +88,7 @@ with PHP versions older than 5.3.
 == Changelog ==
 
 = 1.0.30 =
-* __Added:__ Initial support for WordPress 3.4 (deprecated functions)
+* __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
 * Changed: Background image details are now loaded asynchronous, to prevent browser "blocking"
