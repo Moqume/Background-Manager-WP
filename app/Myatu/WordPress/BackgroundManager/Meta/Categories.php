@@ -121,7 +121,8 @@ class Categories extends Taxonomy
      */
     public function onSave($id)
     {
-        $overlay = (isset($_REQUEST['overlay_cat_override'])) ? $_REQUEST['overlay_cat_override'] : 0;
+        $overlay          = (isset($_REQUEST['overlay_cat_override'])) ? $_REQUEST['overlay_cat_override'] : 0;
+        $background_color = (isset($_REQUEST['background_cat_color'])) ? ltrim($_REQUEST['background_cat_color'], '#') : '';
         
         foreach ($this->reg_categories as $reg_cat_key => $reg_cat) {
             $this->setMetaVars($reg_cat_key);
@@ -133,7 +134,7 @@ class Categories extends Taxonomy
                 $tax = (isset($_REQUEST['post_category'])) ? $_REQUEST['post_category'] : array();
             }
             
-            $this->doSave($id, $tax, $overlay);            
+            $this->doSave($id, $tax, $overlay, $background_color);
         }
         
         $this->resetMetaVars();

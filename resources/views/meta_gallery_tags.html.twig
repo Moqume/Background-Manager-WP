@@ -5,6 +5,8 @@
     file that was distributed with this source code.
 #}
 
+{% import 'macros_edit.html.twig' as me %}
+
 <div id="tagsdiv-post_tag" style="border-bottom:1px solid #dfdfdf;padding-bottom:10px;">
     <p>
         {{ __('Override the default Image Set with this one, if a post contains one or more of the selected tags:') }}
@@ -32,13 +34,18 @@
 
 <div id="overlaytagdiv" style="border-top:1px solid #fff;">
     <p>
-        {{ __('Optionally override the overlay:') }}
+        {{ __('Optionally override the overlay and color:') }}
     </p>
-
-    <select id="overlay_tag_override" class="postform" name="overlay_tag_override">
-        {% for overlay in overlays %}
-        <option {% if overlay.selected %}selected="selected"{% endif %} value="{{ overlay.value }}">{{ overlay.desc }}</option>
-        {% endfor %}
-    </select>
+    <div>
+        {{ me.farbtastic_input('tag', background_color) }}
+    </div>
+    <p>
+        <select id="overlay_tag_override" class="postform" name="overlay_tag_override">
+            {% for overlay in overlays %}
+            <option {% if overlay.selected %}selected="selected"{% endif %} value="{{ overlay.value }}">{{ overlay.desc }}</option>
+            {% endfor %}
+        </select>
+    </p>
 </div>
 
+{{ me.farbtastic_script('tag') }}

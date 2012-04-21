@@ -10,6 +10,7 @@
 namespace Myatu\WordPress\BackgroundManager\Meta;
 
 use Pf4wp\Meta\PostMetabox;
+use Myatu\WordPress\BackgroundManager\Main;
 
 /**
  * A meta box that provides the ability to override the active gallery on a post or page
@@ -23,7 +24,8 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
     /** Meta Filters */
     const 
         MT_ACTIVE_GALLERY = 'myatu_bgm_active_gallery',
-        MT_ACTIVE_OVERLAY = 'myatu_bgm_active_overlay';
+        MT_ACTIVE_OVERLAY = 'myatu_bgm_active_overlay',
+        MT_BG_COLOR       = 'myatu_bgm_background_color';
     
     protected $title    = 'Background';
     protected $context  = 'advanced';
@@ -36,8 +38,9 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
      */
     public function __construct($owner, $auto_register = true)
     {
-        add_filter('myatu_bgm_active_gallery', array($this, 'onActiveGallery'), 25, 1);
-        add_filter('myatu_bgm_active_overlay', array($this, 'onActiveOverlay'), 25, 1);
+        add_filter('myatu_bgm_active_gallery',   array($this, 'onActiveGallery'), 25, 1);
+        add_filter('myatu_bgm_active_overlay',   array($this, 'onActiveOverlay'), 25, 1);
+        add_filter('myatu_bgm_background_color', array($this, 'onBackgroundColor'), 25, 1);
         
         // Include Custom Post Types
         $this->pages = array_merge($this->pages, get_post_types(array('_builtin' => false, 'public' => true)));
@@ -69,8 +72,12 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
      */
     public function onRender($id, $post)
     {
-        $active_gallery = get_post_meta($id, self::MT_ACTIVE_GALLERY, true);
-        $active_overlay = get_post_meta($id, self::MT_ACTIVE_OVERLAY, true);
+        wp_enqueue_script('farbtastic');
+        wp_enqueue_style('farbtastic');
+    
+        $active_gallery   = get_post_meta($id, self::MT_ACTIVE_GALLERY, true);
+        $active_overlay   = get_post_meta($id, self::MT_ACTIVE_OVERLAY, true);
+        $background_color = get_post_meta($id, self::MT_BG_COLOR, true);
         
         // Generate a list of galleries, including a default and one to de-activate the background
         $galleries = array_merge(array(
@@ -101,8 +108,9 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
         ), $this->owner->getSettingOverlays($active_overlay));        
         
         $vars = array(
-            'galleries' => $galleries,
-            'overlays'  => $overlays,
+            'galleries'        => $galleries,
+            'overlays'         => $overlays,
+            'background_color' => $background_color,
         );
         
         $this->owner->template->display('meta_single.html.twig', $vars);    
@@ -115,11 +123,17 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
      */
     public function onSave($id)
     {
-        $active_gallery = (isset($_REQUEST['active_gallery'])) ? $_REQUEST['active_gallery'] : 0;
-        $active_overlay = (isset($_REQUEST['active_overlay'])) ? $_REQUEST['active_overlay'] : 0;
+        $active_gallery   = (isset($_REQUEST['active_gallery'])) ? $_REQUEST['active_gallery'] : 0;
+        $active_overlay   = (isset($_REQUEST['active_overlay'])) ? $_REQUEST['active_overlay'] : 0;
+        $background_color = (isset($_REQUEST['background_color'])) ? ltrim($_REQUEST['background_color'], '#') : '';
+        
+        // Sanity check for color
+        if (!preg_match('/^([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?$/', $background_color))
+            $background_color = '';
         
         $this->setSinglePostMeta($id, self::MT_ACTIVE_GALLERY, $active_gallery);
         $this->setSinglePostMeta($id, self::MT_ACTIVE_OVERLAY, $active_overlay);
+        $this->setSinglePostMeta($id, self::MT_BG_COLOR, $background_color);
     }
     
     /**
@@ -138,7 +152,7 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
         
         if ($post_specific_data == -1) {
             return 0; // Disable
-        } else if ($post_specific_data == false) {
+        } else if (!$post_specific_data) {            
             return $orig_data; // Default
         } else {
             return $post_specific_data; // Override
@@ -165,5 +179,16 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
     public function onActiveOverlay($overlay)
     {
         return $this->getOverrideID(self::MT_ACTIVE_OVERLAY, $overlay);
-    }    
+    }
+
+    /**
+     * Event called when the Background Manager needs the background color
+     *
+     * @param string $color The current color
+     * @return string
+     */
+    public function onBackgroundColor($color)
+    {
+        return $this->getOverrideID(self::MT_BG_COLOR, $color);
+    }
 }

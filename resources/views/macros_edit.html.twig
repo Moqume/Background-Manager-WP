@@ -1,0 +1,71 @@
+{#
+    Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+
+{# =========================== Farbtastic Script =========================== #}
+{% macro farbtastic_script(id) %}
+{% if id is not empty %}
+    {% set id = id ~ "_" %}
+{% endif %} 
+<script type="text/javascript">
+/*<![CDATA[*/
+{# UNCOMPRESSED:
+(function($){
+    myatu_bgm_{{ id }}color = {
+        showHideClear : function() {
+            var color = $('#background_{{ id }}color').val();
+
+            if (color && color.charAt(0) == '#') {
+                if (color.length > 1) {
+                    $('#clear_{{ id }}color').show();
+                } else {
+                    $('#clear_{{ id }}color').hide();
+                }
+            }
+        }
+    }
+
+    $(document).ready(function($){
+        var color_picker = '#myatu_bg_{{ id }}color_picker', background_color = '#background_{{ id }}color';
+
+        $(color_picker).farbtastic(function(color) { 
+            $(background_color).attr('value', color);
+        });
+        $.farbtastic(color_picker).setColor($(background_color).val());
+
+        $(background_color).focusin(function() { 
+            $(color_picker).show();
+        }).focusout(function() {
+            $(color_picker).hide();
+            myatu_bgm_{{ id }}color.showHideClear();
+        }).keyup(function () { 
+            if (this.value.charAt(0) != '#') this.value = '#' + this.value; 
+            $.farbtastic(color_picker).setColor($(background_color).val()); 
+        });
+
+        $('#clear_{{ id }}color').click(function() { 
+            $(background_color).val('#'); 
+            myatu_bgm_{{ id }}color.showHideClear();
+        });
+
+        myatu_bgm_{{ id }}color.showHideClear();
+    });
+})(jQuery);
+#}
+(function(a){myatu_bgm_{{ id }}color={showHideClear:function(){var b=a("#background_{{ id }}color").val();if(b&&b.charAt(0)=="#"){if(b.length>1){a("#clear_{{ id }}color").show()}else{a("#clear_{{ id }}color").hide()}}}};a(document).ready(function(c){var b="#myatu_bg_{{ id }}color_picker",d="#background_{{ id }}color";c(b).farbtastic(function(e){c(d).attr("value",e)});c.farbtastic(b).setColor(c(d).val());c(d).focusin(function(){c(b).show()}).focusout(function(){c(b).hide();myatu_bgm_{{ id }}color.showHideClear()}).keyup(function(){if(this.value.charAt(0)!="#"){this.value="#"+this.value}c.farbtastic(b).setColor(c(d).val())});c("#clear_{{ id }}color").click(function(){c(d).val("#");myatu_bgm_{{ id }}color.showHideClear()});myatu_bgm_{{ id }}color.showHideClear()})})(jQuery);
+/*]]>*/
+</script>
+{% endmacro %}
+
+{# =========================== Farbtastic Input =========================== #}
+{% macro farbtastic_input(id, value) %}
+{% if id is not empty %}
+    {% set id = id ~ "_" %}
+{% endif %} 
+<input type="text" value="#{{ value }}" autocomplete="off" name="background_{{ id }}color" id="background_{{ id }}color" />
+<input type="button" id="clear_{{ id }}color" class="hide-if-no-js button" value="{{ __('Clear') }}" />
+<div id="myatu_bg_{{ id }}color_picker" class="hide-if-no-js" style="z-index:100;background:#eeeeee;border-radius:3px;-moz-border-radius:3px;-webkit-border-radius:3px;border:1px solid #ccc;position:absolute;display:none;padding:2px;box-shadow:5px 5px 5px #AAA;-moz-box-shadow:5px 5px 5px #AAA;-webkit-box-shadow:5px 5px 5px #AAA;"></div>
+{% endmacro %}

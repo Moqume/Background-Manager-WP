@@ -487,7 +487,7 @@ class Main extends \Pf4wp\WordpressPlugin
             // Get the ALT image meta
             $alt  = get_post_meta($random_id, '_wp_attachment_image_alt', true);
             
-            // Get the link to the image, if any
+            // Get the link to the image info, if any (filter since 1.0.34)
             $link = apply_filters('myatu_bgm_image_link', $gallery_id, post_permalink($random_id));
             
             // Get the image metadata
@@ -498,7 +498,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 $meta = '';
             }
             
-            // Get background link
+            // Get background link (for full-screen click)
             $bg_link = get_post_meta($random_id, Filter\MediaLibrary::META_LINK, true);
             
             // Get a thumbnail image link

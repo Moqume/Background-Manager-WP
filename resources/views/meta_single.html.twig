@@ -1,9 +1,12 @@
 {#
-    Copyright (c) 2011 Mike Green <myatus@gmail.com>
+    Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
 
     For the full copyright and license information, please view the LICENSE
     file that was distributed with this source code.
 #}
+
+{% import 'macros_global.html.twig' as mg %}
+
 <table class="form-table">
     <tbody>
         <tr valign="top">
@@ -30,6 +33,15 @@
                 </select>
             </td>
         </tr>
+        <tr valign="top">
+            <th scope="row">
+                <label for="background_color">{{ __('Background Color') }}</label>
+            </th>
+            <td>
+                {{ me.farbtastic_input('', background_color) }}
+            </td>
+        </tr>
     </tbody>
 </table>
 
+{{ me.farbtastic_script('') }}

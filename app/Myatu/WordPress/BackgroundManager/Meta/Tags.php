@@ -63,12 +63,13 @@ class Tags extends Taxonomy
      */
     public function onSave($id)
     {
-        $tax     = (isset($_REQUEST['tax_input']) && isset($_REQUEST['tax_input']['post_tag'])) ? $_REQUEST['tax_input']['post_tag'] : array();
-        $overlay = (isset($_REQUEST['overlay_tag_override'])) ? $_REQUEST['overlay_tag_override'] : 0;
+        $tax              = (isset($_REQUEST['tax_input']) && isset($_REQUEST['tax_input']['post_tag'])) ? $_REQUEST['tax_input']['post_tag'] : array();
+        $overlay          = (isset($_REQUEST['overlay_tag_override'])) ? $_REQUEST['overlay_tag_override'] : 0;
+        $background_color = (isset($_REQUEST['background_tag_color'])) ? ltrim($_REQUEST['background_tag_color'], '#') : '';
         
         if (!is_array($tax))
             $tax = explode(',', $tax);
         
-        $this->doSave($id, $tax, $overlay);
+        $this->doSave($id, $tax, $overlay, $background_color);
     }
 }
