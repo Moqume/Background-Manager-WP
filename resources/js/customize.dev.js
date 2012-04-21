@@ -10,24 +10,7 @@ if (myatu_bgm === undefined)
 
 (function($){
     $.extend(myatu_bgm, {
-        base_control_prefix : '#customize-control-myatu_bgm_',
-
-        /**
-         * Hides a HTML element if an input value matches
-         */
-        showHide: function(what, show) {
-            var speed = 'fast';
-
-            if (show) {
-                $(what).show(speed);
-            } else {
-                if (!$(what).is(':visible')) {
-                    $(what).css('display', 'none');
-                } else {
-                    $(what).hide(speed);
-                }
-            }
-        },
+        base_control_prefix : '#customize-control-' + myatu_bgm.base_prefix,
 
         showHideBgSize: function() {
             var show = $(myatu_bgm.base_control_prefix + 'background_size input:checked').val() != 'full';
@@ -41,9 +24,11 @@ if (myatu_bgm === undefined)
 
             // Show on full(screen):
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'opacity'), !(show));
+            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'full_screen_adjust'), !(show));
 
-            // Ensure the transition is also shown or hidden
+            // Ensure the transition and center adjust is also shown or hidden
             myatu_bgm.showHideCustomFreq();
+            myatu_bgm.showHideAdjust();
         },
 
         showHideCustomFreq: function() {
@@ -63,6 +48,9 @@ if (myatu_bgm === undefined)
         showHideInfoTab: function() {
             var show = $(myatu_bgm.base_control_prefix + 'info_tab input').is(':checked');
 
+            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'info_tab_desc'), show);
+            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'info_tab_thumb'), show);
+            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'info_tab_link'), show);
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'info_tab_location'), show);
         },
 
@@ -70,6 +58,20 @@ if (myatu_bgm === undefined)
             var show = $(myatu_bgm.base_control_prefix + 'pin_it_btn input').is(':checked');
 
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'pin_it_btn_location'), show);
+        },
+
+        showHideAdjust: function() {
+            var full    = $(myatu_bgm.base_control_prefix + 'background_size input:checked').val() == 'full',
+                checked = $(myatu_bgm.base_control_prefix + 'full_screen_adjust input').is(':checked'),
+                show    = true;
+
+            if (!full) {
+                show = false;
+            } else {
+                show = checked;
+            }
+
+            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'full_screen_center'), show);
         }
     });
 
@@ -77,6 +79,7 @@ if (myatu_bgm === undefined)
         $(myatu_bgm.base_control_prefix + 'background_size input').change(myatu_bgm.showHideBgSize);    myatu_bgm.showHideBgSize();
         $(myatu_bgm.base_control_prefix + 'change_freq input').change(myatu_bgm.showHideCustomFreq);    myatu_bgm.showHideCustomFreq();
         $(myatu_bgm.base_control_prefix + 'info_tab input').change(myatu_bgm.showHideInfoTab);          myatu_bgm.showHideInfoTab();
-        $(myatu_bgm.base_control_prefix + 'pin_it_btn input').change(myatu_bgm.showHidePinIt);          myatu_bgm.showHidePinIt();        
+        $(myatu_bgm.base_control_prefix + 'pin_it_btn input').change(myatu_bgm.showHidePinIt);          myatu_bgm.showHidePinIt();
+        $(myatu_bgm.base_control_prefix + 'full_screen_adjust input').change(myatu_bgm.showHideAdjust); myatu_bgm.showHideAdjust();                
     });
 })(jQuery);

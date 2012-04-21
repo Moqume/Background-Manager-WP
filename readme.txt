@@ -87,12 +87,14 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.30 =
+= 1.0.32 =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
+* __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
 * Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
+* Changed: Decreased minimum permitted change frequency from 10 seconds to 1 second
 * Changed: Background image details are now loaded asynchronous, to prevent browser "blocking"
-* Fixed: Minimum background image change interval was not added to javascript
+* Fixed: Minimum background image change interval was not added to Javascript
 
 = 1.0.25 (March 18, 2012) =
 * Fixed: Resolved the "flickering" before each transition

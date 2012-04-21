@@ -5,10 +5,12 @@
  * file that was distributed with this source code.
  *
  */
+if (myatu_bgm === undefined)
+    var myatu_bgm = {};
 
 (function($){
-    // Please use the `myatu_bgm` namespace
     $.extend(myatu_bgm, {
+        /** (Re)sets the timer for loading the next image */
         SetTimer: function() {
             if (background_manager_vars.change_freq <= 0)
                 return;
@@ -16,53 +18,6 @@
             if (myatu_bgm.timer) clearTimeout(myatu_bgm.timer);
 
             myatu_bgm.timer = setTimeout('myatu_bgm.SwitchBackground()', background_manager_vars.change_freq * 1000);
-        },
-
-        /** Called when an animation performed by SwitchBackground is completed */
-        AnimationCompleted: function() {
-            $('#myatu_bgm_top').css({'left' : '', 'top' : ''}); // Restore `left` and `top` to those defined by CSS
-            $('#myatu_bgm_prev').remove();                      // Remove old background
-            myatu_bgm.SetTimer();                               // Reset timer
-        },
-
-        /** Slides a new background image into position */
-        AnimateSlide: function(scroll_in_from, duration, cover) {
-            var new_img = $('#myatu_bgm_top'), 
-                old_img = $('#myatu_bgm_prev'),
-                css     = new Object,
-                start_position, dir;
-
-            // Determine starting position for new image, and ending position for old image
-            switch (scroll_in_from) {
-                case 'top'    : dir = 'top';  start_position = '-'+new_img.height()+'px'; break;
-                case 'bottom' : dir = 'top';  start_position =     old_img.height()+'px'; break;
-                case 'left'   : dir = 'left'; start_position = '-'+new_img.width()+'px';  break;
-                case 'right'  : dir = 'left'; start_position =     old_img.width()+'px';  break;
-            }
-
-            css[dir] = '0px';
-            new_img.css(dir, start_position).show();  // Move the new image to one of the edges of the old image
-
-            // Slide
-            if (cover === undefined || cover === false) {
-                new_img.animate(css, {
-                    'duration': duration, 
-                    'complete': myatu_bgm.AnimationCompleted,
-                    'step': function(now,fx) {
-                        // Keep old image "sticking" to edge of new image
-                        switch (scroll_in_from) {
-                            case 'top'    : old_img.css(dir, (new_img.height() + now) + 'px'); break;
-                            case 'bottom' : old_img.css(dir, (now - old_img.height()) + 'px'); break;
-                            case 'left'   : old_img.css(dir, (new_img.width() + now)  + 'px'); break;
-                            case 'right'  : old_img.css(dir, (now - old_img.width())  + 'px'); break;
-                        }
-                    }
-                });
-
-            } else {
-                // Cover
-                new_img.animate(css, {'duration': duration, 'complete': myatu_bgm.AnimationCompleted});
-            }
         },
 
         /** Event on background click */
@@ -96,6 +51,85 @@
             var pattern = new RegExp('(?![?&])' + query_arg + '=(.*?(?=\\?|\\&(?!amp;)|#|$))', 'ig');
 
             return original_url.replace(pattern, query_arg + '=' + encodeURIComponent(new_val));
+        },
+
+        /** Adjusts the image size to fill the background, based on the work of Scott Robbin (srobbin.com) */
+        AdjustImageSize: function() {
+            var img        = $('#myatu_bgm_top'),
+                centered   = (background_manager_vars.fs_center == 'true'),
+                css        = {'left' : 0,'top' : 0},
+                win_height = $(window).height(),
+                bg_width   = win_width = $(window).width(),
+                bg_height, ratio, bg_offset;
+
+            if (background_manager_vars.is_fullsize == 'false' || background_manager_vars.fs_adjust == 'false')
+                return; // Adjusting is disabled
+
+            img.css({'width':'','height':''}); // Remove current image width/height, if any, before determining the ratio and bg_height
+            ratio     = img.width() / img.height();
+            bg_height = bg_width / ratio;
+
+            if (bg_height >= win_height) {
+                bg_offset = (bg_height - win_height) / 2;
+                if (centered) {
+                    $.extend(css, {'top': '-' + bg_offset + 'px'});
+                }
+            } else {
+                bg_height = win_height;
+                bg_width  = bg_height * ratio;
+                bg_offset = (bg_width - win_width) / 2;
+                if (centered)
+                    $.extend(css, {'left': '-' + bg_offset + 'px'});
+            }
+
+            img.width(bg_width).height(bg_height).css(css);
+        },
+
+        /** Called when an animation performed by SwitchBackground is completed */
+        AnimationCompleted: function() {
+            $('#myatu_bgm_prev').remove();  // Remove old background
+            myatu_bgm.SetTimer();           // Reset timer
+        },
+
+        /** Slides a new background image into position */
+        AnimateSlide: function(scroll_in_from, duration, cover) {
+            var new_img      = $('#myatu_bgm_top'), 
+                old_img      = $('#myatu_bgm_prev'),
+                new_offset   = new_img.offset(),
+                old_offset   = old_img.offset(),
+                css          = {},
+                start_position, dir;
+
+            // Determine starting position for new image, and ending position for old image
+            switch (scroll_in_from) {
+                case 'top'    : dir = 'top';  css[dir] = new_offset.top  + 'px'; pos = new_img.height() - old_offset.top; start_position = '-' + pos + 'px'; break;
+                case 'bottom' : dir = 'top';  css[dir] = new_offset.top  + 'px'; pos = old_img.height() + old_offset.top; start_position =       pos + 'px'; break;
+                case 'left'   : dir = 'left'; css[dir] = new_offset.left + 'px'; pos = new_img.width() - old_offset.left; start_position = '-' + pos + 'px'; break;
+                case 'right'  : dir = 'left'; css[dir] = new_offset.left + 'px'; pos = old_img.width() + old_offset.left; start_position =       pos + 'px'; break;
+            }
+
+            new_img.css(dir, start_position);   // Move the new image to one of the edges of the old image
+            new_img.css('visibility','');       // Unhide the new image (as it is out of view now) - separate call due execution order
+
+            // Slide
+            if (cover === undefined || cover === false) {
+                new_img.animate(css, {
+                    'duration': duration, 
+                    'complete': myatu_bgm.AnimationCompleted,
+                    'step': function(now,fx) {
+                        // Keep old image "sticking" to edge of new image
+                        switch (scroll_in_from) {
+                            case 'top'    : old_img.css(dir, (new_img.height() + now) + 'px'); break;
+                            case 'bottom' : old_img.css(dir, (now - old_img.height()) + 'px'); break;
+                            case 'left'   : old_img.css(dir, (new_img.width() + now) + 'px'); break;
+                            case 'right'  : old_img.css(dir, (now - old_img.width()) + 'px'); break;
+                        }
+                    }
+                });
+            } else {
+                // Cover
+                new_img.animate(css, {'duration': duration, 'complete': myatu_bgm.AnimationCompleted});
+            }
         },
 
         /** Switch the background */
@@ -144,18 +178,19 @@
                         'class' : 'myatu_bgm_fs',
                         'id'    : 'myatu_bgm_top',
                         'alt'   : new_image.alt
-                    }).hide().appendTo('body');
+                    }).css({'visibility':'hidden','width':'','height':''}).appendTo('body');
 
                     // Set image source and when done loading, perform animation magic
                     $('#myatu_bgm_top').attr('src', new_image.url).imgLoaded(function() {
                         var c = false; // Cover or slide?
 
-                        $(this).unbind('load'); // Unbind imgLoaded handler
+                        // Resize the image according to the window width/height
+                        myatu_bgm.AdjustImageSize();
 
                         switch (active_transition) {
                             // No transition
                             case 'none' :
-                                $(this).show();
+                                $(this).css('visibility','');
                                 myatu_bgm.AnimationCompleted();
                                 break;
 
@@ -173,6 +208,9 @@
 
                             // Crossfade is standard transition
                             default:
+                                // Swap 'visibility' with 'display'
+                                $(this).css({'display':'none','visibility':''});
+
                                 // Fade-out the previous image at the same time the new image is being faded in.
                                 $('#myatu_bgm_prev').animate({opacity:0}, {'duration': transition_speed, 'queue': false});
 
@@ -217,6 +255,10 @@
         var bg_link = $('#myatu_bgm_bg_link'), info_tab = $('#myatu_bgm_info_tab');
 
         myatu_bgm.SetTimer();
+
+        $(window).resize(function() {
+            myatu_bgm.AdjustImageSize();
+        });
 
         if (bg_link.length) {
             // Pre-set background link

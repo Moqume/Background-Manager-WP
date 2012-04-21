@@ -1,13 +1,26 @@
-/*
- * Copyright (c) 2011 Mike Green <myatus@gmail.com>
+/*!
+ * Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
  */
+if (myatu_bgm === undefined)
+    var myatu_bgm = {};
 
 (function($){
     $.extend(myatu_bgm, {
+        /** Gets the count of named properties */
+        GetObjSize: function(obj) {
+            var size = 0, key;
+
+            for (key in obj)
+                if (obj.hasOwnProperty(key))
+                    size++;
+
+            return size;
+        },
+
         /** Holds selected images */
         image_selection: new Object(),
        

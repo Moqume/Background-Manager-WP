@@ -27,44 +27,28 @@ mainWin = window.dialogArguments || opener || parent || top;
          *
          * @link https://github.com/paulirish/jquery.imgloaded
          */
-        imgLoaded : function(callback, fireOne) {
-            var args = arguments, elems = this.filter('img'), elemsLen = elems.length - 1;
+        imgLoaded : function(callback) {
+            var elems = this.filter('img');
 
-            elems.bind('load', function(e) {
-                if (fireOne) {
-                    !elemsLen-- && callback.call(elems);
-                } else {
+            elems.each(function() {
+                if (this.complete === undefined || this.complete || this.readyState === 4) {
+                    // Cached
                     callback.call(this);
-                }
-            });
-
-            $(function() {
-                elems.each(function() {
-                    if (this.complete === undefined || this.complete || this.readyState === 4) {
+                } else {
+                    // Uncached
+                    $(this).one('load', function(e) {
                         callback.call(this);
-                    }
-                });
+                    });
+                }
             });
         }
     });
 
-    /* Within our own namespace, we define some frequently used functions */
     myatu_bgm = {
-        /** Gets the count of named properties */
-        GetObjSize: function(obj) {
-            var size = 0, key;
-
-            for (key in obj)
-                if (obj.hasOwnProperty(key))
-                    size++;
-
-            return size;
-        },
+        base_prefix: 'myatu_bgm_',
 
         /** 
          * This is a simple wrapper for calling an Ajax function and obtaining its response
-         *
-         * Since 1.0.24, crossDomain check included (xd_ok)
          *
          * @param string ajaxFunc The Ajax function to perform
          * @param mixed ajaxData the data to send along with the function
@@ -93,6 +77,28 @@ mainWin = window.dialogArguments || opener || parent || top;
             });
 
             return resp;
+        },
+
+        /**
+         * Shows or Hides a HTML element
+         *
+         * @param mixed what HTML element to show or hide
+         * @param bool show Whether to show (true) or hide (false) the element
+         * @param string speed The speed at which to show or hide an element
+         */
+        showHide: function(what, show, speed) {
+            if (speed == undefined)
+                speed = 'slow';
+
+            if (show) {
+                $(what).show(speed);
+            } else {
+                if (!$(what).is(':visible')) {
+                    $(what).css('display', 'none');
+                } else {
+                    $(what).hide(speed);
+                }
+            }
         }
 
     } // myatu_bgm NS

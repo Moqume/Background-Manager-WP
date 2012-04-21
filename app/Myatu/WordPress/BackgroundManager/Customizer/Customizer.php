@@ -39,9 +39,14 @@ class Customizer
     const P_TRANSITION   = 'background_transition';
     const P_TRANS_SPD    = 'transition_speed';
     const P_INFO_TAB     = 'info_tab';
+    const P_INFO_TAB_T   = 'info_tab_thumb';
+    const P_INFO_TAB_D   = 'info_tab_desc';
+    const P_INFO_TAB_LN  = 'info_tab_link';
     const P_INFO_TAB_L   = 'info_tab_location';
     const P_PIN_IT_BTN   = 'pin_it_btn';
     const P_PIN_IT_BTN_L = 'pin_it_btn_location';
+    const P_FS_ADJUST    = 'full_screen_adjust';
+    const P_FS_CENTER    = 'full_screen_center';
     
     /** Magic method prefixes, see @__call */
     const M_PREVIEW = 'OnPreview_';
@@ -64,7 +69,7 @@ class Customizer
             // ID => array('option' => special function called to save option, 'label' => Display label, 'priority' => Display order priority (optional), 'sanitize' => Sanitize callback name (optional)
             static::P_GALLERY       => array('label' => __('Image Set', $this->owner->getName()),               'priority' => 10),
             static::P_CHANGE_FREQ   => array('label' => __('Select a random image', $this->owner->getName()),   'priority' => 11),
-            static::P_CHANGE_FCST   => array('label' => __('Interval (in seconds)', $this->owner->getName()),   'priority' => 12, 'sanitize' => 'onSanitizeCustomFreq'),
+            static::P_CHANGE_FCST   => array('label' => __('Interval (seconds)', $this->owner->getName()),      'priority' => 12, 'sanitize' => 'onSanitizeCustomFreq'),
             static::P_COLOR         => array('label' => __('Background Color', $this->owner->getName()),        'priority' => 13, 'sanitize' => 'onSanitizeColor', 'option' => array($this, 'onSaveColor')),
             static::P_BG_SIZE       => array('label' => __('Size', $this->owner->getName()),                    'priority' => 20), 
             static::P_BG_POS        => array('label' => __('Position', $this->owner->getName()),                'priority' => 21),
@@ -74,11 +79,16 @@ class Customizer
             static::P_BG_ST_VER     => array('label' => __('Stretch Vertical', $this->owner->getName()),        'priority' => 22, 'sanitize' => 'onSanitizeCheckbox'),
             static::P_BG_ST_HOR     => array('label' => __('Stretch Horizontal', $this->owner->getName()),      'priority' => 22, 'sanitize' => 'onSanitizeCheckbox'),            
             static::P_TRANSITION    => array('label' => __('Transition Effect', $this->owner->getName()),       'priority' => 30),
-            static::P_TRANS_SPD     => array('label' => __('Transition Speed', $this->owner->getName()),        'priority' => 31, 'sanitize' => 'onSanitizeTransitionSpeed'),            
+            static::P_TRANS_SPD     => array('label' => __('Transition Speed', $this->owner->getName()),        'priority' => 31, 'sanitize' => 'onSanitizeTransitionSpeed'),
+            static::P_FS_ADJUST     => array('label' => __('Adjust Image Size', $this->owner->getName()),       'priority' => 32, 'sanitize' => 'onSanitizeCheckbox'),
+            static::P_FS_CENTER     => array('label' => __('Center Image', $this->owner->getName()),            'priority' => 33, 'sanitize' => 'onSanitizeCheckbox'),
             static::P_OVERLAY       => array('label' => __('Overlay', $this->owner->getName()),                 'priority' => 40), 
             static::P_OVERLAY_O     => array('label' => __('Overlay Opacity', $this->owner->getName()),         'priority' => 41, 'sanitize' => 'onSanitizeOpacity'),
             static::P_INFO_TAB      => array('label' => __('Display [ + ] Icon', $this->owner->getName()),      'priority' => 50, 'sanitize' => 'onSanitizeCheckbox'),
-            static::P_INFO_TAB_L    => array('label' => __('Location', $this->owner->getName()),                'priority' => 51),
+            static::P_INFO_TAB_T    => array('label' => __('Show thumbnail', $this->owner->getName()),          'priority' => 51, 'sanitize' => 'onSanitizeCheckbox'),
+            static::P_INFO_TAB_D    => array('label' => __('Show description', $this->owner->getName()),        'priority' => 51, 'sanitize' => 'onSanitizeCheckbox'),
+            static::P_INFO_TAB_LN   => array('label' => __('Enable linking', $this->owner->getName()),          'priority' => 51, 'sanitize' => 'onSanitizeCheckbox'),
+            static::P_INFO_TAB_L    => array('label' => __('Location', $this->owner->getName()),                'priority' => 52),
             static::P_PIN_IT_BTN    => array('label' => __('Display "Pin It" Button', $this->owner->getName()), 'priority' => 60, 'sanitize' => 'onSanitizeCheckbox'),
             static::P_PIN_IT_BTN_L  => array('label' => __('Location', $this->owner->getName()),                'priority' => 61),            
         );        
@@ -261,7 +271,8 @@ class Customizer
     {
         // Enqueue JS
         list($js_url, $version, $debug) = $this->owner->getResourceUrl();
-        wp_enqueue_script($this->owner->getName() . '-customize', $js_url . 'customize' . $debug . '.js', array('jquery'), $version);
+        wp_enqueue_script($this->owner->getName() . '-functions', $js_url . 'functions' . $debug . '.js', array('jquery'), $version);
+        wp_enqueue_script($this->owner->getName() . '-customize', $js_url . 'customize' . $debug . '.js', array($this->owner->getName() . '-functions'), $version);
         
         // Enueue CSS
         list($css_url, $version, $debug) = $this->owner->getResourceUrl('css');
@@ -405,8 +416,13 @@ class Customizer
                     $this->addSettingControl($id, $details, 'radio', $choices);
                     break;
                     
-                case static::P_BG_ST_VER  :
-                case static::P_BG_ST_HOR  :
+                case static::P_BG_ST_VER   :
+                case static::P_BG_ST_HOR   :
+                case static::P_INFO_TAB_T  :
+                case static::P_INFO_TAB_D  :
+                case static::P_INFO_TAB_LN :
+                case static::P_FS_ADJUST   :
+                case static::P_FS_CENTER   :
                     $this->addSettingControl($id, $details, 'checkbox');
                     break;
                     
@@ -418,7 +434,7 @@ class Customizer
                 case static::P_TRANS_SPD :
                     // Overlay Opacity
                     $customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
-                        'default'   => $this->owner->options->$id, //$details['option'],
+                        'default'   => $this->owner->options->$id,
                         'type'      => 'myatu_bgm',
                     ));
                     
@@ -536,7 +552,7 @@ class Customizer
     {
         $value = (int)$value;
         
-        if ($value < 10)
+        if ($value < 1)
             $value = 10;
             
         return $value;

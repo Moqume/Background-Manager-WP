@@ -1,10 +1,12 @@
-/*
- * Copyright (c) 2011 Mike Green <myatus@gmail.com>
+/*!
+ * Copyright (c) 2011-2012 Mike Green <myatus@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
  */
+if (myatu_bgm === undefined)
+    var myatu_bgm = {};
 
 (function($){
     mainWin.doImportProgress = function(percent) {

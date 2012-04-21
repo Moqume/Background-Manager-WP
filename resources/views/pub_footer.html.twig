@@ -24,12 +24,14 @@
 try {
     (function($){
         $('#myatu_bgm_top').hide().imgLoaded(function() {
-            $(this).unbind('load').fadeIn('slow');
+            if (typeof myatu_bgm.AdjustImageSize == 'function') myatu_bgm.AdjustImageSize();
+
+            $(this).fadeIn('slow');
         });
     })(jQuery);
 } catch(e) {};
 #}
-try{(function(a){a("#myatu_bgm_top").hide().imgLoaded(function(){a(this).unbind("load").fadeIn("slow")})})(jQuery)}catch(e){};
+try{(function(a){a("#myatu_bgm_top").hide().imgLoaded(function(){if(typeof myatu_bgm.AdjustImageSize=="function"){myatu_bgm.AdjustImageSize()}a(this).fadeIn("slow")})})(jQuery)}catch(e){};
 /*]]>*/
 </script>
 {% endif %}
@@ -47,13 +49,13 @@ try{(function(a){a("#myatu_bgm_top").hide().imgLoaded(function(){a(this).unbind(
     if (window.PinIt.loaded) return;
     window.PinIt.loaded = true;
     function async_load(){
-        var s = document.createElement("script");
+        var s = document.createElement("script"), l = "assets.pinterest.com/js/pinit.js";
         s.type = "text/javascript";
         s.async = true;
         if (window.location.protocol == "https:")
-            s.src = "https://assets.pinterest.com/js/pinit.js";
+            s.src = "https://" + l;
         else
-            s.src = "http://assets.pinterest.com/js/pinit.js";
+            s.src = "http://" + l;
         var x = document.getElementsByTagName("script")[0];
         x.parentNode.insertBefore(s, x);
     }
@@ -63,7 +65,7 @@ try{(function(a){a("#myatu_bgm_top").hide().imgLoaded(function(){a(this).unbind(
         window.addEventListener("load", async_load, false);
 })();
 #}
-(function(){window.PinIt=window.PinIt||{loaded:false};if(window.PinIt.loaded){return}window.PinIt.loaded=true;function a(){var c=document.createElement("script");c.type="text/javascript";c.async=true;if(window.location.protocol=="https:"){c.src="https://assets.pinterest.com/js/pinit.js"}else{c.src="http://assets.pinterest.com/js/pinit.js"}var b=document.getElementsByTagName("script")[0];b.parentNode.insertBefore(c,b)}if(window.attachEvent){window.attachEvent("onload",a)}else{window.addEventListener("load",a,false)}})();
+(function(){window.PinIt=window.PinIt||{loaded:false};if(window.PinIt.loaded){return}window.PinIt.loaded=true;function a(){var d=document.createElement("script"),c="assets.pinterest.com/js/pinit.js";d.type="text/javascript";d.async=true;if(window.location.protocol=="https:"){d.src="https://"+c}else{d.src="http://"+c}var b=document.getElementsByTagName("script")[0];b.parentNode.insertBefore(d,b)}if(window.attachEvent){window.attachEvent("onload",a)}else{window.addEventListener("load",a,false)}})();
 /*]]>*/
 </script>
 

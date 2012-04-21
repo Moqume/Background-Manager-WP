@@ -130,6 +130,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'display_on_archive'     => true,
         'display_on_search'      => true,
         'display_on_error'       => true,
+        'full_screen_center'     => true,
         'info_tab_location'      => 'bottom-left',
         'info_tab_thumb'         => true,
         'info_tab_desc'          => true,
@@ -143,7 +144,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'change_freq',
         'change_freq_custom',
         'active_overlay',
-        'overlay_opacity',        
+        'overlay_opacity',
         'background_size',
         'background_position',
         'background_repeat',
@@ -154,8 +155,13 @@ class Main extends \Pf4wp\WordpressPlugin
         'transition_speed',
         'info_tab',
         'info_tab_location',
+        'info_tab_thumb',
+        'info_tab_link',
+        'info_tab_desc',
         'pin_it_btn',
         'pin_it_btn_location',
+        'full_screen_center',
+        'full_screen_adjust',
     );
         
     /* Enable public-side Ajax - @see onAjaxRequest() */
@@ -206,7 +212,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'none'       => __('-- None (deactivated) --', $this->getName()),
             'random'     => __('Random', $this->getName()),
             'slidedown'  => __('Slide Downward', $this->getName()),
-            'slideup'    => __('Slide Updward', $this->getName()),
+            'slideup'    => __('Slide Upward', $this->getName()),
             'slideleft'  => __('Slide to Left', $this->getName()),
             'slideright' => __('Slide to Right', $this->getName()),
             'coverdown'  => __('Cover Downward', $this->getName()),
@@ -400,7 +406,7 @@ class Main extends \Pf4wp\WordpressPlugin
             
             switch ($change_freq) {
                 case static::CF_SESSION:
-                    $cookie_id = 'myatu_bgm_bg_id_' . $gallery_id; // Cookie ID for stored background image ID
+                    $cookie_id = static::BASE_PUB_PREFIX . 'bg_id_' . $gallery_id; // Cookie ID for stored background image ID
                     
                     while (true) {
                         $bailout++;
@@ -843,7 +849,7 @@ class Main extends \Pf4wp\WordpressPlugin
     }
     
     /**
-     * Called when a filter needs to be activated
+     * Called when a WP filter needs to be activated
      */
     public function onFilter($filter)
     {
@@ -1310,6 +1316,8 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->info_tab_desc                 = (!empty($_POST['info_tab_desc']));
             $this->options->pin_it_btn                    = (!empty($_POST['pin_it_btn']));
             $this->options->pin_it_btn_location           = (in_array($_POST['pin_it_btn_location'], $this->getBgOptions('corner'))) ? $_POST['pin_it_btn_location'] : null;
+            $this->options->full_screen_adjust            = (!empty($_POST['full_screen_adjust']));
+            $this->options->full_screen_center            = (!empty($_POST['full_screen_center']));
             
             // Opacity (1-100)
             if (($opacity = (int)$_POST['background_opacity']) <= 100 && $opacity > 0)
@@ -1425,7 +1433,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'overlay_opacity'               => $this->options->overlay_opacity,
             'background_transition'         => $this->options->background_transition,
             'transition_speed'              => ((int)$this->options->transition_speed >= 100 && (int)$this->options->transition_speed <= 15000) ? $this->options->transition_speed : 600,
-            'change_freq_custom'            => ((int)$this->options->change_freq_custom >= 10) ? $this->options->change_freq_custom : 10,
+            'change_freq_custom'            => ((int)$this->options->change_freq_custom >= 1) ? $this->options->change_freq_custom : 10,
             'change_freq'                   => $this->options->change_freq,
             'display_on_front_page'         => $this->options->display_on_front_page,
             'display_on_single_post'        => $this->options->display_on_single_post,
@@ -1450,6 +1458,8 @@ class Main extends \Pf4wp\WordpressPlugin
             'plugin_home'                   => \Pf4wp\Info\PluginInfo::getInfo(false, $this->getPluginBaseName(), 'PluginURI'),
             'pin_it_btn'                    => $this->options->pin_it_btn,
             'pin_it_btn_location'           => $this->options->pin_it_btn_location,
+            'full_screen_adjust'            => $this->options->full_screen_adjust,
+            'full_screen_center'            => $this->options->full_screen_center,
         );
         
         $this->template->display('settings.html.twig', $vars);
@@ -1978,7 +1988,7 @@ class Main extends \Pf4wp\WordpressPlugin
          */
         if ($change_freq != static::CF_CUSTOM && 
             $background_size != static::BS_FULL && 
-            !($info_tab && $this->options->info_tab_desc))
+            !($info_tab && $info_tab_desc))
             return;
         
         // Enqueue jQuery and base functions
@@ -1986,21 +1996,15 @@ class Main extends \Pf4wp\WordpressPlugin
         
         wp_enqueue_script('jquery');
         wp_enqueue_script($this->getName() . '-functions', $js_url . 'functions' . $debug . '.js', array('jquery'), $version);
+        wp_enqueue_script($this->getName() . '-pub', $js_url . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
         
         // If the info tab is enabled along with the short description, also include qTip2
-        if ($info_tab && $this->options->info_tab_desc)
+        if ($info_tab && $info_tab_desc)
             wp_enqueue_script('jquery.qtip', $js_url . 'vendor/qtip/jquery.qtip.min.js', array('jquery'), $version);
-        
-        // Don't worry about the rest if the change frequency isn't custom and there's no short description for the info tab
-        if ($change_freq != static::CF_CUSTOM && !$this->options->info_tab_desc)
-            return;
-        
-        // (the rest)
-        wp_enqueue_script($this->getName() . '-pub', $js_url . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
         
         // Make the change frequency available to JavaScript
         if ($change_freq == static::CF_CUSTOM && $this->getGallery($active_gallery) != false) {
-            $script_change_freq = ($change_freq_custom >= 10) ? $change_freq_custom : 10;
+            $script_change_freq = ($change_freq_custom >= 1) ? $change_freq_custom : 10;
         } else {
             $script_change_freq = 0; // Disabled
         }
@@ -2013,7 +2017,15 @@ class Main extends \Pf4wp\WordpressPlugin
             'is_preview'     => ($is_preview) ? 'true' : 'false',
         );
         
-        // Allso add the activie transtion, transition speed and available transitions if we're in a preview
+        // Add to variables if in full screen mode
+        if ($background_size == static::BS_FULL) {
+            $script_vars = array_merge($script_vars, array(
+                'fs_adjust'      => ($full_screen_adjust) ? 'true' : 'false',
+                'fs_center'      => ($full_screen_center) ? 'true' : 'false',
+            ));
+        }
+        
+        // Also add the active transtion, transition speed and available transitions if we're in a preview
         if ($is_preview) {
             $script_vars = array_merge($script_vars, array(
                 'active_transition' => $background_transition,
@@ -2045,7 +2057,7 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_style($this->getName() . '-pub', $css_url . 'pub' . $debug . '.css', false, $version);
         
         // qTip2 style, if required
-        if ($info_tab && $this->options->info_tab_desc)
+        if ($info_tab && $info_tab_desc)
             wp_enqueue_style('jquery.qtip', $css_url . 'vendor/jquery.qtip.min.css', false, $version);
         
         // The image for the overlay, as CSS embedded data
@@ -2080,9 +2092,6 @@ class Main extends \Pf4wp\WordpressPlugin
      * Instead of using a BODY background, this will use an IMG to generate a full
      * screen rendering of a random image and an overlay, provided either of
      * these options have been enabled by the user
-     *
-     * @filter myatu_bgm_active_overlay, myatu_bgm_active_gallery, myatu_bgm_bg_size, 
-     *      myatu_bgm_bg_size, myatu_bgm_opacity, myatu_bgm_info_tab, myatu_bgm_pin_it_btn
      */
     public function onPublicFooter()
     {
@@ -2093,12 +2102,12 @@ class Main extends \Pf4wp\WordpressPlugin
         extract($this->getFilteredOptions());
         
         $valid_gallery = ($this->getGallery($active_gallery) != false);
-
+        
         $vars = array(
             'has_info_tab'   => $info_tab && $valid_gallery, // Only display if we have a valid gallery
-            'info_tab_thumb' => $this->options->info_tab_thumb,
-            'info_tab_link'  => $this->options->info_tab_link,
-            'info_tab_desc'  => $this->options->info_tab_desc,
+            'info_tab_thumb' => $info_tab_thumb,
+            'info_tab_link'  => $info_tab_link,
+            'info_tab_desc'  => $info_tab_desc,
             'has_pin_it_btn' => $pin_it_btn && $valid_gallery,
             'has_overlay'    => ($active_overlay != false),
             'opacity'        => str_pad($background_opacity, 2, '0', STR_PAD_LEFT), // Only available to full size background
