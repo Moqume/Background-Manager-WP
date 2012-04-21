@@ -486,7 +486,9 @@ class Main extends \Pf4wp\WordpressPlugin
             
             // Get the ALT image meta
             $alt  = get_post_meta($random_id, '_wp_attachment_image_alt', true);
-            $link = post_permalink($random_id);
+            
+            // Get the link to the image, if any
+            $link = apply_filters('myatu_bgm_image_link', $gallery_id, post_permalink($random_id));
             
             // Get the image metadata
             $meta = get_post_meta($random_id, '_wp_attachment_metadata', true);

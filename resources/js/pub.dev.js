@@ -132,6 +132,22 @@ if (myatu_bgm === undefined)
             }
         },
 
+        NewTopImage: function(style, alt, src, callback) {
+            // Create new (hidden) image element as the 'top' image
+            $('<img>').attr({
+                'style' : style,
+                'class' : 'myatu_bgm_fs',
+                'id'    : 'myatu_bgm_top',
+                'alt'   : alt
+            }).css({'visibility':'hidden','width':'','height':''}).appendTo('body');
+
+            // Set image source and when done loading, call callback
+            $('#myatu_bgm_top').attr('src', src).imgLoaded(function() {
+                if (typeof callback == "function")
+                    callback.call(this);
+            });
+        },
+
         /** Switch the background */
         SwitchBackground: function() {
             var is_fullsize = (background_manager_vars.is_fullsize == 'true'),
@@ -172,16 +188,8 @@ if (myatu_bgm === undefined)
                     // Switch image ID ('top' becomes 'prev')
                     $('#myatu_bgm_top').attr('id', 'myatu_bgm_prev');
 
-                    // Create new (hidden) image element as the 'top' image
-                    $('<img>').attr({
-                        'style' : prev_style,
-                        'class' : 'myatu_bgm_fs',
-                        'id'    : 'myatu_bgm_top',
-                        'alt'   : new_image.alt
-                    }).css({'visibility':'hidden','width':'','height':''}).appendTo('body');
-
-                    // Set image source and when done loading, perform animation magic
-                    $('#myatu_bgm_top').attr('src', new_image.url).imgLoaded(function() {
+                    // Create a new top image and perform callback when done loading
+                    myatu_bgm.NewTopImage(prev_style, new_image.alt, new_image.url, function() {
                         var c = false; // Cover or slide?
 
                         // Resize the image according to the window width/height

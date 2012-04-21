@@ -47,15 +47,16 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
 * Enable or disable the background images on the Front page, Error pages, Custom post types, etc.
 * Optional thumbnail/information tab for the visitor to learn more about the background
 * Import from various sources, such as:
-    * Flickr (including license and ownership)
-    * NextGEN Gallery Plugin
-    * WP Flickr Background Plugin
+    * [Flickr](http://www.flickr.com) (including license and ownership)
+    * [NextGEN Gallery](http://wordpress.org/extend/plugins/nextgen-gallery/) Plugin
+    * [GRAND FlAGallery](http://wordpress.org/extend/plugins/flash-album-gallery/) Plugin
+    * [WP Flickr Background](http://wordpress.org/extend/plugins/wp-flickr-background/) Plugin
     * A directory (and optionally its sub-directories) on the web server
 * Define the background opacity (available in Full Screen only)
 * Background image links (click-able backgrounds)
 * Uses AJAX to load background images, keeping the website's footprint small and improve caching
 * Graceful degradation for visitors without JavaScript
-* Option to add a "Pin It" Pinterest button
+* Option to add a "Pin It" [Pinterest](http://www.pinterest.com) button
 
 = License =
 
@@ -87,10 +88,12 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.32 =
+= 1.0.34 =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
-* __Added:__ Automatically detects 3rd party categories, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
+* __Added:__ Automatically detects 3rd party categories for _Category Override_ meta option, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
+* __Added:__ Meta option to overide the background image link (with shortcode support)
+* __Added:__ Importer for [GRAND FlAGallery](http://wordpress.org/extend/plugins/flash-album-gallery/).
 * Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
 * Changed: Decreased minimum permitted change frequency from 10 seconds to 1 second
 * Changed: Background image details are now loaded asynchronous, to prevent browser "blocking"
@@ -107,7 +110,7 @@ with PHP versions older than 5.3.
 * Fixed: MSIE encountered Javascript runtime errors due to non-closure of object/array elements
 
 = 1.0.22 (February 18, 2012) =
-* __Added:__ Support for the Pinterest "Pin It" button
+* __Added:__ Support for the [Pinterest](http://www.pinterest.com) "Pin It" button
 * Changed: Replaced bt (jQuery BalloonTip) in favor of qTip2
 * Changed: If no image caption is specified, the title will be used instead
 * Changed: Updated Pf4wp and Twig vendor libraries

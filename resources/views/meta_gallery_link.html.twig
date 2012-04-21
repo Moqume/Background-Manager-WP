@@ -1,0 +1,17 @@
+{#
+    Copyright (c) 2011 Mike Green <myatus@gmail.com>
+
+    For the full copyright and license information, please view the LICENSE
+    file that was distributed with this source code.
+#}
+
+<p id="image_link_desc">
+    {{ __('By default, the <code>[ + ]</code> icon will be linked to a page containing more details about the background image displayed.') | raw }}
+    {{ __('Specifying a URL here allows you to override that link to, for example, a gallery. For your convenience, shortcodes (i.e., <code>[gallery_url 1]</code>) are accepted.') | raw }}
+</p>
+<label>
+    {{ __('Background Image Link') }}
+    <input type="text" id="image_link" name="image_link" style="width:100%" value="{{ image_link }}" />
+</label>
+
+
