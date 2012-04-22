@@ -195,6 +195,10 @@ if (myatu_bgm === undefined)
                         // Resize the image according to the window width/height
                         myatu_bgm.AdjustImageSize();
 
+                        // Force the transition to 'none' if 'myatu_bgm_prev' is missing (failsafe)
+                        if (!$('#myatu_bgm_prev').length)
+                            active_transition = 'none';
+
                         switch (active_transition) {
                             // No transition
                             case 'none' :
