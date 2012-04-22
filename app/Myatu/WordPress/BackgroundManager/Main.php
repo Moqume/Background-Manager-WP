@@ -969,6 +969,8 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onAjaxRequest($function, $data)
     {
+        global $wpdb;
+        
         // as onAdminInit does not get called before Ajax requests, set up the Images instance if needed
         if (!isset($this->images))
             $this->images = new Images($this);
@@ -1025,17 +1027,25 @@ class Main extends \Pf4wp\WordpressPlugin
                 
                 break;
             
-            /** Deletes one or more images from a gallery */
-            case 'delete_images' : // PRIVILEGED
-                if (!current_user_can('edit_theme_options'))
+            /** Deletes or removes one or more images from a gallery */
+            case 'delete_images' :
+            case 'remove_images' : 
+                if (!current_user_can('edit_theme_options')) // PRIVILEGED
                     return;
                     
                 $ids    = explode(',', $data); // Image (post/attachment) IDs
                 $result = true;
 
                 foreach($ids as $id) {
-                    if (!empty($id))
-                        $result = wp_delete_attachment($id);
+                    if (!empty($id)) {
+                        if ($function == 'delete_images') {
+                            // Delete
+                            $result = wp_delete_attachment($id);
+                        } else {
+                            // Remove
+                            $result = $wpdb->update($wpdb->posts, array('post_parent' => 0), array('id' => $id, 'post_type' => 'attachment'));
+                        }
+                    }
                         
                     if ($result === false)
                         break;
@@ -1046,7 +1056,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 $this->ajaxResponse($result);
                 
                 break;
-            
+                
             /** Returns a randomly selected image from the active gallery */
             case 'random_image' :
                 // Extract the URL of the previous image
@@ -1790,6 +1800,8 @@ class Main extends \Pf4wp\WordpressPlugin
     {
         if (!isset($this->gallery->ID))
             die; // Something didn't go quite right
+            
+        list($buttons_url, $version, $debug) = $this->getResourceUrl('images/buttons');
         
         // Only if Javascript is disabled will we get here, which adds a image to the gallery directly
         if (!empty($_POST) && isset($_POST['_nonce'])) {
@@ -1839,13 +1851,14 @@ class Main extends \Pf4wp\WordpressPlugin
         ));      
         
         $vars = array(
-            'images'            => $images,
-            'current_page'      => $page_num,
-            'image_edit_img'    => includes_url('js/tinymce/plugins/wpeditimage/img/image.png'),    // Use familiar images
-            'image_delete_img'  => includes_url('js/tinymce/plugins/wpeditimage/img/delete.png'),
+            'images'       => $images,
+            'current_page' => $page_num,
+            'image_edit'   => $buttons_url . 'edit.png',
+            'image_delete' => $buttons_url . 'delete.png',
+            'image_remove' => $buttons_url . 'remove.png',
             /* For non-JS: */
-            'page_links'        => $page_links,
-            'nonce'             => wp_nonce_field('image-upload', '_nonce', false, false),
+            'page_links'   => $page_links,
+            'nonce'        => wp_nonce_field('image-upload', '_nonce', false, false),
         );
         
         $this->template->display('gallery_image.html.twig', $vars);

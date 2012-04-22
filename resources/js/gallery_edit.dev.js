@@ -36,6 +36,28 @@ if (myatu_bgm === undefined)
         /** Removes the image iframe overlay and restores iframe visibility */
         removeImagesOverlay: function() { $('#images_iframe').fadeIn('fast', function() { $('#image_iframe_overlay').hide(); }); },
 
+        /** Helper to remove or delete images */
+        doDeleteRemoveImages : function(do_delete, id) {
+            var key, ids = '', func = (do_delete === undefined || !do_delete) ? 'remove_images' : 'delete_images';
+
+            if (id === undefined) {
+                // Determine the selected images
+                for (key in myatu_bgm.image_selection)
+                    ids += key.replace('image_', '') + ',';
+            } else {
+                // Delete or remove specified image
+                ids = id;
+            }
+
+            // Delete or remove the images
+            myatu_bgm.GetAjaxData(func, ids);
+
+            myatu_bgm.showHideEditBar(true);
+            
+            if (myatu_bgm.haveImagesChanged(true))
+                myatu_bgm.loadImagesIframe();
+        },
+
         /** Displays or hides the "Edit Bar" (containing buttons related to selected items) */
         showHideEditBar: function(getIds) {
             if (getIds == true) {
@@ -119,9 +141,10 @@ if (myatu_bgm === undefined)
             image_buttons.css('left', image_img.offset().left - overlay.scrollLeft() +  'px');
             image_buttons.show();
 
-            // Set the correct href for the image `edit` and `delete` button
+            // Set the correct href for the image `edit`, `delete` and `remove` button
             $('#image_edit_button', image_buttons).attr("href", $('#image_iframe_edit_base').val() + '&id=' + $(highlighted).attr('id').replace('image_', '') + '&TB_iframe=true');
             $('#image_del_button', image_buttons).attr("href", '#' + $(highlighted).attr('id').replace('image_', ''));
+            $('#image_remove_button', image_buttons).attr("href", '#' + $(highlighted).attr('id').replace('image_', ''));
         },
 
         /** Event triggered when the iframe has finished loading */
@@ -151,6 +174,7 @@ if (myatu_bgm === undefined)
             image_body.click(myatu_bgm.onEmptyImageAreaClick);
             $('#image_edit_button', image_body).click(myatu_bgm.onImageEditButtonClick);
             $('#image_del_button', image_body).click(myatu_bgm.onImageDeleteButtonClick);
+            $('#image_remove_button', image_body).click(myatu_bgm.onImageRemoveButtonClick);
 
             // Attach keyboard events
             image_body.keydown(myatu_bgm.onIframeKeyDown);
@@ -164,19 +188,15 @@ if (myatu_bgm === undefined)
             if ($('#image_del_is_perm').val() == '1' && confirm(bgmL10n.warn_delete_all_images) == false)
                 return false;
 
-            var key, ids = '';
+            myatu_bgm.doDeleteRemoveImages(true);
 
-            for (key in myatu_bgm.image_selection)
-                ids += key.replace('image_', '') + ',';
+            return false;
+        },
 
-            // Delete the images from the DB
-            myatu_bgm.GetAjaxData('delete_images', ids);
-
-            myatu_bgm.showHideEditBar(true);
+        /** Event triggered when `Remove Selected` is clicked */
+        onRemoveSelected: function(event) {
+            myatu_bgm.doDeleteRemoveImages(false);
             
-            if (myatu_bgm.haveImagesChanged(true))
-                myatu_bgm.loadImagesIframe();
-
             return false;
         },
 
@@ -256,13 +276,14 @@ if (myatu_bgm === undefined)
             if ($('#image_del_is_perm').val() == '1' && confirm(bgmL10n.warn_delete_image) == false)
                 return false;
 
-            // Delete the image from the DB
-            myatu_bgm.GetAjaxData('delete_images', $(this).attr('href').replace('#', ''));
-
-            myatu_bgm.showHideEditBar(true);
+            myatu_bgm.doDeleteRemoveImages(true, $(this).attr('href').replace('#', ''));
             
-            if (myatu_bgm.haveImagesChanged(true))
-                myatu_bgm.loadImagesIframe();
+            return false;
+        },
+
+        /** Event triggered when the `remove` button is clicked */
+        onImageRemoveButtonClick: function(event) {
+            myatu_bgm.doDeleteRemoveImages(false, $(this).attr('href').replace('#', ''));
             
             return false;
         },
@@ -348,6 +369,7 @@ if (myatu_bgm === undefined)
         // Attach 'click' events
         $('#ed_delete_selected').click(myatu_bgm.onDeleteSelected);
         $('#ed_clear_selected').click(myatu_bgm.onClearSelected);
+        $('#ed_remove_selected').click(myatu_bgm.onRemoveSelected);
     });
 
 })(jQuery);

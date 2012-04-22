@@ -95,6 +95,7 @@ with PHP versions older than 5.3.
 * __Added:__ Meta option to overide the background image link (with shortcode support)
 * __Added:__ Importer for [GRAND FlAGallery](http://wordpress.org/extend/plugins/flash-album-gallery/).
 * __Added:__ Option to overide the color in Posts, Pages, Categories and Tags
+* __Added:__ Ability to remove (detach) images from an Image Set, keeping the image in the Media Library
 * Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
 * Changed: Decreased minimum permitted change frequency from 10 seconds to 1 second
 * Changed: Background image details are now loaded asynchronous, to prevent browser "blocking"
