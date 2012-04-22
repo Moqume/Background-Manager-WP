@@ -1062,12 +1062,10 @@ class Main extends \Pf4wp\WordpressPlugin
                 if (!current_user_can('edit_theme_options')) 
                     return;
                 
-                
                 $inc = (boolean)$data['inc']; // Increase?
                 $ids = $this->images->getSortedByOrder(explode(',', $data['ids']), $inc);
                 
                 foreach ($ids as $id) {
-                    echo "Changing order for " . $id;
                     $this->images->changeOrder($id, $inc);
                 }
                 
@@ -1075,7 +1073,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 
                 break;
                 
-            /** Returns a randomly selected image from the active gallery */
+            /** Returns a randomly selected image, or one in sequential order, from the active gallery */
             case 'random_image' :
                 // Extract the URL of the previous image
                 if (!preg_match('#^(?:url\(\\\\?[\'\"])?(.+?)(?:\\\\?[\'\"]\))?$#i', $data['prev_img'], $matches))

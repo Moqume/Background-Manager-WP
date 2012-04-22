@@ -72,7 +72,7 @@ class Images
         $cache_id = 'all_image_ids_'.$id;
         
         if (!isset($this->np_cache[$cache_id])) {
-            $ids = $wpdb->get_results($wpdb->prepare("SELECT ID FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_status` = %s AND `post_type` = %s", $id, 'inherit', 'attachment') . wp_post_mime_type_where('image') . " ORDER BY `menu_order`", OBJECT_K);
+            $ids = $wpdb->get_results($this->base_select(array('ID')) . "AND `post_parent` = {$id} ORDER BY `menu_order`", OBJECT_K);
             
             if ($ids !== false)
                 $ids = array_keys($ids);
@@ -122,6 +122,9 @@ class Images
         }
         
         if (!isset($this->np_cache[$cache_id])) {
+            // Make sure we have an ordered gallery before grabbing images
+            $this->reorderIfNeeded($id);
+            
             $images = get_children(array_merge($args, array('post_parent' => $id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image')));
             
             foreach($images as $image) {
@@ -248,7 +251,7 @@ class Images
         if ($id == 0)
             return;
 
-        $images           = $wpdb->get_results($wpdb->prepare("SELECT `ID`,`menu_order` FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_status` = %s AND `post_type` = %s", $id, 'inherit', 'attachment') . wp_post_mime_type_where('image') . " ORDER BY `menu_order`", OBJECT_K);
+        $images           = $wpdb->get_results($this->base_select(array('ID','menu_order')) . "AND `post_parent` = {$id} ORDER BY `menu_order`", OBJECT_K);
         $count            = 1;
         $invalidate_cache = false;
         
@@ -288,7 +291,7 @@ class Images
             
         $order            = $this->getCount($id); // Initial order
         $invalidate_cache = false;
-        $images           = $wpdb->get_results($wpdb->prepare("SELECT `ID`,`menu_order` FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_status` = %s AND `post_type` = %s AND `menu_order` = 0", $id, 'inherit', 'attachment') . wp_post_mime_type_where('image') . " ORDER BY `post_date` ASC", OBJECT_K);
+        $images           = $wpdb->get_results($this->base_select(array('ID','menu_order')) . "AND `post_parent` = {$id} AND `menu_order` = 0 ORDER BY `post_date` ASC", OBJECT_K);
 
         // Images with a zero order, ordered by the date they've been added, are given a new order
         foreach ($images as $image) {
@@ -303,7 +306,7 @@ class Images
         if ($invalidate_cache) {
             $this->np_cache = array();
             
-            $this->reorder($gallery_id);
+            $this->reorder($id);
             
             return true;
         }
@@ -340,7 +343,7 @@ class Images
         $sql_order = ($reverse) ? 'DESC' : 'ASC';
         
         if ($sql_ids != '')
-            $ids = $wpdb->get_col($this->base_select(array('ID')) . " AND `ID` in ({$sql_ids}) ORDER BY `menu_order` {$sql_order}");
+            $ids = $wpdb->get_col($this->base_select(array('ID')) . "AND `ID` in ({$sql_ids}) ORDER BY `menu_order` {$sql_order}");
         
         return array_map(function($v) { return (int)$v; }, $ids);
     }
@@ -387,7 +390,7 @@ class Images
             return false;
     
         // Find out if there's already image(s) with the new order
-        $images_at_order = $wpdb->get_results($wpdb->prepare("SELECT `ID`,`menu_order` FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_status` = %s AND `post_type` = %s AND `menu_order` = %d", $gallery_id, 'inherit', 'attachment', $image->menu_order) . wp_post_mime_type_where('image'), OBJECT_K);
+        $images_at_order = $wpdb->get_results($this->base_select(array('ID', 'menu_order')) . "AND `post_parent` = {$gallery_id} AND `menu_order` = {$image->menu_order}", OBJECT_K);
         
         // Swap the order for those already at the new order
         foreach ($images_at_order as $image_at_order) {
