@@ -1057,6 +1057,24 @@ class Main extends \Pf4wp\WordpressPlugin
                 
                 break;
                 
+            /** Changes the order of an image */
+            case 'change_order' : // PRIVILEGED
+                if (!current_user_can('edit_theme_options')) 
+                    return;
+                
+                
+                $inc = (boolean)$data['inc']; // Increase?
+                $ids = $this->images->getSortedByOrder(explode(',', $data['ids']), $inc);
+                
+                foreach ($ids as $id) {
+                    echo "Changing order for " . $id;
+                    $this->images->changeOrder($id, $inc);
+                }
+                
+                $this->ajaxResponse(true);
+                
+                break;
+                
             /** Returns a randomly selected image from the active gallery */
             case 'random_image' :
                 // Extract the URL of the previous image
@@ -1833,8 +1851,8 @@ class Main extends \Pf4wp\WordpressPlugin
         // Grab the images
         $images = $this->images->get($this->gallery->ID, 
             array(
-                'orderby'     => 'date',
-                'order'       => 'desc',
+                'orderby'     => 'menu_order',
+                'order'       => 'asc',
                 'numberposts' => $items_per_page,
                 'offset'      => ($page_num-1) * $items_per_page,
             )
@@ -1856,6 +1874,8 @@ class Main extends \Pf4wp\WordpressPlugin
             'image_edit'   => $buttons_url . 'edit.png',
             'image_delete' => $buttons_url . 'delete.png',
             'image_remove' => $buttons_url . 'remove.png',
+            'image_left'   => $buttons_url . 'left.png',
+            'image_right'  => $buttons_url . 'right.png',
             /* For non-JS: */
             'page_links'   => $page_links,
             'nonce'        => wp_nonce_field('image-upload', '_nonce', false, false),

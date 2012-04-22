@@ -35,6 +35,26 @@ class Images
     }
     
     /**
+     * Construct a base SQL statement
+     *
+     * @since 1.0.36
+     * @param array $what What columns to SELECT from the DB
+     */
+    private function base_select($what = array('*'))
+    {
+        global $wpdb;
+        
+        foreach ($what as $what_k => $what_v) {
+            if ($what_v != '*')
+                $what[$what_k] = '`' . $what_v . '`';
+        }
+        
+        $what = implode(',', $what);
+        
+        return "SELECT {$what} FROM `{$wpdb->posts}` WHERE `post_status` = 'inherit' AND `post_type` = 'attachment' " . wp_post_mime_type_where('image') . " ";
+    }
+    
+    /**
      * Returns all the IDs of Images in a Gallery
      *
      * @param int $id ID of the Gallery (image set)
@@ -48,11 +68,11 @@ class Images
         
         if ($id == 0)
             return array();
-        
-        $cache_id = 'myatu_bgm_all_image_ids_'.$id;
+            
+        $cache_id = 'all_image_ids_'.$id;
         
         if (!isset($this->np_cache[$cache_id])) {
-            $ids = $wpdb->get_results($wpdb->prepare("SELECT ID FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_status` = %s AND `post_type` = %s", $id, 'inherit', 'attachment') . wp_post_mime_type_where('image'), OBJECT_K);
+            $ids = $wpdb->get_results($wpdb->prepare("SELECT ID FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_status` = %s AND `post_type` = %s", $id, 'inherit', 'attachment') . wp_post_mime_type_where('image') . " ORDER BY `menu_order`", OBJECT_K);
             
             if ($ids !== false)
                 $ids = array_keys($ids);
@@ -79,7 +99,6 @@ class Images
         return $image_ids[mt_rand(0, count($image_ids)-1)];
     }
     
-    
     /**
      * Obtains the images in a Gallery
      *
@@ -94,10 +113,10 @@ class Images
         if ($id == 0)
             return array();
         
-        $cache_id = 'myatu_bgm_images_' . $id;
+        $cache_id = 'images_' . $id;
         
         if (is_array($args)) {
-            $cache_id = 'myatu_bgm_images_' . md5($id . implode(array_keys($args)) . implode(array_values($args)));
+            $cache_id = 'images_' . md5($id . implode(array_keys($args)) . implode(array_values($args)));
         } else {
             $args = array();
         }
@@ -212,5 +231,179 @@ class Images
         }
         
         return $result;
+    }
+    
+    /**
+     * Re-order images in a gallery in sequential order
+     *
+     * @since 1.0.36
+     * @param int $id Gallery ID
+     */
+    public function reorder($id)
+    {
+        global $wpdb;
+        
+        $id = (int)$id;
+        
+        if ($id == 0)
+            return;
+
+        $images           = $wpdb->get_results($wpdb->prepare("SELECT `ID`,`menu_order` FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_status` = %s AND `post_type` = %s", $id, 'inherit', 'attachment') . wp_post_mime_type_where('image') . " ORDER BY `menu_order`", OBJECT_K);
+        $count            = 1;
+        $invalidate_cache = false;
+        
+        foreach ($images as $image) {
+            if ($image->menu_order != $count) {
+                $image->menu_order = $count;
+                wp_update_post($image);
+                
+                $invalidate_cache = true;
+            }
+            
+            $count++;
+        }
+        
+        // Invalidate np_cache if need be
+        if ($invalidate_cache)
+            $this->np_cache = array();
+    }
+    
+    /**
+     * Re-orders the images in a gallery if there's a need for it
+     *
+     * If there's an image with an order of 0 found, the images are re-ordered
+     *
+     * @since 1.0.36
+     * @param int $id Gallery ID
+     * @return bool Returns true if re-ordered
+     */
+    public function reorderIfNeeded($id)
+    {
+        global $wpdb;
+        
+        $id = (int)$id;
+        
+        if ($id == 0)
+            return false;
+            
+        $order            = $this->getCount($id); // Initial order
+        $invalidate_cache = false;
+        $images           = $wpdb->get_results($wpdb->prepare("SELECT `ID`,`menu_order` FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_status` = %s AND `post_type` = %s AND `menu_order` = 0", $id, 'inherit', 'attachment') . wp_post_mime_type_where('image') . " ORDER BY `post_date` ASC", OBJECT_K);
+
+        // Images with a zero order, ordered by the date they've been added, are given a new order
+        foreach ($images as $image) {
+            $image->menu_order = $order;
+            wp_update_post($image);
+            
+            $invalidate_cache = true;
+            $order++;
+        }
+        
+        // If changed were made, invalidate cache and ensure all images are in sequential order
+        if ($invalidate_cache) {
+            $this->np_cache = array();
+            
+            $this->reorder($gallery_id);
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Sorts a selection of IDs by their respective order
+     *
+     * This is required for bulk moves
+     *
+     * @since 1.0.36
+     * @param array $ids Array containing the IDs
+     * @param bool $reverse Reverse sort order (ascending by default)
+     * @return array
+     */
+    public function getSortedByOrder($ids, $reverse = false)
+    {
+        global $wpdb;
+
+        // Sanitize
+        foreach ($ids as $id_k => $id_v) {
+            if (!is_int($id_v)) {
+                if (is_numeric($id_v) && (int)$id_v != 0) {
+                    $ids[$id_k] = (int)$id_v;
+                } else {
+                    unset($ids[$id_k]);
+                }
+            }
+        }
+        
+        $sql_ids   = implode(',', $ids);
+        $sql_order = ($reverse) ? 'DESC' : 'ASC';
+        
+        if ($sql_ids != '')
+            $ids = $wpdb->get_col($this->base_select(array('ID')) . " AND `ID` in ({$sql_ids}) ORDER BY `menu_order` {$sql_order}");
+        
+        return array_map(function($v) { return (int)$v; }, $ids);
+    }
+    
+    /**
+     * Changes the order of an image
+     *
+     * @since 1.0.36
+     * @param int $id Image ID
+     * @param bool $inc Whether to increase (true) or decrease (false) the order. Increase by default.
+     */
+    public function changeOrder($id, $inc = true)
+    {
+        global $wpdb;
+        
+        $id = (int)$id;
+        
+        if ($id == 0)
+            return false;
+            
+        $image = get_post($id);
+        
+        if (!$image || $image->post_type != 'attachment' || $image->post_parent == 0)
+            return false;
+            
+        $gallery_id = $image->post_parent;
+        
+        // Ensure we have an order for all the images, and if things were changed, that we have the correct menu order
+        if ($this->reorderIfNeeded($gallery_id))
+            $image = get_post($id);
+        
+        // Save the menu_order for later
+        $current_order = $image->menu_order;            
+        
+        // Determine wether to move it up or down in the order
+        if ($inc) {
+            $image->menu_order++;
+        } else {
+            $image->menu_order--;
+        }
+        
+        // We cannot lower the order down to zero - lowest possible
+        if ($image->menu_order == 0)
+            return false;
+    
+        // Find out if there's already image(s) with the new order
+        $images_at_order = $wpdb->get_results($wpdb->prepare("SELECT `ID`,`menu_order` FROM `{$wpdb->posts}` WHERE `post_parent` = %d AND `post_status` = %s AND `post_type` = %s AND `menu_order` = %d", $gallery_id, 'inherit', 'attachment', $image->menu_order) . wp_post_mime_type_where('image'), OBJECT_K);
+        
+        // Swap the order for those already at the new order
+        foreach ($images_at_order as $image_at_order) {
+            $image_at_order->menu_order = $current_order;
+            wp_update_post($image_at_order);
+        }
+        
+        // Set the new order
+        wp_update_post($image);
+ 
+        // Invalidate cache as changes were made
+        $this->np_cache = array();
+        
+        // Ensure all images have a sequential order
+        $this->reorder($gallery_id);
+        
+        return true;
     }
 }

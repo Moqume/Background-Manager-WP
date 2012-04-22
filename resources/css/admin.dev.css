@@ -144,14 +144,14 @@
     display: none;
 }
 
-#image_buttons {
+.image_buttons {
     display: none;
     position: absolute;
     padding: 2px;
     z-index: 95;
 }
 
-#image_buttons .image_img_button {
+.image_buttons .image_img_button {
     background-color: #EEE;
     border-color: #999;
     border-radius: 3px;
@@ -165,7 +165,7 @@
     height: 24px;
 }
 
-#image_buttons .image_img_button:hover {
+.image_buttons .image_img_button:hover {
     background-color: #CCC;
     border-color: #555;
 }

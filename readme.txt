@@ -88,7 +88,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.35 =
+= 1.0.36 =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories for _Category Override_ meta option, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
