@@ -14,39 +14,6 @@ use Pf4wp\Common\Helpers;
 use Pf4wp\Common\Cookies;
 use Pf4wp\Help\ContextHelp;
 
-/* Guided Help using FeaturePointers */
-
-/** Step 1 of Guided Help. @see onSettingsMenuLoad() */
-class PointerAddNewStep1 extends \Pf4wp\Pointers\FeaturePointer
-{
-    protected $selector = '#add_new_image_set';
-    protected $position = array('align' => 'left');
-    
-    public function onBeforeShow($textdomain)
-    {
-        $this->setContent(
-            __('<p>Start by adding a new <em>Image Set</em><p><p>Once you\'re done, come back here and set it as the active <em>Background Image Set</em>.</p>', $textdomain),
-            __('Let\'s Get Started!', $textdomain)
-        );
-    }
-}
-
-/** Step 2 of Guided Help. @see onGalleriesMenuLoad() (Edit section) */
-class PointerAddNewStep2 extends \Pf4wp\Pointers\FeaturePointer
-{
-    protected $selector = '#add_add_image';
-    protected $position = array('edge' => 'left');
-
-    public function onBeforeShow($textdomain)
-    {
-        $this->setContent(
-            __('<p>Click on this icon to start adding some images.</p><p>Save using the <strong>Add Image Set</strong> button. Don\'t forget to add a title once you\'re done!</p>', $textdomain),
-            __('Add Some Images!', $textdomain)
-        );
-    }    
-}
-
-
 /**
  * The main class for the BackgroundManager
  *
@@ -116,6 +83,7 @@ class Main extends \Pf4wp\WordpressPlugin
     protected $default_options = array(
         'change_freq'            => 'load',      // static::CF_LOAD
         'change_freq_custom'     => 10,
+        'image_selection'        => 'random',
         'background_size'        => 'as-is',     // static::BS_ASIS
         'background_scroll'      => 'scroll',    // static::BST_SCROLL
         'background_position'    => 'top-left',
@@ -141,6 +109,7 @@ class Main extends \Pf4wp\WordpressPlugin
     protected $filtered_options = array(
         'active_gallery',
         'background_opacity',
+        'image_selection',
         'change_freq',
         'change_freq_custom',
         'active_overlay',
@@ -370,167 +339,111 @@ class Main extends \Pf4wp\WordpressPlugin
         
         return $result;
     }
-    
+        
     /**
-     * Helper that obtains a random image, including all details about it
+     * Helper to obtain an image based on user preferences
+     *
+     * This will return either a random image, or one in sequential order (ascending or descening)
      *
      * @param string $previous_image The URL of the previous image, if any (to avoid duplicates)
-     * @param id $active_id Active gallery, or `false` if to be determined automatically (default)
+     * @param id $active_gallery_id Active gallery, or `false` if to be determined automatically (default)
      * @param string $size The size of the image to return (original size by default)
+     * @param string $active_image_selection The selection method for the image, or `false` to determine automatically (default)
      * @return array
      */
-    public function getRandomImage($previous_image = '', $active_id = false, $size = false)
+    public function getImage($previous_image = '', $active_gallery_id = false, $size = false, $active_image_selection = false)
     {
-        $bailout      = 0; // Loop bailout
-        $random_id    = 0;
-        $random_image = '';
-        $desc         = '';
-        $caption      = '';
-        $alt          = '';
-        $link         = '';
-        $thumb        = '';
-        $meta         = '';
-        $bg_link      = '';
-        $change_freq  = $this->getFilteredOptions('change_freq');
+        $image_id        = 0;
+        $image_url       = false;
+        $results         = array();
+        $change_freq     = $this->getFilteredOptions('change_freq');
+        $image_selection = ($active_image_selection === false) ? $this->getFilteredOptions('image_selection') : $active_image_selection;
+        $gallery_id      = ($active_gallery_id === false) ? $this->getFilteredOptions('active_gallery') : $active_gallery_id;
+        $cache_id        = 'get_image_' . md5($image_selection . $gallery_id . $change_freq);
         
-        if ($active_id === false) {
-            $gallery_id = $this->getFilteredOptions('active_gallery');
-        } else {
-            $gallery_id = $active_id;
-        }
+        // Default results
+        $defaults = array(
+            'id'      => 0, 
+            'url'     => '', 
+            'alt'     => '', 
+            'desc'    => '', 
+            'caption' => '',
+            'link'    => '', 
+            'thumb'   => '',
+            'bg_link' => '',
+        );
+        
+        // If we've already been through the motions, return the cached results
+        if (isset($this->np_cache[$cache_id]))
+            return $this->np_cache[$cache_id];
         
         if ($this->getGallery($gallery_id) != false) {
             // Create an instance of Images, if needed
             if (!isset($this->images))
                 $this->images = new Images($this);
             
-            switch ($change_freq) {
-                case static::CF_SESSION:
-                    $cookie_id = static::BASE_PUB_PREFIX . 'bg_id_' . $gallery_id; // Cookie ID for stored background image ID
-                    
-                    while (true) {
-                        $bailout++;
-                        
-                        $random_id    = Cookies::get($cookie_id, $this->images->getRandomImageId($gallery_id));                       
-                        $random_image = wp_get_attachment_image_src($random_id, $size);
-                        
-                        if ($random_image) {
-                            // We only need the URL
-                            $random_image = $random_image[0];
-                        
-                            // Save random image in cookie
-                            Cookies::set($cookie_id, $random_id, 0, false);
-                            
-                            break;
-                        } else {
-                            // Invalidate cookie
-                            Cookies::delete($cookie_id);
-                        }
-                        
-                        // The bailout clause
-                        if ($bailout > 2) {
-                            $random_image = '';
-                            break;
-                        }
-                    }
-                    
-                    break;
-                    
-                case static::CF_CUSTOM:
-                    $only_one_available = ($this->images->getCount($gallery_id) == 1);
-                    
-                    while (true) {
-                        $bailout++;
-                        
-                        $random_id    = $this->images->getRandomImageId($gallery_id);
-                        $random_image = wp_get_attachment_image_src($random_id, $size);
-                        
-                        if ($random_image) {
-                            $random_image = $random_image[0]; // URL
-                            
-                            // Make sure it isn't the same as the previous image, if specified
-                            if ((!empty($previous_image) && $random_image != $previous_image) || empty($previous_image))
-                                break;
-                        }
-                        
-                        // Bailout clause
-                        if ($bailout > 99 || $only_one_available) {
-                            $random_image = ''; // Invalidate result
-                            break;
-                        }
-                    }
-                    
-                    break;
-                    
-                default: // CF_LOAD
-                    $random_id    = $this->images->getRandomImageId($gallery_id);
-                    $random_image = wp_get_attachment_image_src($random_id, $size);
-                    
-                    // All we need is the URL here
-                    if ($random_image)
-                        $random_image = $random_image[0];
-                    
-                    break;
+            $prev_id   = $this->images->URLtoID($previous_image);
+            $image_id  = $this->images->getImageId($gallery_id, $image_selection, $prev_id);
+            
+            if ($change_freq == static::CF_SESSION) {
+                $cookie_id = static::BASE_PUB_PREFIX . 'bg_id_' . $gallery_id; // Cookie ID for stored background image ID
+                
+                $image_id  = Cookies::get($cookie_id, $image_id);
+                $image_url = wp_get_attachment_image_src($image_id, $size);
+                
+                if ($image_url) {
+                    // We only need the URL
+                    $image_url = $image_url[0];
+                
+                    // Save random image in cookie
+                    Cookies::set($cookie_id, $image_id, 0, false);
+                } else {
+                    // Invalidate cookie
+                    Cookies::delete($cookie_id);
+                }
+            } else {
+                $image_url = wp_get_attachment_image_src($image_id, $size);
+                
+                // Just the URL, please
+                if ($image_url)
+                    $image_url = $image_url[0];
             }
         }
         
-        // Set the BACKGROUND_IMAGE definition and fetch additional details about the image
-        if ($random_image) {
+        // Fetch extra details about the image, if we have a valid image URL
+        if ($image_url) {
             if (!defined('BACKGROUND_IMAGE'))
-                define('BACKGROUND_IMAGE', $random_image);
+                define('BACKGROUND_IMAGE', $image_url);
             
             // Since 3.4
             if ($this->checkWPVersion('3.4', '>=')) {
-                add_theme_support('custom-background', array('default-image' => $random_image));
+                add_theme_support('custom-background', array('default-image' => $image_url));
             }
             
-            // Get the ALT image meta
-            $alt  = get_post_meta($random_id, '_wp_attachment_image_alt', true);
-            
-            // Get the link to the image info, if any (filter since 1.0.34)
-            $link = apply_filters('myatu_bgm_image_link', $gallery_id, post_permalink($random_id));
-            
-            // Get the image metadata
-            $meta = get_post_meta($random_id, '_wp_attachment_metadata', true);
-            if ($meta && is_array($meta)) {
-                $meta = $meta['image_meta']; // All we grab is the EXIF/IPTC meta
-            } else {
-                $meta = '';
-            }
-            
-            // Get background link (for full-screen click)
-            $bg_link = get_post_meta($random_id, Filter\MediaLibrary::META_LINK, true);
-            
-            // Get a thumbnail image link
-            $thumb = wp_get_attachment_image_src($random_id, 'thumbnail');
-            if ($thumb) {
-                $thumb = $thumb[0];
-            } else {
-                $thumb = '';
-            }
-            
+            $results = array(
+                'url'       => $image_url,
+                'id'        => $image_id,
+                'alt'       => get_post_meta($image_id, '_wp_attachment_image_alt', true),
+                'link'      => apply_filters('myatu_bgm_image_link', $gallery_id, post_permalink($image_id)), /* filtered since 1.0.34 */
+                'bg_link'   => get_post_meta($image_id, Filter\MediaLibrary::META_LINK, true),
+                'thumb'     => ($thumb = wp_get_attachment_image_src($image_id, 'thumbnail')) ? $thumb[0] : '',
+            );
+                
             // Get the image caption and description
-            if (($image = get_post($random_id))) {
-                $desc    = $image->post_content;
-                $caption = $image->post_excerpt;
+            if (($image = get_post($image_id))) {
+                $results['desc']    = wpautop($image->post_content);
+                $results['caption'] = $image->post_excerpt;
                 
                 // If the caption is empty, substitute it with the title - since 1.0.20
-                if (empty($caption))
-                    $caption = $image->post_title;
+                if (empty($results['caption']))
+                    $results['caption'] = $image->post_title;
             }
         }
-
-        return array(
-            'id'      => $random_id, 
-            'url'     => $random_image, 
-            'alt'     => $alt, 
-            'desc'    => wpautop($desc), 
-            'caption' => $caption,
-            'link'    => $link, 
-            'thumb'   => $thumb,
-            'meta'    => $meta,
-            'bg_link' => $bg_link
-        );
+        
+        // Store into cache
+        $this->np_cache[$cache_id] = array_merge($defaults, $results);
+        
+        return $this->np_cache[$cache_id];
     }
     
     /**
@@ -908,6 +821,8 @@ class Main extends \Pf4wp\WordpressPlugin
     public function onUpgrade($previous_version, $current_version)
     {
         $this->clearTransients();
+        
+        $this->options->last_upgrade = $current_version;
     }
     
     /**
@@ -1073,17 +988,19 @@ class Main extends \Pf4wp\WordpressPlugin
                 
                 break;
                 
-            /** Returns a randomly selected image, or one in sequential order, from the active gallery */
-            case 'random_image' :
+            /** Select an image randomly or in sequential order from the active gallery */
+            case 'select_image' :
                 // Extract the URL of the previous image
                 if (!preg_match('#^(?:url\(\\\\?[\'\"])?(.+?)(?:\\\\?[\'\"]\))?$#i', $data['prev_img'], $matches))
                     return;
+                $prev_image = $matches[1];
                 
-                $prev_image   = $matches[1];
-                $random_image = $this->getRandomImage($prev_image, (int)$data['active_gallery']);
-                
-                // Remove 'meta', as we do not use this in the front-end
-                unset($random_image['meta']);
+                if (isset($data['selector']) && in_array($data['selector'], array(Images::SO_RANDOM, Images::SO_ASC, Images::SO_DESC))) {
+                    // Override the selector (by the preview)
+                    $image = $this->getImage($prev_image, (int)$data['active_gallery'], false, $data['selector']);
+                } else {
+                    $image = $this->getImage($prev_image, (int)$data['active_gallery']);
+                }
                 
                 // Add transition type
                 if ($this->options->background_transition == 'random') {
@@ -1091,15 +1008,15 @@ class Main extends \Pf4wp\WordpressPlugin
                     $transitions = array_diff_key($this->getBgOptions('transition'), array('none', 'random'));
                     $rand_sel    = array_rand($transitions);
 
-                    $random_image['transition'] = $transitions[$rand_sel];
+                    $image['transition'] = $transitions[$rand_sel];
                 } else {
-                    $random_image['transition'] = $this->options->background_transition;
+                    $image['transition'] = $this->options->background_transition;
                 }
                 
                 // Add transition speed
-                $random_image['transition_speed'] = ((int)$this->options->transition_speed >= 100 && (int)$this->options->transition_speed <= 15000) ? $this->options->transition_speed : 600;
+                $image['transition_speed'] = ((int)$this->options->transition_speed >= 100 && (int)$this->options->transition_speed <= 15000) ? $this->options->transition_speed : 600;
                 
-                $this->ajaxResponse((object)$random_image, empty($random_image['url']));
+                $this->ajaxResponse((object)$image, empty($image['url']));
                 
                 break;
             
@@ -1312,14 +1229,21 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_style('jquery-ui-slider', $css_url . 'vendor/jquery-ui-slider' . $debug . '.css', false, $version);
         
         // Guided Help, Step 1 ("Get Started")
-        new PointerAddNewStep1($this->getName());
+        new Pointers\AddNewStep1($this->getName());
+
+        // Intro to new features in 1.1
+        if ($this->options->last_upgrade == '1.1') {
+            new Pointers\Upgrade1dot1new1($this->getName());
+            new Pointers\Upgrade1dot1new2($this->getName());
+        }
         
         // Save settings if POST is set
         if (!empty($_POST) && isset($_POST['_nonce'])) {
             if (!wp_verify_nonce($_POST['_nonce'], 'onSettingsMenu'))
                 wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
             
-            $this->options->active_gallery                = (int)$_POST['active_gallery'];      
+            $this->options->active_gallery                = (int)$_POST['active_gallery'];
+            $this->options->image_selection               = (in_array($_POST['image_selection'], array(Images::SO_RANDOM, Images::SO_ASC, Images::SO_DESC))) ? $_POST['image_selection'] : null;
             $this->options->change_freq                   = (in_array($_POST['change_freq'], array(static::CF_SESSION, static::CF_LOAD, static::CF_CUSTOM))) ? $_POST['change_freq'] : null;
             $this->options->change_freq_custom            = (int)$_POST['change_freq_custom'];
             $this->options->background_size               = (in_array($_POST['background_size'], array(static::BS_FULL, static::BS_ASIS))) ? $_POST['background_size'] : null;
@@ -1450,6 +1374,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'submit_button'                 => get_submit_button(),
             'galleries'                     => $galleries,
             'overlays'                      => $overlays,
+            'image_selection'               => $this->options->image_selection,
             'background_color'              => get_background_color(),
             'background_size'               => $this->options->background_size,
             'background_scroll'             => $this->options->background_scroll,
@@ -1571,8 +1496,13 @@ class Main extends \Pf4wp\WordpressPlugin
             wp_enqueue_style('editor-buttons');
             
             // Guided Help ("Add Images")
-            new PointerAddNewStep2($this->getName());            
-
+            new Pointers\AddNewStep2($this->getName());            
+            
+            // Intro to new features in 1.1
+            if ($this->options->last_upgrade == '1.1') {
+                new Pointers\Upgrade1dot1new3($this->getName());
+            }
+            
             // Set the 'images per page'
             $active_menu                 = $this->getMenu()->getActiveMenu();
             $active_menu->per_page       = 30;
@@ -1951,7 +1881,7 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // Only add a background image here if we have a valid gallery and we're not using a full-screen image
         if ($this->getGallery($active_gallery) != false && $background_size != static::BS_FULL) {
-            $random_image = $this->getRandomImage();
+            $random_image = $this->getImage();
             
             if ($random_image['url'])
                 $style .= sprintf('background-image: url(\'%s\');', $random_image['url']);
@@ -2012,7 +1942,7 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // If image is selected per browser session, set a cookie now (before headers are sent)
         if ($change_freq == static::CF_SESSION)
-            $this->getRandomImage();
+            $this->getImage();
 
         /* Only load the scripts if: 
          * - there's custom change frequency
@@ -2063,6 +1993,7 @@ class Main extends \Pf4wp\WordpressPlugin
             $script_vars = array_merge($script_vars, array(
                 'active_transition' => $background_transition,
                 'transition_speed'  => $transition_speed,
+                'image_selection'   => $image_selection,
                 'transitions'       => array_values(array_diff_key($this->getBgOptions('transition'), array('none', 'random'))),
             ));
         }
@@ -2145,7 +2076,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'has_overlay'    => ($active_overlay != false),
             'opacity'        => str_pad($background_opacity, 2, '0', STR_PAD_LEFT), // Only available to full size background
             'is_fullsize'    => $background_size == static::BS_FULL,
-            'random_image'   => $this->getRandomImage(),
+            'random_image'   => $this->getImage(),
             'permalink'      => get_site_url() . $_SERVER['REQUEST_URI'],
         );
         

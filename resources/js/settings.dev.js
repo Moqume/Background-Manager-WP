@@ -47,12 +47,28 @@ if (myatu_bgm === undefined)
             myatu_bgm.showHide('.pin_it_btn_extra', $('#pin_it_btn').is(':checked'));
         },
 
+        /** Hides or shows the "Ascending" and "Descending" option, if the change frequency is custom (see Background Transition event) */
+        showHideSelector: function() {
+            var is_custom_freq = ($('input[name="change_freq"]:checked').val() == 'custom');
+
+            myatu_bgm.showHide('.image_sel_ad', is_custom_freq);
+            myatu_bgm.showHide('#image_sel_random', is_custom_freq); // Hides the radio button
+
+            // Make sure 'Random' is selected when not using a custom change frequency
+            if (!is_custom_freq) {
+                $('#image_sel_random').attr('checked',true);
+            }
+        },
+
         /** Hides or shows the Background Transition settings */
         showHideBackgroundTransition: function() {
             var is_full = ($('input[name="background_size"]:checked').val() == 'full'),
                 is_custom_freq = ($('input[name="change_freq"]:checked').val() == 'custom');
 
             myatu_bgm.showHide('.bg_transition', (is_full && is_custom_freq));
+
+            // Also trigger the event for the Image Selector
+            myatu_bgm.showHideSelector();
         },
 
         /** Changes the preview background color according to the selection */
@@ -109,7 +125,7 @@ if (myatu_bgm === undefined)
 
         /** Updates the image used in the preview, taken from the selected gallery */
         updatePreviewGallery: function() {
-            var id = $('#active_gallery option:selected').val(), img = myatu_bgm.GetAjaxData('random_image', {'active_gallery': id, 'prev_img': 'none'});
+            var id = $('#active_gallery option:selected').val(), img = myatu_bgm.GetAjaxData('select_image', {'active_gallery': id, 'prev_img': 'none'});
 
             if (img) {
                 $('#bg_preview').css('background-image', 'url(\'' + img.thumb + '\')');

@@ -45,12 +45,40 @@
                 </tr>
                 <tr valign="top">
                     <th scope="row">
-                        {{ __('Select a random image') }}
+                        {{ __('Image selection order') }}
+                    </th>
+                    <td>
+                        <fieldset id="image_sel">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Image selection order') }}</span>
+                            </legend>
+                            <label>
+                                <input id="image_sel_random" type="radio" value="random" name="image_selection" {% if image_selection == 'random' %}checked="checked"{% endif %} />
+                                <span>{{ __('Random') }}</span>
+                            </label>
+                            <div class="image_sel_ad">
+                                <label>
+                                    <input id="image_sel_asc" type="radio" value="asc" name="image_selection" {% if image_selection == 'asc' %}checked="checked"{% endif %} />
+                                    <span>{{ __('Ascending') }}</span>
+                                </label>
+                                <br />
+                                <label>
+                                    <input id="image_sel_desc" type="radio" value="desc" name="image_selection" {% if image_selection == 'desc' %}checked="checked"{% endif %} />
+                                    <span>{{ __('Descending') }}</span>
+                                </label>
+                            </div>
+                        </fieldset>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">
+                        {{ __('Select an image') }}
                     </th>
                     <td>
                         <fieldset id="rand_sel">
                             <legend class="screen-reader-text">
-                                <span>{{ __('Select a random image') }}</span>
+                                <span>{{ __('Select an image') }}</span>
                             </legend>
                             <label>
                                 <input class="change_freq" type="radio" value="session" name="change_freq" {% if change_freq == 'session' %}checked="checked"{% endif %} />

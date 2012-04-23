@@ -14,7 +14,8 @@ namespace Myatu\WordPress\BackgroundManager\Customizer;
  *
  * @since 1.0.30
  * @author Mike Green <myatus@gmail.com>
- * @package BackgroundManager\Customizer
+ * @package BackgroundManager
+ * @subpackage Customizer
  */
 class SlideControl extends \WP_Customize_Control
 {

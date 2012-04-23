@@ -10,13 +10,15 @@
 namespace Myatu\WordPress\BackgroundManager\Customizer;
 
 use Myatu\WordPress\BackgroundManager\Main;
+use Myatu\WordPress\BackgroundManager\Images;
 
 /**
  * Adds support for the WP 3.4 Theme Customzier
  *
  * @since 1.0.30
  * @author Mike Green <myatus@gmail.com>
- * @package BackgroundManager\Customize
+ * @package BackgroundManager
+ * @subpackage Customizer
  */
 class Customizer
 {
@@ -24,6 +26,7 @@ class Customizer
     
     /** Preview Options */
     const P_GALLERY      = 'active_gallery';
+    const P_SELECTOR     = 'image_selection';
     const P_OPACITY      = 'background_opacity';
     const P_CHANGE_FREQ  = 'change_freq';
     const P_CHANGE_FCST  = 'change_freq_custom';
@@ -68,9 +71,10 @@ class Customizer
         $this->active_customizations = array(
             // ID => array('option' => special function called to save option, 'label' => Display label, 'priority' => Display order priority (optional), 'sanitize' => Sanitize callback name (optional)
             static::P_GALLERY       => array('label' => __('Image Set', $this->owner->getName()),               'priority' => 10),
-            static::P_CHANGE_FREQ   => array('label' => __('Select a random image', $this->owner->getName()),   'priority' => 11),
-            static::P_CHANGE_FCST   => array('label' => __('Interval (seconds)', $this->owner->getName()),      'priority' => 12, 'sanitize' => 'onSanitizeCustomFreq'),
-            static::P_COLOR         => array('label' => __('Background Color', $this->owner->getName()),        'priority' => 13, 'sanitize' => 'onSanitizeColor', 'option' => array($this, 'onSaveColor')),
+            static::P_SELECTOR      => array('label' => __('Image selection order', $this->owner->getName()),   'priority' => 11),
+            static::P_CHANGE_FREQ   => array('label' => __('Select an image', $this->owner->getName()),         'priority' => 12),
+            static::P_CHANGE_FCST   => array('label' => __('Interval (seconds)', $this->owner->getName()),      'priority' => 13, 'sanitize' => 'onSanitizeCustomFreq'),
+            static::P_COLOR         => array('label' => __('Background Color', $this->owner->getName()),        'priority' => 14, 'sanitize' => 'onSanitizeColor', 'option' => array($this, 'onSaveColor')),
             static::P_BG_SIZE       => array('label' => __('Size', $this->owner->getName()),                    'priority' => 20), 
             static::P_BG_POS        => array('label' => __('Position', $this->owner->getName()),                'priority' => 21),
             static::P_BG_TILE       => array('label' => __('Tiling', $this->owner->getName()),                  'priority' => 21),
@@ -327,6 +331,12 @@ class Customizer
                     }
                     
                     $this->addSettingControl($id, $details, 'select', $choices);
+                    break;
+                    
+                case static::P_SELECTOR :
+                    $choices = array(Images::SO_RANDOM => __('Random'), Images::SO_ASC => __('Ascending'), Images::SO_DESC => __('Descending'));
+                    $this->addSettingControl($id, $details, 'radio', $choices);
+                    
                     break;
                     
                 case static::P_CHANGE_FREQ :

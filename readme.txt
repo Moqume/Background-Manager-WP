@@ -88,7 +88,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.36 =
+= 1.0.38 =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories for _Category Override_ meta option, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
@@ -96,6 +96,8 @@ with PHP versions older than 5.3.
 * __Added:__ Importer for [GRAND FlAGallery](http://wordpress.org/extend/plugins/flash-album-gallery/).
 * __Added:__ Option to overide the color in Posts, Pages, Categories and Tags
 * __Added:__ Ability to remove (detach) images from an Image Set, keeping the image in the Media Library
+* __Added:__ Ability to change the order of images in an _Image Set_
+* __Added:__ In addition to selecting an image from an _Image Set_ at random, sequential (ascending/descending) selection is now possible too
 * Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
 * Changed: Decreased minimum permitted change frequency from 10 seconds to 1 second
 * Changed: Background image details are now loaded asynchronous, to prevent browser "blocking"

@@ -23,7 +23,7 @@ if (myatu_bgm === undefined)
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'background_stretch_vertical'), show);
 
             // Show on full(screen):
-            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'opacity'), !(show));
+            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'background_opacity'), !(show));
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'full_screen_adjust'), !(show));
 
             // Ensure the transition and center adjust is also shown or hidden
@@ -34,10 +34,23 @@ if (myatu_bgm === undefined)
         showHideCustomFreq: function() {
             var full         = $(myatu_bgm.base_control_prefix + 'background_size input:checked').val() == 'full',
                 custom_freq  = $(myatu_bgm.base_control_prefix + 'change_freq input:checked').val() == 'custom',
-                show_in_full = (custom_freq && full);
+                show_in_full = (custom_freq && full),
+                random_selector = $(myatu_bgm.base_control_prefix + 'image_selection input:radio[value=random]');
 
             // Show on custom_freq
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'change_freq_custom'), custom_freq);
+            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'image_selection input:radio[value=asc]').parent(), custom_freq);
+            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'image_selection input:radio[value=desc]').parent(), custom_freq);
+            myatu_bgm.showHide(random_selector, custom_freq);
+
+            // A bit of extra magic for 'Random' image selector
+            if (!custom_freq) {
+                if (!random_selector.is(':checked')) {
+                    $(random_selector).attr('checked',true);
+                    $(myatu_bgm.base_control_prefix + 'image_selection input').change();
+                }
+            }
+            
 
             // Show or hide in full(screen)
             myatu_bgm.showHide($('#customize-control-divider_background_transitioning_effect'), show_in_full);

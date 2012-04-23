@@ -23,6 +23,11 @@ class Images
 {
     protected $owner;
     protected $np_cache = array();
+    
+    const
+        SO_RANDOM = 'random',
+        SO_ASC    = 'asc',
+        SO_DESC   = 'desc';
         
     /** 
      * Constructor
@@ -91,12 +96,98 @@ class Images
      */
     public function getRandomImageId($id)
     {
+        return $this->getImageId($id, 'random');
+    }
+    
+    /**
+     * Returns an image ID from a gallery
+     *
+     * @since 1.0.36
+     * @param int $id ID of the Gallery (image set)
+     * @param string $selector String selection of 'random', 'asc' or 'desc' ('random' by default)
+     * @param int $prev_id ID of the previous image, if any (none by default)
+     * @return int|false Random image ID, or `false` if no images available
+     */
+    public function getImageId($id, $selector = 'random', $prev_id = 0)
+    {
+        $prev_id   = (int)$prev_id;
         $image_ids = $this->getAllImageIds($id);
+        $zcount    = count($image_ids)-1;
+        $key       = 0;
         
         if (empty($image_ids))
             return false;
-            
-        return $image_ids[mt_rand(0, count($image_ids)-1)];
+        
+        switch ($selector) {
+            case static::SO_RANDOM :
+                $key = mt_rand(0, $zcount);
+                
+                // Ensure there's no duplicate random selection
+                if ($zcount > 0 && $prev_id != 0) {
+                    while ($image_ids[$key] == $prev_id) {
+                        $key = mt_rand(0, $zcount);
+                    }
+                }
+                break;
+                
+            case static::SO_ASC :
+                if ($prev_id != 0) {
+                    $image_ids = $this->getSortedByorder($image_ids);
+                    $key       = array_search($prev_id, $image_ids);
+                    
+                    // Increase the key to the next image, or reset to 0 (start)
+                    if ($key !== false && $key < $zcount) {
+                        $key++;
+                    } else {
+                        $key = 0;
+                    }
+                }
+                break;
+                
+            case static::SO_DESC :
+                if ($prev_id != 0) {
+                    $image_ids = $this->getSortedByorder($image_ids);
+                    $key       = array_search($prev_id, $image_ids);
+                    
+                    // Decrease the key to the previous image, or reset to last image
+                    if ($key !== false && $key > 0) {
+                        $key--;
+                    } else {
+                        $key = $zcount;
+                    }
+                } else {
+                    $key = $zcount;
+                }
+                break;
+        }
+        
+        return $image_ids[$key];
+    }
+    
+    /**
+     * Returns the ID of an image based on its URL
+     *
+     * @since 1.0.36
+     * @param string $url URL of the image
+     * @return int|bool ID or `false` on error
+     */
+    public function URLtoID($url)
+    {
+        global $wpdb;
+        
+        $id      = false;
+        $uploads = wp_upload_dir();
+        
+        if ($uploads['error'] !== false)
+            return $id;
+        
+        $file   = str_replace($uploads['baseurl'] . '/', '', trim($url));
+        $result = (int)$wpdb->get_var($wpdb->prepare("SELECT DISTINCT `post_id` AS `ID` FROM `{$wpdb->postmeta}` WHERE `meta_key` = %s AND `meta_value` = %s", '_wp_attached_file', $file));
+
+        if ($result != 0)
+            $id = $result;
+        
+        return $id; 
     }
     
     /**
@@ -316,8 +407,6 @@ class Images
     
     /**
      * Sorts a selection of IDs by their respective order
-     *
-     * This is required for bulk moves
      *
      * @since 1.0.36
      * @param array $ids Array containing the IDs

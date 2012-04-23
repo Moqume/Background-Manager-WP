@@ -155,10 +155,15 @@ if (myatu_bgm === undefined)
                 info_tab    = $('#myatu_bgm_info_tab'),
                 prev_img    = (is_fullsize) ? $('#myatu_bgm_top').attr('src') : $('body').css('background-image'),
                 prev_style  = '',
-                transition_speed, active_transition;
+                transition_speed, active_transition, image_selection;
+
+            if (is_preview) {
+                // Override the method for selecting an image in the preview
+                image_selection = background_manager_vars.image_selection;
+            }
 
             // Async call
-            myatu_bgm.GetAjaxData('random_image', { 'prev_img' : prev_img, 'active_gallery': background_manager_vars.active_gallery }, function(new_image) {
+            myatu_bgm.GetAjaxData('select_image', { 'prev_img' : prev_img, 'selector' : image_selection, 'active_gallery': background_manager_vars.active_gallery }, function(new_image) {
                 if (!new_image)
                     return;
 
