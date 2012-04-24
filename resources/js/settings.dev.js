@@ -242,8 +242,10 @@ if (myatu_bgm === undefined)
         $('#background_stretch_horizontal').change(myatu_bgm.updatePreviewLayout);      // ..
         $('#background_stretch_vertical').change(myatu_bgm.updatePreviewLayout);        // ..
         $('#full_screen_adjust').change(myatu_bgm.showHideFullScreenAdjust);            // ..
-        $('#clear_color').change(myatu_bgm.clearColor);                                 // No pre-set
         $('input[name="change_freq"]').change(myatu_bgm.showHideBackgroundTransition);  // No pre-set (handled by updatePreviewLayout())
+
+        // Button
+        $('#clear_color').click(myatu_bgm.clearColor);                                  // No pre-set
 
         // Simple event
         $('#footer_debug_link').click(function() { $('#footer_debug').toggle(); return false; });
