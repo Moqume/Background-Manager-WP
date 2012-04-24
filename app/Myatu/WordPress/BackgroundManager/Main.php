@@ -388,6 +388,7 @@ class Main extends \Pf4wp\WordpressPlugin
             if ($change_freq == static::CF_SESSION) {
                 $cookie_id = static::BASE_PUB_PREFIX . 'bg_id_' . $gallery_id; // Cookie ID for stored background image ID
                 
+                // Grab the cookie if it exists, otherwise use the $image_id we've set earlier
                 $image_id  = Cookies::get($cookie_id, $image_id);
                 $image_url = wp_get_attachment_image_src($image_id, $size);
                 

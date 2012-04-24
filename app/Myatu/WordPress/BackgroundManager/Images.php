@@ -62,6 +62,8 @@ class Images
     /**
      * Returns all the IDs of Images in a Gallery
      *
+     * Note: Cached
+     *
      * @param int $id ID of the Gallery (image set)
      * @return array An array containing the IDs
      */
@@ -167,6 +169,8 @@ class Images
     /**
      * Returns the ID of an image based on its URL
      *
+     * Note: Cached
+     *
      * @since 1.0.36
      * @param string $url URL of the image
      * @return int|bool ID or `false` on error
@@ -174,6 +178,12 @@ class Images
     public function URLtoID($url)
     {
         global $wpdb;
+        
+        $cache_id = 'url_to_id_' . md5($url);
+        
+        // Returned cached results, if available
+        if (isset($this->np_cache[$cache_id]))
+            return $this->np_cache[$cache_id];
         
         $id      = false;
         $uploads = wp_upload_dir();
@@ -187,11 +197,16 @@ class Images
         if ($result != 0)
             $id = $result;
         
-        return $id; 
+        // Store into cache
+        $this->np_cache[$cache_id] = $id;
+        
+        return $id;
     }
     
     /**
      * Obtains the images in a Gallery
+     *
+     * Note: Cached
      *
      * @param int $id ID of the Gallery (image set)
      * @param array $args Additional arguments to pass to the query (Optional)
@@ -393,7 +408,7 @@ class Images
             $order++;
         }
         
-        // If changed were made, invalidate cache and ensure all images are in sequential order
+        // If changes were made, invalidate cache and ensure all images are in sequential order
         if ($invalidate_cache) {
             $this->np_cache = array();
             
@@ -408,6 +423,8 @@ class Images
     /**
      * Sorts a selection of IDs by their respective order
      *
+     * Note: Cached
+     *
      * @since 1.0.36
      * @param array $ids Array containing the IDs
      * @param bool $reverse Reverse sort order (ascending by default)
@@ -416,25 +433,36 @@ class Images
     public function getSortedByOrder($ids, $reverse = false)
     {
         global $wpdb;
+        
+        if (!is_array($ids))
+            return array();
+        
+        if (empty($ids))
+            return $ids;
+        
+        $cache_id = 'sorted_order_' . md5(implode('_', $ids) . (string)$reverse);
+        
+        if (isset($this->np_cache[$cache_id]))
+            return $this->np_cache[$cache_id];
 
-        // Sanitize
-        foreach ($ids as $id_k => $id_v) {
-            if (!is_int($id_v)) {
-                if (is_numeric($id_v) && (int)$id_v != 0) {
-                    $ids[$id_k] = (int)$id_v;
-                } else {
-                    unset($ids[$id_k]);
-                }
-            }
+        // Sanitize and remove ID's of zero
+        $ids = array_diff(array_map(function($v) { return (int)$v; }, $ids), array(0));
+        
+        if (!empty($ids)) {
+            // SQL-ize
+            $sql_ids   = implode(',', $ids);
+            $sql_order = ($reverse) ? 'DESC' : 'ASC';
+
+            $ids = $wpdb->get_col($this->base_select(array('ID')) . "AND `ID` in ({$sql_ids}) ORDER BY `menu_order` {$sql_order}");
+            
+            // Ensure they are integers
+            $ids = array_map(function($v) { return (int)$v; }, $ids);
         }
         
-        $sql_ids   = implode(',', $ids);
-        $sql_order = ($reverse) ? 'DESC' : 'ASC';
+        // Cache results
+        $this->np_cache[$cache_id] = $ids;
         
-        if ($sql_ids != '')
-            $ids = $wpdb->get_col($this->base_select(array('ID')) . "AND `ID` in ({$sql_ids}) ORDER BY `menu_order` {$sql_order}");
-        
-        return array_map(function($v) { return (int)$v; }, $ids);
+        return $this->np_cache[$cache_id];
     }
     
     /**
@@ -464,7 +492,7 @@ class Images
         if ($this->reorderIfNeeded($gallery_id))
             $image = get_post($id);
         
-        // Save the menu_order for later
+        // Save the menu_order for later (we give this menu_order to the one we'll be replacing)
         $current_order = $image->menu_order;            
         
         // Determine wether to move it up or down in the order
