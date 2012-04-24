@@ -170,6 +170,11 @@
     border-color: #555;
 }
 
+.img_ed_buttons img {
+    position: relative;
+    top: 3px;
+}
+
 #color_picker {
     z-index: 100;
     background: #eeeeee;

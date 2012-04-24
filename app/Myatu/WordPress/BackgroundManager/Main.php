@@ -1716,6 +1716,9 @@ class Main extends \Pf4wp\WordpressPlugin
         $images_iframe_src = add_query_arg(array('iframe' => 'images', 'edit' => $this->gallery->ID, 'orderby' => false, 'order' => false, 'pp' => $per_page, 'paged' => false));
         $image_edit_src    = add_query_arg(array('iframe' => 'edit_image', 'edit' => false, 'orderby' => false, 'order' => false, 'post_id' => $this->gallery->ID, 'filter' => Filter\MediaLibrary::FILTER));
         
+        // Resources
+        list($buttons_url, $version, $debug) = $this->getResourceUrl('images/buttons');
+        
         $vars = array(
             'is_wp34'           => $this->checkWPVersion('3.4', '>='),
             'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar columns-2' : '',
@@ -1731,6 +1734,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'media_buttons'     => $media_buttons,
             'is_new'            => $this->gallery->post_status != 'auto-draft',
             'edit'              => $this->gallery->ID,
+            'buttons_url'       => $buttons_url,
             'images_per_page'   => $per_page,
             'images_count'      => $this->images->getCount($this->gallery->ID),
             'images_hash'       => $this->images->getHash($this->gallery->ID),
@@ -1799,11 +1803,7 @@ class Main extends \Pf4wp\WordpressPlugin
         $vars = array(
             'images'       => $images,
             'current_page' => $page_num,
-            'image_edit'   => $buttons_url . 'edit.png',
-            'image_delete' => $buttons_url . 'delete.png',
-            'image_remove' => $buttons_url . 'remove.png',
-            'image_left'   => $buttons_url . 'left.png',
-            'image_right'  => $buttons_url . 'right.png',
+            'buttons_url'  => $buttons_url,
             /* For non-JS: */
             'page_links'   => $page_links,
             'nonce'        => wp_nonce_field('image-upload', '_nonce', false, false),

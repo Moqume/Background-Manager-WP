@@ -46,12 +46,15 @@
                     </div>
                     <div id="image_editor_container" class="wp-editor-container">
                         <div id="quicktags" class="quicktags-toolbar">
-                            <div id="ed_toolbar">
-                                <input id="ed_move_l_selected" class="ed_button" type="button" value="{{ __('<') }}" onclick="return false;" title="{{ __('Move the selected images left') }}" accesskey="o" />
-                                <input id="ed_move_r_selected" class="ed_button" type="button" value="{{ __('>') }}" onclick="return false;" title="{{ __('Move the selected images right') }}" accesskey="p" />
-                                <input id="ed_delete_selected" class="ed_button" type="button" value="{{ __('Delete Selected') }}" onclick="return false;" title="{{ __('Delete the selected images') }}" accesskey="l" />
-                                <input id="ed_remove_selected" class="ed_button" type="button" value="{{ __('Remove Selected') }}" onclick="return false;" title="{{ __('Remove the selected images') }}" accesskey="v" />
-                                <input id="ed_clear_selected"  class="ed_button" type="button" value="{{ __('Clear') }}" onclick="return false;" title="{{ __('Clear selected images') }}" accesskey="c" />
+                            <div id="ed_toolbar" class="img_ed_buttons">
+                                {{ __('Image Selection: ') }}
+                                <a id="ed_move_l_selected" href="#" class="button" accesskey="[" title="{{ __('Move the selected images to the left') }}"><img src="{{ buttons_url }}left_small.png"  alt="&lt;" /> {{ __('Move Left') }}</a>
+                                <a id="ed_move_r_selected" href="#" class="button" accesskey="]" title="{{ __('Move the selected images to the right') }}">{{ __('Move Right') }} <img src="{{ buttons_url }}right_small.png" alt="&gt;" /></a>
+                                &nbsp;
+                                <a id="ed_delete_selected" href="#" class="button" accesskey="l" title="{{ __('Permanently delete the selected images') }}"><img src="{{ buttons_url }}delete_small.png" alt="X" /> {{ __('Delete') }}</a>
+                                <a id="ed_remove_selected" href="#" class="button" accesskey="v" title="{{ __('Remove (detach) the images from the Image Set') }}"><img src="{{ buttons_url }}remove_small.png" alt="-" /> {{ __('Remove') }}</a>
+                                &nbsp;
+                                <a id="ed_clear_selected" href="#" class="button" accesskey="c" title="{{ __('Clear the selection') }}">{{ __('Clear') }}</a>
                             </div>
                         </div>
                         <div id="editorcontainer">
