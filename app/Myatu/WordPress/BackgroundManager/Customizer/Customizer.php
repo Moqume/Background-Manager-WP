@@ -176,12 +176,12 @@ class Customizer
      */
     protected function setPreviewValue($id)
     {
-        global $customize;
+        global $wp_customize;
         
-        if (!is_a($customize, '\WP_Customize'))
+        if (!is_a($wp_customize, '\WP_Customize'))
             return;
         
-        $setting = $customize->get_setting(Main::BASE_PUB_PREFIX . $id);
+        $setting = $wp_customize->get_setting(Main::BASE_PUB_PREFIX . $id);
         
         if (is_a($setting, '\WP_Customize_Setting')) {
             $value = $setting->post_value();
@@ -219,20 +219,20 @@ class Customizer
      */
     protected function addSettingControl($id, $details, $type = 'text', $choices = array())
     {
-        global $customize;
+        global $wp_customize;
         
-        if (!is_a($customize, '\WP_Customize'))
+        if (!is_a($wp_customize, '\WP_Customize'))
             return;
             
         $priority = isset($details['priority']) ? $details['priority'] : 10;
             
-        $customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
+        $wp_customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
             'default'   => $this->owner->options->$id,
             'type'      => 'myatu_bgm',
         ));
         
         if (is_string($type)) {
-            $customize->add_control(Main::BASE_PUB_PREFIX . $id, array(
+            $wp_customize->add_control(Main::BASE_PUB_PREFIX . $id, array(
                 'label'     => $details['label'],
                 'priority'  => $priority,
                 'section'   => static::PG_BGM,
@@ -250,15 +250,15 @@ class Customizer
      */
     protected function addDividerControl($priority, $label = '')
     {
-        global $customize;
+        global $wp_customize;
         
-        if (!is_a($customize, '\WP_Customize'))
+        if (!is_a($wp_customize, '\WP_Customize'))
             return;
             
         $id = 'divider_' . strtr(strtolower($label), ' -', '__');
             
-        $customize->add_setting($id, array('type' => 'none'));
-        $customize->add_control(new DividerControl($customize, $id, array(
+        $wp_customize->add_setting($id, array('type' => 'none'));
+        $wp_customize->add_control(new DividerControl($wp_customize, $id, array(
             'priority'  => $priority,
             'section'   => static::PG_BGM,
             'owner'     => $this->owner,
@@ -290,7 +290,7 @@ class Customizer
      */
     public function onPreviewInit()
     { 
-        global $customize;
+        global $wp_customize;
         
         // Initialize the filters
         foreach (array_keys($this->active_customizations) as $customization) {
@@ -306,12 +306,12 @@ class Customizer
      */
     public function onCustomizeRegister()
     {
-        global $customize;
+        global $wp_customize;
         
-        if (!is_a($customize, '\WP_Customize'))
+        if (!is_a($wp_customize, '\WP_Customize'))
             return;
         
-        $customize->add_section(static::PG_BGM, array(
+        $wp_customize->add_section(static::PG_BGM, array(
             'title'     => __('Background', $this->owner->getName()),
             'priority'  => 30,
 		));
@@ -355,17 +355,16 @@ class Customizer
                 
                 case static::P_COLOR :
                     // Background Color - Note that the exposed ID needs to be prefixed
-                    $customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
+                    $wp_customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
                         'default'           => get_background_color(),
                         'type'              => 'myatu_bgm',
                     ));
                     
-                    $customize->add_control(Main::BASE_PUB_PREFIX . $id, array(
+                    $wp_customize->add_control(new \WP_Customize_Color_Control($wp_customize, Main::BASE_PUB_PREFIX . $id, array(
                         'label'     => __('Background Color', $this->owner->getName()),
                         'priority'  => $priority,
                         'section'   => static::PG_BGM,
-                        'type'      => 'color',
-                    ));
+                    )));
                     break;
                 
                 case static::P_BG_SIZE :
@@ -404,12 +403,12 @@ class Customizer
                 case static::P_OPACITY :
                 case static::P_OVERLAY_O :
                     // Overlay Opacity
-                    $customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
+                    $wp_customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
                         'default'   => $this->owner->options->$id,
                         'type'      => 'myatu_bgm',
                     ));
                     
-                    $customize->add_control(new SlideControl($customize, Main::BASE_PUB_PREFIX . $id, array(
+                    $wp_customize->add_control(new SlideControl($wp_customize, Main::BASE_PUB_PREFIX . $id, array(
                         'label'     => $details['label'],
                         'priority'  => $priority,
                         'section'   => static::PG_BGM,
@@ -443,12 +442,12 @@ class Customizer
                     
                 case static::P_TRANS_SPD :
                     // Overlay Opacity
-                    $customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
+                    $wp_customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
                         'default'   => $this->owner->options->$id,
                         'type'      => 'myatu_bgm',
                     ));
                     
-                    $customize->add_control(new SlideControl($customize, Main::BASE_PUB_PREFIX . $id, array(
+                    $wp_customize->add_control(new SlideControl($wp_customize, Main::BASE_PUB_PREFIX . $id, array(
                         'label'       => $details['label'],
                         'priority'    => $priority,
                         'section'     => static::PG_BGM,

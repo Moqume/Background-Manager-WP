@@ -42,7 +42,12 @@
     width: 60px;
 }
 
+#customize-control-myatu_bgm_background_color .customize-control-content,
 #customize-section-background .customize-control-select select {
     width: 120px;
+}
+
+#customize-control-myatu_bgm_background_color .farbtastic-placeholder {
+    width: 100%;
 }
 

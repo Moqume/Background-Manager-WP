@@ -1934,10 +1934,10 @@ class Main extends \Pf4wp\WordpressPlugin
         
         // 3.4+ filters
         if ($this->checkWPVersion('3.4', '>=')) {
-            global $customize;
+            global $wp_customize;
             
-            if (is_a($customize, '\WP_Customize')) {
-                $is_preview = $customize->is_preview();
+            if (is_a($wp_customize, '\WP_Customize')) {
+                $is_preview = $wp_customize->is_preview();
             }
         }
         
