@@ -731,18 +731,6 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     public function onRegisterActions()
     {   
-        add_action('admin_menu', array($this, 'onRemoveWPBackground'), 5, 0);
-        add_action('wp_head', array($this, 'onWpHead'));
-        add_action('get_edit_post_link', array($this, 'onGetEditPostLink'), 10, 3);
-        add_action('add_attachment', array($this, 'onAddAttachment'), 20);      // Adds 'Background Image' to Library
-        add_action('edit_attachment', array($this, 'onAddAttachment'), 20);
-        add_action('admin_bar_menu', array($this, 'onAdminBarMenu'), 90);
-        
-        // Since 1.0.30 - Customize Theme screen for WP 3.4
-        if ($this->checkWPVersion('3.4', '>=')) {
-            $this->customizer = new \Myatu\WordPress\BackgroundManager\Customizer\Customizer($this);
-        }
-        
         // Register post types
         register_post_type(self::PT_GALLERY, array(
             'labels' => array(
@@ -759,6 +747,22 @@ class Main extends \Pf4wp\WordpressPlugin
             'query_var'           => false,
             'supports'            => array('title'),   // In case onGetEditPostLink() borks
         ));
+        
+        // If we're performing an AJAX call, the other bits aren't required
+        if (defined('DOING_AJAX') && DOING_AJAX)
+			return;
+            
+        add_action('admin_menu', array($this, 'onRemoveWPBackground'), 5, 0);
+        add_action('wp_head', array($this, 'onWpHead'));
+        add_action('get_edit_post_link', array($this, 'onGetEditPostLink'), 10, 3);
+        add_action('add_attachment', array($this, 'onAddAttachment'), 20);      // Adds 'Background Image' to Library
+        add_action('edit_attachment', array($this, 'onAddAttachment'), 20);
+        add_action('admin_bar_menu', array($this, 'onAdminBarMenu'), 90);
+        
+        // Since 1.0.30 - Customize Theme screen for WP 3.4
+        if ($this->checkWPVersion('3.4', '>=')) {
+            $this->customizer = new \Myatu\WordPress\BackgroundManager\Customizer\Customizer($this);
+        }
         
         // @see: onAddAttachment()
         add_theme_support('custom-background');
