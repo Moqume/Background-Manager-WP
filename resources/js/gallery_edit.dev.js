@@ -23,7 +23,7 @@ if (myatu_bgm === undefined)
 
         /** Holds selected images */
         image_selection: new Object(),
-       
+
         /** Gets the image count [Ajax] */
         getImageCount: function() { return (myatu_bgm.GetAjaxData('image_count', $('#edit_id').val())); },
 
@@ -53,7 +53,7 @@ if (myatu_bgm === undefined)
             myatu_bgm.GetAjaxData(func, ids);
 
             myatu_bgm.showHideEditBar(true);
-            
+
             if (myatu_bgm.haveImagesChanged(true))
                 myatu_bgm.loadImagesIframe();
         },
@@ -128,7 +128,7 @@ if (myatu_bgm === undefined)
 
             if (dest == undefined)
                 dest = $('#images_iframe').attr("src"); // Default action is to reload
-               
+
             // Display the overlay on top of the images iframe
             overlay.show();
 
@@ -138,7 +138,7 @@ if (myatu_bgm === undefined)
             // Center the loader image
             loader.css('top', ((overlay.height() - loader.outerHeight()) / 2) + overlay.scrollTop() + 'px');
             loader.css('left', ((overlay.width() - loader.outerWidth()) / 2) + overlay.scrollLeft() + 'px');
-            
+
             // Fade out the iframe
             $('#images_iframe').attr("src", dest).fadeOut('fast');
         },
@@ -168,7 +168,7 @@ if (myatu_bgm === undefined)
             image_buttons.css('left', image_img.offset().left - overlay.scrollLeft() + 'px');
             image_buttons.show();
 
-            image_img_bottom = (image_img.height() + image_img.offset().top - 38) - overlay.scrollTop();
+            image_img_bottom = (image_img.height() + image_img.offset().top - 30) - overlay.scrollTop();
             // Align the 'move left' button with the bottom-left corner of the image
             image_l_button_h.css('top',  image_img_bottom + 'px');
             image_l_button_h.css('left', image_img.offset().left - overlay.scrollLeft() + 'px');
@@ -176,7 +176,7 @@ if (myatu_bgm === undefined)
 
             // Align the 'move right' button with the bottom-right corner of the image
             image_r_button_h.css('top',  image_img_bottom + 'px');
-            image_r_button_h.css('left', (image_img.width() + image_img.offset().left - 38) - overlay.scrollLeft() + 'px');
+            image_r_button_h.css('left', (image_img.width() + image_img.offset().left - 30) - overlay.scrollLeft() + 'px');
             image_r_button_h.show();
 
             // Set the correct href for the buttons
@@ -201,7 +201,7 @@ if (myatu_bgm === undefined)
 
             // Display image count
             $('#wp-word-count #image-count').html(myatu_bgm.getImageCount());
-            
+
             // Iterate the images displayed, binding click and re-highlighting if previously selected
             $('.image', image_container).each(function(index) {
                 $(this).dblclick(myatu_bgm.onImageDoubleClick);
@@ -239,7 +239,7 @@ if (myatu_bgm === undefined)
         /** Event triggered when `Remove Selected` is clicked */
         onRemoveSelected: function(event) {
             myatu_bgm.doDeleteRemoveImages(false);
-            
+
             return false;
         },
 
@@ -334,14 +334,14 @@ if (myatu_bgm === undefined)
                 return false;
 
             myatu_bgm.doDeleteRemoveImages(true, $(this).attr('href').replace('#', ''));
-            
+
             return false;
         },
 
         /** Event triggered when the `remove` button is clicked */
         onImageRemoveButtonClick: function(event) {
             myatu_bgm.doDeleteRemoveImages(false, $(this).attr('href').replace('#', ''));
-            
+
             return false;
         },
 
@@ -365,8 +365,8 @@ if (myatu_bgm === undefined)
             var image_body = $('#images_iframe').contents().find('html,body'), image_container = $('#image_container', image_body), highlighted = $('.image.highlighted', image_container);
 
             // Internal function to ensure a highlighted item, and then scroll to the highlighted item
-            var doScroll = function(which) { 
-                if (!highlighted.length && which != undefined) 
+            var doScroll = function(which) {
+                if (!highlighted.length && which != undefined)
                     highlighted = $('.image:'+which, image_container).addClass('highlighted');
 
                 // Add any image buttons, if needed
@@ -389,7 +389,7 @@ if (myatu_bgm === undefined)
 
                     return false;
 
-                case 37: 
+                case 37:
                     // Left arrow
                     highlighted = highlighted.removeClass('highlighted').prev('.image').addClass('highlighted');
 
@@ -397,7 +397,7 @@ if (myatu_bgm === undefined)
 
                     return false;
 
-                case 39: 
+                case 39:
                     // Right arrow
                     highlighted = highlighted.removeClass('highlighted').next('.image').addClass('highlighted');
 
@@ -407,7 +407,7 @@ if (myatu_bgm === undefined)
             }
 
         }
-  
+
     });
 
     /** "Ready" event */
