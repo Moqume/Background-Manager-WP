@@ -82,12 +82,17 @@ if (myatu_bgm === undefined)
 
         /** Displays or hides the "Edit Bar" (containing buttons related to selected items) */
         showHideEditBar: function(getIds) {
+            var edit_bar = $('#quicktags'),
+                selected_count = $('#selected-count'),
+                count = myatu_bgm.GetObjSize(myatu_bgm.image_selection),
+                ids, id, key;
+
             if (getIds == true) {
                 // Check if a selected ID no longer exist in getImageIds(), and delete from image_selection if so.
-                var ids = myatu_bgm.getImageIds();
+                ids = myatu_bgm.getImageIds();
 
                 for (key in myatu_bgm.image_selection) {
-                    var id = key.replace('image_', '');
+                    id = key.replace('image_', '');
 
                     if (ids[id] == undefined)
                         delete myatu_bgm.image_selection[key];
@@ -95,8 +100,6 @@ if (myatu_bgm === undefined)
             }
 
             // Show or hide the edit bar based on the image_selection object count
-            var edit_bar = $('#quicktags'), selected_count = $('#selected-count'), count = myatu_bgm.GetObjSize(myatu_bgm.image_selection);
-
             if (count > 0) {
                 edit_bar.slideDown();
                 selected_count.show();
@@ -148,10 +151,8 @@ if (myatu_bgm === undefined)
             var image_buttons    = $('#images_iframe').contents().find('#image_buttons'),
                 image_r_button_h = $('#images_iframe').contents().find('#image_move_right_button_holder'),
                 image_l_button_h = $('#images_iframe').contents().find('#image_move_left_button_holder'),
-                image_img_bottom;
+                image_img_bottom, image_img, overlay;
 
-            if (highlighted == undefined)
-                highlighted = $('#images_iframe').contents().find('.highlighted:first');
 
             // If nothing is highlighted, then we hide the buttons instead.
             if (!$(highlighted).length) {
@@ -161,7 +162,8 @@ if (myatu_bgm === undefined)
                 return;
             }
 
-            var image_img = $('img', highlighted), overlay = $('#image_iframe_overlay'), loader = $('#loader', overlay);
+            image_img = $('img', highlighted);
+            overlay   = $('#image_iframe_overlay');
 
             // Align edit buttons within the top-left corner of the image
             image_buttons.css('top',  image_img.offset().top  - overlay.scrollTop()  + 'px');
@@ -190,8 +192,14 @@ if (myatu_bgm === undefined)
 
         /** Event triggered when the iframe has finished loading */
         onImagesIframeFinish: function(current_page) {
-            var image_body = $('#images_iframe').contents().find('html,body'), image_container = $('#image_container', image_body);
-            var pagination_links = myatu_bgm.GetAjaxData('paginate_links', { id: $('#edit_id').val(), base: $('#images_iframe_base').val(), pp: $('#images_per_page').val(), current: current_page });
+            var image_body       = $('#images_iframe').contents().find('html,body'),
+                image_container  = $('#image_container', image_body),
+                pagination_links = myatu_bgm.GetAjaxData('paginate_links', {
+                    id:      $('#edit_id').val(),
+                    base:    $('#images_iframe_base').val(),
+                    pp:      $('#images_per_page').val(),
+                    current: current_page
+                });
 
             // Display pagination links, if any were returned by Ajax call
             if (pagination_links != false) {
@@ -362,24 +370,22 @@ if (myatu_bgm === undefined)
 
         /** Event tiggered when a key is pressed inside the iframe, to assist with selecting items by keyboard */
         onIframeKeyDown: function(event) {
-            var image_body = $('#images_iframe').contents().find('html,body'), image_container = $('#image_container', image_body), highlighted = $('.image.highlighted', image_container);
+            var image_body      = $('#images_iframe').contents().find('html,body'),
+                image_container = $('#image_container', image_body),
+                highlighted     = $('.image.highlighted', image_container),
+                doScroll        = function(which) {
+                    // Internal function to ensure a highlighted item, and then scroll to the highlighted item
+                    if (!highlighted.length && which != undefined)
+                        highlighted = $('.image:'+which, image_container).addClass('highlighted');
 
-            // Internal function to ensure a highlighted item, and then scroll to the highlighted item
-            var doScroll = function(which) {
-                if (!highlighted.length && which != undefined)
-                    highlighted = $('.image:'+which, image_container).addClass('highlighted');
+                    // Add any image buttons, if needed
+                    myatu_bgm.showHideImageButtons();
 
-                // Add any image buttons, if needed
-                myatu_bgm.showHideImageButtons();
+                    // Scroll to the item.
+                    if (image_body.length && highlighted.length)
+                        image_body.scrollTo(highlighted);
 
-                // Scroll to the item.
-                if (image_body.length && highlighted.length)
-                    image_body.scrollTo(highlighted);
-
-            };
-
-            // Internal function to get position, width and height details
-            var pos = function(obj) { return { x: $(obj).offset().left, y: $(obj).offset().top, w: $(obj).outerWidth(), h: $(obj).outerHeight() }; }
+                };
 
             // Event is based on specific keys:
             switch (event.keyCode) {

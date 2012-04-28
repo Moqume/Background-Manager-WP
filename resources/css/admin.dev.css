@@ -164,6 +164,9 @@
     width: 24px;
     height: 24px;
     display: block;
+    -moz-box-shadow: 2px 2px 5px #aaa;
+    -webkit-box-shadow: 2px 2px 5px #aaa;
+    box-shadow: 2px 2px 5px #aaa;
 }
 
 .image_buttons .image_button:hover {
