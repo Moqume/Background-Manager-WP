@@ -84,8 +84,7 @@ if (myatu_bgm === undefined)
         showHideEditBar: function(getIds) {
             var edit_bar = $('#quicktags'),
                 selected_count = $('#selected-count'),
-                count = myatu_bgm.GetObjSize(myatu_bgm.image_selection),
-                ids, id, key;
+                count, ids, id, key;
 
             if (getIds == true) {
                 // Check if a selected ID no longer exist in getImageIds(), and delete from image_selection if so.
@@ -98,6 +97,9 @@ if (myatu_bgm === undefined)
                         delete myatu_bgm.image_selection[key];
                 }
             }
+
+            // Obtain the count of selected images (after removal)
+            count = myatu_bgm.GetObjSize(myatu_bgm.image_selection);
 
             // Show or hide the edit bar based on the image_selection object count
             if (count > 0) {
@@ -152,7 +154,6 @@ if (myatu_bgm === undefined)
                 image_r_button_h = $('#images_iframe').contents().find('#image_move_right_button_holder'),
                 image_l_button_h = $('#images_iframe').contents().find('#image_move_left_button_holder'),
                 image_img_bottom, image_img, overlay;
-
 
             // If nothing is highlighted, then we hide the buttons instead.
             if (!$(highlighted).length) {
