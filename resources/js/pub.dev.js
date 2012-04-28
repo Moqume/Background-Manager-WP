@@ -36,8 +36,8 @@ if (myatu_bgm === undefined)
         /** Make the background click-able */
         SetBackgroundLink: function(url) {
             var b = $('body');
-            
-            // Unbind our prior hover and click functions, and reset the mouse pointer 
+
+            // Unbind our prior hover and click functions, and reset the mouse pointer
             b.unbind('click', myatu_bgm.OnBackgroundClick).unbind('mouseover', myatu_bgm.OnBackgroundHover).css('cursor', 'auto');
 
             // Re-bind if we have a non-empty URL
@@ -89,11 +89,13 @@ if (myatu_bgm === undefined)
         AnimationCompleted: function() {
             $('#myatu_bgm_prev').remove();  // Remove old background
             myatu_bgm.SetTimer();           // Reset timer
+
+            $(document).trigger('myatu_bgm_finish_transition');
         },
 
         /** Slides a new background image into position */
         AnimateSlide: function(scroll_in_from, duration, cover) {
-            var new_img      = $('#myatu_bgm_top'), 
+            var new_img      = $('#myatu_bgm_top'),
                 old_img      = $('#myatu_bgm_prev'),
                 new_offset   = new_img.offset(),
                 old_offset   = old_img.offset(),
@@ -114,7 +116,7 @@ if (myatu_bgm === undefined)
             // Slide
             if (cover === undefined || cover === false) {
                 new_img.animate(css, {
-                    'duration': duration, 
+                    'duration': duration,
                     'complete': myatu_bgm.AnimationCompleted,
                     'step': function(now,fx) {
                         // Keep old image "sticking" to edge of new image
@@ -204,6 +206,9 @@ if (myatu_bgm === undefined)
                         if (!$('#myatu_bgm_prev').length)
                             active_transition = 'none';
 
+                        // Custom event - function(event, active_transition, transition_speed, new_image_object)
+                        $(document).trigger('myatu_bgm_start_transition', [active_transition, transition_speed, new_image]);
+
                         switch (active_transition) {
                             // No transition
                             case 'none' :
@@ -222,6 +227,27 @@ if (myatu_bgm === undefined)
 
                             case 'coverleft' : c = true;
                             case 'slideleft' : myatu_bgm.AnimateSlide('right', transition_speed, c); break;
+
+                            case 'zoom' :
+                                $(this).css({'display':'none','visibility':''});
+
+                                // Fade-out the previous image at the same time the new image is being faded in.
+                                $('#myatu_bgm_prev').animate({opacity:0}, {'duration': transition_speed, 'queue': false});
+
+                                // Fade in the image whilst zooming it sightly
+                                $(this).animate(
+                                    {
+                                        'width'   : $(this).width() * 1.05,
+                                        'height'  : $(this).height() * 1.05,
+                                        'opacity' : 'show',
+                                        'display' : 'show'
+                                    },
+                                    {
+                                        'duration': transition_speed,
+                                        'complete': myatu_bgm.AnimationCompleted
+                                    }
+                                );
+                                break;
 
                             // Crossfade is standard transition
                             default:
@@ -255,7 +281,7 @@ if (myatu_bgm === undefined)
                 }
 
                 // "Pin it" button
-                if ($('#myatu_bgm_pin_it_btn').length) { 
+                if ($('#myatu_bgm_pin_it_btn').length) {
                     // Replace "Pin it" button's iFrame source
                     var pin_it_src = $('#myatu_bgm_pin_it_btn iframe').attr('src'), clean_desc = new_image.desc.replace(/(<([^>]+)>)/ig,'');
 

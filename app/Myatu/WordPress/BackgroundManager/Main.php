@@ -189,6 +189,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'coverleft'  => __('Cover to Left', $this->getName()),
             'coverright' => __('Cover to Right', $this->getName()),
             'crossfade'  => __('Crossfade', $this->getName()),
+            'zoom'       => __('Crossfade + Zoom', $this->getName()),
         );
 
         $result = array();
