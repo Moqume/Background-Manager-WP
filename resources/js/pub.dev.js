@@ -239,8 +239,7 @@ if (myatu_bgm === undefined)
                                     {
                                         'width'   : $(this).width() * 1.05,
                                         'height'  : $(this).height() * 1.05,
-                                        'opacity' : 'show',
-                                        'display' : 'show'
+                                        'opacity' : 'show'
                                     },
                                     {
                                         'duration': transition_speed,
