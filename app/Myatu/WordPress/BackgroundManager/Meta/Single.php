@@ -22,17 +22,17 @@ use Myatu\WordPress\BackgroundManager\Main;
 class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
 {
     /** Meta Filters */
-    const 
+    const
         MT_ACTIVE_GALLERY = 'myatu_bgm_active_gallery',
         MT_ACTIVE_OVERLAY = 'myatu_bgm_active_overlay',
         MT_BG_COLOR       = 'myatu_bgm_background_color';
-    
+
     protected $title    = 'Background';
     protected $context  = 'advanced';
     protected $pages    = array('post', 'page');
-    
-    /** 
-     * Constructor 
+
+    /**
+     * Constructor
      *
      * Adds a filter, to display the custom CSS
      */
@@ -41,17 +41,49 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
         add_filter('myatu_bgm_active_gallery',   array($this, 'onActiveGallery'), 25, 1);
         add_filter('myatu_bgm_active_overlay',   array($this, 'onActiveOverlay'), 25, 1);
         add_filter('myatu_bgm_background_color', array($this, 'onBackgroundColor'), 25, 1);
-        
-        // Include Custom Post Types
-        $this->pages = array_merge($this->pages, get_post_types(array('_builtin' => false, 'public' => true)));
-        
-        // Exclude our own Custom Post Type
-        unset($this->pages[\Myatu\WordPress\BackgroundManager\Main::PT_GALLERY]);
-        
-        // An is_admin() check in the parent will automatically avoid things not needed for the public side
-        parent::__construct($owner, $auto_register);
+
+        $active = true;
+
+        // If we're on the admin side, check if there's sufficient rights to override the posts/pages
+        if (is_admin()) {
+            switch ($owner->options->single_post_override) {
+                case 'admin' :
+                    if (!current_user_can('edit_theme_options'))
+                        $active = false;
+                    break;
+
+                case 'editor' :
+                    if (!current_user_can('edit_private_posts'))
+                        $active = false;
+                    break;
+
+                case 'author' :
+                    if (!current_user_can('publish_posts'))
+                        $active = false;
+                    break;
+
+                case 'contributor' :
+                    if (!current_user_can('edit_posts'))
+                        $active = false;
+                    break;
+
+                default :
+                    $active = false; // Failsafe
+                    break;
+            }
+        }
+
+        if ($active) {
+            // Include Custom Post Types
+            $this->pages = array_merge($this->pages, get_post_types(array('_builtin' => false, 'public' => true)));
+
+            // Exclude our own Custom Post Type
+            unset($this->pages[\Myatu\WordPress\BackgroundManager\Main::PT_GALLERY]);
+
+            parent::__construct($owner, $auto_register);
+        }
     }
-    
+
     /**
      * Info for dynamic loading
      */
@@ -63,9 +95,9 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
             'active' => true,
         );
     }
-    
+
     /**
-     * Event called when ready to render the Metabox contents 
+     * Event called when ready to render the Metabox contents
      *
      * @param int $id ID of the post or page
      * @param object $post The gallery object, or post data.
@@ -74,25 +106,25 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
     {
         wp_enqueue_script('farbtastic');
         wp_enqueue_style('farbtastic');
-    
+
         $active_gallery   = get_post_meta($id, self::MT_ACTIVE_GALLERY, true);
         $active_overlay   = get_post_meta($id, self::MT_ACTIVE_OVERLAY, true);
         $background_color = get_post_meta($id, self::MT_BG_COLOR, true);
-        
+
         // Generate a list of galleries, including a default and one to de-activate the background
         $galleries = array_merge(array(
             array(
-            'id' => -1, 
-            'name' => __('-- None (deactivated) --', $this->owner->getName()), 
+            'id' => -1,
+            'name' => __('-- None (deactivated) --', $this->owner->getName()),
             'selected' => ($active_gallery == -1),
             ),
             array(
-                'id' => 0, 
-                'name' => __('Default Image Set', $this->owner->getName()), 
+                'id' => 0,
+                'name' => __('Default Image Set', $this->owner->getName()),
                 'selected' => ($active_gallery == false),
-            )            
+            )
         ), $this->owner->getSettingGalleries($active_gallery));
-        
+
         // List of overlays
         $overlays = array_merge(array(
             array(
@@ -103,19 +135,19 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
             array(
                 'value'    => 0,
                 'desc'     => __('Default Overlay', $this->owner->getName()),
-                'selected' => ($active_overlay == false),            
+                'selected' => ($active_overlay == false),
             )
-        ), $this->owner->getSettingOverlays($active_overlay));        
-        
+        ), $this->owner->getSettingOverlays($active_overlay));
+
         $vars = array(
             'galleries'        => $galleries,
             'overlays'         => $overlays,
             'background_color' => $background_color,
         );
-        
-        $this->owner->template->display('meta_single.html.twig', $vars);    
+
+        $this->owner->template->display('meta_single.html.twig', $vars);
     }
-    
+
     /**
      * Event called when a post or page
      *
@@ -126,16 +158,16 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
         $active_gallery   = (isset($_REQUEST['active_gallery'])) ? $_REQUEST['active_gallery'] : 0;
         $active_overlay   = (isset($_REQUEST['active_overlay'])) ? $_REQUEST['active_overlay'] : 0;
         $background_color = (isset($_REQUEST['background_color'])) ? ltrim($_REQUEST['background_color'], '#') : '';
-        
+
         // Sanity check for color
         if (!preg_match('/^([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?$/', $background_color))
             $background_color = '';
-        
+
         $this->setSinglePostMeta($id, self::MT_ACTIVE_GALLERY, $active_gallery);
         $this->setSinglePostMeta($id, self::MT_ACTIVE_OVERLAY, $active_overlay);
         $this->setSinglePostMeta($id, self::MT_BG_COLOR, $background_color);
     }
-    
+
     /**
      * Either returns the original ID or an overriden ID from the meta for the post
      *
@@ -147,29 +179,29 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
     {
         if ((!is_single() && !is_page()) || !($post = wp_get_single_post()))
             return $orig_data;
-        
+
         $post_specific_data = get_post_meta($post->ID, $meta, true);
-        
+
         if ($post_specific_data == -1) {
             return 0; // Disable
-        } else if (!$post_specific_data) {            
+        } else if (!$post_specific_data) {
             return $orig_data; // Default
         } else {
             return $post_specific_data; // Override
         }
     }
-    
+
     /**
      * Event called when the Background Manager needs to know the active gallery
      *
      * @param int $id ID of the active gallery
-     * @return int 
+     * @return int
      */
     public function onActiveGallery($id)
     {
         return $this->getOverrideID(self::MT_ACTIVE_GALLERY, $id);
     }
-    
+
     /**
      * Event called when the Background Manager needs to know the active overlay
      *

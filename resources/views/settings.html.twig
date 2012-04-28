@@ -226,7 +226,7 @@
                             </label>
                         </fieldset>
                     </td>
-                </tr>                
+                </tr>
                 <tr valign="top" class="bg_extra_layout">
                     <th scope="row">
                        {{ __('Position') }}
@@ -481,6 +481,25 @@
             </tbody>
         </table>
 
+        <h3>{{ __('Miscellaneous') }}</h3>
+        <table class="form-table">
+            <tbody>
+                <tr valign="top">
+                    <th scope="row">
+                        {{ __('Override Posts and Pages') }}
+                    </th>
+                    <td>
+                        <p>Allow users with the following role to override the background <em>Image Set</em>, <em>Overlay</em> and <em>Color</em> of individual posts and pages:</p>
+                        <select id="single_post_override" class="postform" name="single_post_override">
+                            {% for role,role_title in roles %}
+                            <option {% if role == single_post_override %}selected="selected"{% endif %} value="{{ role }}">{{ role_title }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
         {{ submit_button | raw }}
 
     </form>
@@ -488,8 +507,8 @@
     <div id="my_footer">
         <img src="{{ plugin_base_url }}resources/images/myatus_logo_white.png" alt="Myatu's"/><br>
         <span>
-            <a href="{{ plugin_home }}" target="_blank">{{plugin_name }} {{ plugin_version }}</a> | 
-            <a href="#" id="footer_debug_link">{{ __('Debug') }}</a> | 
+            <a href="{{ plugin_home }}" target="_blank">{{plugin_name }} {{ plugin_version }}</a> |
+            <a href="#" id="footer_debug_link">{{ __('Debug') }}</a> |
             <a href="http://wordpress.org/extend/plugins/background-manager/" target="_blank">{{ __('Rate It') }}</a> |
             <a href="http://wordpress.org/tags/background-manager" target="_blank">{{ __('Forum') }}</a> |
             <a href="http://pledgie.com/campaigns/16906" target="_blank">{{ __('Donate') }}</a>
@@ -500,7 +519,7 @@
         <table class="form-table">
             <tbody>
                 {% for debug_name, debug_value in debug_info %}
-                <tr>    
+                <tr>
                     <th scope="row" style="font-weight: bold;">{{ debug_name }}:</th>
                     <td>{{ debug_value }}</td>
                 </tr>

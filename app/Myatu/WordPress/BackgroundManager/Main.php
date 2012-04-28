@@ -83,7 +83,7 @@ class Main extends \Pf4wp\WordpressPlugin
     protected $default_options = array(
         'change_freq'            => 'load',      // static::CF_LOAD
         'change_freq_custom'     => 10,
-        'image_selection'        => 'random',
+        'image_selection'        => 'random',    // since 1.0.38
         'background_size'        => 'as-is',     // static::BS_ASIS
         'background_scroll'      => 'scroll',    // static::BST_SCROLL
         'background_position'    => 'top-left',
@@ -103,6 +103,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'info_tab_thumb'         => true,
         'info_tab_desc'          => true,
         'pin_it_btn_location'    => 'bottom-left', // Since 1.0.20
+        'single_post_override'   => 'admin',       // Since 1.0.38
     );
 
     /** The options can be filtered (prefixed by BASE_PUB_PREFIX in `apply_filters`) - @see getFilteredOptions */
@@ -192,6 +193,13 @@ class Main extends \Pf4wp\WordpressPlugin
             'zoom'       => __('Crossfade + Zoom', $this->getName()),
         );
 
+        $roles = array(
+            'admin'       => __('Administrator', $this->getName()),
+            'editor'      => __('Editor', $this->getName()),
+            'author'      => __('Author', $this->getName()),
+            'contributor' => __('Contributor', $this->getName()),
+        );
+
         $result = array();
 
         switch ($opt) {
@@ -199,6 +207,7 @@ class Main extends \Pf4wp\WordpressPlugin
             case 'repeat'     : $result = $bg_repeats;       break;
             case 'corner'     : $result = $corner_locations; break;
             case 'transition' : $result = $bg_transitions;   break;
+            case 'role'       : $result = $roles;            break;
         }
 
         // Return the keys as values if we don't need the labels
@@ -841,10 +850,8 @@ class Main extends \Pf4wp\WordpressPlugin
         $this->images    = new Images($this);
 
         // Initialize meta boxes
-        if (current_user_can('edit_theme_options')) {
-            foreach ($this->getMetaBoxes() as $meta_box)
-                new $meta_box['class']($this);
-        }
+        foreach ($this->getMetaBoxes() as $meta_box)
+            new $meta_box['class']($this);
     }
 
     /**
@@ -1257,6 +1264,7 @@ class Main extends \Pf4wp\WordpressPlugin
             $this->options->background_position           = (in_array($_POST['background_position'], $this->getBgOptions('position'))) ? $_POST['background_position'] : null;
             $this->options->background_repeat             = (in_array($_POST['background_repeat'], $this->getBgOptions('repeat'))) ? $_POST['background_repeat'] : null;
             $this->options->background_transition         = (in_array($_POST['background_transition'], $this->getBgOptions('transition'))) ? $_POST['background_transition'] : null;
+            $this->options->single_post_override          = (in_array($_POST['single_post_override'], $this->getBgOptions('role'))) ? $_POST['single_post_override'] : null;
             $this->options->transition_speed              = (int)$_POST['transition_speed'];
             $this->options->background_stretch_vertical   = (!empty($_POST['background_stretch_vertical']));
             $this->options->background_stretch_horizontal = (!empty($_POST['background_stretch_horizontal']));
@@ -1410,6 +1418,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'bg_repeats'                    => $this->getBgOptions('repeat', true),
             'bg_transitions'                => $this->getBgOptions('transition', true),
             'corner_locations'              => $this->getBgOptions('corner', true),
+            'roles'                         => $this->getBgOptions('role', true),
             'plugin_base_url'               => $this->getPluginUrl(),
             'debug_info'                    => $debug_info,
             'plugin_name'                   => $this->getDisplayName(),
@@ -1419,6 +1428,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'pin_it_btn_location'           => $this->options->pin_it_btn_location,
             'full_screen_adjust'            => $this->options->full_screen_adjust,
             'full_screen_center'            => $this->options->full_screen_center,
+            'single_post_override'          => $this->options->single_post_override,
         );
 
         $this->template->display('settings.html.twig', $vars);
