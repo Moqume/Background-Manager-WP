@@ -90,7 +90,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.39 (1.1) =
+= 1.0.40 (1.1) =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories for _Category Override_ meta option, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
@@ -104,6 +104,7 @@ with PHP versions older than 5.3.
 * Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
 * Changed: Decreased minimum permitted change frequency from 10 seconds to 1 second
 * Changed: Background image details are now loaded asynchronous, to prevent browser "blocking"
+* Changed: Background image is now rendered by JS directly, unless JS is disabled, to avoid "flicker"
 * Fixed: Minimum background image change interval was not added to Javascript
 
 = 1.0.25 (March 18, 2012) =
@@ -177,6 +178,9 @@ web pages not to finish rendering.
 * Public BETA release of the plugin
 
 == Upgrade Notice ==
+
+= 1.1 =
+Version 1.1 introduces many new features, including the ability to re-order images, detach/remove images, and much more. Before upgrading, it is recommended to make a backup of your current database.
 
 = 1.0.14 =
 New: Override Image Sets by Post Tags or Categories; Download Images by URL (with Flickr support); Copy existing Media Library images; Import a local (server) directory
