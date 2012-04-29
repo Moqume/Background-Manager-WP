@@ -12,7 +12,14 @@
                 <input id="save" class="button" type="submit" name="submit" value="{{ save_btn_title }}" />
             </p>
         </div>
-        <div class="misc-pub-section-last" style="padding:10px">
+        {% if gallery_id %}
+        <div style="padding:0 10px">
+            <p>
+                {{ __('Gallery Shortcode:') }} <code>[gallery id=&quot;{{ gallery_id }}&quot;]</code>
+            </p>
+        </div>
+        {% endif %}
+        <div class="misc-pub-section-last" style="padding: 0 10px 10px">
             <p><label for="post_content">{{ __('Short Description') }}:</label></p>
             <textarea id="post_content" name="post_content" class="large-text" rows="3" cols="30" style="width:100%;" tabindex="4">{{ gallery.post_content }}</textarea>
             <div class="clear"></div>

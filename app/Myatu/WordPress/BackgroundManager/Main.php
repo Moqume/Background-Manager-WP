@@ -103,7 +103,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'info_tab_thumb'         => true,
         'info_tab_desc'          => true,
         'pin_it_btn_location'    => 'bottom-left', // Since 1.0.20
-        'single_post_override'   => 'admin',       // Since 1.0.38
+        'single_post_override'   => 'admin',       // Since 1.0.39
     );
 
     /** The options can be filtered (prefixed by BASE_PUB_PREFIX in `apply_filters`) - @see getFilteredOptions */

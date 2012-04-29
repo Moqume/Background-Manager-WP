@@ -93,6 +93,7 @@ class Submit extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
 
         $vars = array(
             'gallery'            => ($gallery) ? $gallery : $_REQUEST,
+            'gallery_id'         => ($is_new) ? false : $id,
             'save_btn_title'     => (!$is_new) ? __('Save Changes', $this->owner->getName()) : __('Add Image Set', $this->owner->getName()),
             'show_delete_action' => (!$is_new),
             'delete_action'      => $this->deleteLink($id),

@@ -3,24 +3,24 @@ Contributors: Myatu
 Donate link: http://pledgie.com/campaigns/16906
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
-Tested up to: 3.3.1
+Tested up to: 3.4-beta3
 Stable tag: 1.0.25
 
 Display a random image as the website background at each visit or as a timed slideshow, without the need to edit the theme.
 
 == Description ==
 
-_Background Manager_ is a powerful replacement for the default WordPress background manager. 
+_Background Manager_ is a powerful replacement for the default WordPress background manager.
 
-It allows you to create multiple image sets, from which a random image is selected and displayed as the website background. The images can be uploaded from your local computer, selected from images available in your Media Library, or import them from other plugins and third-party sources.
+It allows you to create multiple image sets, from which an image is selected and displayed as the website background. The images can be uploaded from your local computer, selected from the images available in your Media Library, or import them from other plugins and third-party sources.
 
-With an easy to use menu, you can also define how the background image is displayed, such as full-screen (with ratio correction), tiled, fixed or scrolling, and define where the image is positioned. 
+With an easy to use menu, you can also define how the background image is displayed, such as full-screen (with ratio correction), tiled, fixed or scrolling, define where the image is positioned and how a background image is selected (random or in sequential order).
 
 You also have the ability to add an overlay to the background images with a choice of pre-defined patterns. And of course it is also possible to add a background color.
 
 Where supported, in full-screen mode the the background image is "eased in" when it is ready to be displayed. No longer will visitors with slower Internet connections have to endure watching a background image load from top down.
 
-You can also limit the background images to certain parts of WordPress, for example only on the front page or a full-page post. And for each individual page or post, you can also override the images and overlay used as the background, which allows you to have pages or posts with a different background theme.
+You can also limit the background images to certain parts of WordPress, for example only on the front page or a full-page post. And for each individual page, post, category or tag, you can also override the images, overlay or color used as the background, which allows you to have pages or posts with a different background theme.
 
 Each individual background image can also be linked to a specific URL, which allows a visitor to click anywhere on the background and be redirected to another page or website.
 
@@ -33,6 +33,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
 = Features =
 
 * Integration with WordPress Media Library
+* Full support for the WordPress Theme Customizer
 * Full-screen background images
 * Full control over position for images in normal display mode (tiling, positioning, scrolling and stretching)
 * "Ease in" of a full-screen background image
@@ -43,6 +44,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
     * Fade-in/Fade-out (Crossfade)
     * Slide (Top, bottom, left or right)
     * Cover (Top, bottom, left or right)
+    * Fade-in and Zoom
 * 18 pre-defined background overlays
 * Enable or disable the background images on the Front page, Error pages, Custom post types, etc.
 * Optional thumbnail/information tab for the visitor to learn more about the background
@@ -54,7 +56,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
     * A directory (and optionally its sub-directories) on the web server
 * Define the background opacity (available in Full Screen only)
 * Background image links (click-able backgrounds)
-* Uses AJAX to load background images, keeping the website's footprint small and improve caching
+* Uses AJAX to load background images, keeping the website's footprint small and improves caching
 * Graceful degradation for visitors without JavaScript
 * Option to add a "Pin It" [Pinterest](http://www.pinterest.com) button
 
@@ -88,7 +90,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.38 (1.1) =
+= 1.0.39 (1.1) =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories for _Category Override_ meta option, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
@@ -98,6 +100,7 @@ with PHP versions older than 5.3.
 * __Added:__ Ability to remove (detach) images from an Image Set, keeping the image in the Media Library
 * __Added:__ Ability to change the order of images in an _Image Set_
 * __Added:__ In addition to selecting an image from an _Image Set_ at random, sequential (ascending/descending) selection is now possible too
+* __Added:__ Ability to select which roles are able to override the background Image Set, Overlay and Color for individual Posts and Pages
 * Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
 * Changed: Decreased minimum permitted change frequency from 10 seconds to 1 second
 * Changed: Background image details are now loaded asynchronous, to prevent browser "blocking"
@@ -186,7 +189,7 @@ New: Background image links, support for overlay opacity and more overlays. Impr
 
 = Help, it's broken! What do I do now? =
 
-If something does not appear to be working as it should, [search the forum](http://wordpress.org/tags/background-manager) or [write a new topic](http://wordpress.org/tags/background-manager#postform) that describes the problem(s) you are experiencing. 
+If something does not appear to be working as it should, [search the forum](http://wordpress.org/tags/background-manager) or [write a new topic](http://wordpress.org/tags/background-manager#postform) that describes the problem(s) you are experiencing.
 
 It will be very useful to include information about the environment in which the problem occured. If you can still activate and access the __Settings__ page for the plugin, look at the bottom of the page for a __Debug__ link. Clicking it will expand a box with often requested details, such as the WordPress version and what operating system the web server is using. You can copy and paste these details when reporting a problem, which will help speed up finding a solution.
 
@@ -194,7 +197,7 @@ It will be very useful to include information about the environment in which the
 
 You can redirect your visitor to a specific URL if they click anywhere on the background by setting the __Background URL__ for an image. Simply edit one of your Image Sets (__Apperance__ -> __Background__ -> __Image Sets__ --> [desired image set]), select an image and click the __Edit__ icon displayed over the image. Provide the URL in the __Background URL__ field and click __Save All Changes__.
 
-= How do I change the background or overlay for individual posts or pages? =
+= How do I change the background, overlay or color for individual posts or pages? =
 
 To override the default Image Set or overlay used as the background, edit the desired page or post and look for the __Background__ box, which is usually located under the large text editor.
 
@@ -202,3 +205,41 @@ If this box is not visible, ensure that it is enabled by clicking the __Screen O
 
 You will be able to select any of your existing Image Sets, as well as a different overlay, or disable either entirely.
 
+= How do I override by Category or Tag? =
+
+Edit the desired Image Set (__Apperance__ -> __Background__ -> __Image Sets__ --> [desired image set]) and select a Category or Tag in the corresponding __Override by Category__ or __Override by Tag__ boxes.
+
+If the box is not visible, ensure that it is enabled by clicking the __Screen Options__ tab in the upper right corner, and under the __Show on screen__ heading select/tick the __Override by Category__ and/or __Override by Tag__ options.
+
+Once the Image Set has been saved, it will override the selected Category/Tag.
+
+= How do I display an Image Set in order instead of random? =
+
+This option is only available if a new background image is select every few seconds (see __Settings__ -> _Select an Image_ option). This will give you the added option of displaying an Image Set in ascending or descending order.
+
+= How can I change the order images are displayed? =
+
+First ensure that a background is selected every few seconds (see above). Edit the desired Image Set and highlight an image using the mouse or by using the cursor keys on your keyboard. Buttons will overlay the highlighted image, allowing you to edit, delete/remove and move the image one position left or right.
+
+To move more than one image at a time, double click or press SPACE on your keyboard to select the images. A set of buttons will appear at the top of window containing the images, which give you the option to move the selected images left or right.
+
+Note: These changes take effect immediately!
+
+= I have a PHP version older than 5.3, can I make it work? =
+
+This plugin makes use of many features introduced in PHP version 5.3, and an attempt to make it work with older versions of PHP is equivalent to a complete rewrtie of the plugin.
+
+Many hosting providers are already providing PHP 5.3+ to their customers, and others allow for an easy upgrade. Also consider that PHP 5.3 was first released in 2009 and fixes many bugs and security issues, and support for PHP 5.2 was [stopped in 2010](http://www.php.net/archive/2010.php#id2010-12-09-1).
+
+= How can I upgrade to PHP version 5.3? =
+
+This depends. If you have your very own server, then this is Operating System specific and you will need to consult its documentation on how to upgrade. Most commonly in Linux environments this consists of running `apt-get`, `yum` or `pacman` from the CLI.
+
+If you are using a web hosting provider, then you need to contact the provider regarding this. Some can move your website to a different server with a newer version of PHP 5.3, while others make it as simple as adding/changing a line in the `.htaccess` file or a setting in the control panel. For example:
+
+* 1&1 Webhosting: Add `AddType x-mapp-php6 .php` to the `.htaccess` file
+* OVH: Add `SetEnv PHP_VER 5_3` or `SetEnv PHP_VER 5_TEST` to the `.htaccess` file
+* GoDaddy Linux Shared Hosting: Add `AddHandler x-httpd-php5-3 .php` to the `.htaccess` file
+* GoDaddy 4GH Hosting: Visit GoDaddy's __Hosting Control Center__ -> __Content__ -> __Programming Languages__
+* HostGator: Add `Action application/x-hg-php53 /cgi-sys/php53` and `AddHandler application/x-hg-php53 .php` to the `.htaccess` file
+* Bluehost: Add `AddHandler application/x-httpd-php53 .php` to the `.htaccess` file (Note: may require a support request/ticket to enable PHP 5.3)
