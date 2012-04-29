@@ -141,7 +141,7 @@ class Main extends \Pf4wp\WordpressPlugin
     /* ----------- Helpers ----------- */
 
     /**
-     * Helper to return possible background positions, repeats, corners and transitions options
+     * Helper to return possible background positions, repeats, corners, transitions options and roles
      *
      * @param string $opt The option to return
      * @param bool $withLabel Whether to include a label
@@ -218,43 +218,75 @@ class Main extends \Pf4wp\WordpressPlugin
     }
 
     /**
-     * Helper function that returns the filtered results of options
+     * Helper that returns the sanitize settings
      *
-     * This stores the filtered options into the Non-persistent cache for performance
+     * @return array
+     */
+    public function getSanitizeSettings()
+    {
+        return array(
+            'active_gallery'                => 'int',
+            'image_selection'               => array('in_array', array(Images::SO_RANDOM, Images::SO_ASC, Images::SO_DESC)),
+            'change_freq'                   => array('in_array', array(static::CF_SESSION, static::CF_LOAD, static::CF_CUSTOM)),
+            'change_freq_custom'            => 'int',
+            'background_size'               => array('in_array', array(static::BS_FULL, static::BS_ASIS)),
+            'background_opacity'            => array('range', array(0, 100, $this->options->background_opacity)),
+            'background_scroll'             => array('in_array', array(static::BST_FIXED, static::BST_SCROLL)),
+            'background_position'           => array('in_array', $this->getBgOptions('position')),
+            'background_repeat'             => array('in_array', $this->getBgOptions('repeat')),
+            'background_transition'         => array('in_array', $this->getBgOptions('transition')),
+            'transition_speed'              => 'int',
+            'background_stretch_vertical'   => 'bool',
+            'background_stretch_horizontal' => 'bool',
+            'active_overlay'                => 'string',
+            'overlay_opacity'               => array('range', array(0, 100, $this->options->overlay_opacity)),
+            'display_on_front_page'         => 'bool',
+            'display_on_single_post'        => 'bool',
+            'display_on_single_page'        => 'bool',
+            'display_on_archive'            => 'bool',
+            'display_on_search'             => 'bool',
+            'display_on_error'              => 'bool',
+            'info_tab'                      => 'bool',
+            'info_tab_location'             => array('in_array', $this->getBgOptions('corner')),
+            'info_tab_thumb'                => 'bool',
+            'info_tab_link'                 => 'bool',
+            'info_tab_desc'                 => 'bool',
+            'pin_it_btn'                    => 'bool',
+            'pin_it_btn_location'           => array('in_array', $this->getBgOptions('corner')),
+            'full_screen_adjust'            => 'bool',
+            'full_screen_center'            => 'bool',
+            'single_post_override'          => array('in_array', $this->getBgOptions('role')),
+        );
+    }
+
+    /**
+     * Helper function that returns the filtered results of options
      *
      * @param string $option Option to return (if none specified, all filtered settings are returned as an array)
      * @return mixed
      */
     public function getFilteredOptions($option = null)
     {
-        $options = array();
+        // The background color is stored differentlly
+        if (!isset($this->np_cache['filtered_background_color']))
+            $this->np_cache['filtered_background_color'] = apply_filters(static::BASE_PUB_PREFIX . 'background_color', get_background_color());
 
-        if (!isset($this->np_cache['filtered_options'])) {
-            // Not yet filtered
+        $background_color = $this->np_cache['filtered_background_color'];
 
-            // SPECIAL CASE:
-            $options['background_color'] = apply_filters(static::BASE_PUB_PREFIX . 'background_color', get_background_color());
+        if (is_null($option)) {
+            $results = $this->options->filtered($this->filtered_options, static::BASE_PUB_PREFIX);
+            $results['background_color'] = $background_color; // Special case
 
-            // Filter all possible options
-            foreach ($this->filtered_options as $filtered_option) {
-                $options[$filtered_option] = apply_filters(static::BASE_PUB_PREFIX . $filtered_option, $this->options->$filtered_option);
-            }
-
-            $this->np_cache['filtered_options'] = $options;
+            return $results;
         } else {
-            // We've already applied the filters, and it's stored in NP cache
-            $options = $this->np_cache['filtered_options'];
-        }
-
-        if (!is_null($option)) {
-            if (array_key_exists($option, $options)) {
-                return $options[$option];
+            if ($option == 'background_color') {
+                $result = $background_color; // Special case
             } else {
-                return null;
+                $result = $this->options->filtered($option, static::BASE_PUB_PREFIX);
             }
-        }
 
-        return $options;
+            return $result;
+        }
     }
 
     /**
@@ -1255,7 +1287,9 @@ class Main extends \Pf4wp\WordpressPlugin
             if (!wp_verify_nonce($_POST['_nonce'], 'onSettingsMenu'))
                 wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
 
-            $this->options->active_gallery                = (int)$_POST['active_gallery'];
+            $this->options->load($_POST, $this->getSanitizeSettings());
+
+/*            $this->options->active_gallery                = (int)$_POST['active_gallery'];
             $this->options->image_selection               = (in_array($_POST['image_selection'], array(Images::SO_RANDOM, Images::SO_ASC, Images::SO_DESC))) ? $_POST['image_selection'] : null;
             $this->options->change_freq                   = (in_array($_POST['change_freq'], array(static::CF_SESSION, static::CF_LOAD, static::CF_CUSTOM))) ? $_POST['change_freq'] : null;
             $this->options->change_freq_custom            = (int)$_POST['change_freq_custom'];
@@ -1290,7 +1324,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 $this->options->background_opacity = $opacity;
 
             if (($opacity = (int)$_POST['overlay_opacity']) <= 100 && $opacity > 0)
-                $this->options->overlay_opacity = $opacity;
+                $this->options->overlay_opacity = $opacity;*/
 
 
             // Display settings for Custom Post Types
