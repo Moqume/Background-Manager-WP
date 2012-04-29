@@ -24,7 +24,7 @@ use Pf4wp\Notification\AdminNotice;
  * @subpackage Pages
  * @since 1.0.39
  */
-class Settings implements IPage
+class Settings
 {
     protected $owner;
 
@@ -89,7 +89,7 @@ class Settings implements IPage
     /**
      * Handles pre-Settings Menu actions
      */
-    public function onMenuLoad($current_screen)
+    public function onSettingsMenuLoad($current_screen)
     {
         // Extra scripts to include
         list($js_url, $version, $debug) = $this->owner->getResourceUrl();
@@ -160,7 +160,7 @@ class Settings implements IPage
     /**
      * Settings Menu
      */
-    public function onMenu($data, $per_page)
+    public function onSettingsMenu($data, $per_page)
     {
         global $wp_version, $wpdb;
 

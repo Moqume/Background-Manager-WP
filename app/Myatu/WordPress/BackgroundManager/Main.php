@@ -1051,13 +1051,13 @@ class Main extends \Pf4wp\WordpressPlugin
         $mymenu = new \Pf4wp\Menu\SubHeadMenu($this->getName());
 
         // Add settings menu
-        $main_menu = $mymenu->addMenu(__('Background'), array(new Pages\Settings($this), 'onMenu'));
+        $main_menu = $mymenu->addMenu(__('Background'), array(new Pages\Settings($this), 'onSettingsMenu'));
         $main_menu->page_title = $this->getDisplayName();
         $main_menu->large_icon = 'icon-themes';
         $main_menu->context_help = new ContextHelp($this, 'settings');
 
         // Add image sets (galleries) submenu
-        $gallery_menu = $mymenu->addSubmenu(__('Image Sets', $this->getName()), array(new Pages\Galleries($this), 'onMenu'));
+        $gallery_menu = $mymenu->addSubmenu(__('Image Sets', $this->getName()), array(new Pages\Galleries($this), 'onGalleriesMenu'));
         $gallery_menu->count = $this->getGalleryCount();
         $gallery_menu->context_help = new ContextHelp($this, 'galleries');
         if (!$this->inEdit())
@@ -1065,14 +1065,14 @@ class Main extends \Pf4wp\WordpressPlugin
 
         // If there are items in the Trash, display this menu too:
         if ($count = $this->getGalleryCount(false)) {
-            $trash_menu = $mymenu->addSubmenu(__('Trash', $this->getName()), array(new Pages\Galleries($this, true), 'onMenu'));
+            $trash_menu = $mymenu->addSubmenu(__('Trash', $this->getName()), array(new Pages\Galleries($this, true), 'onGalleriesMenu'));
             $trash_menu->count = $count;
             $trash_menu->context_help = new ContextHelp($this, 'trash');
             $trash_menu->per_page = 15;
         }
 
         // Import menu
-        $import_menu = $mymenu->addSubMenu(__('Import', $this->getName()), array(new Pages\Import($this), 'onMenu'));
+        $import_menu = $mymenu->addSubMenu(__('Import', $this->getName()), array(new Pages\Import($this), 'onImportMenu'));
         $import_menu->context_help = new ContextHelp($this, 'import');
 
         // Make it appear under WordPress' `Appearance` (theme_options)

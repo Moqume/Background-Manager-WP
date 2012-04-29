@@ -19,7 +19,7 @@ use Myatu\WordPress\BackgroundManager\Main;
  * @subpackage Pages
  * @since 1.0.39
  */
-class Import implements IPage
+class Import
 {
     protected $owner;
     protected $np_cache = array(); // Non-persistent cache
@@ -59,7 +59,7 @@ class Import implements IPage
     /**
      * Handles pre-Page Menu actions
      */
-    public function onMenuLoad($current_screen)
+    public function onImportMenuLoad($current_screen)
     {
         // Check if there's a valid 'run_import_job'
         if (isset($_REQUEST['run_import_job']) && isset($_REQUEST['nonce'])) {
@@ -87,7 +87,7 @@ class Import implements IPage
     /**
      * Settings Menu
      */
-    public function onMenu($data, $per_page)
+    public function onImportMenu($data, $per_page)
     {
         $importers      = $this->getImporters();
         $importer       = '';

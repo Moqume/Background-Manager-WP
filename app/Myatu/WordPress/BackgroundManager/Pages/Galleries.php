@@ -24,7 +24,7 @@ use Pf4wp\Notification\AdminNotice;
  * @subpackage Pages
  * @since 1.0.39
  */
-class Galleries implements IPage
+class Galleries
 {
     protected $owner;
 
@@ -41,7 +41,7 @@ class Galleries implements IPage
     /**
      * Handles pre-Page Menu actions
      */
-    public function onMenuLoad($current_screen)
+    public function onGalleriesMenuLoad($current_screen)
     {
         // Initialize $this->list
         if (!isset($this->list))
@@ -144,7 +144,7 @@ class Galleries implements IPage
     /**
      * Settings Menu
      */
-    public function onMenu($data, $per_page)
+    public function onGalleriesMenu($data, $per_page)
     {
         // Basic sanity check
         if (!isset($this->list) || !isset($this->owner->galleries))
