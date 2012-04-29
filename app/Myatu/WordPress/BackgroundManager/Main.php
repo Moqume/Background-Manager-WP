@@ -55,16 +55,13 @@ class Main extends \Pf4wp\WordpressPlugin
     const DIR_IMPORTERS = 'app/Myatu/WordPress/BackgroundManager/Importers/';
     const DIR_META      = 'app/Myatu/WordPress/BackgroundManager/Meta/';
 
-    /** Instance containing current gallery being edited (if any) */
-    private $gallery = null;
-
-    /** Instance to a List\Galleries - @see onGalleriesMenu(), onTrashMenu() */
-    private $list;
+    /** Instance containing current gallery being edited (if any) - see @inEdit() */
+    public $gallery = null;
 
     /** The link to edit Galleries - @see onBuildMenu() */
     private $edit_gallery_link = '';
 
-    /** The link to the Import menu - @see onBuildMenu() */
+    /** The link to the Import menu - @see onBuildMenu() (Importer access this) */
     public $import_menu_link  = '';
 
     /** Instance of Images - @see onAdminInit() */
@@ -218,45 +215,25 @@ class Main extends \Pf4wp\WordpressPlugin
     }
 
     /**
-     * Helper that returns the sanitize settings
+     * Helper function to get the CSS location for an element placed in a corner
      *
-     * @return array
+     * @param string $location Location (ie., 'top-left'),
+     * @param int $hspacer Horizontal spacer
+     * @param int $vspacer Vertical spacer
+     * @return string
      */
-    public function getSanitizeSettings()
+    private function getCornerStyle($location, $hspacer, $vspacer)
     {
-        return array(
-            'active_gallery'                => 'int',
-            'image_selection'               => array('in_array', array(Images::SO_RANDOM, Images::SO_ASC, Images::SO_DESC)),
-            'change_freq'                   => array('in_array', array(static::CF_SESSION, static::CF_LOAD, static::CF_CUSTOM)),
-            'change_freq_custom'            => 'int',
-            'background_size'               => array('in_array', array(static::BS_FULL, static::BS_ASIS)),
-            'background_opacity'            => array('range', array(0, 100, $this->options->background_opacity)),
-            'background_scroll'             => array('in_array', array(static::BST_FIXED, static::BST_SCROLL)),
-            'background_position'           => array('in_array', $this->getBgOptions('position')),
-            'background_repeat'             => array('in_array', $this->getBgOptions('repeat')),
-            'background_transition'         => array('in_array', $this->getBgOptions('transition')),
-            'transition_speed'              => 'int',
-            'background_stretch_vertical'   => 'bool',
-            'background_stretch_horizontal' => 'bool',
-            'active_overlay'                => 'string',
-            'overlay_opacity'               => array('range', array(0, 100, $this->options->overlay_opacity)),
-            'display_on_front_page'         => 'bool',
-            'display_on_single_post'        => 'bool',
-            'display_on_single_page'        => 'bool',
-            'display_on_archive'            => 'bool',
-            'display_on_search'             => 'bool',
-            'display_on_error'              => 'bool',
-            'info_tab'                      => 'bool',
-            'info_tab_location'             => array('in_array', $this->getBgOptions('corner')),
-            'info_tab_thumb'                => 'bool',
-            'info_tab_link'                 => 'bool',
-            'info_tab_desc'                 => 'bool',
-            'pin_it_btn'                    => 'bool',
-            'pin_it_btn_location'           => array('in_array', $this->getBgOptions('corner')),
-            'full_screen_adjust'            => 'bool',
-            'full_screen_center'            => 'bool',
-            'single_post_override'          => array('in_array', $this->getBgOptions('role')),
-        );
+        $style = '';
+
+        switch ($location) {
+            case 'top-left'     : $style = sprintf('left: %dpx !important; top: %dpx !important;', $hspacer, $vspacer); break;
+            case 'top-right'    : $style = sprintf('right: %dpx !important; top: %dpx !important;', $hspacer, $vspacer); break;
+            case 'bottom-left'  : $style = sprintf('left: %dpx !important; bottom: %dpx !important;', $hspacer, $vspacer); break;
+            case 'bottom-right' : $style = sprintf('right: %dpx !important; bottom: %dpx !important;', $hspacer, $vspacer); break;
+        }
+
+        return $style;
     }
 
     /**
@@ -287,28 +264,6 @@ class Main extends \Pf4wp\WordpressPlugin
 
             return $result;
         }
-    }
-
-    /**
-     * Helper function to get the CSS location for an element placed in a corner
-     *
-     * @param string $location Location (ie., 'top-left'),
-     * @param int $hspacer Horizontal spacer
-     * @param int $vspacer Vertical spacer
-     * @return string
-     */
-    private function getCornerStyle($location, $hspacer, $vspacer)
-    {
-        $style = '';
-
-        switch ($location) {
-            case 'top-left'     : $style = sprintf('left: %dpx !important; top: %dpx !important;', $hspacer, $vspacer); break;
-            case 'top-right'    : $style = sprintf('right: %dpx !important; top: %dpx !important;', $hspacer, $vspacer); break;
-            case 'bottom-left'  : $style = sprintf('left: %dpx !important; bottom: %dpx !important;', $hspacer, $vspacer); break;
-            case 'bottom-right' : $style = sprintf('right: %dpx !important; bottom: %dpx !important;', $hspacer, $vspacer); break;
-        }
-
-        return $style;
     }
 
     /**
@@ -424,8 +379,8 @@ class Main extends \Pf4wp\WordpressPlugin
             if (!isset($this->images))
                 $this->images = new Images($this);
 
-            $prev_id   = $this->images->URLtoID($previous_image);
-            $image_id  = $this->images->getImageId($gallery_id, $image_selection, $prev_id);
+            $prev_id  = $this->images->URLtoID($previous_image);
+            $image_id = $this->images->getImageId($gallery_id, $image_selection, $prev_id);
 
             if ($change_freq == static::CF_SESSION) {
                 $cookie_id = static::BASE_PUB_PREFIX . 'bg_id_' . $gallery_id; // Cookie ID for stored background image ID
@@ -459,7 +414,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 define('BACKGROUND_IMAGE', $image_url);
 
             // Since 3.4
-            if ($this->checkWPVersion('3.4', '>=')) {
+            if (Helpers::checkWPVersion('3.4', '>=')) {
                 add_theme_support('custom-background', array('default-image' => $image_url));
             }
 
@@ -678,33 +633,6 @@ class Main extends \Pf4wp\WordpressPlugin
     }
 
     /**
-     * Obtains an array of available Importers
-     *
-     * @return array Array containing a list of importers, indexed by classname, containing a display name, description and namespace+class.
-     */
-    protected function getImporters()
-    {
-        if (isset($this->np_cache['importers']))
-            return $this->np_cache['importers'];
-
-        $base_namespace = __NAMESPACE__ . '\\Importers';
-        $importers      = apply_filters(static::BASE_PUB_PREFIX . 'importers', \Pf4wp\Dynamic\Loader::get($base_namespace, $this->getPluginDir() . static::DIR_IMPORTERS));
-
-        // Classes must be a subclass of Importers\Importer (checked, as we apply a filter)
-        foreach ($importers as $importer_key => $importer)
-            if (!is_subclass_of($importer['class'], $base_namespace . '\\Importer'))
-                unset($importers[$importer_key]);
-
-        // Sort importers by name
-        uasort($importers, function($a, $b){ return strcasecmp($a['name'], $b['name']); });
-
-        // Store in non-persistent cache
-        $this->np_cache['importers'] = $importers;
-
-        return $importers;
-    }
-
-    /**
      * Obtains an array of available Meta boxes
      *
      * @return array Array containing a list of meta boxes
@@ -725,28 +653,6 @@ class Main extends \Pf4wp\WordpressPlugin
         global $wpdb;
 
         return $wpdb->get_results("DELETE FROM `{$wpdb->options}` WHERE `option_name` LIKE '_transient%_myatu_bgm_%'");
-
-    }
-
-    /**
-     * Check if WP Version is higher, lower or equal to a certain version
-     *
-     * @param string $version Version to compare against
-     * @param string $operator Operator for comparision (default is '=')
-     */
-    protected function checkWPVersion($version, $operator = '=')
-    {
-        global $wp_version;
-
-        $_wp_version = $wp_version;
-        $spacer      = strpos($_wp_version, '-');
-
-        // Remove any extra data
-        if ($spacer >= 0) {
-            $_wp_version = substr($_wp_version, 0, $spacer);
-        }
-
-        return version_compare($_wp_version, $version, $operator);
     }
 
     /**
@@ -754,7 +660,7 @@ class Main extends \Pf4wp\WordpressPlugin
      */
     protected function doRemoveWPBackground()
     {
-        if ($this->checkWPVersion('3.4', '<')) {
+        if (Helpers::checkWPVersion('3.4', '<')) {
             @remove_custom_background(); // Since WP 3.1
         } else {
             // Since WP 3.4
@@ -791,18 +697,18 @@ class Main extends \Pf4wp\WordpressPlugin
         ));
 
         // If we're performing an AJAX call, the other bits aren't required
-        if (defined('DOING_AJAX') && DOING_AJAX)
+        if (Helpers::DoingAjax())
 			return;
 
-        add_action('admin_menu', array($this, 'onRemoveWPBackground'), 5, 0);
-        add_action('wp_head', array($this, 'onWpHead'));
+        add_action('admin_menu',         array($this, 'onRemoveWPBackground'), 5, 0);
+        add_action('wp_head',            array($this, 'onWpHead'));
         add_action('get_edit_post_link', array($this, 'onGetEditPostLink'), 10, 3);
-        add_action('add_attachment', array($this, 'onAddAttachment'), 20);      // Adds 'Background Image' to Library
-        add_action('edit_attachment', array($this, 'onAddAttachment'), 20);
-        add_action('admin_bar_menu', array($this, 'onAdminBarMenu'), 90);
+        add_action('add_attachment',     array($this, 'onAddAttachment'), 20);          // Adds 'Background Image' to Library
+        add_action('edit_attachment',    array($this, 'onAddAttachment'), 20);
+        add_action('admin_bar_menu',     array($this, 'onAdminBarMenu'), 90);
 
         // Since 1.0.30 - Customize Theme screen for WP 3.4
-        if ($this->checkWPVersion('3.4', '>=')) {
+        if (Helpers::checkWPVersion('3.4', '>=')) {
             $this->customizer = new \Myatu\WordPress\BackgroundManager\Customizer\Customizer($this);
         }
 
@@ -1145,13 +1051,13 @@ class Main extends \Pf4wp\WordpressPlugin
         $mymenu = new \Pf4wp\Menu\SubHeadMenu($this->getName());
 
         // Add settings menu
-        $main_menu = $mymenu->addMenu(__('Background'), array($this, 'onSettingsMenu'));
+        $main_menu = $mymenu->addMenu(__('Background'), array(new Pages\Settings($this), 'onMenu'));
         $main_menu->page_title = $this->getDisplayName();
         $main_menu->large_icon = 'icon-themes';
         $main_menu->context_help = new ContextHelp($this, 'settings');
 
         // Add image sets (galleries) submenu
-        $gallery_menu = $mymenu->addSubmenu(__('Image Sets', $this->getName()), array($this, 'onGalleriesMenu'));
+        $gallery_menu = $mymenu->addSubmenu(__('Image Sets', $this->getName()), array(new Pages\Galleries($this), 'onMenu'));
         $gallery_menu->count = $this->getGalleryCount();
         $gallery_menu->context_help = new ContextHelp($this, 'galleries');
         if (!$this->inEdit())
@@ -1159,14 +1065,14 @@ class Main extends \Pf4wp\WordpressPlugin
 
         // If there are items in the Trash, display this menu too:
         if ($count = $this->getGalleryCount(false)) {
-            $trash_menu = $mymenu->addSubmenu(__('Trash', $this->getName()), array($this, 'onTrashMenu'));
+            $trash_menu = $mymenu->addSubmenu(__('Trash', $this->getName()), array(new Pages\Galleries($this, true), 'onMenu'));
             $trash_menu->count = $count;
             $trash_menu->context_help = new ContextHelp($this, 'trash');
             $trash_menu->per_page = 15;
         }
 
         // Import menu
-        $import_menu = $mymenu->addSubMenu(__('Import', $this->getName()), array($this, 'onImportMenu'));
+        $import_menu = $mymenu->addSubMenu(__('Import', $this->getName()), array(new Pages\Import($this), 'onMenu'));
         $import_menu->context_help = new ContextHelp($this, 'import');
 
         // Make it appear under WordPress' `Appearance` (theme_options)
@@ -1193,9 +1099,9 @@ class Main extends \Pf4wp\WordpressPlugin
         $this->import_menu_link = add_query_arg(
             array(
                 \Pf4wp\Menu\CombinedMenu::SUBMENU_ID => $import_menu->getSlug(),
-                'page' => $gallery_menu->getSlug(true),
+                'page'           => $gallery_menu->getSlug(true),
                 'run_import_job' => false,
-                'nonce' => false,
+                'nonce'          => false,
             ),
             $theme_options_url
         );
@@ -1241,668 +1147,6 @@ class Main extends \Pf4wp\WordpressPlugin
         wp_enqueue_style($this->getName() . '-admin', $css_url . 'admin' . $debug . '.css', false, $version);
     }
 
-    /**
-     * Handles pre-Settings Menu actions
-     *
-     * @see onSettingsMenu()
-     * @param object $current_screen The current screen object
-     */
-    public function onSettingsMenuLoad($current_screen)
-    {
-        // Extra scripts to include
-        list($js_url, $version, $debug) = $this->getResourceUrl();
-
-        // Color picker
-        wp_enqueue_script('farbtastic');
-
-        // Slider
-        wp_enqueue_script('jquery-ui-core');
-        wp_enqueue_script('jquery-ui-mouse');
-        wp_enqueue_script('jquery-ui-widget');
-        wp_enqueue_script('jquery-ui-slider');
-
-        // Default Functions
-        wp_enqueue_script($this->getName() . '-settings', $js_url . 'settings' . $debug . '.js', array($this->getName() . '-functions'), $version);
-
-        // Extra CSS to include
-        list($css_url, $version, $debug) = $this->getResourceUrl('css');
-
-        // Color picker
-        wp_enqueue_style('farbtastic');
-
-        // Slider
-        wp_enqueue_style('jquery-ui-slider', $css_url . 'vendor/jquery-ui-slider' . $debug . '.css', false, $version);
-
-        // Guided Help, Step 1 ("Get Started")
-        new Pointers\AddNewStep1($this->getName());
-
-        // Intro to new features in 1.1
-        if ($this->options->last_upgrade == '1.1') {
-            new Pointers\Upgrade1dot1new1($this->getName());
-            new Pointers\Upgrade1dot1new2($this->getName());
-        }
-
-        // Save settings if POST is set
-        if (!empty($_POST) && isset($_POST['_nonce'])) {
-            if (!wp_verify_nonce($_POST['_nonce'], 'onSettingsMenu'))
-                wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
-
-            $this->options->load($_POST, $this->getSanitizeSettings());
-
-/*            $this->options->active_gallery                = (int)$_POST['active_gallery'];
-            $this->options->image_selection               = (in_array($_POST['image_selection'], array(Images::SO_RANDOM, Images::SO_ASC, Images::SO_DESC))) ? $_POST['image_selection'] : null;
-            $this->options->change_freq                   = (in_array($_POST['change_freq'], array(static::CF_SESSION, static::CF_LOAD, static::CF_CUSTOM))) ? $_POST['change_freq'] : null;
-            $this->options->change_freq_custom            = (int)$_POST['change_freq_custom'];
-            $this->options->background_size               = (in_array($_POST['background_size'], array(static::BS_FULL, static::BS_ASIS))) ? $_POST['background_size'] : null;
-            $this->options->background_scroll             = (in_array($_POST['background_scroll'], array(static::BST_FIXED, static::BST_SCROLL))) ? $_POST['background_scroll'] : null;
-            $this->options->background_position           = (in_array($_POST['background_position'], $this->getBgOptions('position'))) ? $_POST['background_position'] : null;
-            $this->options->background_repeat             = (in_array($_POST['background_repeat'], $this->getBgOptions('repeat'))) ? $_POST['background_repeat'] : null;
-            $this->options->background_transition         = (in_array($_POST['background_transition'], $this->getBgOptions('transition'))) ? $_POST['background_transition'] : null;
-            $this->options->single_post_override          = (in_array($_POST['single_post_override'], $this->getBgOptions('role'))) ? $_POST['single_post_override'] : null;
-            $this->options->transition_speed              = (int)$_POST['transition_speed'];
-            $this->options->background_stretch_vertical   = (!empty($_POST['background_stretch_vertical']));
-            $this->options->background_stretch_horizontal = (!empty($_POST['background_stretch_horizontal']));
-            $this->options->active_overlay                = (string)$_POST['active_overlay'];
-            $this->options->display_on_front_page         = (!empty($_POST['display_on_front_page']));
-            $this->options->display_on_single_post        = (!empty($_POST['display_on_single_post']));
-            $this->options->display_on_single_page        = (!empty($_POST['display_on_single_page']));
-            $this->options->display_on_archive            = (!empty($_POST['display_on_archive']));
-            $this->options->display_on_search             = (!empty($_POST['display_on_search']));
-            $this->options->display_on_error              = (!empty($_POST['display_on_error']));
-            $this->options->info_tab                      = (!empty($_POST['info_tab']));
-            $this->options->info_tab_location             = (in_array($_POST['info_tab_location'], $this->getBgOptions('corner'))) ? $_POST['info_tab_location'] : null;
-            $this->options->info_tab_thumb                = (!empty($_POST['info_tab_thumb']));
-            $this->options->info_tab_link                 = (!empty($_POST['info_tab_link']));
-            $this->options->info_tab_desc                 = (!empty($_POST['info_tab_desc']));
-            $this->options->pin_it_btn                    = (!empty($_POST['pin_it_btn']));
-            $this->options->pin_it_btn_location           = (in_array($_POST['pin_it_btn_location'], $this->getBgOptions('corner'))) ? $_POST['pin_it_btn_location'] : null;
-            $this->options->full_screen_adjust            = (!empty($_POST['full_screen_adjust']));
-            $this->options->full_screen_center            = (!empty($_POST['full_screen_center']));
-
-            // Opacity (1-100)
-            if (($opacity = (int)$_POST['background_opacity']) <= 100 && $opacity > 0)
-                $this->options->background_opacity = $opacity;
-
-            if (($opacity = (int)$_POST['overlay_opacity']) <= 100 && $opacity > 0)
-                $this->options->overlay_opacity = $opacity;*/
-
-
-            // Display settings for Custom Post Types
-            $display_on = array();
-
-            foreach (get_post_types(array('_builtin' => false, 'public' => true), 'objects') as $post_type_key => $post_type) {
-                // Iterate over existing custom post types, filtering out whether it can be shown or not
-                if ($post_type_key !== static::PT_GALLERY)
-                    $display_on[$post_type_key] = (!empty($_POST['display_on'][$post_type_key]));
-            }
-
-            $this->options->display_custom_post_types = $display_on;
-
-            // Slightly different, the background color is saved as a theme mod only.
-            $background_color = ltrim($_POST['background_color'], '#');
-            if (empty($background_color)) {
-                remove_theme_mod('background_color');
-            } else if (preg_match('/^([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?$/', $background_color)) {
-                set_theme_mod('background_color', $background_color);
-            }
-
-            AdminNotice::add(__('Settings have been saved', $this->getName()));
-        }
-    }
-
-    /**
-     * Settings Menu
-     */
-    public function onSettingsMenu($data, $per_page)
-    {
-        global $wp_version, $wpdb;
-
-        // Generate a list of galleries, including a default of "None", and set a flag if we can use collages
-        $galleries = array_merge(array(
-            array(
-                'id' => 0,
-                'name' => __('-- None (deactivated) --', $this->getName()),
-                'selected' => ($this->options->active_gallery == false),
-            )
-        ), $this->getSettingGalleries($this->options->active_gallery));
-
-        // Grab the overlays and add a default of "None"
-        $overlays = array_merge(array(
-            array(
-                'value'    => '',
-                'desc'     => __('-- None (deactivated) --', $this->getName()),
-                'selected' => ($this->options->active_overlay == false),
-            ),
-        ), $this->getSettingOverlays($this->options->active_overlay));
-
-        // Grab Custom Post Types
-        $custom_post_types         = array();
-        $display_custom_post_types = $this->options->display_custom_post_types;
-
-        foreach (get_post_types(array('_builtin' => false, 'public' => true), 'objects') as $post_type_key => $post_type) {
-            if ($post_type_key !== static::PT_GALLERY)
-                $custom_post_types[$post_type_key] = array(
-                    'name'    => $post_type->labels->name,
-                    'display' => (isset($display_custom_post_types[$post_type_key])) ? $display_custom_post_types[$post_type_key] : true,
-                );
-        }
-
-        // Generate some debug information
-        $plugin_version = $this->getVersion();
-        $active_plugins = array();
-        $mem_peak  = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() / 1048576 : 0;
-        $mem_usage = (function_exists('memory_get_usage')) ? memory_get_usage() / 1048576 : 0;
-        $mem_max   = (int) @ini_get('memory_limit');
-        $current_theme = (function_exists('wp_get_theme')) ? wp_get_theme() : get_current_theme(); // WP 3.4
-
-        foreach (\Pf4wp\Info\PluginInfo::getInfo(true) as $plugin)
-            $active_plugins[] = sprintf("'%s' by %s", $plugin['Name'], $plugin['Author']);
-
-        $debug_info = array(
-            'Generated On'                       => gmdate('D, d M Y H:i:s') . ' GMT',
-            $this->getDisplayName() . ' Version' => $plugin_version,
-            'PHP Version'                        => PHP_VERSION,
-            'Memory Usage'                       => sprintf('%.2f MB Peak, %.2f MB Current, %d MB Max', $mem_peak, $mem_usage, $mem_max),
-            'Available PHP Extensions'           => implode(', ', get_loaded_extensions()),
-            'Pf4wp Version'                      => PF4WP_VERSION,
-            'Pf4wp APC Enabled'                  => (PF4WP_APC) ? 'Yes' : 'No',
-            'WordPress Version'                  => $wp_version,
-            'WordPress Debug Mode'               => (defined('WP_DEBUG') && WP_DEBUG) ? 'Yes' : 'No',
-            'Active WordPress Theme'             => $current_theme,
-            'Active Wordpress Plugins'           => implode(', ', $active_plugins),
-            'Browser'                            => $_SERVER['HTTP_USER_AGENT'],
-            'Server'                             => $_SERVER['SERVER_SOFTWARE'],
-            'Server OS'                          => php_uname(),
-            'Database Version'                   => $wpdb->get_var('SELECT VERSION()'),
-        );
-
-        // Template exports:
-        $vars = array(
-            'nonce'                         => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
-            'submit_button'                 => get_submit_button(),
-            'galleries'                     => $galleries,
-            'overlays'                      => $overlays,
-            'image_selection'               => $this->options->image_selection,
-            'background_color'              => get_background_color(),
-            'background_size'               => $this->options->background_size,
-            'background_scroll'             => $this->options->background_scroll,
-            'background_position'           => $this->options->background_position,
-            'background_repeat'             => $this->options->background_repeat,
-            'background_stretch_vertical'   => $this->options->background_stretch_vertical,
-            'background_stretch_horizontal' => $this->options->background_stretch_horizontal,
-            'background_opacity'            => $this->options->background_opacity,
-            'overlay_opacity'               => $this->options->overlay_opacity,
-            'background_transition'         => $this->options->background_transition,
-            'transition_speed'              => ((int)$this->options->transition_speed >= 100 && (int)$this->options->transition_speed <= 15000) ? $this->options->transition_speed : 600,
-            'change_freq_custom'            => ((int)$this->options->change_freq_custom >= 1) ? $this->options->change_freq_custom : 10,
-            'change_freq'                   => $this->options->change_freq,
-            'display_on_front_page'         => $this->options->display_on_front_page,
-            'display_on_single_post'        => $this->options->display_on_single_post,
-            'display_on_single_page'        => $this->options->display_on_single_page,
-            'display_on_archive'            => $this->options->display_on_archive,
-            'display_on_search'             => $this->options->display_on_search,
-            'display_on_error'              => $this->options->display_on_error,
-            'custom_post_types'             => $custom_post_types,
-            'info_tab'                      => $this->options->info_tab,
-            'info_tab_location'             => $this->options->info_tab_location,
-            'info_tab_thumb'                => $this->options->info_tab_thumb,
-            'info_tab_link'                 => $this->options->info_tab_link,
-            'info_tab_desc'                 => $this->options->info_tab_desc,
-            'bg_positions'                  => $this->getBgOptions('position', true),
-            'bg_repeats'                    => $this->getBgOptions('repeat', true),
-            'bg_transitions'                => $this->getBgOptions('transition', true),
-            'corner_locations'              => $this->getBgOptions('corner', true),
-            'roles'                         => $this->getBgOptions('role', true),
-            'plugin_base_url'               => $this->getPluginUrl(),
-            'debug_info'                    => $debug_info,
-            'plugin_name'                   => $this->getDisplayName(),
-            'plugin_version'                => $plugin_version,
-            'plugin_home'                   => \Pf4wp\Info\PluginInfo::getInfo(false, $this->getPluginBaseName(), 'PluginURI'),
-            'pin_it_btn'                    => $this->options->pin_it_btn,
-            'pin_it_btn_location'           => $this->options->pin_it_btn_location,
-            'full_screen_adjust'            => $this->options->full_screen_adjust,
-            'full_screen_center'            => $this->options->full_screen_center,
-            'single_post_override'          => $this->options->single_post_override,
-        );
-
-        $this->template->display('settings.html.twig', $vars);
-    }
-
-    /**
-     * Handles Pre-Galleries Menu functions
-     *
-     * Before loading the Galleries Menu, load the list and handle any pending
-     * user actions. This is also shared with onTrashMenuLoad(), due to its
-     * shared code.
-     *
-     * @see onTrashMenuLoad()
-     * @param object $current_screen The current screen object
-     */
-    public function onGalleriesMenuLoad($current_screen) {
-        if (!isset($this->list))
-            $this->list = new Lists\Galleries($this);
-
-        // Render any requested iframes (and 'die' afterwards)
-        if (isset($_REQUEST['iframe'])) {
-            switch (strtolower(trim($_REQUEST['iframe']))) {
-                case 'images' :
-                    $this->onIframeImages();
-                    break;
-
-                case 'edit_image' :
-                    $this->onIframeEditImage();
-                    break;
-            }
-        }
-
-        // "Simple" actions
-        if (isset($_REQUEST['ids']) && ($action = $this->list->current_action()) !== false) {
-            switch (strtolower($action)) {
-                case 'restore':
-                case 'restore_all':
-                    $this->galleries->restoreUserAction(($action == 'restore_all'));
-                    break;
-
-                case 'trash':
-                case 'trash_all':
-                    $this->galleries->trashUserAction(($action == 'trash_all'));
-                    break;
-
-                case 'delete':
-                case 'delete_all':
-                    $this->galleries->deleteUserAction(($action == 'delete_all'));
-                    break;
-            }
-        }
-
-        // Edit screen initialization
-        if ($this->inEdit() && !$this->list->isTrash()) {
-            /* Set the current screen to 'bgm_gallery' - a requirement for
-             * edit form meta boxes for this post type
-             */
-            set_current_screen(self::PT_GALLERY);
-
-            // Override the context help
-            $this->getMenu()->getActiveMenu()->context_help = new ContextHelp($this, 'edit');
-
-            // Respond to a save edit action (this will not return if the gallery was saved)
-            if (isset($_POST['submit']))
-                $this->galleries->saveUserAction();
-
-            // Add thickbox and other javascripts
-            list($js_url, $version, $debug) = $this->getResourceUrl();
-
-            add_thickbox();
-            wp_enqueue_script($this->getName() . '-gallery-edit', $js_url . 'gallery_edit' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
-            wp_localize_script(
-                $this->getName() . '-gallery-edit', 'bgmL10n', array(
-                    'warn_delete_all_images' => __('You are about to permanently delete the selected images. Are you sure?', $this->getName()),
-                    'warn_delete_image'      => __('You are about to permanently delete this image. Are you sure?', $this->getName()),
-                    'l10n_print_after'       => 'try{convertEntities(bgmL10n);}catch(e){};'
-                )
-            );
-
-            // Enqueue editor buttons (since WordPress 3.3)
-            wp_enqueue_style('editor-buttons');
-
-            // Guided Help ("Add Images")
-            new Pointers\AddNewStep2($this->getName());
-
-            // Intro to new features in 1.1
-            if ($this->options->last_upgrade == '1.1') {
-                new Pointers\Upgrade1dot1new3($this->getName());
-            }
-
-            // Set the 'images per page'
-            $active_menu                 = $this->getMenu()->getActiveMenu();
-            $active_menu->per_page       = 30;
-            $active_menu->per_page_label = __('images per page', $this->getName());
-
-            // Set the layout two 1 or 2 column width
-            add_screen_option('layout_columns', array('max' => 2, 'default' => 2) );
-
-            // Perform last-moment meta box registrations a la WordPress
-            do_action('add_meta_boxes', self::PT_GALLERY, $this->gallery);
-            do_action('add_meta_boxes_' . self::PT_GALLERY, $this->gallery);
-
-            do_action('do_meta_boxes', self::PT_GALLERY, 'normal', $this->gallery);
-            do_action('do_meta_boxes', self::PT_GALLERY, 'advanced', $this->gallery);
-            do_action('do_meta_boxes', self::PT_GALLERY, 'side', $this->gallery);
-        }
-    }
-
-    /**
-     * Galleries Menu
-     *
-     * This is also shared with onTrashMenu(), due to its shared code
-     *
-     * @see onTrashMenu()
-     */
-    public function onGalleriesMenu($data, $per_page)
-    {
-        // Basic sanity check
-        if (!isset($this->list) || !isset($this->galleries))
-            return;
-
-        // Show the editor instead of the list
-        if ($this->inEdit()) {
-            $this->editGallery($per_page);
-            return;
-        }
-
-        $this->list->setPerPage($per_page);
-        $this->list->prepare_items();
-
-        $vars = array(
-            'trash' => $this->list->isTrash(),
-            'list'  => $this->list->render(),
-        );
-
-        $this->template->display('galleries.html.twig', $vars);
-    }
-
-    /**
-     * Handles pre-Trash Menu functions
-     *
-     * Before loading the Trash Menu, load the list with `Trash` enabled.
-     *
-     * @see onGalleriesMenuLoad()
-     * @param object $current_screen Object containing the current screen (Wordpress)
-     */
-    public function onTrashMenuLoad($current_screen)
-    {
-        $this->list = new Lists\Galleries($this, true); // !!
-
-        $this->onGalleriesMenuLoad($current_screen);
-
-        // Empty Trash action
-        if (isset($_POST['empty_trash']))
-            $this->galleries->emptyTrashUserAction();
-    }
-
-    /**
-     * Trash Menu
-     *
-     * @see onGalleriesMenu()
-     */
-    public function onTrashMenu($data, $per_page)
-    {
-        $this->onGalleriesMenu($data, $per_page);
-    }
-
-    /**
-     * Import Menu Loader
-     *
-     * This will check the form response for a valid import job request, and
-     * performs it accordingly.
-     */
-    public function onImportMenuLoad($current_screen)
-    {
-        // Check if there's a valid 'run_import_job'
-        if (isset($_REQUEST['run_import_job']) && isset($_REQUEST['nonce'])) {
-            if (!wp_verify_nonce($_REQUEST['nonce'], $this->getName() . '_import_' . $_REQUEST['run_import_job']))
-                wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
-
-            $importers = $this->getImporters();
-            $importer  = $_REQUEST['run_import_job'];
-
-            if (array_key_exists($importer, $importers)) {
-                $class = $importers[$importer]['class'];
-
-                // Run import job
-                if (is_callable($class . '::import'))
-                    $class::import($this);
-            }
-        }
-
-        list($js_url, $version, $debug) = $this->getResourceUrl();
-
-        add_thickbox();
-        wp_enqueue_script($this->getName() . '-import', $js_url . 'import' . $debug . '.js', array('jquery', $this->getName() . '-functions'), $version);
-    }
-
-    /**
-     * Import Menu
-     */
-    public function onImportMenu($data)
-    {
-        $importers      = $this->getImporters();
-        $importer       = '';
-        $pre_import     = '';
-        $import_job_src = '';
-
-        // If the form was submitted...
-        if (isset($_REQUEST['importer']) && isset($_REQUEST['_nonce'])) {
-            if (!wp_verify_nonce($_REQUEST['_nonce'], 'onImportMenu'))
-                wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
-
-            $importer = $_REQUEST['importer'];
-
-            if (!array_key_exists($importer, $importers)) {
-                $importer = ''; // Invalid importer specified, ignore
-            } else {
-                // Obtain any pre-import information from the user, if required
-                $class = $importers[$importer]['class'];
-
-                if (is_callable($class . '::preImport'))
-                    $pre_import = $class::preImport($this);
-
-                // Scrub REQUEST variables, and pass them on to the import job source args
-                $args = array();
-
-                foreach ($_REQUEST as $post_key => $post_val) {
-                    $post_key = preg_replace('#_desc$#', '', $post_key); // Both regular class names and descriptions are ignored
-
-                    if (!array_key_exists($post_key, $importers) &&
-                        !in_array($post_key, array('_nonce', 'page', 'sub', 'submit', 'importer', 'pre_import_done', '_wp_http_referer')))
-                        $args[$post_key] = $post_val;
-                }
-
-                // Include a nonce in the import jobs source
-                $import_job_src = add_query_arg(array_merge($args, array('run_import_job' => $importer, 'nonce' => wp_create_nonce($this->getName() . '_import_' . $importer))));
-            }
-        }
-
-        $vars = array(
-            'nonce'           => wp_nonce_field('onImportMenu', '_nonce', true, false),
-            'submit_button'   => get_submit_button(__('Continue Import', $this->getName())),
-            'importers'       => $importers,
-            'importer'        => $importer,
-            'show_pre_import' => (!empty($importer) && !empty($pre_import)),
-            'pre_import'      => $pre_import,
-            'run_import'      => (!empty($importer) && empty($pre_import)),
-            'import_job_src'  => $import_job_src,
-        );
-
-        $this->template->display('import.html.twig', $vars);
-    }
-
-    /**
-     * Edit an existing or new gallery
-     *
-     * This will render the edit form, in place of the gallery list, unless
-     * the user does not have the privileges to edit any theme options.
-     *
-     * @see onGalleriesMenu()
-     */
-    public function editGallery($per_page)
-    {
-        // Get the main meta box output (for Twig)
-        ob_start();
-        do_meta_boxes(self::PT_GALLERY, 'normal', $this->gallery);
-        do_meta_boxes(self::PT_GALLERY, 'advanced', $this->gallery);
-        $meta_boxes_main = ob_get_clean();
-
-        // Get the side meta box output (for Twig)
-        ob_start();
-        do_meta_boxes(self::PT_GALLERY, 'side', $this->gallery);
-        $meta_boxes_side = ob_get_clean();
-
-        // Check if we start by displaying the right-side column;
-        $screen  = get_current_screen();
-        $columns = (int)get_user_option('screen_layout_'.$screen->id);
-        if ($columns == 0)
-            $columns = 2;
-
-        // Image upload button iframe src (href)
-        $image_media_library = add_query_arg(array('post_id' => ($this->gallery) ? $this->gallery->ID : '', 'type' => 'image'), admin_url('media-upload.php'));
-        $image_media_library = apply_filters('image_upload_iframe_src', $image_media_library); // As used by WordPress
-
-        $media_buttons['image']['id']    = 'add_image';
-        $media_buttons['image']['url']   = add_query_arg('filter', Filter\MediaLibrary::FILTER, $image_media_library); // Add filter
-        $media_buttons['image']['icon']  = admin_url('images/media-button-image.gif');
-        $media_buttons['image']['title'] = __('Add an Image', $this->getName());
-
-        // Allow additional media buttons to be specified
-        $media_buttons = apply_filters(static::BASE_PUB_PREFIX . 'media_buttons', $media_buttons);
-
-        // Ensure that media buttons have a `TB_iframe` as the last query arg
-        foreach ($media_buttons as $media_button_key => $media_button_value) {
-            if (isset($media_button_value['url']))
-                $media_buttons[$media_button_key]['url'] = add_query_arg('TB_iframe', true, remove_query_arg('TB_iframe', $media_buttons[$media_button_key]['url']));
-        }
-
-        // Iframes
-        $images_iframe_src = add_query_arg(array('iframe' => 'images', 'edit' => $this->gallery->ID, 'orderby' => false, 'order' => false, 'pp' => $per_page, 'paged' => false));
-        $image_edit_src    = add_query_arg(array('iframe' => 'edit_image', 'edit' => false, 'orderby' => false, 'order' => false, 'post_id' => $this->gallery->ID, 'filter' => Filter\MediaLibrary::FILTER));
-
-        $vars = array(
-            'is_wp34'           => $this->checkWPVersion('3.4', '>='),
-            'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar columns-2' : '',
-            'nonce'             => wp_nonce_field(self::NONCE_EDIT_GALLERY . $this->gallery->ID, '_nonce', true, false),
-            'nonce_meta_order'  => wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false),
-            'nonce_meta_clsd'   => wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false),
-            'images_iframe_src' => $images_iframe_src,  // iframe source
-            'image_edit_src'    => $image_edit_src,     // iframe source
-            'gallery'           => $this->gallery,
-            'post_type'         => self::PT_GALLERY,
-            'meta_boxes_main'   => $meta_boxes_main,
-            'meta_boxes_side'   => $meta_boxes_side,
-            'media_buttons'     => $media_buttons,
-            'is_new'            => $this->gallery->post_status != 'auto-draft',
-            'edit'              => $this->gallery->ID,
-            'images_per_page'   => $per_page,
-            'images_count'      => $this->images->getCount($this->gallery->ID),
-            'images_hash'       => $this->images->getHash($this->gallery->ID),
-            'img_large_loader'  => $this->getPluginUrl() . static::DIR_IMAGES . 'large_loader.gif',
-            'image_del_is_perm' => (!EMPTY_TRASH_DAYS || !MEDIA_TRASH) ? true : false,
-        );
-
-        $this->template->display('edit_gallery.html.twig', $vars);
-    }
-
-    /** Images Iframe */
-    public function onIframeImages()
-    {
-        if (!isset($this->gallery->ID))
-            die; // Something didn't go quite right
-
-        // Only if Javascript is disabled will we get here, which adds a image to the gallery directly
-        if (!empty($_POST) && isset($_POST['_nonce'])) {
-            if (!wp_verify_nonce($_POST['_nonce'], 'image-upload'))
-                wp_die(__('You do not have permission to do that [nonce].', $this->getName()));
-
-            // Check if there's a valid image, and if so, let the Media Library handle the upload
-            if (!empty($_FILES) && $_FILES['upload_file']['error'] == 0 && file_is_valid_image($_FILES['upload_file']['tmp_name']))
-                media_handle_upload('upload_file', $this->gallery->ID);
-        }
-
-        iframe_header();
-
-        $items_per_page = isset($_GET['pp']) ? $_GET['pp'] : 30;
-        $page_num       = isset($_GET['paged']) ? $_GET['paged'] : 1;
-
-        // Grab the total amount of items (images) and figure out how many pages that is
-        $total_items = $this->images->getCount($this->gallery->ID);
-        if (($total_pages = ceil($total_items / $items_per_page)) < 1)
-            $total_pages = 1;
-
-        // Get a valid page number
-        if ($page_num > $total_pages) {
-            $page_num = $total_pages;
-        } else if ($page_num < 1) {
-            $page_num = 1;
-        }
-
-        // Grab the images
-        $images = $this->images->get($this->gallery->ID,
-            array(
-                'orderby'     => 'menu_order',
-                'order'       => 'asc',
-                'numberposts' => $items_per_page,
-                'offset'      => ($page_num-1) * $items_per_page,
-            )
-        );
-
-        // The page links (for non-JS browsers)
-        $page_links = paginate_links(array(
-            'base'         => add_query_arg('paged', '%#%'),
-            'format'       => '',
-            'prev_text'    => __('&laquo;'),
-            'next_text'    => __('&raquo;'),
-            'total'        => $total_pages,
-            'current'      => $page_num,
-        ));
-
-        $vars = array(
-            'images'       => $images,
-            'current_page' => $page_num,
-            /* For non-JS: */
-            'page_links'   => $page_links,
-            'nonce'        => wp_nonce_field('image-upload', '_nonce', false, false),
-        );
-
-        $this->template->display('gallery_image.html.twig', $vars);
-
-        iframe_footer();
-        die();
-    }
-
-    /** Edit Image iframe **/
-    public function onIframeEditImage()
-    {
-        if (!isset($_GET['id']))
-            die; // How did you get here? Hmm!
-
-        $id       = (int)$_GET['id'];
-        $post     = get_post($id);
-        $vars     = array();
-        $did_save = false;
-
-        // Handle save request
-        if (isset($_REQUEST['save'])) {
-            $errors   = media_upload_form_handler();
-            $did_save = true;
-        }
-
-        // Queue additional scripts and styles
-        wp_enqueue_script('image-edit');
-        wp_enqueue_style('media');
-
-        // Send iframe header
-        iframe_header();
-
-        if ($id == 0 || $post == false || $post->post_type != 'attachment' || $post->post_status == 'trash') {
-            // Invalid ID or item was deleted
-            $vars = array('deleted'=>true);
-        } else {
-            $vars = array(
-                'did_save'   => $did_save,
-                'has_error'  => isset($errors[$id]),
-                'nonce'      => wp_nonce_field('media-form', '_wpnonce', false, false), // Same as used by media_upload_form_handler()
-                'media_item' => get_media_item($id, array('toggle'=>false, 'show_title'=>false, 'send'=>false, 'delete'=>false, 'errors'=>(isset($errors[$id]) ? $errors[$id] : null))),
-                'submit'     => get_submit_button(__( 'Save all changes'), 'button', 'save', false),
-            );
-        }
-
-        // Render template
-        $this->template->display('gallery_edit_image.html.twig', $vars);
-
-        // Send iframe footer and then 'die'.
-        iframe_footer();
-        die();
-    }
-
     /* ----------- Public ----------- */
 
     /**
@@ -1920,7 +1164,7 @@ class Main extends \Pf4wp\WordpressPlugin
 
         // Get option values after applying filters
         extract($this->getFilteredOptions());
-        $custom_styles = apply_filters(static::BASE_PUB_PREFIX . 'custom_styles', $active_gallery, '');
+        $custom_styles = apply_filters(static::BASE_PUB_PREFIX . 'custom_styles', $active_gallery, ''); // From Meta
 
         // Only add a background image here if we have a valid gallery and we're not using a full-screen image
         if ($this->getGallery($active_gallery) != false && $background_size != static::BS_FULL) {
@@ -1972,10 +1216,10 @@ class Main extends \Pf4wp\WordpressPlugin
             return;
 
         extract($this->getFilteredOptions());
-        $is_preview  = false; // If we're in the 3.4 Customize Theme Preview, this will be set to true.
+        $is_preview = false; // If we're in the 3.4 Customize Theme Preview, this will be set to true.
 
         // 3.4+ filters
-        if ($this->checkWPVersion('3.4', '>=')) {
+        if (Helpers::checkWPVersion('3.4', '>=')) {
             global $wp_customize;
 
             if (is_a($wp_customize, '\WP_Customize')) {
@@ -2031,7 +1275,7 @@ class Main extends \Pf4wp\WordpressPlugin
             ));
         }
 
-        // Also add the active transtion, transition speed and available transitions if we're in a preview
+        // Also add the active transtion, transition speed and available transitions if we're in a preview (3.4+)
         if ($is_preview) {
             $script_vars = array_merge($script_vars, array(
                 'active_transition' => $background_transition,
