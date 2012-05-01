@@ -5,6 +5,8 @@ Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.4-beta3
 Stable tag: 1.0.25
+License: GPLv3
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 Display a random image as the website background at each visit or as a timed slideshow, without the need to edit the theme.
 
@@ -60,11 +62,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
 * Graceful degradation for visitors without JavaScript
 * Option to add a "Pin It" [Pinterest](http://www.pinterest.com) button
 
-= License =
-
-[GNU GPL version 3](http://www.gnu.org/licenses/gpl-3.0.txt)
-
-This product uses the Flickr API but is not endorsed or certified by Flickr.
+_This product uses the Flickr API but is not endorsed or certified by Flickr._
 
 == Installation ==
 
