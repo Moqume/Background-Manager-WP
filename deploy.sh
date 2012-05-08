@@ -143,6 +143,7 @@ svn propset -q svn:ignore "deploy.sh
 README.md
 .gitmodules
 .git
+.git*
 .gitignore" "$SVNPATH/trunk/"
 isDone
 
