@@ -18,6 +18,7 @@
 {# ------ Full-size Image ------ #}
 {% if is_fullsize %}
 <script type="text/javascript">
+{% autoescape 'js' %}
 /*<![CDATA[*/
 {# UNCOMPRESSED:
 try {
@@ -39,6 +40,7 @@ try {
 #}
 try{(function(a){myatu_bgm.NewTopImage("{% if opacity < 100 %}-moz-opacity:.{{ opacity }};filter:alpha(opacity={{ opacity }});opacity:.{{ opacity }};{% endif %}","{{ random_image.alt }}","{{ random_image.url }}",function(){myatu_bgm.AdjustImageSize();a(this).css({display:"none",visibility:""}).fadeIn("slow")})})(jQuery)}catch(e){};
 /*]]>*/
+{% endautoescape %}
 </script>
 <noscript><img id="myatu_bgm_top" class="myatu_bgm_fs" src="{{ random_image.url }}" alt="{{ random_image.alt }}" {% if opacity < 100 %}style="-moz-opacity:.{{ opacity }}; filter:alpha(opacity={{ opacity }}); opacity:.{{ opacity }};"{% endif %}  /></noscript>
 {% endif %}

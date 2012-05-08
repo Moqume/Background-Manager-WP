@@ -88,7 +88,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.40 (1.1) =
+= 1.0.41 (1.1) =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories for _Category Override_ meta option, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
@@ -99,6 +99,7 @@ with PHP versions older than 5.3.
 * __Added:__ Ability to change the order of images in an _Image Set_
 * __Added:__ In addition to selecting an image from an _Image Set_ at random, sequential (ascending/descending) selection is now possible too
 * __Added:__ Ability to select which roles are able to override the background Image Set, Overlay and Color for individual Posts and Pages
+* Changed: Vendor libraries for Pf4wp and Twig updated to latest versions (1.0.8 and 1.8 respectively), minor change in public-side JS
 * Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
 * Changed: Decreased minimum permitted change frequency from 10 seconds to 1 second
 * Changed: Background image details are now loaded asynchronous, to prevent browser "blocking"
