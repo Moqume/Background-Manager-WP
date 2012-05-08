@@ -10,30 +10,18 @@ Options:
     -h          Usage message
     -o ARG      Output directory
     -q          Quiet output
+    -s          Sync with output directory
 EOF
 }
-
-function isDone()
-{
-    RESULT=$?
-
-    if [ $RESULT == 0 ]
-    then
-        echo "DONE"
-    elif [ $IGNERR == 0 ]
-    then
-        popd > /dev/null 2>&1
-        exit $RESULT
-    fi
-}
-
 
 ## VARS INIT
 OUTDIR=""
 DOQUIET=""
+TMPDIR="/tmp/myatu_export/"
+SYNC=0
 
 ## CLI PARAMS
-while getopts ":ho:q" option
+while getopts ":ho:qs" option
 do
     case ${option} in
     h)  showHelp
@@ -44,6 +32,9 @@ do
         ;;
     q)  # Quiet?
         DOQUIET="--quiet"
+        ;;
+    s)  # Sync to output
+        SYNC=1
         ;;
     *)	;;
     esac
@@ -56,35 +47,64 @@ then
 	exit 2
 fi
 
+# Working directory is same as output directory at this stage
+WORKDIR="${OUTDIR}"
+
 # If the output directory does not exist, create it
-if [ -d "${OUTDIR}" ]
+if [ ! -d "${OUTDIR}" ]
 then
-    mkdir ${OUTDIR}
+    mkdir -p ${OUTDIR}
 fi
 
-echo "Exporting GIT to SVN..."
+# Sync prep
+if [ ${SYNC} == 1 ]
+then
+    # Ensure we have a clean temp dir
+    if [ -d "${TMPDIR}" ]
+    then
+        rm -rf ${TMPDIR}
+    fi
+
+    if [ ! -d "${TMPDIR}" ]
+    then
+        mkdir ${TMPDIR}
+    fi
+
+    # Change work dir
+    WORKDIR="${TMPDIR}"
+fi
+
+# Start export
+echo "Exporting GIT..."
 git checkout master ${DOQUIET}
-git checkout-index -a -f --prefix=${OUTDIR}/ ${DOQUIET}
+git checkout-index -a -f --prefix=${WORKDIR}/ ${DOQUIET}
 
 # If there are submodules, check them out too
-if [ -f "${OUTDIR}/.gitmodules" ]
+if [ -f "${WORKDIR}/.gitmodules" ]
 then
     echo "Exporting Submodules..."
 
-    GITSUBCMD='git checkout-index -a -f --prefix='${OUTDIR}'/$path/'
+    GITSUBCMD='git checkout-index -a -f --prefix='${WORKDIR}'/$path/'
     git submodule foreach ${DOQUIET} --recursive ${GITSUBCMD}
 fi
 
-echo "Cleaning output directory"
+echo "Cleaning work directory"
 # Remove files that are not needed in the export
-if [ -f "${OUTDIR}/export.sh" ]; then rm "${OUTDIR}/export.sh"; fi
-if [ -f "${OUTDIR}/.gitignore" ]; then rm "${OUTDIR}/.gitignore"; fi
-if [ -f "${OUTDIR}/.gitmodules" ]; then rm "${OUTDIR}/.gitmodules"; fi
-if [ -f "${OUTDIR}/README.md" ]; then rm "${OUTDIR}/README.md"; fi
+if [ -f "${WORKDIR}/export.sh" ]; then rm "${WORKDIR}/export.sh"; fi
+if [ -f "${WORKDIR}/.gitignore" ]; then rm "${WORKDIR}/.gitignore"; fi
+if [ -f "${WORKDIR}/.gitmodules" ]; then rm "${WORKDIR}/.gitmodules"; fi
+if [ -f "${WORKDIR}/README.md" ]; then rm "${WORKDIR}/README.md"; fi
 
 # Remove directories that are not needed in the export
-if [ -d "${OUTDIR}/vendor/Twig/doc" ]; then rm -r "${OUTDIR}/vendor/Twig/doc"; fi
-if [ -d "${OUTDIR}/vendor/Twig/ext" ]; then rm -r "${OUTDIR}/vendor/Twig/ext"; fi
-if [ -d "${OUTDIR}/vendor/Twig/test" ]; then rm -r "${OUTDIR}/vendor/Twig/test"; fi
+if [ -d "${WORKDIR}/vendor/Twig/doc" ]; then rm -r "${WORKDIR}/vendor/Twig/doc"; fi
+if [ -d "${WORKDIR}/vendor/Twig/ext" ]; then rm -r "${WORKDIR}/vendor/Twig/ext"; fi
+if [ -d "${WORKDIR}/vendor/Twig/test" ]; then rm -r "${WORKDIR}/vendor/Twig/test"; fi
+
+if [ ${SYNC} == 1 ]
+then
+    echo "Syncing"
+    rsync -aPrq --delete --exclude=.svn/ ${WORKDIR} ${OUTDIR}
+    rm -rf ${WORKDIR}
+fi
 
 echo "Done"
