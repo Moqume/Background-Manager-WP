@@ -177,10 +177,26 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
      */
     protected function getOverrideID($meta, $orig_data)
     {
-        if ((!is_single() && !is_page()) || !($post = wp_get_single_post()))
+        global $post, $wp_query;
+
+        $id = false;
+        $post_as_page_id = get_option('page_for_posts');
+
+        // Is this page being used as the post_as_page?
+
+        if ($wp_query->is_posts_page) {
+            $id = (isset($wp_query->query_vars['page_id']) && $wp_query->query_vars['page_id']) ? $wp_query->query_vars['page_id'] : $wp_query->queried_object_id;
+        }
+
+        // Otherwise, if it's just a regular page/post or the home
+        if (!$id && is_singular())
+            $id = $post->ID;
+
+        // Still nothing, then don't bother
+        if (!$id)
             return $orig_data;
 
-        $post_specific_data = get_post_meta($post->ID, $meta, true);
+        $post_specific_data = get_post_meta($id, $meta, true);
 
         if ($post_specific_data == -1) {
             return 0; // Disable
