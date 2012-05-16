@@ -93,4 +93,10 @@
     z-index: -1999;
 }
 
-
+@media print {
+    .myatu_bgm_fs,
+    #myatu_bgm_pin_it_btn,
+    #myatu_bgm_info_tab {
+        display: none !important;
+    }
+}
