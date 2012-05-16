@@ -180,13 +180,10 @@ class Single extends PostMetabox implements \Pf4wp\Dynamic\DynamicInterface
         global $post, $wp_query;
 
         $id = false;
-        $post_as_page_id = get_option('page_for_posts');
 
         // Is this page being used as the post_as_page?
-
-        if ($wp_query->is_posts_page) {
+        if ($wp_query->is_posts_page)
             $id = (isset($wp_query->query_vars['page_id']) && $wp_query->query_vars['page_id']) ? $wp_query->query_vars['page_id'] : $wp_query->queried_object_id;
-        }
 
         // Otherwise, if it's just a regular page/post or the home
         if (!$id && is_singular())
