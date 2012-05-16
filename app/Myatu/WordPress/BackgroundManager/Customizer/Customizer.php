@@ -531,7 +531,7 @@ class Customizer
      */
     public function onSanitizeCheckbox($value)
     {
-        if ($value != 'false' || !empty($value))
+        if ($value == 'false' || $value == '1')
             return true;
 
         return false;

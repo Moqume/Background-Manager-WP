@@ -696,6 +696,11 @@ class Main extends \Pf4wp\WordpressPlugin
             'supports'            => array('title'),   // In case onGetEditPostLink() borks
         ));
 
+        // Since 1.0.30 - Customize Theme screen for WP 3.4
+        if (Helpers::checkWPVersion('3.4', '>=')) {
+            $this->customizer = new \Myatu\WordPress\BackgroundManager\Customizer\Customizer($this);
+        }
+
         // If we're performing an AJAX call, the other bits aren't required
         if (Helpers::DoingAjax())
 			return;
@@ -706,11 +711,6 @@ class Main extends \Pf4wp\WordpressPlugin
         add_action('add_attachment',     array($this, 'onAddAttachment'), 20);          // Adds 'Background Image' to Library
         add_action('edit_attachment',    array($this, 'onAddAttachment'), 20);
         add_action('admin_bar_menu',     array($this, 'onAdminBarMenu'), 90);
-
-        // Since 1.0.30 - Customize Theme screen for WP 3.4
-        if (Helpers::checkWPVersion('3.4', '>=')) {
-            $this->customizer = new \Myatu\WordPress\BackgroundManager\Customizer\Customizer($this);
-        }
 
         // @see: onAddAttachment()
         add_theme_support('custom-background');
