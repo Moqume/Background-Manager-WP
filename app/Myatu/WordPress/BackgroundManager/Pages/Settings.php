@@ -162,7 +162,7 @@ class Settings
      */
     public function onSettingsMenu($data, $per_page)
     {
-        global $wp_version, $wpdb;
+        //global $wp_version, $wpdb;
 
         // Generate a list of galleries, including a default of "None", and set a flag if we can use collages
         $galleries = array_merge(array(
@@ -194,35 +194,6 @@ class Settings
                 );
         }
 
-        // Generate some debug information
-        $plugin_version = $this->owner->getVersion();
-        $active_plugins = array();
-        $mem_peak       = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() / 1048576 : 0;
-        $mem_usage      = (function_exists('memory_get_usage')) ? memory_get_usage() / 1048576 : 0;
-        $mem_max        = (int) @ini_get('memory_limit');
-        $current_theme  = (function_exists('wp_get_theme')) ? wp_get_theme() : get_current_theme(); // WP 3.4
-
-        foreach (\Pf4wp\Info\PluginInfo::getInfo(true) as $plugin)
-            $active_plugins[] = sprintf("'%s' by %s", $plugin['Name'], $plugin['Author']);
-
-        $debug_info = array(
-            'Generated On'              => gmdate('D, d M Y H:i:s') . ' GMT',
-            $this->owner->getDisplayName() . ' Version' => $plugin_version,
-            'PHP Version'               => PHP_VERSION,
-            'Memory Usage'              => sprintf('%.2f MB Peak, %.2f MB Current, %d MB Max', $mem_peak, $mem_usage, $mem_max),
-            'Available PHP Extensions'  => implode(', ', get_loaded_extensions()),
-            'Pf4wp Version'             => PF4WP_VERSION,
-            'Pf4wp APC Enabled'         => (PF4WP_APC) ? 'Yes' : 'No',
-            'WordPress Version'         => $wp_version,
-            'WordPress Debug Mode'      => (defined('WP_DEBUG') && WP_DEBUG) ? 'Yes' : 'No',
-            'Active WordPress Theme'    => $current_theme,
-            'Active Wordpress Plugins'  => implode(', ', $active_plugins),
-            'Browser'                   => $_SERVER['HTTP_USER_AGENT'],
-            'Server'                    => $_SERVER['SERVER_SOFTWARE'],
-            'Server OS'                 => php_uname(),
-            'Database Version'          => $wpdb->get_var('SELECT VERSION()'),
-        );
-
         // Template exports:
         $vars = array(
             'nonce'             => wp_nonce_field('onSettingsMenu', '_nonce', true, false),
@@ -237,9 +208,9 @@ class Settings
             'corner_locations'  => $this->owner->getBgOptions('corner', true),
             'roles'             => $this->owner->getBgOptions('role', true),
             'plugin_base_url'   => $this->owner->getPluginUrl(),
-            'debug_info'        => $debug_info,
+            'debug_info'        => $this->owner->getDebugInfo(),
             'plugin_name'       => $this->owner->getDisplayName(),
-            'plugin_version'    => $plugin_version,
+            'plugin_version'    => $this->owner->getVersion(),
             'plugin_home'       => \Pf4wp\Info\PluginInfo::getInfo(false, $this->owner->getPluginBaseName(), 'PluginURI'),
         );
 
