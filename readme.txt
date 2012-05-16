@@ -88,7 +88,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.42 (1.1) =
+= 1.0.43 (1.1) =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories for _Category Override_ meta option, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
@@ -104,6 +104,7 @@ with PHP versions older than 5.3.
 * Changed: Decreased minimum permitted change frequency from 10 seconds to 1 second
 * Changed: Background image details are now loaded asynchronous, to prevent browser "blocking"
 * Changed: Background image is now rendered by JS directly, unless JS is disabled, to avoid "flicker"
+* Changed: Background image is no longer printed
 * Fixed: Minimum background image change interval was not added to Javascript
 * Fixed: Individual page settings were ignored if the page was used as a Posts Page (in Reading)
 
