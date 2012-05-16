@@ -33,21 +33,9 @@
 }
 
 .myatu_bgm_slider_control {
-    width: 80px;
+    width: 200px;
+
 }
-
-/* Specific adjustments */
-
-#customize-control-myatu_bgm_change_freq_custom input {
+#customize-control-myatu_bgm_change_freq_custom input{
     width: 60px;
 }
-
-#customize-control-myatu_bgm_background_color .customize-control-content,
-#customize-section-background .customize-control-select select {
-    width: 120px;
-}
-
-#customize-control-myatu_bgm_background_color .farbtastic-placeholder {
-    width: 100%;
-}
-
