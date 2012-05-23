@@ -465,7 +465,11 @@ class Main extends \Pf4wp\WordpressPlugin
         if (!isset($this->np_cache['can_display_background'])) {
             /* When is_home() is set, it does not report is_page() (even though it is). We use this
              * to figure out if we're at the greeting page */
-            $is_at_door = (home_url() == wp_guess_url());
+            $current_url = wp_guess_url();
+            if ($qa = strpos($current_url, '?'))
+                $current_url = substr($current_url, 0, $qa);
+
+            $is_at_door  = (trailingslashit(home_url()) == trailingslashit($current_url));
 
             $this->np_cache['can_display_background']  = (
                 ($this->options->display_on_front_page  && $is_at_door)     ||
