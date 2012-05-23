@@ -50,6 +50,7 @@ class Customizer
     const P_PIN_IT_BTN_L = 'pin_it_btn_location';
     const P_FS_ADJUST    = 'full_screen_adjust';
     const P_FS_CENTER    = 'full_screen_center';
+    const P_INIT_EASE_IN = 'initial_ease_in';
 
     /** Magic method prefixes, see @__call */
     const M_PREVIEW = 'OnPreview_';
@@ -95,6 +96,7 @@ class Customizer
             static::P_INFO_TAB_L    => array('label' => __('Location', $this->owner->getName()),                'priority' => 52),
             static::P_PIN_IT_BTN    => array('label' => __('Display "Pin It" Button', $this->owner->getName()), 'priority' => 60, 'sanitize' => 'onSanitizeCheckbox'),
             static::P_PIN_IT_BTN_L  => array('label' => __('Location', $this->owner->getName()),                'priority' => 61),
+            static::P_INIT_EASE_IN  => array('label' => __('Ease in first image', $this->owner->getName()),     'priority' => 70, 'sanitize' => 'onSanitizeCheckbox'),
         );
 
         // Set actions
@@ -476,6 +478,11 @@ class Customizer
                 case static::P_INFO_TAB_L :
                 case static::P_PIN_IT_BTN_L :
                     $this->addSettingControl($id, $details, 'radio', $this->owner->getBgOptions('corner', true));
+                    break;
+
+                case static::P_INIT_EASE_IN :
+                    $this->addSettingControl($id, $details, 'checkbox');
+                    $this->addDividerControl($priority-1, __('Miscellaneous', $this->owner->getName()));
                     break;
 
             } // switch

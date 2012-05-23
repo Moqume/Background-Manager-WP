@@ -130,6 +130,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'pin_it_btn_location',
         'full_screen_center',
         'full_screen_adjust',
+        'initial_ease_in',
     );
 
     /* Enable public-side Ajax - @see onAjaxRequest() */
@@ -1270,7 +1271,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'active_gallery'  => $active_gallery,
             'is_fullsize'     => ($background_size == static::BS_FULL) ? 'true' : 'false',
             'is_preview'      => ($is_preview) ? 'true' : 'false',
-            'initial_ease_in' => ($this->options->initial_ease_in) ? 'true' : 'false',
+            'initial_ease_in' => ($initial_ease_in) ? 'true' : 'false',
         );
 
         // Add to variables if in full screen mode
