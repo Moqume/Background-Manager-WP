@@ -30,14 +30,21 @@ try {
                 // Re-adjust image size to browser window
                 myatu_bgm.AdjustImageSize();
 
-                // Swap 'visibility' with 'display' and fade in
-                $(this).css({'display':'none','visibility':''}).fadeIn('slow');
+                // Swap 'visibility' with 'display'
+                $(this).css({'display':'none','visibility':''});
+
+                // Either fade in or display immediately
+                if ((background_manager_vars !== undefined) && (background_manager_vars.initial_ease_in == "true")) {
+                    $(this).fadeIn('slow');
+                } else {
+                    $(this).show();
+                }
             }
         );
     })(jQuery);
 } catch(e) {};
 #}
-try{(function(a){myatu_bgm.NewTopImage("{% if opacity < 100 %}-moz-opacity:.{{ opacity }};filter:alpha(opacity={{ opacity }});opacity:.{{ opacity }};{% endif %}","{{ random_image.alt }}","{{ random_image.url }}",function(){myatu_bgm.AdjustImageSize();a(this).css({display:"none",visibility:""}).fadeIn("slow")})})(jQuery)}catch(e){};
+try{(function(a){myatu_bgm.NewTopImage("{% if opacity < 100 %}-moz-opacity:.{{ opacity }};filter:alpha(opacity={{ opacity }});opacity:.{{ opacity }};{% endif %}","{{ random_image.alt }}","{{ random_image.url }}",function(){myatu_bgm.AdjustImageSize();a(this).css({display:"none",visibility:""});if((background_manager_vars!==undefined)&&(background_manager_vars.initial_ease_in=="true")){a(this).fadeIn("slow")}else{a(this).show()}})})(jQuery)}catch(e){};
 /*]]>*/
 </script>
 <noscript><img id="myatu_bgm_top" class="myatu_bgm_fs" src="{{ random_image.url }}" alt="{{ random_image.alt }}" {% if opacity < 100 %}style="-moz-opacity:.{{ opacity }}; filter:alpha(opacity={{ opacity }}); opacity:.{{ opacity }};"{% endif %}  /></noscript>

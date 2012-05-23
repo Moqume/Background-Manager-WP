@@ -101,6 +101,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'info_tab_desc'          => true,
         'pin_it_btn_location'    => 'bottom-left', // Since 1.0.20
         'single_post_override'   => 'admin',       // Since 1.0.39
+        'initial_ease_in'        => true,          // Since 1.0.44
     );
 
     /** The options can be filtered (prefixed by BASE_PUB_PREFIX in `apply_filters`) - @see getFilteredOptions */
@@ -1261,10 +1262,11 @@ class Main extends \Pf4wp\WordpressPlugin
 
         // Spit out variables for JavaScript to use
         $script_vars = array(
-            'change_freq'    => $script_change_freq,
-            'active_gallery' => $active_gallery,
-            'is_fullsize'    => ($background_size == static::BS_FULL) ? 'true' : 'false',
-            'is_preview'     => ($is_preview) ? 'true' : 'false',
+            'change_freq'     => $script_change_freq,
+            'active_gallery'  => $active_gallery,
+            'is_fullsize'     => ($background_size == static::BS_FULL) ? 'true' : 'false',
+            'is_preview'      => ($is_preview) ? 'true' : 'false',
+            'initial_ease_in' => ($this->options->initial_ease_in) ? 'true' : 'false',
         );
 
         // Add to variables if in full screen mode

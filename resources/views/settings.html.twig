@@ -486,6 +486,19 @@
             <tbody>
                 <tr valign="top">
                     <th scope="row">
+                        {{ __('Initial Ease-in') }}
+                    </th>
+                    <td>
+                        <label>
+                            <input type="checkbox" value="1" id="initial_ease_in" name="initial_ease_in" {% if initial_ease_in %}checked="checked"{% endif %} />
+                            <span>{{ __('Enabled') }}</span>
+                            <span class="description">({{ __('Eases in the initial image after it has finished downloading') }})</span>
+                        </label>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">
                         {{ __('Override Posts and Pages') }}
                     </th>
                     <td>

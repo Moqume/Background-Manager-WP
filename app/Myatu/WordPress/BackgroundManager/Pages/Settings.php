@@ -75,6 +75,7 @@ class Settings
             'full_screen_adjust'            => 'bool',
             'full_screen_center'            => 'bool',
             'single_post_override'          => array('in_array', $this->owner->getBgOptions('role')),
+            'initial_ease_in'               => 'bool',
         );
 
         if ($want_values) {

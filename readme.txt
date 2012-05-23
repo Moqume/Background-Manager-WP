@@ -99,6 +99,7 @@ with PHP versions older than 5.3.
 * __Added:__ Ability to change the order of images in an _Image Set_
 * __Added:__ In addition to selecting an image from an _Image Set_ at random, sequential (ascending/descending) selection is now possible too
 * __Added:__ Ability to select which roles are able to override the background Image Set, Overlay and Color for individual Posts and Pages
+* __Added:__ Option to allow the user to enable/disable the initial image ease-in
 * Changed: Vendor libraries for Pf4wp and Twig updated to latest versions (1.0.8 and 1.8 respectively), minor change in public-side JS
 * Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
 * Changed: Decreased minimum permitted change frequency from 10 seconds to 1 second
