@@ -167,6 +167,12 @@ if (typeof myatu_bgm === "undefined") {
                 prev_style  = '',
                 transition_speed, active_transition, image_selection;
 
+            // Determine if we're actually "visible". If not, we simply reset the timer
+            if ((is_fullsize && !$('#myatu_bgm_top').is(':visible'))) {
+                myatu_bgm.SetTimer();
+                return;
+            }
+
             if (is_preview) {
                 // Override the method for selecting an image in the preview
                 image_selection = background_manager_vars.image_selection;
