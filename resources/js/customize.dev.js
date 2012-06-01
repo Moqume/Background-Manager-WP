@@ -49,7 +49,7 @@ if (typeof myatu_bgm === "undefined") {
             // A bit of extra magic for 'Random' image selector
             if (!custom_freq) {
                 if (!random_selector.is(':checked')) {
-                    $(random_selector).attr('checked',true);
+                    $(random_selector).prop('checked',true);
                     $(myatu_bgm.base_control_prefix + 'image_selection input').change();
                 }
             }

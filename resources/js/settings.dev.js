@@ -57,7 +57,7 @@ if (typeof myatu_bgm === "undefined") {
 
             // Make sure 'Random' is selected when not using a custom change frequency
             if (!is_custom_freq) {
-                $('#image_sel_random').attr('checked',true);
+                $('#image_sel_random').prop('checked',true);
             }
         },
 
@@ -173,7 +173,7 @@ if (typeof myatu_bgm === "undefined") {
     $(document).ready(function($){
         // Color picker
         $('#color_picker').farbtastic(function(color) {
-            $('#background_color').attr('value', color);
+            $('#background_color').val(color);
             myatu_bgm.updatePreviewColor();
         });
         $.farbtastic('#color_picker').setColor($('#background_color').val());
