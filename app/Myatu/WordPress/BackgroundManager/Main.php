@@ -55,6 +55,9 @@ class Main extends \Pf4wp\WordpressPlugin
     const DIR_IMPORTERS = 'app/Myatu/WordPress/BackgroundManager/Importers/';
     const DIR_META      = 'app/Myatu/WordPress/BackgroundManager/Meta/';
 
+    /* Name of the WP Customize Manager class */
+    const WP_CUSTOMIZE_MANAGER_CLASS = '\WP_Customize_Manager';
+
     /** Instance containing current gallery being edited (if any) - see @inEdit() */
     public $gallery = null;
 
@@ -312,6 +315,9 @@ class Main extends \Pf4wp\WordpressPlugin
             if ($result !== false) {
                 if (is_null($this->gallery))
                     $this->gallery = $result;
+
+                // Set the 'post' global
+                $post = $this->gallery;
 
                 $result = true;
             }
@@ -1221,6 +1227,9 @@ class Main extends \Pf4wp\WordpressPlugin
         if (!$this->canDisplayBackground())
             return;
 
+        if (!isset($this->images))
+            $this->images = new Images($this);
+
         extract($this->getFilteredOptions());
         $is_preview = false; // If we're in the 3.4 Customize Theme Preview, this will be set to true.
 
@@ -1228,7 +1237,7 @@ class Main extends \Pf4wp\WordpressPlugin
         if (Helpers::checkWPVersion('3.4', '>=')) {
             global $wp_customize;
 
-            if (is_a($wp_customize, '\WP_Customize')) {
+            if (is_a($wp_customize, static::WP_CUSTOMIZE_MANAGER_CLASS)) {
                 $is_preview = $wp_customize->is_preview();
             }
         }
@@ -1240,10 +1249,12 @@ class Main extends \Pf4wp\WordpressPlugin
         /* Only load the scripts if:
          * - there's custom change frequency
          * - the background is full screen
+         * - there's a click-able image in the background set // since @1.0.45 - see http://wordpress.org/support/topic/plugin-background-manager-link-in-background-not-working
          * - or, there's an info tab with a short description
          */
         if ($change_freq != static::CF_CUSTOM &&
             $background_size != static::BS_FULL &&
+            !$this->images->hasLinkedImages($active_gallery) && // since @1.0.45
             !($info_tab && $info_tab_desc))
             return;
 

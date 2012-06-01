@@ -91,6 +91,32 @@ class Images
     }
 
     /**
+     * Returns true if an image in the Gallery has a link
+     *
+     * @since 1.0.45
+     * @param int $id ID f the Gallery
+     * @return bool
+     */
+    public function hasLinkedImages($id)
+    {
+        global $wpdb;
+
+        $cache_id = 'has_linked_images_'.$id;
+
+        if (!isset($this->np_cache[$cache_id])) {
+            $image_ids = implode(',', $this->getAllImageIds($id));
+            $count     = 0;
+
+            if (!empty($image_ids))
+                $count = (int)$wpdb->get_var("SELECT DISTINCT COUNT(*) FROM `{$wpdb->postmeta}` WHERE `meta_key` = 'myatu_bgm_link' AND `post_id` IN ({$image_ids})");
+
+            $this->np_cache[$cache_id] = ($count > 0);
+        }
+
+        return $this->np_cache[$cache_id];
+    }
+
+    /**
      * Returns a random image ID from all available images in a gallery
      *
      * @param int $id ID of the Gallery (image set)

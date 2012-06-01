@@ -180,7 +180,7 @@ class Customizer
     {
         global $wp_customize;
 
-        if (!is_a($wp_customize, '\WP_Customize'))
+        if (!is_a($wp_customize, Main::WP_CUSTOMIZE_MANAGER_CLASS))
             return;
 
         $setting = $wp_customize->get_setting(Main::BASE_PUB_PREFIX . $id);
@@ -223,7 +223,7 @@ class Customizer
     {
         global $wp_customize;
 
-        if (!is_a($wp_customize, '\WP_Customize'))
+        if (!is_a($wp_customize, Main::WP_CUSTOMIZE_MANAGER_CLASS))
             return;
 
         $priority = isset($details['priority']) ? $details['priority'] : 10;
@@ -254,7 +254,7 @@ class Customizer
     {
         global $wp_customize;
 
-        if (!is_a($wp_customize, '\WP_Customize'))
+        if (!is_a($wp_customize, Main::WP_CUSTOMIZE_MANAGER_CLASS))
             return;
 
         $id = 'divider_' . strtr(strtolower($label), ' -', '__');
@@ -310,7 +310,7 @@ class Customizer
     {
         global $wp_customize;
 
-        if (!is_a($wp_customize, '\WP_Customize'))
+        if (!is_a($wp_customize, Main::WP_CUSTOMIZE_MANAGER_CLASS))
             return;
 
         $wp_customize->add_section(static::PG_BGM, array(
@@ -358,8 +358,9 @@ class Customizer
                 case static::P_COLOR :
                     // Background Color - Note that the exposed ID needs to be prefixed
                     $wp_customize->add_setting(Main::BASE_PUB_PREFIX . $id, array(
-                        'default'           => get_background_color(),
-                        'type'              => 'myatu_bgm',
+                        'default'              => get_background_color(),
+                        'type'                 => 'myatu_bgm',
+                        'sanitize_js_callback' => 'maybe_hash_hex_color', // 3.4-RC1
                     ));
 
                     $wp_customize->add_control(new \WP_Customize_Color_Control($wp_customize, Main::BASE_PUB_PREFIX . $id, array(

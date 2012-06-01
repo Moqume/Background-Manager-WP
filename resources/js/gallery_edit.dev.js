@@ -5,8 +5,9 @@
  * file that was distributed with this source code.
  *
  */
-if (myatu_bgm === undefined)
+if (typeof myatu_bgm === "undefined") {
     var myatu_bgm = {};
+}
 
 (function($){
     $.extend(myatu_bgm, {
@@ -14,15 +15,17 @@ if (myatu_bgm === undefined)
         GetObjSize: function(obj) {
             var size = 0, key;
 
-            for (key in obj)
-                if (obj.hasOwnProperty(key))
+            for (key in obj) {
+                if (obj.hasOwnProperty(key)) {
                     size++;
+                }
+            }
 
             return size;
         },
 
         /** Holds selected images */
-        image_selection: new Object(),
+        image_selection: {},
 
         /** Gets the image count [Ajax] */
         getImageCount: function() { return (myatu_bgm.GetAjaxData('image_count', $('#edit_id').val())); },
@@ -38,12 +41,15 @@ if (myatu_bgm === undefined)
 
         /** Helper to remove or delete images */
         doDeleteRemoveImages : function(do_delete, id) {
-            var key, ids = '', func = (do_delete === undefined || !do_delete) ? 'remove_images' : 'delete_images';
+            var key, ids = '', func = (typeof do_delete === 'undefined' || !do_delete) ? 'remove_images' : 'delete_images';
 
-            if (id === undefined) {
+            if (typeof id === 'undefined') {
                 // Determine the selected images
-                for (key in myatu_bgm.image_selection)
-                    ids += key.replace('image_', '') + ',';
+                for (key in myatu_bgm.image_selection) {
+                    if (myatu_bgm.image_selection.hasOwnProperty(key)) {
+                        ids += key.replace('image_', '') + ',';
+                    }
+                }
             } else {
                 // Delete or remove specified image
                 ids = id;
@@ -54,18 +60,22 @@ if (myatu_bgm === undefined)
 
             myatu_bgm.showHideEditBar(true);
 
-            if (myatu_bgm.haveImagesChanged(true))
+            if (myatu_bgm.haveImagesChanged(true)) {
                 myatu_bgm.loadImagesIframe();
+            }
         },
 
         /** Helper to move images */
         doMoveImages: function(right, id) {
             var key, ids = '', inc = (right) ? 1 : 0;
 
-            if (id === undefined) {
+            if (typeof id === 'undefined') {
                 // Determine the selected images
-                for (key in myatu_bgm.image_selection)
-                    ids += key.replace('image_', '') + ',';
+                for (key in myatu_bgm.image_selection) {
+                    if (myatu_bgm.image_selection.hasOwnProperty(key)) {
+                        ids += key.replace('image_', '') + ',';
+                    }
+                }
             } else {
                 // Move a specified image
                 ids = id;
@@ -76,25 +86,29 @@ if (myatu_bgm === undefined)
 
             myatu_bgm.showHideEditBar(true);
 
-            if (myatu_bgm.haveImagesChanged(true))
+            if (myatu_bgm.haveImagesChanged(true)) {
                 myatu_bgm.loadImagesIframe();
+            }
         },
 
         /** Displays or hides the "Edit Bar" (containing buttons related to selected items) */
         showHideEditBar: function(getIds) {
-            var edit_bar = $('#quicktags'),
+            var edit_bar      = $('#quicktags'),
                 selected_count = $('#selected-count'),
                 count, ids, id, key;
 
-            if (getIds == true) {
+            if (getIds === true) {
                 // Check if a selected ID no longer exist in getImageIds(), and delete from image_selection if so.
                 ids = myatu_bgm.getImageIds();
 
                 for (key in myatu_bgm.image_selection) {
-                    id = key.replace('image_', '');
+                    if (myatu_bgm.image_selection.hasOwnProperty(key)) {
+                        id = key.replace('image_', '');
 
-                    if (ids[id] == undefined)
-                        delete myatu_bgm.image_selection[key];
+                        if (typeof ids[id] === 'undefined') {
+                            delete myatu_bgm.image_selection[key];
+                        }
+                    }
                 }
             }
 
@@ -117,9 +131,10 @@ if (myatu_bgm === undefined)
         haveImagesChanged: function(setNewHash) {
             var current_hash = $('#images_hash').val(), hash = myatu_bgm.getImagesHash();
 
-            if (hash != false && current_hash != hash) {
-                if (setNewHash == true)
+            if (hash !== false && current_hash !== hash) {
+                if (setNewHash === true) {
                     $('#images_hash').val(hash);
+                }
 
                 return true;
             }
@@ -131,14 +146,15 @@ if (myatu_bgm === undefined)
         loadImagesIframe: function(dest) {
             var overlay = $('#image_iframe_overlay'), loader = $('#loader', overlay);
 
-            if (dest == undefined)
+            if (dest === undefined) {
                 dest = $('#images_iframe').attr("src"); // Default action is to reload
+            }
 
             // Display the overlay on top of the images iframe
             overlay.show();
 
             // Hide the image buttons, if shown.
-            $('#image_buttons').hide()
+            $('#image_buttons').hide();
 
             // Center the loader image
             loader.css('top', ((overlay.height() - loader.outerHeight()) / 2) + overlay.scrollTop() + 'px');
@@ -203,7 +219,7 @@ if (myatu_bgm === undefined)
                 });
 
             // Display pagination links, if any were returned by Ajax call
-            if (pagination_links != false) {
+            if (pagination_links !== false) {
                 $('.tablenav-pages').html(pagination_links);
                 $('.tablenav-pages a').click(myatu_bgm.onPaginationClick);
             }
@@ -216,8 +232,9 @@ if (myatu_bgm === undefined)
                 $(this).dblclick(myatu_bgm.onImageDoubleClick);
                 $(this).click(myatu_bgm.onImageClick);
 
-                if (myatu_bgm.image_selection[$(this).attr('id')] == true)
+                if (myatu_bgm.image_selection[$(this).attr('id')] === true) {
                     $(this).addClass('selected');
+                }
             });
 
             // Add a additional click events
@@ -237,8 +254,9 @@ if (myatu_bgm === undefined)
 
         /** Event triggered when `Delete Selected` is clicked */
         onDeleteSelected: function(event) {
-            if ($('#image_del_is_perm').val() == '1' && confirm(bgmL10n.warn_delete_all_images) == false)
+            if ($('#image_del_is_perm').val() === '1' && confirm(bgmL10n.warn_delete_all_images) === false) {
                 return false;
+            }
 
             myatu_bgm.doDeleteRemoveImages(true);
 
@@ -271,12 +289,13 @@ if (myatu_bgm === undefined)
             var image_container = $('#images_iframe').contents().find('#image_container');
 
             // Clear image_selection
-            myatu_bgm.image_selection = new Object();
+            myatu_bgm.image_selection = {};
 
             // Remove any selected classes displayed
             $('.image', image_container).each(function(index) {
-                if ($(this).hasClass('selected'))
+                if ($(this).hasClass('selected')) {
                     $(this).removeClass('selected');
+                }
             });
 
             // Hide the edit bar
@@ -339,8 +358,9 @@ if (myatu_bgm === undefined)
 
         /** Event triggered when the `delete` button is clicked */
         onImageDeleteButtonClick: function(event) {
-            if ($('#image_del_is_perm').val() == '1' && confirm(bgmL10n.warn_delete_image) == false)
+            if ($('#image_del_is_perm').val() === '1' && confirm(bgmL10n.warn_delete_image) === false) {
                 return false;
+            }
 
             myatu_bgm.doDeleteRemoveImages(true, $(this).attr('href').replace('#', ''));
 
@@ -376,16 +396,17 @@ if (myatu_bgm === undefined)
                 highlighted     = $('.image.highlighted', image_container),
                 doScroll        = function(which) {
                     // Internal function to ensure a highlighted item, and then scroll to the highlighted item
-                    if (!highlighted.length && which != undefined)
+                    if (!highlighted.length && typeof which !== 'undefined') {
                         highlighted = $('.image:'+which, image_container).addClass('highlighted');
+                    }
 
                     // Add any image buttons, if needed
                     myatu_bgm.showHideImageButtons();
 
                     // Scroll to the item.
-                    if (image_body.length && highlighted.length)
+                    if (image_body.length && highlighted.length) {
                         image_body.scrollTo(highlighted);
-
+                    }
                 };
 
             // Event is based on specific keys:
@@ -420,29 +441,32 @@ if (myatu_bgm === undefined)
     /** "Ready" event */
     $(document).ready(function($){
         // Override send_to_editor(html):
-        mainWin.send_to_editor = function(send_id) {
-            tb_remove(); // All we need to do is close the ThickBox window
-        }
+        if (typeof mainWin !== "undefined") {
+            mainWin.send_to_editor = function(send_id) {
+                tb_remove(); // All we need to do is close the ThickBox window
+            };
 
-        // Override tb_remove()
-        mainWin.tb_remove = function() {
-            $("#TB_imageOff").unbind("click");
-            $("#TB_closeWindowButton").unbind("click");
-            $("#TB_window").fadeOut("fast",function(){$('#TB_window,#TB_overlay,#TB_HideSelect').trigger("unload").unbind().remove();});
-            $("#TB_load").remove();
+            // Override tb_remove()
+            mainWin.tb_remove = function() {
+                $("#TB_imageOff").unbind("click");
+                $("#TB_closeWindowButton").unbind("click");
+                $("#TB_window").fadeOut("fast",function(){$('#TB_window,#TB_overlay,#TB_HideSelect').trigger("unload").unbind().remove();});
+                $("#TB_load").remove();
 
-            if (typeof document.body.style.maxHeight == "undefined") {//if IE 6
-                $("body","html").css({height: "auto", width: "auto"});
-                $("html").css("overflow","");
-            }
+                if (typeof document.body.style.maxHeight === "undefined") {//if IE 6
+                    $("body","html").css({height: "auto", width: "auto"});
+                    $("html").css("overflow","");
+                }
 
-            document.onkeydown = "";
-            document.onkeyup = "";
+                document.onkeydown = "";
+                document.onkeyup = "";
 
-            if (myatu_bgm.haveImagesChanged(true))
-               myatu_bgm.loadImagesIframe();
+                if (myatu_bgm.haveImagesChanged(true)) {
+                   myatu_bgm.loadImagesIframe();
+                }
 
-            return false;
+                return false;
+            };
         }
 
         // Attach 'click' events
@@ -453,4 +477,4 @@ if (myatu_bgm === undefined)
         $('#ed_move_r_selected').click(myatu_bgm.onMoveRightSelected);
     });
 
-})(jQuery);
+}(jQuery));

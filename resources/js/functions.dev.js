@@ -7,7 +7,11 @@
  * Portions Copyright (c) 2010 Paul Irish & Andreé Hansson (imgLoaded jQuery extension, released under MIT license)
  */
 
-mainWin = window.dialogArguments || opener || parent || top;
+var mainWin = window.dialogArguments || opener || parent || top;
+
+if (typeof myatu_bgm === "undefined") {
+    var myatu_bgm = {};
+}
 
 (function($) {
     // Implement a few helper functions for jQuery
@@ -19,7 +23,7 @@ mainWin = window.dialogArguments || opener || parent || top;
          * @return object Calling object (chainable)
          */
         scrollTo : function(obj){ $(this).clearQueue().animate({scrollTop: $(obj).offset().top}, 'fast'); return $(this); },
-        
+
         /**
          * Based on code by Paul Irish (MIT License)
          *
@@ -44,10 +48,10 @@ mainWin = window.dialogArguments || opener || parent || top;
         }
     });
 
-    myatu_bgm = {
+    $.extend(myatu_bgm, {
         base_prefix: 'myatu_bgm_',
 
-        /** 
+        /**
          * This is a simple wrapper for calling an Ajax function and obtaining its response
          *
          * @param string ajaxFunc The Ajax function to perform
@@ -56,7 +60,7 @@ mainWin = window.dialogArguments || opener || parent || top;
          * @return mixed Returns the response from the Ajax function, or `false` if there was an error
          */
         GetAjaxData: function(ajaxFunc, ajaxData, callback) {
-            var has_callback = (callback !== undefined && typeof(callback) === 'function'), resp = false;
+            var has_callback = (typeof callback === "function"), resp = false;
 
             $.ajax({
                 type     : 'POST',
@@ -64,9 +68,9 @@ mainWin = window.dialogArguments || opener || parent || top;
                 url      : background_manager_ajax.url,
                 timeout  : 5000,
                 async    : has_callback,
-                data     : { action: background_manager_ajax.action, func: ajaxFunc, data: ajaxData, _ajax_nonce: background_manager_ajax.nonce },
+                data     : { 'action': background_manager_ajax.action, 'func': ajaxFunc, 'data': ajaxData, '_ajax_nonce': background_manager_ajax.nonce },
                 success  : function(ajaxResp) {
-                    if (ajaxResp.nonce == background_manager_ajax.nonceresponse && ajaxResp.stat == 'ok') {
+                    if (ajaxResp.nonce === background_manager_ajax.nonceresponse && ajaxResp.stat === 'ok') {
                         resp = ajaxResp.data;
 
                         if (has_callback) {
@@ -87,8 +91,9 @@ mainWin = window.dialogArguments || opener || parent || top;
          * @param string speed The speed at which to show or hide an element
          */
         showHide: function(what, show, speed) {
-            if (speed == undefined)
+            if (typeof speed === "undefined") {
                 speed = 'slow';
+            }
 
             if (show) {
                 $(what).show(speed);
@@ -101,6 +106,5 @@ mainWin = window.dialogArguments || opener || parent || top;
             }
         }
 
-    } // myatu_bgm NS
-
-})(jQuery);
+    });
+}(jQuery));

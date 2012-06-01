@@ -5,20 +5,23 @@
  * file that was distributed with this source code.
  *
  */
-if (myatu_bgm === undefined)
+if (typeof myatu_bgm === "undefined") {
     var myatu_bgm = {};
+}
 
 (function($){
-    mainWin.doImportProgress = function(percent) {
-        $('#import_progress').text(percent + '%');
-        $('#import_progress_bar').css('width', percent + '%');
+    if (typeof mainWin !== "undefined") {
+        mainWin.doImportProgress = function(percent) {
+            $('#import_progress').text(percent + '%');
+            $('#import_progress_bar').css('width', percent + '%');
+        };
     }
 
     $.extend(myatu_bgm, {
         updateDescription : function() {
             var selected_importer = $('#importer option:selected').val(), importer_desc = $('#' + selected_importer + '_desc').val();
 
-            if (selected_importer != '') {
+            if (selected_importer !== '') {
                 $('#importer_desc').text(importer_desc);
             } else {
                 $('#importer_desc').text('');
@@ -36,4 +39,4 @@ if (myatu_bgm === undefined)
         // Set events
         $('#importer').change(myatu_bgm.updateDescription);
     });
-})(jQuery);
+}(jQuery));
