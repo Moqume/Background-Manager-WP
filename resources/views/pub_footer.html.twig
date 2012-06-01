@@ -31,20 +31,20 @@ try {
                 myatu_bgm.AdjustImageSize();
 
                 // Swap 'visibility' with 'display'
-                $(this).css({'display':'none','visibility':''});
+                $(this).css({"display":"none","visibility":""});
 
                 // Either fade in or display immediately
-                if ((background_manager_vars !== undefined) && (background_manager_vars.initial_ease_in == "true")) {
-                    $(this).fadeIn('slow');
+                if ((typeof background_manager_vars !== "undefined") && (background_manager_vars.initial_ease_in === "true")) {
+                    $(this).fadeIn("slow");
                 } else {
                     $(this).show();
                 }
             }
         );
-    })(jQuery);
-} catch(e) {};
+    }(jQuery));
+} catch(e) {}
 #}
-try{(function(a){myatu_bgm.NewTopImage("{% if opacity < 100 %}-moz-opacity:.{{ opacity }};filter:alpha(opacity={{ opacity }});opacity:.{{ opacity }};{% endif %}","{{ random_image.alt }}","{{ random_image.url }}",function(){myatu_bgm.AdjustImageSize();a(this).css({display:"none",visibility:""});if((background_manager_vars!==undefined)&&(background_manager_vars.initial_ease_in=="true")){a(this).fadeIn("slow")}else{a(this).show()}})})(jQuery)}catch(e){};
+try{(function(a){myatu_bgm.NewTopImage("{% if opacity < 100 %}-moz-opacity:.{{ opacity }};filter:alpha(opacity={{ opacity }});opacity:.{{ opacity }};{% endif %}","{{ random_image.alt }}","{{ random_image.url }}",function(){myatu_bgm.AdjustImageSize();a(this).css({display:"none",visibility:""});if((typeof background_manager_vars!=="undefined")&&(background_manager_vars.initial_ease_in==="true")){a(this).fadeIn("slow")}else{a(this).show()}})}(jQuery))}catch(e){};
 /*]]>*/
 </script>
 <noscript><img id="myatu_bgm_top" class="myatu_bgm_fs" src="{{ random_image.url }}" alt="{{ random_image.alt }}" {% if opacity < 100 %}style="-moz-opacity:.{{ opacity }}; filter:alpha(opacity={{ opacity }}); opacity:.{{ opacity }};"{% endif %}  /></noscript>
@@ -57,29 +57,29 @@ try{(function(a){myatu_bgm.NewTopImage("{% if opacity < 100 %}-moz-opacity:.{{ o
 
 <script type="text/javascript">
 /*<![CDATA[*/
-{# UNCOMPRESSED:
+{# UNCOMPRESSED, modified original from Pinterest:
 (function() {
-    window.PinIt = window.PinIt || { loaded:false };
-    if (window.PinIt.loaded) return;
+    window.PinIt = window.PinIt || { loaded : false };
+
+    if (window.PinIt.loaded) { return; }
+
     window.PinIt.loaded = true;
+
     function async_load(){
-        var s = document.createElement("script"), l = "assets.pinterest.com/js/pinit.js";
-        s.type = "text/javascript";
+        var s = document.createElement("script"), x = document.getElementsByTagName("script")[0];
+        s.src   = "//assets.pinterest.com/js/pinit.js";
+        s.type  = "text/javascript";
         s.async = true;
-        if (window.location.protocol == "https:")
-            s.src = "https://" + l;
-        else
-            s.src = "http://" + l;
-        var x = document.getElementsByTagName("script")[0];
         x.parentNode.insertBefore(s, x);
     }
-    if (window.attachEvent)
+    if (window.attachEvent) {
         window.attachEvent("onload", async_load);
-    else
+    } else {
         window.addEventListener("load", async_load, false);
-})();
+    }
+}());
 #}
-(function(){window.PinIt=window.PinIt||{loaded:false};if(window.PinIt.loaded){return}window.PinIt.loaded=true;function a(){var d=document.createElement("script"),c="assets.pinterest.com/js/pinit.js";d.type="text/javascript";d.async=true;if(window.location.protocol=="https:"){d.src="https://"+c}else{d.src="http://"+c}var b=document.getElementsByTagName("script")[0];b.parentNode.insertBefore(d,b)}if(window.attachEvent){window.attachEvent("onload",a)}else{window.addEventListener("load",a,false)}})();
+(function(){window.PinIt=window.PinIt||{loaded:false};if(window.PinIt.loaded){return}window.PinIt.loaded=true;function a(){var c=document.createElement("script"),b=document.getElementsByTagName("script")[0];c.src="//assets.pinterest.com/js/pinit.js";c.type="text/javascript";c.async=true;b.parentNode.insertBefore(c,b)}if(window.attachEvent){window.attachEvent("onload",a)}else{window.addEventListener("load",a,false)}}());
 /*]]>*/
 </script>
 
@@ -100,7 +100,7 @@ try{(function(a){myatu_bgm.NewTopImage("{% if opacity < 100 %}-moz-opacity:.{{ o
     </div>
 
 {% if info_tab_desc %}
-    <div class="myatu_bgm_info_tab_content" style="display:none">
+    <div class="myatu_bgm_info_tab_content clonable" style="display:none">
         {% if info_tab_thumb %}
             <img src="{{ random_image.thumb }}" alt="{{ random_image.alt }}" />
         {% endif %}

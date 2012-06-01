@@ -291,9 +291,9 @@ if (typeof myatu_bgm === "undefined") {
 
                     // Set info tab content and link
                     $('.myatu_bgm_info_tab a').attr('href', new_image.link);
-                    $('.myatu_bgm_info_tab_content img').attr('src', new_image.thumb);
-                    $('.myatu_bgm_info_tab_content h3').text(new_image.caption);
-                    $('.myatu_bgm_info_tab_desc').html(new_image.desc);
+                    $('.myatu_bgm_info_tab_content.clonable img').attr('src', new_image.thumb);
+                    $('.myatu_bgm_info_tab_content.clonable h3').text(new_image.caption);
+                    $('.myatu_bgm_info_tab_content.clonable .myatu_bgm_info_tab_desc').html(new_image.desc);
                 }
 
                 // "Pin it" button
@@ -331,32 +331,40 @@ if (typeof myatu_bgm === "undefined") {
             info_tab.qtip({
                 content: {
                     text: function(api) {
-                        var text = $('.myatu_bgm_info_tab_content').clone();
+                        var text = $('.myatu_bgm_info_tab_content.clonable').clone();
 
-                        $('h3', text).remove(); // Remove title
+                        // Change class from "clonable" to "shown"
+                        text.removeClass("clonable").addClass("shown");
 
-                        // Remove margin if there's no text to display
+                        $('h3', text).remove(); // Remove title, as this is used in the "title" var
+
                         if ($('.myatu_bgm_info_tab_desc', text).text() === '') {
-                            $('img', text).css('margin', 0);
+                            // Remove margin if there's no text to display
+                            $('img', text).css('margin', '5px 0');
                         } else {
+                            // Reduce the size of the image a bit
                             $('img', text).css({'width':'100px', 'height':'100px'});
+
+                            // And widen the tip window a bit
+                            $(this).qtip('option', 'width', 500);
                         }
 
                         return text;
                     },
                     title: {
                         text: function(api) {
-                            return $('.myatu_bgm_info_tab_content:first h3').text();
+                            return $('.myatu_bgm_info_tab_content.clonable h3').text();
                         },
                         button: true
                     }
                 },
                 style: {
-                    classes: 'ui-tooltip-dark ui-tooltip-shadow'
+                    classes: 'ui-tooltip-bootstrap ui-tooltip-shadow ui-tooltip-rounded'
                 },
                 events: {
                     hide: function(event, api) {
-                        $('.myatu_bgm_info_tab_content:last').remove();
+                        // Delete the clone
+                        $('.myatu_bgm_info_tab_content.shown').remove();
                     }
                 },
                 hide: false,
