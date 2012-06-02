@@ -125,13 +125,27 @@
     margin-right: 4px;
 }
 
+#image_container .image img {
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
 #image_container .selected {
     background-color: #F1C1C1;
 }
 
-#image_container .image:hover, #image_container .highlighted {
+#image_container .image:hover,
+#image_container .highlighted {
     border: 4px solid highlight;
     padding: 5px;
+}
+
+#image_container .highlighted img {
+    opacity: 0.5;
+    filter: alpha(opacity=50);
 }
 
 #imagediv #quicktags {
@@ -154,24 +168,16 @@
     background-position: 0px 0px;
     background-repeat:  no-repeat;
     background-image: url('../images/buttons/buttons_24x24.png');
-    background-color: #EEE;
-    border-color: #999;
-    border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-style: solid;
-    border-width: 1px;
     width: 24px;
     height: 24px;
     display: block;
-    -moz-box-shadow: 2px 2px 5px #aaa;
-    -webkit-box-shadow: 2px 2px 5px #aaa;
-    box-shadow: 2px 2px 5px #aaa;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
 }
 
 .image_buttons .image_button:hover {
-    background-color: #CCC;
-    border-color: #555;
+    opacity: 1;
+    filter: alpha(opacity=100);
 }
 
 #image_edit_button {
@@ -188,6 +194,23 @@
 
 #image_move_right_button {
     background-position: -96px 0px;
+}
+
+#post-status-info {
+    position: relative;
+}
+
+/* Resize window grab area */
+#resize_window {
+    display: block;
+    background: transparent url("../images/resize.gif") no-repeat scroll right bottom;
+    width: 12px;
+    height: 12px;
+    cursor: se-resize;
+    margin: 0 2px;
+    position: absolute;
+    right: 0;
+    bottom: 2px;
 }
 
 /* Selection Button Images */

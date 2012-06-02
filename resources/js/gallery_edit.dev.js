@@ -24,6 +24,45 @@ if (typeof myatu_bgm === "undefined") {
             return size;
         },
 
+        /** Creates a cookie */
+        createCookie : function(name, value, days) {
+            var date, expires;
+
+            if (days) {
+                date = new Date();
+                date.setTime(date.getTime() + (days*24*60*60*1000));
+                expires = '; expires=' + date.toGMTString();
+            } else {
+                expires = '';
+            }
+            document.cookie = name + '=' + value + expires + '; path=/';
+        },
+
+        /** Reads a cookie */
+        readCookie : function(name) {
+            var nameEQ = name + '=',
+                ca = document.cookie.split(';'),
+                c, i;
+
+            for (i=0; i < ca.length; i++) {
+                c = ca[i];
+                while (c.charAt(0) === ' ') {
+                    c = c.substring(1, c.length);
+                }
+
+                if (c.indexOf(nameEQ) === 0) {
+                    return c.substring(nameEQ.length, c.length);
+                }
+            }
+
+            return null;
+        },
+
+        /** Deletes a cookie */
+        deleteCookie : function(name) {
+            myatu_bgm.createCookie(name, "", -1);
+        },
+
         /** Holds selected images */
         image_selection: {},
 
@@ -166,10 +205,11 @@ if (typeof myatu_bgm === "undefined") {
 
         /** Shows (or hides) the (single image) buttons on the highlighted item */
         showHideImageButtons: function(highlighted) {
-            var image_buttons    = $('#images_iframe').contents().find('#image_buttons'),
-                image_r_button_h = $('#images_iframe').contents().find('#image_move_right_button_holder'),
-                image_l_button_h = $('#images_iframe').contents().find('#image_move_left_button_holder'),
-                image_img_bottom, image_img, overlay;
+            var image_iframe    = $('#images_iframe').contents(),
+                image_buttons    = $('#image_buttons',                  image_iframe),
+                image_r_button_h = $('#image_move_right_button_holder', image_iframe),
+                image_l_button_h = $('#image_move_left_button_holder',  image_iframe),
+                image_img_bottom, image_img, overlay, image_id;
 
             // If nothing is highlighted, then we hide the buttons instead.
             if (!$(highlighted).length) {
@@ -181,6 +221,7 @@ if (typeof myatu_bgm === "undefined") {
 
             image_img = $('img', highlighted);
             overlay   = $('#image_iframe_overlay');
+            image_id  = $(highlighted).attr('id').replace('image_', '');
 
             // Align edit buttons within the top-left corner of the image
             image_buttons.css('top',  image_img.offset().top  - overlay.scrollTop()  + 'px');
@@ -199,12 +240,13 @@ if (typeof myatu_bgm === "undefined") {
             image_r_button_h.show();
 
             // Set the correct href for the buttons
-            $('#image_edit_button', image_buttons).attr("href", $('#image_iframe_edit_base').val() + '&id=' + $(highlighted).attr('id').replace('image_', '') + '&TB_iframe=true');
-            $('#image_del_button', image_buttons).attr("href", '#' + $(highlighted).attr('id').replace('image_', ''));
-            $('#image_remove_button', image_buttons).attr("href", '#' + $(highlighted).attr('id').replace('image_', ''));
-            // Move buttons
-            $('#image_move_left_button', image_l_button_h).attr("href", '#' + $(highlighted).attr('id').replace('image_', ''));
-            $('#image_move_right_button', image_r_button_h).attr("href", '#' + $(highlighted).attr('id').replace('image_', ''));
+            $('.image_button', image_iframe).each(function() {
+                if ($(this).attr('id') === 'image_edit_button') {
+                    $(this).attr('href', $('#image_iframe_edit_base').val() + '&id=' + image_id + '&TB_iframe=true');
+                } else {
+                    $(this).attr('href', '#' + image_id);
+                }
+            });
         },
 
         /** Event triggered when the iframe has finished loading */
@@ -434,8 +476,63 @@ if (typeof myatu_bgm === "undefined") {
                     return false;
             }
 
-        }
+        },
 
+        /**
+         * Allows the main Edit window to be resized
+         */
+        initEditWindowResize : function() {
+            var container = $('#editorcontainer'),
+                last_seen, pos, new_height;
+
+            if (!container.length) {
+                return;
+            }
+
+            // Initialize the height of the editor based on a stored cookie
+            new_height = myatu_bgm.readCookie('mbgm_editor_height');
+
+            if (new_height && new_height > 150) {
+                container.height(new_height);
+            }
+
+            // Process mouse movement
+            $(mainWin).mousemove(function(event) {
+                if (!container.data('active')) {
+                    return;
+                }
+
+                pos       = event.pageY;
+                last_seen = container.data('last_seen');
+
+                if (last_seen) {
+                    new_height = container.height() + (pos - last_seen);
+
+                    if (new_height > 150) {
+                        container.height(new_height);
+                    }
+                }
+
+                container.data('last_seen', pos);
+            });
+
+            // Allows the window to be resized while the mouse is being moved
+            $('#resize_window').mousedown(function(e){
+                container.data('active', true);
+                e.preventDefault();
+            });
+
+            // Stops allowing the window to be resized
+            $(mainWin).mouseup(function(){
+                container.data('active', false);
+                container.data('last_seen', false);
+
+                myatu_bgm.createCookie('mbgm_editor_height', container.height(), 365);
+            });
+
+
+
+        }
     });
 
     /** "Ready" event */
@@ -475,6 +572,8 @@ if (typeof myatu_bgm === "undefined") {
         $('#ed_remove_selected').click(myatu_bgm.onRemoveSelected);
         $('#ed_move_l_selected').click(myatu_bgm.onMoveLeftSelected);
         $('#ed_move_r_selected').click(myatu_bgm.onMoveRightSelected);
+
+        myatu_bgm.initEditWindowResize();
     });
 
 }(jQuery));

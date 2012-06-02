@@ -44,6 +44,7 @@
                             {% endfor %}
                         </div>
                     </div>
+
                     <div id="image_editor_container" class="wp-editor-container">
                         <div id="quicktags" class="quicktags-toolbar">
                             <div id="ed_toolbar" class="img_ed_buttons">
@@ -74,7 +75,9 @@
                                     {{ __('Image count') }}: <span id="image-count">{{ images_count }}</span>
                                     <span id="selected-count">(<span id="select-count">0</span> {{ __('selected') }})</span>
                                 </td>
-                                <td>&nbsp;</td>
+                                <td>
+                                    <i id="resize_window"></i>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
