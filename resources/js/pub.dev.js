@@ -163,9 +163,15 @@ if (typeof myatu_bgm === "undefined") {
             var is_fullsize = (background_manager_vars.is_fullsize === 'true'),
                 is_preview  = (background_manager_vars.is_preview  === 'true'),
                 info_tab    = $('#myatu_bgm_info_tab'),
-                prev_img    = (is_fullsize) ? $('#myatu_bgm_top').attr('src') : $('body').css('background-image'),
                 prev_style  = '',
-                transition_speed, active_transition, image_selection;
+                prev_img, transition_speed, active_transition, image_selection;
+
+            // Obtain the URL of the old image
+            if (is_fullsize) {
+                prev_img = $('#myatu_bgm_top').attr('src');
+            } else {
+                prev_img = $('body').css('background-image').replace(/url\(|\)|"|'/g, "");
+            }
 
             // Determine if we're actually "visible". If not, we simply reset the timer
             if ((is_fullsize && !$('#myatu_bgm_top').is(':visible'))) {
@@ -180,7 +186,8 @@ if (typeof myatu_bgm === "undefined") {
 
             // Async call
             myatu_bgm.GetAjaxData('select_image', { 'prev_img' : prev_img, 'selector' : image_selection, 'active_gallery': background_manager_vars.active_gallery }, function(new_image) {
-                if (!new_image) {
+                if (!new_image || prev_img === new_image.url) {
+                    // Stop here and do not reset the timer if we encounter an error or the same image (single image gallery)
                     return;
                 }
 
