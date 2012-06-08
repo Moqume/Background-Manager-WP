@@ -105,6 +105,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'pin_it_btn_location'    => 'bottom-left', // Since 1.0.20
         'single_post_override'   => 'admin',       // Since 1.0.39
         'initial_ease_in'        => true,          // Since 1.0.44
+        'bg_click_new_window'    => true,          // Since 1.0.47
     );
 
     /** The options can be filtered (prefixed by BASE_PUB_PREFIX in `apply_filters`) - @see getFilteredOptions */
@@ -193,6 +194,14 @@ class Main extends \Pf4wp\WordpressPlugin
             'coverright' => __('Cover to Right', $this->getName()),
             'crossfade'  => __('Crossfade', $this->getName()),
             'zoom'       => __('Crossfade + Zoom', $this->getName()),
+            'bars'       => __('Bars', $this->getName()),               // Flux
+            'zip'        => __('Zip', $this->getName()),                // Flux
+            'blinds'     => __('Blinds', $this->getName()),             // Flux
+            'swipe'      => __('Swipe', $this->getName()),              // Flux
+            'blocks'     => __('Random Blocks', $this->getName()),      // Flux
+            'blocks2'    => __('Sequential Blocks', $this->getName()),  // Flux
+            'concentric' => __('Concentric', $this->getName()),         // Flux
+            'warp'       => __('Warp', $this->getName()),               // Flux
         );
 
         $roles = array(
@@ -988,7 +997,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 if (!current_user_can('edit_theme_options'))
                     return;
 
-                if (($embed_data = Helpers::embedDataUri($data, false, (defined('WP_DEBUG') && WP_DEBUG))) != false)
+                if (($embed_data = Helpers::embedDataUri($data, 'image/png', (defined('WP_DEBUG') && WP_DEBUG))) != false)
                     $this->ajaxResponse($embed_data);
 
                 break;
@@ -1263,14 +1272,16 @@ class Main extends \Pf4wp\WordpressPlugin
 
         wp_enqueue_script('jquery');
         wp_enqueue_script($this->getName() . '-functions', $js_url . 'functions' . $debug . '.js', array('jquery'), $version);
-        wp_enqueue_script($this->getName() . '-pub', $js_url . 'pub' . $debug . '.js', array($this->getName() . '-functions'), $version);
+        wp_enqueue_script($this->getName() . '-flux',      $js_url . 'flux' . $debug . '.js',      array($this->getName() . '-functions'), $version);
+        wp_enqueue_script($this->getName() . '-pub',       $js_url . 'pub' . $debug . '.js',       array($this->getName() . '-functions', $this->getName() . '-flux'), $version);
+
 
         // If the info tab is enabled along with the short description, also include qTip2
         if ($info_tab && $info_tab_desc)
             wp_enqueue_script('jquery.qtip', $js_url . 'vendor/qtip/jquery.qtip.min.js', array('jquery'), $version);
 
-        // Make the change frequency available to JavaScript
-        if ($change_freq == static::CF_CUSTOM && $this->getGallery($active_gallery) != false) {
+        // The change frequency is not 0 (disabled) if we have a custom frequency, valid gallery and it contans more than one image
+        if ($change_freq == static::CF_CUSTOM && $this->getGallery($active_gallery) != false && $this->images->getCount($active_gallery) > 1) {
             $script_change_freq = ($change_freq_custom >= 1) ? $change_freq_custom : 10;
         } else {
             $script_change_freq = 0; // Disabled
@@ -1278,18 +1289,18 @@ class Main extends \Pf4wp\WordpressPlugin
 
         // Spit out variables for JavaScript to use
         $script_vars = array(
-            'change_freq'     => $script_change_freq,
-            'active_gallery'  => $active_gallery,
-            'is_fullsize'     => ($background_size == static::BS_FULL) ? 'true' : 'false',
-            'is_preview'      => ($is_preview) ? 'true' : 'false',
-            'initial_ease_in' => ($initial_ease_in) ? 'true' : 'false',
+            'change_freq'           => $script_change_freq,
+            'active_gallery'        => $active_gallery,
+            'is_fullsize'           => ($background_size == static::BS_FULL) ? 'true' : 'false',
+            'is_preview'            => ($is_preview) ? 'true' : 'false',
+            'initial_ease_in'       => ($initial_ease_in) ? 'true' : 'false',
+            'bg_click_new_window'   => ($this->options->bg_click_new_window) ? 'true' : 'false',
         );
 
         // Add to variables if in full screen mode
         if ($background_size == static::BS_FULL) {
             $script_vars = array_merge($script_vars, array(
-                'fs_adjust'      => ($full_screen_adjust) ? 'true' : 'false',
-                'fs_center'      => ($full_screen_center) ? 'true' : 'false',
+                'fs_center' => ($full_screen_center) ? 'true' : 'false',
             ));
         }
 
@@ -1303,8 +1314,8 @@ class Main extends \Pf4wp\WordpressPlugin
             ));
         }
 
-        // Spit out the script variables
-        wp_localize_script($this->getName() . '-pub', 'background_manager_vars', $script_vars);
+        // Spit out the script variables (!! always attach to -functions !!)
+        wp_localize_script($this->getName() . '-functions', 'myatu_bgm', $script_vars);
     }
 
     /**
@@ -1330,7 +1341,7 @@ class Main extends \Pf4wp\WordpressPlugin
             wp_enqueue_style('jquery.qtip', $css_url . 'vendor/jquery.qtip.min.css', false, $version);
 
         // The image for the overlay, as CSS embedded data
-        if ($active_overlay && ($data = Helpers::embedDataUri($active_overlay, false, (defined('WP_DEBUG') && WP_DEBUG))) != false) {
+        if ($active_overlay && ($data = Helpers::embedDataUri($active_overlay, 'image/png', (defined('WP_DEBUG') && WP_DEBUG))) != false) {
             $opacity_style = '';
 
             if ($overlay_opacity < 100)

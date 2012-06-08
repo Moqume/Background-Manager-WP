@@ -20,22 +20,6 @@ if (typeof myatu_bgm === "undefined") {
             myatu_bgm.updateBackgroundOpacity((!is_full) ? 100 : false);    // Fix opacity to 100 if not 'Full Screen'
 
             myatu_bgm.showHideBackgroundTransition();                       // Determine if we can show Background Transition settings
-            myatu_bgm.showHideFullScreenAdjust();                           // Determine if we can show additional FS Adjust settings
-        },
-
-        /** Hides or shows additional setting if Image Adjusting is enabled */
-        showHideFullScreenAdjust: function() {
-            var is_full = ($('input[name="background_size"]:checked').val() === 'full'),
-                checked = $('#full_screen_adjust').is(':checked'),
-                show    = true;
-
-            if (!is_full) {
-                show = false;
-            } else {
-                show = checked;
-            }
-
-            myatu_bgm.showHide('.bg_fs_adjust', show);
         },
 
         /** Hides or shows additional settings for Background Information */
@@ -245,7 +229,6 @@ if (typeof myatu_bgm === "undefined") {
         $('input[name="background_repeat"]').change(myatu_bgm.updatePreviewLayout);     // ..
         $('#background_stretch_horizontal').change(myatu_bgm.updatePreviewLayout);      // ..
         $('#background_stretch_vertical').change(myatu_bgm.updatePreviewLayout);        // ..
-        $('#full_screen_adjust').change(myatu_bgm.showHideFullScreenAdjust);            // ..
         $('input[name="change_freq"]').change(myatu_bgm.showHideBackgroundTransition);  // No pre-set (handled by updatePreviewLayout())
 
         // Button

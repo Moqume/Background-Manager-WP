@@ -25,13 +25,12 @@ if (typeof myatu_bgm === "undefined") {
 
             // Show on full(screen):
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'background_opacity'), !(show));
-            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'full_screen_adjust'), !(show));
             myatu_bgm.showHide($('#customize-control-divider_miscellaneous'), !(show)); // As only the initial_ease_in is in there
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'initial_ease_in'), !(show));
+            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'full_screen_center'), !(show));
 
             // Ensure the transition and center adjust is also shown or hidden
             myatu_bgm.showHideCustomFreq();
-            myatu_bgm.showHideAdjust();
         },
 
         showHideCustomFreq: function() {
@@ -74,20 +73,6 @@ if (typeof myatu_bgm === "undefined") {
             var show = $(myatu_bgm.base_control_prefix + 'pin_it_btn input').is(':checked');
 
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'pin_it_btn_location'), show);
-        },
-
-        showHideAdjust: function() {
-            var full    = $(myatu_bgm.base_control_prefix + 'background_size input:checked').val() === 'full',
-                checked = $(myatu_bgm.base_control_prefix + 'full_screen_adjust input').is(':checked'),
-                show    = true;
-
-            if (!full) {
-                show = false;
-            } else {
-                show = checked;
-            }
-
-            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'full_screen_center'), show);
         }
     });
 
@@ -96,6 +81,5 @@ if (typeof myatu_bgm === "undefined") {
         $(myatu_bgm.base_control_prefix + 'change_freq input').change(myatu_bgm.showHideCustomFreq);    myatu_bgm.showHideCustomFreq();
         $(myatu_bgm.base_control_prefix + 'info_tab input').change(myatu_bgm.showHideInfoTab);          myatu_bgm.showHideInfoTab();
         $(myatu_bgm.base_control_prefix + 'pin_it_btn input').change(myatu_bgm.showHidePinIt);          myatu_bgm.showHidePinIt();
-        $(myatu_bgm.base_control_prefix + 'full_screen_adjust input').change(myatu_bgm.showHideAdjust); myatu_bgm.showHideAdjust();
     });
 }(jQuery));

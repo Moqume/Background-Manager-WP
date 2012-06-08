@@ -202,24 +202,10 @@
                 </tr>
                 <tr valign="top" class="bg_fs_layout">
                     <th scope="row">
-                        {{ __('Adjust Image Size') }}
-                    </th>
-                    <td>
-                        <fieldset id="full_screen_adjust_fs">
-                            <label>
-                                <input type="checkbox" value="1" id="full_screen_adjust" name="full_screen_adjust" {% if full_screen_adjust %}checked="checked"{% endif %} />
-                                <span>{{ __('Enabled') }}</span>
-                                <span class="description">({{ __('Requires Javascript by the visitor, but will gracefully degrade if not available') }})</span>
-                            </label>
-                        </fieldset>
-                    </td>
-                </tr>
-                <tr valign="top" class="bg_fs_adjust">
-                    <th scope="row">
                         {{ __('Center Image') }}
                     </th>
                     <td>
-                        <fieldset id="full_screen_center_fs">
+                        <fieldset>
                             <label>
                                 <input type="checkbox" value="1" id="full_screen_center" name="full_screen_center" {% if full_screen_center %}checked="checked"{% endif %} />
                                 <span>{{ __('Enabled') }}</span>
@@ -493,6 +479,18 @@
                             <input type="checkbox" value="1" id="initial_ease_in" name="initial_ease_in" {% if initial_ease_in %}checked="checked"{% endif %} />
                             <span>{{ __('Enabled') }}</span>
                             <span class="description">({{ __('Eases in the initial image after it has finished downloading') }})</span>
+                        </label>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">
+                        {{ __('Clickable Backgrounds') }}
+                    </th>
+                    <td>
+                        <label>
+                            <input type="checkbox" value="1" id="bg_click_new_window" name="bg_click_new_window" {% if bg_click_new_window %}checked="checked"{% endif %} />
+                            <span>{{ __('Clicking the background opens the associated link in a new window') }}</span>
                         </label>
                     </td>
                 </tr>

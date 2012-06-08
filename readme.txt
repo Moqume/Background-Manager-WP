@@ -3,7 +3,7 @@ Contributors: Myatu
 Donate link: http://pledgie.com/campaigns/16906
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
-Tested up to: 3.4-beta3
+Tested up to: 3.4-RC2
 Stable tag: 1.0.25
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -47,6 +47,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
     * Slide (Top, bottom, left or right)
     * Cover (Top, bottom, left or right)
     * Fade-in and Zoom
+    * CSS3 transitions: Bars, Zip, Blinds, Swipe, Random Blocks, Sequential Blocks, Concentric and Warp
 * 18 pre-defined background overlays
 * Enable or disable the background images on the Front page, Error pages, Custom post types, etc.
 * Optional thumbnail/information tab for the visitor to learn more about the background
@@ -88,7 +89,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.46 (1.1) =
+= 1.0.47 (1.1) =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories for _Category Override_ meta option, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
@@ -100,7 +101,8 @@ with PHP versions older than 5.3.
 * __Added:__ In addition to selecting an image from an _Image Set_ at random, sequential (ascending/descending) selection is now possible too
 * __Added:__ Ability to select which roles are able to override the background Image Set, Overlay and Color for individual Posts and Pages
 * __Added:__ Option to allow the user to enable/disable the initial image ease-in
-* Changed: Vendor libraries for Pf4wp and Twig updated to latest versions (1.0.8 and 1.8 respectively), minor change in public-side JS
+* __Added:__ 9 new transitions, 8 of which are adaptations of [Flux Slider](http://www.joelambert.co.uk/flux/)
+* Changed: Vendor libraries for Pf4wp and Twig updated to latest versions (1.0.10 and 1.7 respectively), minor change in public-side JS
 * Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
 * Changed: Decreased minimum permitted change frequency from 10 seconds to 1 second
 * Changed: Background image details are now loaded asynchronous, to prevent browser "blocking"

@@ -48,7 +48,6 @@ class Customizer
     const P_INFO_TAB_L   = 'info_tab_location';
     const P_PIN_IT_BTN   = 'pin_it_btn';
     const P_PIN_IT_BTN_L = 'pin_it_btn_location';
-    const P_FS_ADJUST    = 'full_screen_adjust';
     const P_FS_CENTER    = 'full_screen_center';
     const P_INIT_EASE_IN = 'initial_ease_in';
 
@@ -83,10 +82,9 @@ class Customizer
             static::P_OPACITY       => array('label' => __('Opacity', $this->owner->getName()),                 'priority' => 21, 'sanitize' => 'onSanitizeOpacity'),
             static::P_BG_ST_VER     => array('label' => __('Stretch Vertical', $this->owner->getName()),        'priority' => 22, 'sanitize' => 'onSanitizeCheckbox'),
             static::P_BG_ST_HOR     => array('label' => __('Stretch Horizontal', $this->owner->getName()),      'priority' => 22, 'sanitize' => 'onSanitizeCheckbox'),
+            static::P_FS_CENTER     => array('label' => __('Center Image', $this->owner->getName()),            'priority' => 23, 'sanitize' => 'onSanitizeCheckbox'),
             static::P_TRANSITION    => array('label' => __('Transition Effect', $this->owner->getName()),       'priority' => 30),
             static::P_TRANS_SPD     => array('label' => __('Transition Speed', $this->owner->getName()),        'priority' => 31, 'sanitize' => 'onSanitizeTransitionSpeed'),
-            static::P_FS_ADJUST     => array('label' => __('Adjust Image Size', $this->owner->getName()),       'priority' => 32, 'sanitize' => 'onSanitizeCheckbox'),
-            static::P_FS_CENTER     => array('label' => __('Center Image', $this->owner->getName()),            'priority' => 33, 'sanitize' => 'onSanitizeCheckbox'),
             static::P_OVERLAY       => array('label' => __('Overlay', $this->owner->getName()),                 'priority' => 40),
             static::P_OVERLAY_O     => array('label' => __('Overlay Opacity', $this->owner->getName()),         'priority' => 41, 'sanitize' => 'onSanitizeOpacity'),
             static::P_INFO_TAB      => array('label' => __('Display [ + ] Icon', $this->owner->getName()),      'priority' => 50, 'sanitize' => 'onSanitizeCheckbox'),
@@ -433,7 +431,6 @@ class Customizer
                 case static::P_INFO_TAB_T  :
                 case static::P_INFO_TAB_D  :
                 case static::P_INFO_TAB_LN :
-                case static::P_FS_ADJUST   :
                 case static::P_FS_CENTER   :
                     $this->addSettingControl($id, $details, 'checkbox');
                     break;

@@ -17,11 +17,14 @@
     max-width: 350px !important;
 }
 
-
 .myatu_bgm_fs {
     /* Let CSS decide whether to stretch by width or height (or both) */
     min-width: 100%;
     min-height: 100%;
+    max-width: initial !important;
+    max-height: initial !important;
+    margin: 0;
+    padding: 0;
     position: fixed;
     top: 0;
     left: 0;
@@ -82,6 +85,11 @@
     border-radius: 3px;W
     -webkit-box-shadow: 2px 2px 4px rgba(0,0,0,0.25);
     box-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+}
+
+#myatu_bgm_img_group div {
+    padding: 0;
+    margin: 0;
 }
 
 #myatu_bgm_bg_link {
