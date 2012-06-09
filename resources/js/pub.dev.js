@@ -162,7 +162,7 @@ if (typeof myatu_bgm === "undefined") {
                 return false; // This can only be done on full-size images
             }
 
-            // Obtain the natural width and height of the image (alreadu loaded, so no need to wait)
+            // Obtain the natural width and height of the image (already loaded, so no need to wait)
             img_n = new Image();
             img_n.src = $(img).attr('src');
             img_natural_width  = img_n.width;
@@ -206,11 +206,11 @@ if (typeof myatu_bgm === "undefined") {
                 myatu_bgm.image_holder = $('<img />').css({
                     'position'   : 'absolute',
                     'display'    : 'none'
-                }).appendTo('#myatu_bgm_img_group');
+                })/*.appendTo('#myatu_bgm_img_group')*/;
             }
 
             // Reset the width and height
-            myatu_bgm.image_holder.css({'width':'','height':''});
+            //myatu_bgm.image_holder.css({'width':'','height':''});
 
             // pre-load the image
             myatu_bgm.image_holder.attr('src', src).imgLoaded(function() {
@@ -307,15 +307,16 @@ if (typeof myatu_bgm === "undefined") {
             var is_fullsize  = (myatu_bgm.is_fullsize === 'true'),
                 is_preview    = (myatu_bgm.is_preview  === 'true'),
                 info_tab      = $('#myatu_bgm_info_tab'),
+                prev_img_src  = $((is_fullsize) ? '#myatu_bgm_top' : 'body'),
                 prev_style    = '',
                 prev_img, transition_speed, active_transition, image_selection, flux_instance;
 
             // Grab the previous image
-            prev_img = $((is_fullsize) ? '#myatu_bgm_top' : 'body').css('background-image').replace(/url\(|\)|"|'/g, "");
-
-            if (prev_img === 'none' && is_fullsize) {
-                // Using the source URI of the <img> element instead
-                prev_img = $('#myatu_bgm_top').attr('src');
+            prev_img = prev_img_src.css('background-image');
+            if (prev_img) {
+                prev_img = prev_img.replace(/url\(|\)|"|'/g, ""); // Extract URL
+            } else {
+                prev_img = $('#myatu_bgm_top').attr('src'); // Try "src" attribute
             }
 
             // Determine if the top image is actually "visible". If not, we simply reset the timer
