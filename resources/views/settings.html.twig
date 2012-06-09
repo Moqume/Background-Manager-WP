@@ -497,6 +497,23 @@
 
                 <tr valign="top">
                     <th scope="row">
+                        {{ __('Track Background Clicks') }}
+                    </th>
+                    <td>
+                        <label>
+                            <input type="checkbox" value="1" id="bg_track_clicks" name="bg_track_clicks" {% if bg_track_clicks %}checked="checked"{% endif %} />
+                            <span>{{ __('Track background clicks using Google Analytics.') }}</span>
+                        </label>
+                        <label id="bg_track_clicks_extra">
+                            <span>{{ __('Category name:') }}</span>
+                            <input type="text" id="bg_track_clicks_category "name="bg_track_clicks_category" value="{{ bg_track_clicks_category }}" placeholder="Enter a category name"/>
+                        </label>
+                        <span class="description">({{ __('See Help for details') }})</span>
+                    </td>
+                </tr>
+
+                <tr valign="top">
+                    <th scope="row">
                         {{ __('Override Posts and Pages') }}
                     </th>
                     <td>

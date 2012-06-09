@@ -32,6 +32,11 @@ if (typeof myatu_bgm === "undefined") {
             myatu_bgm.showHide('.pin_it_btn_extra', $('#pin_it_btn').is(':checked'));
         },
 
+        /** Hides or shows additional settings for "Track Background Clicks" setting */
+        showHideTrackClicksExtra: function() {
+            myatu_bgm.showHide('#bg_track_clicks_extra', $('#bg_track_clicks').is(':checked'));
+        },
+
         /** Hides or shows the "Ascending" and "Descending" option, if the change frequency is custom (see Background Transition event) */
         showHideSelector: function() {
             var is_custom_freq = ($('input[name="change_freq"]:checked').val() === 'custom');
@@ -221,6 +226,7 @@ if (typeof myatu_bgm === "undefined") {
 
         $('#info_tab').change(myatu_bgm.showHideInfoExtra);                             myatu_bgm.showHideInfoExtra();
         $('#pin_it_btn').change(myatu_bgm.showHidePinItBtnExtra);                       myatu_bgm.showHidePinItBtnExtra();
+        $('#bg_track_clicks').change(myatu_bgm.showHideTrackClicksExtra);               myatu_bgm.showHideTrackClicksExtra();
         $('input[name="background_size"]').change(myatu_bgm.showHideLayoutTable);       myatu_bgm.showHideLayoutTable();
         $('#active_gallery').change(myatu_bgm.updatePreviewGallery);                    myatu_bgm.updatePreviewGallery();
         $('#active_overlay').change(myatu_bgm.updatePreviewOverlay);                    myatu_bgm.updatePreviewOverlay();

@@ -12,10 +12,13 @@ if (typeof myatu_bgm === "undefined") {
 
 (function($){
     $.extend(myatu_bgm, {
+        // Previous background data
+        previous_background : {},
+
         // Flux transitions
         flux_transitions : ['bars','zip','blinds','swipe','blocks','blocks2','concentric','warp'],
 
-        // Holder for pre-loading the next image
+        // Holder for pre-loaded image @see loadImage()
         image_holder : null,
 
         /** (Re)sets the timer for loading the next image */
@@ -35,14 +38,33 @@ if (typeof myatu_bgm === "undefined") {
          * Event called when the background is clicked
          */
         onBackgroundClick: function(e) {
+            var click_category  = myatu_bgm.bg_track_clicks_category
+                , link          = myatu_bgm.current_background.bg_link;
+
             if (e.target === this || $(e.target).hasClass('myatu_bgm_fs')) {
-                if (myatu_bgm.bg_click_new_window === true) {
-                    // Open the link in a new window
-                    window.open(e.data.url);
-                } else {
-                    // Open the link in the same window
-                    window.location.assign(e.data.url);
+                // Fire custom event function(event, url)
+                $(document).trigger('myatu_bgm_background_click', [link]);
+
+                // Event tracking for Google Analytics
+                if (myatu_bgm.bg_track_clicks === 'true' && typeof _gaq !== "undefined" && $.isFunction(_gaq.push)) {
+                    if (click_category === '') {
+                        click_category = 'Background Manager';
+                    }
+
+                    _gaq.push(['_trackEvent', click_category, 'Click', link]);
                 }
+
+                // Wait a short moment before actually performing the "click"
+                setTimeout(function() {
+                    if (myatu_bgm.bg_click_new_window === true) {
+                        // Open the link in a new window
+                        window.open(link);
+                    } else {
+                        // Open the link in the same window
+                        window.location.assign(link);
+                    }
+                }, 500);
+
                 return false;
             }
         },
@@ -59,15 +81,15 @@ if (typeof myatu_bgm === "undefined") {
         /**
          * Sets a clickable link for the background
          */
-        setBackgroundLink: function(url) {
+        setBackgroundLink: function() {
             var b = $('body');
 
             // Unbind our prior hover and click functions, and reset the mouse pointer
             b.unbind('click', myatu_bgm.onBackgroundClick).unbind('mouseover', myatu_bgm.onBackgroundHover).css('cursor', 'auto');
 
             // Re-bind if we have a non-empty URL
-            if (url !== '' && url !== '#') {
-                b.bind('click', {'url': url}, myatu_bgm.onBackgroundClick).bind('mouseover', myatu_bgm.onBackgroundHover);
+            if (myatu_bgm.current_background.bg_link !== '' && myatu_bgm.current_background.bg_link !== '#') {
+                b.bind('click', myatu_bgm.onBackgroundClick).bind('mouseover', myatu_bgm.onBackgroundHover);
             }
         },
 
@@ -101,7 +123,7 @@ if (typeof myatu_bgm === "undefined") {
          * @param int duration The duration of the slide (in ms)
          * @param bool cover A boolean indicating if the background image should be covered or pushed aside (default)
          */
-        AnimateSlide: function(scroll_in_from, duration, cover) {
+        animateSlide: function(scroll_in_from, duration, cover) {
             var new_img      = $('#myatu_bgm_top'),
                 old_img      = $('#myatu_bgm_prev'),
                 old_offset   = old_img.offset(),
@@ -151,12 +173,12 @@ if (typeof myatu_bgm === "undefined") {
          * @return bool Returns true if the image was adjusted, false otherwise
          */
         adjustImageSize : function(img) {
-            var centered    = (myatu_bgm.fs_center === 'true'),
-                css         = {'left' : 0,'top' : 0},
-                win_height  = $(window).height(),
-                win_width   = $(window).width(),
-                bg_width    = win_width,
-                bg_height, ratio, bg_offset, img_n, img_natural_width, img_natural_height;
+            var centered     = (myatu_bgm.fs_center === 'true')
+                , css        = {'left' : 0,'top' : 0}
+                , win_height = $(window).height()
+                , win_width  = $(window).width()
+                , bg_width   = win_width
+                , bg_height, ratio, bg_offset, img_n, img_natural_width, img_natural_height;
 
             if (myatu_bgm.is_fullsize !== 'true') {
                 return false; // This can only be done on full-size images
@@ -167,7 +189,7 @@ if (typeof myatu_bgm === "undefined") {
             img_n.src = $(img).attr('src');
             img_natural_width  = img_n.width;
             img_natural_height = img_n.height;
-            delete img_n;
+            img_n = null;
 
             // Set the ratio and initial heigth
             ratio     = img_natural_width / img_natural_height;
@@ -199,20 +221,15 @@ if (typeof myatu_bgm === "undefined") {
          * @param mixed callback Callback to performm once the image has been loaded by the browser
          */
         loadImage : function(src, callback) {
-            var is_adjusted;
-
-            // Create an image element and attach it to the image group
             if (myatu_bgm.image_holder === null) {
+                // Create an image element (held as fragment)
                 myatu_bgm.image_holder = $('<img />').css({
                     'position'   : 'absolute',
                     'display'    : 'none'
-                })/*.appendTo('#myatu_bgm_img_group')*/;
+                });
             }
 
-            // Reset the width and height
-            //myatu_bgm.image_holder.css({'width':'','height':''});
-
-            // pre-load the image
+            // Pre-load the image
             myatu_bgm.image_holder.attr('src', src).imgLoaded(function() {
                 myatu_bgm.adjustImageSize(this);
 
@@ -254,12 +271,13 @@ if (typeof myatu_bgm === "undefined") {
          * This will be either a <div> or <img> element, depending on browser support
          *
          * @param string style The style of the previous image (to preserve any custom styling, such as opacity)
-         * @param string alt The "alt" attribute, used with <img> elements
-         * @param string src The source URI of the image
          * @param mixed callback The callback to perform when the image has been loaded and added
          */
-        addTopImage: function(style, alt, src, callback) {
-            var new_image, css = {'display' : 'none'};
+        addTopImage: function(style, callback) {
+            var new_image
+                , src = myatu_bgm.current_background.url
+                , alt = myatu_bgm.current_background.alt
+                , css = {'display' : 'none'};
 
             myatu_bgm.loadImage(src, function() {
                 if (myatu_bgm.Modernizr.backgroundsize) {
@@ -304,20 +322,11 @@ if (typeof myatu_bgm === "undefined") {
          * Event called by the timer, switched the background
          */
         switchBackground: function() {
-            var is_fullsize  = (myatu_bgm.is_fullsize === 'true'),
-                is_preview    = (myatu_bgm.is_preview  === 'true'),
-                info_tab      = $('#myatu_bgm_info_tab'),
-                prev_img_src  = $((is_fullsize) ? '#myatu_bgm_top' : 'body'),
-                prev_style    = '',
-                prev_img, transition_speed, active_transition, image_selection, flux_instance;
-
-            // Grab the previous image
-            prev_img = prev_img_src.css('background-image');
-            if (prev_img) {
-                prev_img = prev_img.replace(/url\(|\)|"|'/g, ""); // Extract URL
-            } else {
-                prev_img = $('#myatu_bgm_top').attr('src'); // Try "src" attribute
-            }
+            var is_fullsize  = (myatu_bgm.is_fullsize === 'true')
+                , is_preview    = (myatu_bgm.is_preview  === 'true')
+                , info_tab      = $('#myatu_bgm_info_tab')
+                , cover         = false
+                , transition_speed, active_transition, image_selection, flux_instance;
 
             // Determine if the top image is actually "visible". If not, we simply reset the timer
             if ((is_fullsize && !$('#myatu_bgm_top').is(':visible'))) {
@@ -325,24 +334,27 @@ if (typeof myatu_bgm === "undefined") {
                 return;
             }
 
+            // Fire custom event
+            $(document).trigger('myatu_bgm_switch_background');
+
             // Override the method for selecting an image in the preview (Theme Customizer)
             if (is_preview) {
                 image_selection = myatu_bgm.image_selection;
             }
 
             // Async call
-            myatu_bgm.GetAjaxData('select_image', { 'prev_img' : prev_img, 'selector' : image_selection, 'active_gallery': myatu_bgm.active_gallery }, function(new_image) {
-                if (!new_image || prev_img === new_image.url) {
-                    return; // Something didn't go right, do not retry (reset timer)
+            myatu_bgm.GetAjaxData('select_image', {'prev_img' : myatu_bgm.current_background.url, 'selector' : image_selection, 'active_gallery': myatu_bgm.active_gallery}, function(new_image) {
+                if (!new_image || new_image.url === myatu_bgm.current_background.url) {
+                    return; // Yikes!
                 }
 
-                // Replace/remove background link
-                myatu_bgm.setBackgroundLink(new_image.bg_link);
+                // Set current_background and previous_background vars
+                myatu_bgm.previous_background = myatu_bgm.current_background;
+                myatu_bgm.current_background  = $.extend(myatu_bgm.current_background, new_image);
 
                 if (is_fullsize) {
-                    // Set transition speed to what's returned by AJAX, or what's specified in preview (Theme Customizer)
                     if (is_preview) {
-                        // Preview variables
+                        // We're in a Theme Customizer preview, and the transition speed/method specified there
                         transition_speed  = Number(myatu_bgm.transition_speed);
                         active_transition = myatu_bgm.active_transition;
 
@@ -356,37 +368,24 @@ if (typeof myatu_bgm === "undefined") {
                         active_transition = new_image.transition;
                     }
 
-                    // Grab the current style
-                    prev_style = $('#myatu_bgm_top').attr('style');
-
-                    // Switch image ID ('top' becomes 'prev')
+                    // Switch image IDs so 'top' becomes 'prev'
                     $('#myatu_bgm_top').attr('id', 'myatu_bgm_prev');
 
                     // Create a new top image and perform callback when done loading
-                    myatu_bgm.addTopImage(prev_style, new_image.alt, new_image.url, function() {
-                        var c = false; // Cover or slide?
-
-                        // Force the transition to 'none' if 'myatu_bgm_prev' is missing for some reason (failsafe)
-                        if (!$('#myatu_bgm_prev').length) {
-                            active_transition = 'none';
-                        }
-
-                        // Custom event - function(event, active_transition, transition_speed, new_image_object)
-                        $(document).trigger('myatu_bgm_start_transition', [active_transition, transition_speed, new_image]);
-
+                    myatu_bgm.addTopImage($('#myatu_bgm_prev').attr('style'), function() {
                         // Check if Flux can be used
                         if (myatu_bgm.Modernizr.backgroundsize) {
                             if (typeof flux_instance === "undefined") {
                                 // Flux instance
-
                                 flux_instance = new myatu_bgm_flux.slider('#myatu_bgm_img_group', {
                                     pagination : false,
                                     autoplay   : false
                                 });
 
-                                $('#myatu_bgm_img_group').bind('fluxTransitionEnd', myatu_bgm.onAnimationCompleted);                            }
+                                $('#myatu_bgm_img_group').bind('fluxTransitionEnd', myatu_bgm.onAnimationCompleted);
+                            }
                         } else if (active_transition !== 'none' && $.inArray(active_transition, myatu_bgm.flux_transitions) > -1) {
-                            // Flux cannot be used, use the default transition
+                            // Flux cannot be used due to browser, use the default transition instead
                             active_transition = '';
                         }
 
@@ -395,6 +394,15 @@ if (typeof myatu_bgm === "undefined") {
                             transition_speed = transition_speed / 50;
                         }
 
+                        // Update current_background with updated transition data
+                        $.extend(myatu_bgm.current_background, {
+                           'transition'       : active_transition,
+                           'transition_speed' : transition_speed
+                        });
+
+                        // Fire custom event - function(event, active_transition, transition_speed, current_background)
+                        $(document).trigger('myatu_bgm_start_transition', [active_transition, transition_speed, myatu_bgm.current_background]);
+
                         switch (active_transition) {
                             // No transition
                             case 'none' :
@@ -402,17 +410,17 @@ if (typeof myatu_bgm === "undefined") {
                                 myatu_bgm.onAnimationCompleted();
                                 break;
 
-                            case 'coverdown' : c = true; // Cover instead of slide. Remember nobreak!
-                            case 'slidedown' : myatu_bgm.AnimateSlide('top', transition_speed, c); break;
+                            case 'coverdown' : cover = true; // Cover instead of slide. Remember nobreak!
+                            case 'slidedown' : myatu_bgm.animateSlide('top', transition_speed, cover); break;
 
-                            case 'coverup'   : c = true; // nobreak!
-                            case 'slideup'   : myatu_bgm.AnimateSlide('bottom', transition_speed, c); break;
+                            case 'coverup'   : cover = true; // nobreak!
+                            case 'slideup'   : myatu_bgm.animateSlide('bottom', transition_speed, cover); break;
 
-                            case 'coverright': c = true; // nobreak!
-                            case 'slideright': myatu_bgm.AnimateSlide('left', transition_speed, c); break;
+                            case 'coverright': cover = true; // nobreak!
+                            case 'slideright': myatu_bgm.animateSlide('left', transition_speed, cover); break;
 
-                            case 'coverleft' : c = true; // nobreak!
-                            case 'slideleft' : myatu_bgm.AnimateSlide('right', transition_speed, c); break;
+                            case 'coverleft' : cover = true; // nobreak!
+                            case 'slideleft' : myatu_bgm.animateSlide('right', transition_speed, cover); break;
 
                             case 'bars'   : // nobreak!
                             case 'blinds' :
@@ -465,18 +473,14 @@ if (typeof myatu_bgm === "undefined") {
                     myatu_bgm.setTimer();
                 }
 
-                // Set the info tab details
+                // Replace/remove background link
+                myatu_bgm.setBackgroundLink();
+
+                 // Close the balloon tip, if it is showing.
                 if (info_tab.length) {
-                    // Close the balloon tip, if it is showing.
                     if ($.isFunction(info_tab.qtip)) {
                         info_tab.qtip('api').hide();
                     }
-
-                    // Set info tab content and link
-                    $('.myatu_bgm_info_tab a').attr('href', new_image.link);
-                    $('.myatu_bgm_info_tab_content.clonable img').attr('src', new_image.thumb);
-                    $('.myatu_bgm_info_tab_content.clonable h3').text(new_image.caption);
-                    $('.myatu_bgm_info_tab_content.clonable .myatu_bgm_info_tab_desc').html(new_image.desc);
                 }
 
                 // "Pin it" button
@@ -501,44 +505,40 @@ if (typeof myatu_bgm === "undefined") {
             if (!$.isFunction(info_tab.qtip) || !info_tab.length) {
                 return; // Nothing to do!
             }
+
+            // Attach qTip to the info_tab
             info_tab.qtip({
                 content: {
                     text: function(api) {
-                        var text = $('.myatu_bgm_info_tab_content.clonable').clone();
+                        var thumb    = $('<img />').attr({'src' : myatu_bgm.current_background.thumb, 'alt' : myatu_bgm.current_background.alt})
+                            , result = $('<div></div>').addClass('myatu_bgm_info_tab_content')
+                            , desc   = myatu_bgm.current_background.desc;
 
-                        // Change class from "clonable" to "shown"
-                        text.removeClass("clonable").addClass("shown");
-
-                        $('h3', text).remove(); // Remove title, as this is used in the "title" var
-
-                        if ($('.myatu_bgm_info_tab_desc', text).text() === '') {
-                            // Remove margin if there's no text to display
-                            $('img', text).css('margin', '5px 0');
-                        } else {
-                            // Reduce the size of the image a bit
-                            $('img', text).css({'width':'100px', 'height':'100px'});
-
-                            // And widen the tip window a bit
-                            $(this).qtip('option', 'width', 500);
+                        // Add the thumbnail, if needed
+                        if (myatu_bgm.info_tab_thumb === 'true') {
+                            result.append(thumb);
                         }
 
-                        return text;
+                        if (desc) {
+                            // Reduce the size of the thumbnail a bit
+                            thumb.css({'width':'100px', 'height':'100px'});
+                            result.append(desc);
+                        } else {
+                            // There's no description, so just remove the margin on the thumbnail
+                            thumb.css('margin', '5px 0');
+                        }
+
+                        return result;
                     },
                     title: {
                         text: function(api) {
-                            return $('.myatu_bgm_info_tab_content.clonable h3').text();
+                            return myatu_bgm.current_background.caption;
                         },
                         button: true
                     }
                 },
                 style: {
                     classes: 'ui-tooltip-bootstrap ui-tooltip-shadow ui-tooltip-rounded'
-                },
-                events: {
-                    hide: function(event, api) {
-                        // Delete the clone
-                        $('.myatu_bgm_info_tab_content.shown').remove();
-                    }
                 },
                 hide: false,
                 position: {
@@ -554,15 +554,15 @@ if (typeof myatu_bgm === "undefined") {
     $(document).ready(function($){
         var bg_link = $('#myatu_bgm_bg_link');
 
-        // Set the window resize event
-        $(window).resize(myatu_bgm.onWindowResize);
-
         // Set the background link
         if (bg_link.length) {
-            myatu_bgm.setBackgroundLink(bg_link.attr('href'));
+            myatu_bgm.setBackgroundLink();
 
             bg_link.remove(); // Remove fall-back background link (prefer the Javascript method)
         }
+
+        // Set the window resize event
+        $(window).resize(myatu_bgm.onWindowResize);
 
         // Initialize the info tab
         myatu_bgm.initInfoTab();

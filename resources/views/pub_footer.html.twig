@@ -20,13 +20,11 @@
 <div id="myatu_bgm_img_group" class="myatu_bgm_fs" style="position: relative; overflow: hidden;">
     <script type="text/javascript">
     /*<![CDATA[*/
-    {# UNCOMPRESSED: #}
+    {# UNCOMPRESSED:
     try {
         (function($){
             myatu_bgm.addTopImage(
                 "{% if opacity < 100 %}-moz-opacity:.{{ opacity }};filter:alpha(opacity={{ opacity }});opacity:.{{ opacity }};{% endif %}",
-                "{{ random_image.alt }}",
-                "{{ random_image.url }}",
                 function() {
                     // Either fade in or display immediately
                     if ((typeof myatu_bgm !== "undefined") && (myatu_bgm.initial_ease_in === "true")) {
@@ -38,9 +36,8 @@
             );
         }(jQuery));
     } catch(e) {}
-    {#
-    try{(function(a){myatu_bgm.NewTopImage("{% if opacity < 100 %}-moz-opacity:.{{ opacity }};filter:alpha(opacity={{ opacity }});opacity:.{{ opacity }};{% endif %}","{{ random_image.alt }}","{{ random_image.url }}",function(){myatu_bgm.AdjustImageSize();a(this).css({display:"none",visibility:""});if((typeof background_manager_vars!=="undefined")&&(background_manager_vars.initial_ease_in==="true")){a(this).fadeIn("slow")}else{a(this).show()}})}(jQuery))}catch(e){};
     #}
+    try{(function(a){myatu_bgm.addTopImage("{% if opacity < 100 %}-moz-opacity:.{{ opacity }};filter:alpha(opacity={{ opacity }});opacity:.{{ opacity }};{% endif %}",function(){if((typeof myatu_bgm!=="undefined")&&(myatu_bgm.initial_ease_in==="true")){a(this).fadeIn("slow")}else{a(this).show()}})}(jQuery))}catch(e){};
     /*]]>*/
     </script>
     <noscript><img id="myatu_bgm_top" class="myatu_bgm_fs" src="{{ random_image.url }}" alt="{{ random_image.alt }}" {% if opacity < 100 %}style="-moz-opacity:.{{ opacity }}; filter:alpha(opacity={{ opacity }}); opacity:.{{ opacity }};"{% endif %}  /></noscript>
@@ -79,7 +76,6 @@
 (function(){window.PinIt=window.PinIt||{loaded:false};if(window.PinIt.loaded){return}window.PinIt.loaded=true;function a(){var c=document.createElement("script"),b=document.getElementsByTagName("script")[0];c.src="//assets.pinterest.com/js/pinit.js";c.type="text/javascript";c.async=true;b.parentNode.insertBefore(c,b)}if(window.attachEvent){window.attachEvent("onload",a)}else{window.addEventListener("load",a,false)}}());
 /*]]>*/
 </script>
-
     <a href="http://pinterest.com/pin/create/button/?url={{ permalink | url_encode }}&media={{ random_image.url | url_encode }}&description={{ random_image.desc | striptags | url_encode }}" class="pin-it-button" count-layout="none">Pin It</a>
 </div>
 {% endif %}
@@ -95,19 +91,6 @@
             [ + ]
         {% endif %}
     </div>
-
-{% if info_tab_desc %}
-    <div class="myatu_bgm_info_tab_content clonable" style="display:none">
-        {% if info_tab_thumb %}
-            <img src="{{ random_image.thumb }}" alt="{{ random_image.alt }}" />
-        {% endif %}
-
-        <h3>{{ random_image.caption }}</h3>
-        <div class="myatu_bgm_info_tab_desc">
-            {{ random_image.desc | raw }}
-        </div>
-    </div>
-{% endif %}
 </div>
 {% endif %}
 

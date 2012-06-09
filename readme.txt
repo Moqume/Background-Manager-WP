@@ -24,7 +24,7 @@ Where supported, in full-screen mode the the background image is "eased in" when
 
 You can also limit the background images to certain parts of WordPress, for example only on the front page or a full-page post. And for each individual page, post, category or tag, you can also override the images, overlay or color used as the background, which allows you to have pages or posts with a different background theme.
 
-Each individual background image can also be linked to a specific URL, which allows a visitor to click anywhere on the background and be redirected to another page or website.
+Each individual background image can also be linked to a specific URL, which allows a visitor to click anywhere on the background and be redirected to another page or website. These clicks can optionally be be tracked via Google Analytics.
 
 All this is done without the need to edit the theme or any other files!
 
@@ -59,6 +59,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
     * A directory (and optionally its sub-directories) on the web server
 * Define the background opacity (available in Full Screen only)
 * Background image links (click-able backgrounds)
+* Track background clicks via Google Analytics events
 * Uses AJAX to load background images, keeping the website's footprint small and improves caching
 * Graceful degradation for visitors without JavaScript
 * Option to add a "Pin It" [Pinterest](http://www.pinterest.com) button
@@ -89,7 +90,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.48 (1.1) =
+= 1.0.49 (1.1) =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories for _Category Override_ meta option, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
@@ -102,6 +103,7 @@ with PHP versions older than 5.3.
 * __Added:__ Ability to select which roles are able to override the background Image Set, Overlay and Color for individual Posts and Pages
 * __Added:__ Option to allow the user to enable/disable the initial image ease-in
 * __Added:__ 9 new transitions, 8 of which are adaptations of [Flux Slider](http://www.joelambert.co.uk/flux/)
+* __Added:__ Support for tracking background clicks via Google Analytics events
 * Changed: Vendor libraries for Pf4wp and Twig updated to latest versions (1.0.10 and 1.7 respectively), minor change in public-side JS
 * Changed: Increased maximum image transition speed limit from 7500ms to 15000ms
 * Changed: Decreased minimum permitted change frequency from 10 seconds to 1 second
