@@ -35,24 +35,46 @@ if (typeof myatu_bgm === "undefined") {
         },
 
         /**
+         * Reports a Google Analytics event
+         *
+         * @param string what The event to report
+         * @param string label The event label (current background link by default)
+         */
+        doGAEvent : function(what, label) {
+            var category  = myatu_bgm.bg_track_clicks_category;
+
+            // We must at least have an event action
+            if (typeof what === "undefined") {
+                return;
+            }
+
+            // Provide a label if it isn't specified
+            if (typeof label === "undefined") {
+                label = myatu_bgm.current_background.bg_link;
+            }
+
+            // Provide a category if it's empty
+            if (!category) {
+                category = 'Background Manager';
+            }
+
+            if (label && myatu_bgm.bg_track_clicks === 'true' && typeof _gaq !== "undefined" && $.isFunction(_gaq.push)) {
+                _gaq.push(['_trackEvent', category, what, label]);
+            }
+        },
+
+        /**
          * Event called when the background is clicked
          */
         onBackgroundClick: function(e) {
-            var click_category  = myatu_bgm.bg_track_clicks_category
-                , link          = myatu_bgm.current_background.bg_link;
+            var link = myatu_bgm.current_background.bg_link;
 
             if (e.target === this || $(e.target).hasClass('myatu_bgm_fs')) {
                 // Fire custom event function(event, url)
                 $(document).trigger('myatu_bgm_background_click', [link]);
 
                 // Event tracking for Google Analytics
-                if (myatu_bgm.bg_track_clicks === 'true' && typeof _gaq !== "undefined" && $.isFunction(_gaq.push)) {
-                    if (click_category === '') {
-                        click_category = 'Background Manager';
-                    }
-
-                    _gaq.push(['_trackEvent', click_category, 'Click', link]);
-                }
+                myatu_bgm.doGAEvent('Click');
 
                 // Wait a short moment before actually performing the "click"
                 setTimeout(function() {
@@ -310,6 +332,9 @@ if (typeof myatu_bgm === "undefined") {
                     'class' : 'myatu_bgm_fs',
                     'style' : style
                 }).css(css).appendTo('#myatu_bgm_img_group');
+
+                // Event tracking for Google Analytics
+                myatu_bgm.doGAEvent('Display');
 
                 // Perform callback
                 if (typeof callback === "function") {
