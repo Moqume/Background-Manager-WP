@@ -89,7 +89,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.0.47 (1.1) =
+= 1.0.48 (1.1) =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories for _Category Override_ meta option, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
@@ -112,6 +112,7 @@ with PHP versions older than 5.3.
 * Fixed: Individual page settings were ignored if the page was used as a Posts Page (in Reading)
 * Fixed: Background images were not click-able if no info tab was present or not in full screen mode
 * Fixed: For Image Sets with a single image, the transition effect would still be applied
+* Fixed: Issue where embeded overlay image had missing mime types, or the mime type detection caused a fatal error
 
 = 1.0.25 (March 18, 2012) =
 * Fixed: Resolved the "flickering" before each transition

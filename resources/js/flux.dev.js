@@ -213,7 +213,7 @@ window.myatu_bgm_flux = {
                 support = false, i;
 
             for(i=0; i<domPrefixes.length; i++) {
-                if (div.style.hasOwnProperty(domPrefixes[i]+prop)) {
+                if (domPrefixes[i]+prop in div.style) {
                     support = support || true;
                 }
             }

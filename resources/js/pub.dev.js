@@ -104,17 +104,16 @@ if (typeof myatu_bgm === "undefined") {
         AnimateSlide: function(scroll_in_from, duration, cover) {
             var new_img      = $('#myatu_bgm_top'),
                 old_img      = $('#myatu_bgm_prev'),
-                new_offset   = new_img.offset(),
                 old_offset   = old_img.offset(),
-                css          = {},
+                css          = { 'top'  : new_img.css('top'), 'left' : new_img.css('left') },
                 start_position, dir, pos;
 
             // Determine starting position for new image, and ending position for old image
             switch (scroll_in_from) {
-                case 'top'    : dir = 'top';  css[dir] = new_offset.top  + 'px'; pos = new_img.height() - old_offset.top; start_position = '-' + pos + 'px'; break;
-                case 'bottom' : dir = 'top';  css[dir] = new_offset.top  + 'px'; pos = old_img.height() + old_offset.top; start_position =       pos + 'px'; break;
-                case 'left'   : dir = 'left'; css[dir] = new_offset.left + 'px'; pos = new_img.width() - old_offset.left; start_position = '-' + pos + 'px'; break;
-                case 'right'  : dir = 'left'; css[dir] = new_offset.left + 'px'; pos = old_img.width() + old_offset.left; start_position =       pos + 'px'; break;
+                case 'top'    : dir = 'top';  start_position = '-' + (new_img.height() - old_offset.top) + 'px'; break;
+                case 'bottom' : dir = 'top';  start_position =       (old_img.height() + old_offset.top) + 'px'; break;
+                case 'left'   : dir = 'left'; start_position = '-' + (new_img.width() - old_offset.left) + 'px'; break;
+                case 'right'  : dir = 'left'; start_position =       (old_img.width() + old_offset.left) + 'px'; break;
             }
 
             new_img.css(dir, start_position); // Move the new image to one of the edges of the old image
@@ -126,12 +125,14 @@ if (typeof myatu_bgm === "undefined") {
                     'duration': duration,
                     'complete': myatu_bgm.onAnimationCompleted,
                     'step': function(now,fx) {
-                        // Keep old image "sticking" to edge of new image
-                        switch (scroll_in_from) {
-                            case 'top'    : old_img.css(dir, (new_img.height() + now) + 'px'); break;
-                            case 'bottom' : old_img.css(dir, (now - old_img.height()) + 'px'); break;
-                            case 'left'   : old_img.css(dir, (new_img.width() + now) + 'px'); break;
-                            case 'right'  : old_img.css(dir, (now - old_img.width()) + 'px'); break;
+                        if (fx.prop === dir) {
+                            // Keep old image "sticking" to edge of new image
+                            switch (scroll_in_from) {
+                                case 'top'    : old_img.css(dir, (new_img.height() + now) + 'px'); break;
+                                case 'bottom' : old_img.css(dir, (now - old_img.height()) + 'px'); break;
+                                case 'left'   : old_img.css(dir, (new_img.width() + now) + 'px'); break;
+                                case 'right'  : old_img.css(dir, (now - old_img.width()) + 'px'); break;
+                            }
                         }
                     }
                 });
@@ -155,13 +156,21 @@ if (typeof myatu_bgm === "undefined") {
                 win_height  = $(window).height(),
                 win_width   = $(window).width(),
                 bg_width    = win_width,
-                bg_height, ratio, bg_offset;
+                bg_height, ratio, bg_offset, img_n, img_natural_width, img_natural_height;
 
             if (myatu_bgm.is_fullsize !== 'true') {
                 return false; // This can only be done on full-size images
             }
 
-            ratio     = $(img).width() / $(img).height();
+            // Obtain the natural width and height of the image (alreadu loaded, so no need to wait)
+            img_n = new Image();
+            img_n.src = $(img).attr('src');
+            img_natural_width  = img_n.width;
+            img_natural_height = img_n.height;
+            delete img_n;
+
+            // Set the ratio and initial heigth
+            ratio     = img_natural_width / img_natural_height;
             bg_height = bg_width / ratio;
 
             if (bg_height >= win_height) {
@@ -378,7 +387,6 @@ if (typeof myatu_bgm === "undefined") {
                         } else if (active_transition !== 'none' && $.inArray(active_transition, myatu_bgm.flux_transitions) > -1) {
                             // Flux cannot be used, use the default transition
                             active_transition = '';
-                            console.log('reset active transition');
                         }
 
                         // Reduce transition_speed for Flux transitions
@@ -416,10 +424,13 @@ if (typeof myatu_bgm === "undefined") {
                                 flux_instance.next('blocks2', {'delayBetweenDiagnols' : transition_speed});
                                 break;
 
-                            case 'swipe'      :
                             case 'concentric' :
                             case 'warp'       :
-                                // Fixed transition speeds
+                                flux_instance.next(active_transition, {'delay' : transition_speed * 2 });
+                                break;
+
+                            case 'swipe' :
+                                // Fixed speed
                                 flux_instance.next(active_transition);
                                 break;
 
