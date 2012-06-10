@@ -1159,9 +1159,7 @@ class Main extends \Pf4wp\WordpressPlugin
             new $meta_box['class']($this);
 
         // Pre-fill the getImage() cache (so calling it will return the same details), and set a cookie if need be
-        if ($this->canDisplayBackground()) {
-            $this->getImage();
-        }
+        $this->getImage();
     }
 
     /**
