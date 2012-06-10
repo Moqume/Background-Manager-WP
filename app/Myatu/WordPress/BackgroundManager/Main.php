@@ -424,12 +424,13 @@ class Main extends \Pf4wp\WordpressPlugin
 
         // Fetch extra details about the image, if we have a valid image URL
         if ($image_url) {
+            // Disable background image output
             if (!defined('BACKGROUND_IMAGE'))
-                define('BACKGROUND_IMAGE', $image_url);
+                define('BACKGROUND_IMAGE', '');
 
             // Since 3.4
             if (Helpers::checkWPVersion('3.4', '>=')) {
-                add_theme_support('custom-background', array('default-image' => $image_url));
+                add_theme_support('custom-background', array('default-image' => ''));
             }
 
             $results = array(
