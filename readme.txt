@@ -3,8 +3,8 @@ Contributors: Myatu
 Donate link: http://pledgie.com/campaigns/16906
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
-Tested up to: 3.4-RC2
-Stable tag: 1.0.25
+Tested up to: 3.4
+Stable tag: 1.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -20,7 +20,7 @@ With an easy to use menu, you can also define how the background image is displa
 
 You also have the ability to add an overlay to the background images with a choice of pre-defined patterns. And of course it is also possible to add a background color.
 
-Where supported, in full-screen mode the the background image is "eased in" when it is ready to be displayed. No longer will visitors with slower Internet connections have to endure watching a background image load from top down.
+Where supported, in full-screen mode the the background image is optionally "eased in" when it is ready to be displayed. No longer will visitors with slower Internet connections have to endure watching a background image load from top down.
 
 You can also limit the background images to certain parts of WordPress, for example only on the front page or a full-page post. And for each individual page, post, category or tag, you can also override the images, overlay or color used as the background, which allows you to have pages or posts with a different background theme.
 
@@ -38,7 +38,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
 * Full support for the WordPress Theme Customizer
 * Full-screen background images
 * Full control over position for images in normal display mode (tiling, positioning, scrolling and stretching)
-* "Ease in" of a full-screen background image
+* Optional "Ease in" of a full-screen background image
 * Multiple _Image Sets_ to select a random image from
 * Override the _Image Set_ for each Post, Page, Custom post type or by Tag(s) or Category
 * User defined display interval between the background images (timed slideshow)
@@ -61,7 +61,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
 * Background image links (click-able backgrounds)
 * Track background clicks and impressions via Google Analytics
 * Uses AJAX to load background images, keeping the website's footprint small and improves caching
-* Graceful degradation for visitors without JavaScript
+* Graceful degradation for visitors without JavaScript and older browsers
 * Option to add a "Pin It" [Pinterest](http://www.pinterest.com) button
 
 _This product uses the Flickr API but is not endorsed or certified by Flickr._
@@ -84,13 +84,13 @@ with PHP versions older than 5.3.
 
 == Screenshots ==
 
-1. A full-screen background behind the TwentyEleven theme, with the a thumbnail preview in the lower-left corner
+1. A full-screen background behind the TwentyEleven theme
 2. The main settings of Background Manager
 3. Editing an Image Set within Background Manager
 
 == Changelog ==
 
-= 1.0.49 (1.1) =
+= 1.1 (June 13, 2012) =
 * __Added:__ Support for WordPress 3.4 Theme Customizer
 * __Added:__ Automatically detects 3rd party categories for _Category Override_ meta option, ie. [WP e-Commerce](http://wordpress.org/extend/plugins/wp-e-commerce/)
 * __Added:__ Ability to re-adjust and optionally center large images to fit the browser window, whilst maintaining ratio
@@ -189,7 +189,7 @@ web pages not to finish rendering.
 == Upgrade Notice ==
 
 = 1.1 =
-Version 1.1 introduces many new features, including the ability to re-order images, detach/remove images, and much more. Before upgrading, it is recommended to make a backup of your current database.
+Version 1.1 introduces many new features and changes. Before upgrading, it is highly recommended to visit the official website and read about the changes and how they may impact your website.
 
 = 1.0.14 =
 New: Override Image Sets by Post Tags or Categories; Download Images by URL (with Flickr support); Copy existing Media Library images; Import a local (server) directory
@@ -202,13 +202,17 @@ New: Background image links, support for overlay opacity and more overlays. Impr
 
 = Help, it's broken! What do I do now? =
 
-If something does not appear to be working as it should, [search the forum](http://wordpress.org/tags/background-manager) or [write a new topic](http://wordpress.org/tags/background-manager#postform) that describes the problem(s) you are experiencing.
+If something does not appear to be working as it should, [search the WordPress Support Forum](http://wordpress.org/support/plugin/background-manager) if there may be a solution, or write a new topic that describes the problem(s) you are experiencing.
 
 It will be very useful to include information about the environment in which the problem occured. If you can still activate and access the __Settings__ page for the plugin, look at the bottom of the page for a __Debug__ link. Clicking it will expand a box with often requested details, such as the WordPress version and what operating system the web server is using. You can copy and paste these details when reporting a problem, which will help speed up finding a solution.
 
 = How do my make my backgrounds click-able? =
 
 You can redirect your visitor to a specific URL if they click anywhere on the background by setting the __Background URL__ for an image. Simply edit one of your Image Sets (__Apperance__ -> __Background__ -> __Image Sets__ --> [desired image set]), select an image and click the __Edit__ icon displayed over the image. Provide the URL in the __Background URL__ field and click __Save All Changes__.
+
+= Can I track background impressions and clicks? =
+
+Yes, starting with version 1.1, any click-able background image that is shown or clicked on can be tracked using Google Analytics. They will appear as Google Analytics Events, which can also be used for Goals. The _Help_ tab on the main _Settins_ page will describe this in more detail.
 
 = How do I change the background, overlay or color for individual posts or pages? =
 

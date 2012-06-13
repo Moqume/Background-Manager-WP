@@ -97,7 +97,7 @@ class EditGallery
 
         $vars = array(
             'is_wp34'           => Helpers::checkWPVersion('3.4', '>='),
-            'has_right_sidebar' => ($columns == 2) ? 'has-right-sidebar columns-2' : '',
+            'has_right_sidebar' => ($columns == 2) ? 'columns-2' . (Helpers::checkWPVersion('3.4', '>=') ? '' : 'has-right-sidebar') : '',
             'nonce'             => wp_nonce_field(Main::NONCE_EDIT_GALLERY . $owner->gallery->ID, '_nonce', true, false),
             'nonce_meta_order'  => wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false),
             'nonce_meta_clsd'   => wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false),
@@ -123,6 +123,9 @@ class EditGallery
     /** Images Iframe */
     public static function showIframeImages(Main $owner)
     {
+        if (!defined('IFRAME_REQUEST'))
+            define('IFRAME_REQUEST', true);
+
         if (!isset($owner->gallery->ID))
             die; // Something didn't go quite right
 
@@ -190,6 +193,9 @@ class EditGallery
     /** Edit Image iframe **/
     public static function showIframeEditImage(Main $owner)
     {
+        if (!defined('IFRAME_REQUEST'))
+            define('IFRAME_REQUEST', true);
+
         if (!isset($_GET['id']))
             die; // How did you get here? Hmm!
 
