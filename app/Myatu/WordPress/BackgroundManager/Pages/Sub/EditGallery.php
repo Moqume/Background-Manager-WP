@@ -97,7 +97,7 @@ class EditGallery
 
         $vars = array(
             'is_wp34'           => Helpers::checkWPVersion('3.4', '>='),
-            'has_right_sidebar' => ($columns == 2) ? 'columns-2' . (Helpers::checkWPVersion('3.4', '>=') ? '' : 'has-right-sidebar') : '',
+            'has_right_sidebar' => ($columns == 2) ? 'columns-2' . (Helpers::checkWPVersion('3.4', '>=') ? '' : ' has-right-sidebar') : '',
             'nonce'             => wp_nonce_field(Main::NONCE_EDIT_GALLERY . $owner->gallery->ID, '_nonce', true, false),
             'nonce_meta_order'  => wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false),
             'nonce_meta_clsd'   => wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false),
