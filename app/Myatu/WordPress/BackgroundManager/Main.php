@@ -1158,9 +1158,6 @@ class Main extends \Pf4wp\WordpressPlugin
         // This activates the *filters* provided by the Meta Boxes
         foreach ($this->getMetaBoxes() as $meta_box)
             new $meta_box['class']($this);
-
-        // Pre-fill the getImage() cache (so calling it will return the same details), and set a cookie if need be
-        $this->getImage();
     }
 
     /**
@@ -1178,6 +1175,7 @@ class Main extends \Pf4wp\WordpressPlugin
 
         // Get option values after applying filters
         extract($this->getFilteredOptions());
+
         $custom_styles = apply_filters(static::BASE_PUB_PREFIX . 'custom_styles', $active_gallery, ''); // From Meta
 
         // Only add a background image here if we have a valid gallery and we're not using a full-screen image
