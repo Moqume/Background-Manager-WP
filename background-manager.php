@@ -3,7 +3,7 @@
 Plugin Name: Background Manager
 Plugin URI: http://myatus.com/projects/background-manager/
 Description: Background Manager allows you to display a random image as the website background at each visit or as a timed slideshow, without the need to edit the theme.
-Version: 1.1
+Version: 1.1.1
 Author: Mike Green (Myatu)
 Author URI: http://myatus.com/
 */
