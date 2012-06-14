@@ -39,7 +39,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
 * Full-screen background images
 * Full control over position for images in normal display mode (tiling, positioning, scrolling and stretching)
 * Optional "Ease in" of a full-screen background image
-* Multiple _Image Sets_ to select a random image from
+* Multiple _Image Sets_ to select a random or sequential image from
 * Override the _Image Set_ for each Post, Page, Custom post type or by Tag(s) or Category
 * User defined display interval between the background images (timed slideshow)
 * Optional transition effects between the different background images displayed:
