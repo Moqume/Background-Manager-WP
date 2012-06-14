@@ -124,7 +124,6 @@ class Settings
         // Intro to new features in 1.1
         if ($this->owner->options->last_upgrade == '1.1') {
             new \Myatu\WordPress\BackgroundManager\Pointers\Upgrade1dot1new1($this->owner->getName());
-            new \Myatu\WordPress\BackgroundManager\Pointers\Upgrade1dot1new2($this->owner->getName());
         }
 
         // Save settings if POST is set
