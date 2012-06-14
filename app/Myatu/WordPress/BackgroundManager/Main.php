@@ -762,6 +762,8 @@ class Main extends \Pf4wp\WordpressPlugin
             !($background_image_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM `{$wpdb->posts}` WHERE `guid` = %s", $background_image_url))))
             return;
 
+        $galleries = new Galleries($this);
+
         // Create a new gallery to hold the original background.
         $gallery_id = $galleries->save(0, __('Imported Background'), __('Automatically created Image Set, containing the original background image specified in WordPress.'));
 
