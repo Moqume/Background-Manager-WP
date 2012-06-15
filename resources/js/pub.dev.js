@@ -78,7 +78,7 @@ if (typeof myatu_bgm === "undefined") {
 
                 // Wait a short moment before actually performing the "click"
                 setTimeout(function() {
-                    if (myatu_bgm.bg_click_new_window === true) {
+                    if (myatu_bgm.bg_click_new_window === 'true') {
                         // Open the link in a new window
                         window.open(link);
                     } else {
