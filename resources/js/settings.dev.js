@@ -50,6 +50,13 @@ if (typeof myatu_bgm === "undefined") {
             }
         },
 
+        /** Hides or shows the "Remeber last displayed image" */
+        showHideRememberLastImage: function() {
+            var is_custom = ($('input[name="change_freq"]:checked').val() === 'custom');
+
+            myatu_bgm.showHide('.change_freq_lc', is_custom);
+        },
+
         /** Hides or shows the Background Transition settings */
         showHideBackgroundTransition: function() {
             var is_full = ($('input[name="background_size"]:checked').val() === 'full'),
@@ -57,8 +64,9 @@ if (typeof myatu_bgm === "undefined") {
 
             myatu_bgm.showHide('.bg_transition', (is_full && is_custom_freq));
 
-            // Also trigger the event for the Image Selector
+            // Also trigger the event for the Image Selector and Last Displayed Image option
             myatu_bgm.showHideSelector();
+            myatu_bgm.showHideRememberLastImage();
         },
 
         /** Changes the preview background color according to the selection */

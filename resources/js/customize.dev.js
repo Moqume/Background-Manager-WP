@@ -43,6 +43,7 @@ if (typeof myatu_bgm === "undefined") {
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'change_freq_custom'), custom_freq);
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'image_selection input:radio[value=asc]').parent(), custom_freq);
             myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'image_selection input:radio[value=desc]').parent(), custom_freq);
+            myatu_bgm.showHide($(myatu_bgm.base_control_prefix + 'image_remember_last'), custom_freq);
             myatu_bgm.showHide(random_selector, custom_freq);
 
             // A bit of extra magic for 'Random' image selector
@@ -52,7 +53,6 @@ if (typeof myatu_bgm === "undefined") {
                     $(myatu_bgm.base_control_prefix + 'image_selection input').change();
                 }
             }
-
 
             // Show or hide in full(screen)
             myatu_bgm.showHide($('#customize-control-divider_background_transitioning_effect'), show_in_full);
