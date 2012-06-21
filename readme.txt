@@ -90,6 +90,9 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
+= 1.1.2 =
+* Fixed: Non-fatal error when adding image to Image Set, related to a missing URL field
+
 = 1.1.1 (June 14, 2012) =
 * Fixed: A bug managed its way past testing, causing background overrides to stop working.
 

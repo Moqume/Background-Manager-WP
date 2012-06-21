@@ -14,8 +14,8 @@ use Myatu\WordPress\BackgroundManager\Common\FlickrApi;
 use Myatu\WordPress\BackgroundManager\Images;
 
 /**
- * The Media Library filter class 
- * 
+ * The Media Library filter class
+ *
  * This class modifies (filters) certain features or displayed information
  * provided by the 'Insert/Upload' Media Library screen (iframe), if it is
  * specifically shown on the Image Set edit screen.
@@ -27,14 +27,14 @@ use Myatu\WordPress\BackgroundManager\Images;
 class MediaLibrary
 {
     protected $owner;
-    
+
     const FILTER = 'media_library';
-    
+
     const META_LINK = 'myatu_bgm_link';
-    
+
     /** Options that we use, passed by get_media_item_args action */
     private $media_item_args = array();
-    
+
     /**
      * Constructor
      *
@@ -43,11 +43,11 @@ class MediaLibrary
     public function __construct(Main $owner)
     {
         $this->owner = $owner;
-        
+
         unset($_POST['save']); // Prevents media_upload_gallery() from being called - see wp-admin/media.php
 
         $order = 50;
-        
+
         add_filter('attachment_fields_to_edit', array($this, 'onAttachmentFields'), $order, 2);
         add_filter('media_upload_form_url', array($this, 'onUploadFormUrl'), $order, 2);
         add_filter('media_upload_tabs', array($this, 'onUploadTabs'), $order);
@@ -56,15 +56,15 @@ class MediaLibrary
         add_filter('media_upload_mime_type_links', array($this, 'onMediaTypeLinks'), $order);
         add_filter('media_send_to_editor', array($this, 'onSendToEditor'), $order, 3);
         add_filter('attachment_fields_to_save', array($this, 'onAttachmentFieldsToSave'), $order, 2);
-        
+
         add_action('admin_print_styles-media-upload-popup', array($this, 'onPrintStyles'), $order);
         add_action('media_upload_bgm_url', array($this, 'onBgmUrl'), $order); // "From External Source" tab
     }
-    
+
     /**
      * Filter Media Library Attachment Form Fields
      *
-     * This removes fields from the Media Library upload screen that are not 
+     * This removes fields from the Media Library upload screen that are not
      * needed (and thus confuse the end user). See wp-admin/includes/media.php
      *
      * Since 1.0.6 we also include a 'link' form field.
@@ -75,21 +75,23 @@ class MediaLibrary
      */
     public function onAttachmentFields($form_fields, $attachment)
     {
-        unset($form_fields['url']);
-        unset($form_fields['align']);
-        unset($form_fields['image-size']);
-        
         $gallery_id    = (isset($_REQUEST['post_id'])) ? $_REQUEST['post_id'] : 0;
         $attachment_id = (is_object($attachment) && $attachment->ID) ? $attachment->ID : 0;
         $filename      = esc_html(basename($attachment->guid));
-        
+
+        // Replace URL field with a hidden field - @since 1.1.2, instead of using unset()
+        $form_fields['url'] = array('input' => 'hidden', 'value' => wp_get_attachment_url($attachment->ID));
+
+        unset($form_fields['align']);
+        unset($form_fields['image-size']);
+
         // Add a 'link' form field
         $form_fields['link'] = array(
             'label' => __('Background URL', $this->owner->getName()),
             'helps' => __('Optional link URL for the background', $this->owner->getName()),
             'value' => get_post_meta($attachment_id, static::META_LINK, true),
         );
-        
+
         // 'Add to' button
         $send = '';
         if (substr($attachment->post_mime_type, 0, 5) == 'image') {
@@ -99,15 +101,15 @@ class MediaLibrary
                 // The image is already attached, but not to this Image Set. Allow it to be copied (@see onSendToEditor)
                 $parent      = get_post($attachment->post_parent);
                 $parent_name = '';
-                
+
                 if ($parent_type = get_post_type_object(get_post_type($parent)))
                     $parent_name = (!empty($parent_type->labels->singular_name)) ? $parent_type->labels->singular_name : $parent_type->labels->name;
-                
+
                 $send = '<p><span class="description">' . sprintf('Currently attached to %s "%s"', $parent_name, $parent->post_title) . '</span></p>';
                 $send .= get_submit_button( __('Copy to Image Set', $this->owner->getName()), 'button', "send[$attachment_id]", false);
             }
         }
-        
+
         // 'Delete' or 'Trash' button
         $delete = '';
         if (isset($this->media_item_args['delete']) && $this->media_item_args['delete']) {
@@ -144,13 +146,13 @@ class MediaLibrary
                 );
             }
         }
-        
+
         if ($send || $delete)
-            $form_fields['buttons'] = array('tr' => "\t\t<tr class='submit'><td></td><td class='savesend'>$send $delete</td></tr>\n"); 
-        
+            $form_fields['buttons'] = array('tr' => "\t\t<tr class='submit'><td></td><td class='savesend'>$send $delete</td></tr>\n");
+
         return $form_fields;
     }
-    
+
     /**
      * Filter Media Library Upload Tabs
      *
@@ -162,11 +164,11 @@ class MediaLibrary
     public function onUploadTabs($tabs)
     {
         global $wpdb;
-        
+
         unset($tabs['type_url']);
         unset($tabs['gallery']);
         unset($tabs['nextgen']);
-        
+
         // Insert the 'Download from URL' uploader
         if (current_user_can('upload_files')) {
             $bgm_url_title = __('Download from URL', $this->owner->getName());
@@ -177,7 +179,7 @@ class MediaLibrary
                 foreach ($tabs as $tab_idx => $tab) {
                     if ($c == 1)
                         $_tabs['bgm_url'] = $bgm_url_title;
-                    
+
                     $_tabs[$tab_idx] = $tab;
                     $c++;
                 }
@@ -186,7 +188,7 @@ class MediaLibrary
                 $tabs['bgm_url'] = $bgm_url_title;
             }
         }
-        
+
         // Grab a count of available mime types
         list($post_mime_types, $avail_post_mime_types) = wp_edit_attachments_query();
         $num_posts  = array();
@@ -199,14 +201,14 @@ class MediaLibrary
                 else
                     $num_posts[$_type] = $_num_posts[$real];
         }
-        
+
         // If we don't have anything in 'images' (or any other type a 3rd party allows us to use), hide `Library` tab too.
         if (empty($num_posts))
             unset($tabs['library']);
-        
+
         return $tabs;
     }
-    
+
     /**
      * Filters the allowed mime types for the Image Set to images only
      *
@@ -217,14 +219,14 @@ class MediaLibrary
     {
         unset($mime_types['video']);
         unset($mime_types['audio']);
-        
+
         return $mime_types;
     }
-    
+
     /**
      * Filters the 'All Types' from the type links
      *
-     * This also sneaks in a hidden field, that ensures our filter is 
+     * This also sneaks in a hidden field, that ensures our filter is
      * retained on a Search or Filter request.
      *
      * @param array $type_links The type types as specified by WordPress
@@ -233,14 +235,14 @@ class MediaLibrary
     public function onMediaTypeLinks($type_links)
     {
         array_shift($type_links);
-        
+
         // Sneak in a hidden field
         if (count($type_links) > 0)
             $type_links[0] .= sprintf('<input type="hidden" name="filter" value="%s" />', static::FILTER);
-        
+
         return $type_links;
-    }    
-    
+    }
+
     /**
      * Filter that ensures we keep the right Attachment Fields, by adding the filter query arg
      *
@@ -269,7 +271,7 @@ class MediaLibrary
 
         return $args;
     }
-    
+
     /**
      * What to send to the Gallery Editor if a image needs to be attached
      *
@@ -281,11 +283,11 @@ class MediaLibrary
         $result     = $send_id; // Default response
         $attachment = get_post($send_id, ARRAY_A); // Original attachment
         $gallery_id = (isset($_REQUEST['post_id'])) ? $_REQUEST['post_id'] : 0;
-        
+
         // Check if the image is already attached to something other than the current gallery
         if (($gallery_id && $attachment['post_parent']) && $attachment['post_parent'] != $gallery_id) {
             $orig_image = get_attached_file($attachment['ID']);
-            
+
             // Obtain original image details
             $alttext = get_post_meta($attachment['ID'], '_wp_attachment_image_alt', true);  // ALT
             $link    = get_post_meta($attachment['ID'], static::META_LINK, true);           // Background URL
@@ -294,20 +296,20 @@ class MediaLibrary
                 'post_parent'   => $gallery_id,
                 'ancestors'     => array(),
                 'guid'          => '',
-            ));    
-            
+            ));
+
             // Import the image
             if ($id = Images::importImage($orig_image, $gallery_id, '', '', $alttext, $details)) {
                 $result = $id;
-                
+
                 // Re-addd the Background URL
                 update_post_meta($id, static::META_LINK, $link);
             }
         }
-        
+
         return $result;
     }
-    
+
     /**
      * Saves the 'link' form field
      *
@@ -320,17 +322,17 @@ class MediaLibrary
     {
         if (isset($attachments['link'])) {
             $attachment_id = $post['ID'];
-            
+
             $link     = get_post_meta($attachment_id, static::META_LINK, true);
             $new_link = wp_strip_all_tags(stripslashes($attachments['link']));
-            
+
             if ($link != $new_link)
                 update_post_meta($attachment_id, static::META_LINK, $new_link);
         }
-        
+
         return $post;
     }
-    
+
     /**
      * Outputs some extra styles
      *
@@ -341,7 +343,7 @@ class MediaLibrary
         // Makrs errors a more noticable
         echo '<style type="text/css" media="screen">.describe td.error{background-color:#FFEBE8;border:1px solid #C00;padding:2px 8px !important;}</style>';
     }
-    
+
     /**
      * Handles the 'Download From URL' tab
      *
@@ -357,28 +359,28 @@ class MediaLibrary
     {
         $errors        = false;
         $attachment_id = isset($_POST['attachment_id']) ? $_POST['attachment_id'] : 0;
-        
+
         // Save any changes made, then close the TB Frame if successful
         if (isset($_POST['insert'])) {
             $errors = media_upload_form_handler();
-            
+
             if (!$errors) {
                 echo '<html><head><script type="text/javascript">/* <![CDATA[ */ var win=window.dialogArguments||opener||parent||top; win.tb_remove(); /* ]]> */</script></head><body></body></html>';
                 die();
             }
         }
-        
+
         // Attempt to download and save the image
         if (isset($_POST['submit']) && current_user_can('upload_files')) {
             check_admin_referer('media-form'); // die() if invalid NONCE
-            
+
             $gallery_id = (int)$_POST['post_id'];
             $image_url  = trim($_POST['url']);
-            
+
             if (!empty($image_url)) {
                 $title       = '';
                 $description = '';
-                
+
                 // Check if it's a Flickr URL
                 if (preg_match('#^http[s]?://farm\d{1,3}\.(?:staticflickr|static\.flickr).com\/\d+\/(\d+)_.+\.(?:jpg|png|gif)$#i', $image_url, $matches)) {
                     $flickr_photo_id = $matches[1];
@@ -399,32 +401,32 @@ class MediaLibrary
                     }
                     unset($flickr);
                 }
-                
+
                 $attachment_id = Images::importImage($image_url, $gallery_id, $title, $description);
-                
+
                 if (!$attachment_id)
                     $errors = __('Unable to import image at specified URL', $this->owner->getName());
-            }            
+            }
         }
 
         // Display the form
         wp_enqueue_style('media'); // Either this, or give callback function a funky 'media_' prefix >_<
         return wp_iframe(array($this, 'onBgmUrlForm'), $errors, $attachment_id);
     }
-    
+
     /**
      * Displays the 'Download from URL' tab (form)
      *
      * @since 1.0.8
      * @param mixed $errors If not `false`, it contains one or more error messages to display to the user
      * @param int $attachment_id The ID of the attached image on successful retrieval from external source, or 0
-     */    
+     */
     public function onBgmUrlForm($errors, $attachment_id = 0)
     {
         media_upload_header();
-        
+
         $post_id = (isset($_REQUEST['post_id'])) ? (int)$_REQUEST['post_id'] : 0;
-        
+
         $vars = array(
             'nonce'         => wp_nonce_field('media-form', '_wpnonce', false, false), // Same as used by media_upload_form_handler()
             'get_btn'       => get_submit_button(__('Download', $this->owner->getName()), 'button', 'submit', false, array('style'=>'display:inline-block')),
@@ -434,7 +436,7 @@ class MediaLibrary
             'attachment_id' => $attachment_id,
             'attachment'    => ($attachment_id) ? get_media_item($attachment_id, array('toggle' => false, 'show_title' => false, 'send' => false, 'errors' => (is_array($errors) && isset($errors[$attachment_id])) ? $errors[$attachment_id] : null)) : '',
         );
-        
+
         $this->owner->template->display('media_library_bgm_url.html.twig', $vars);
     }
 }
