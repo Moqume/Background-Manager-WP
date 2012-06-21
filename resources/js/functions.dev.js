@@ -96,9 +96,7 @@ if (typeof myatu_bgm === "undefined") {
          * @param string speed The speed at which to show or hide an element
          */
         showHide: function(what, show, speed) {
-            if (typeof speed === "undefined") {
-                speed = 'slow';
-            }
+            speed = speed || 'slow';
 
             if (show) {
                 $(what).show(speed);
@@ -109,6 +107,42 @@ if (typeof myatu_bgm === "undefined") {
                     $(what).hide(speed);
                 }
             }
+        },
+
+        /**
+         * Used for version test cases - by kflorence, scentos and myatu
+         *
+         * @param string left A string containing the version that will become the left hand operand.
+         * @param string oper The comparison operator to test against. By default, the "==" operator will be used.
+         * @param string right A string containing the version that will become the right hand operand. By default, the current jQuery version will be used.
+         * @return boolean Returns the evaluation of the expression, either
+         */
+        isVersion: function(left, oper, right) {
+            // Default values
+            oper  = oper || "==";
+            right = right || $().jquery;
+
+            var pre       = /pre/i
+                , replace = /[^\d]+/g
+                , l       = left.replace(replace, '')
+                , r       = right.replace(replace, '')
+                , l_len   = l.length
+                , r_len   = r.length
+                , l_pre   = pre.test(left)
+                , r_pre   = pre.test(right);
+
+            l = (r_len > l_len ? Number(l) * Math.pow(10, (r_len - l_len)) : Number(l));
+            r = (l_len > r_len ? Number(r) * Math.pow(10, (l_len - r_len)) : Number(r));
+
+            switch(oper) {
+                case "==" : return (true === (l === r && (l_pre === r_pre)));
+                case ">=" : return (true === (l >= r && (!l_pre || l_pre === r_pre)));
+                case "<=" : return (true === (l <= r && (!r_pre || r_pre === l_pre)));
+                case ">"  : return (true === (l > r || (l === r && r_pre)));
+                case "<"  : return (true === (l < r || (l === r && l_pre)));
+            }
+
+            return false;
         }
     });
 }(jQuery));
