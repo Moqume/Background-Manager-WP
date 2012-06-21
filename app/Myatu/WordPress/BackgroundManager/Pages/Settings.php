@@ -78,6 +78,7 @@ class Settings
             'bg_click_new_window'           => 'bool',
             'bg_track_clicks'               => 'bool',
             'bg_track_clicks_category'      => 'string',
+            'image_remember_last'           => 'bool',
         );
 
         if ($want_values) {

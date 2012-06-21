@@ -90,7 +90,9 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.1.2 =
+= 1.1.4 =
+* __Added__: Option to remember last displayed image for subsequent page views
+* Fixed: Background links were not opened in a new window, as defined by the user
 * Fixed: Non-fatal error when adding image to Image Set, related to a missing URL field
 
 = 1.1.1 (June 14, 2012) =

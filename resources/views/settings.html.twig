@@ -43,6 +43,7 @@
                         </select>
                     </td>
                 </tr>
+
                 <tr valign="top">
                     <th scope="row">
                         {{ __('Image selection order') }}
@@ -83,8 +84,8 @@
                             <label>
                                 <input class="change_freq" type="radio" value="session" name="change_freq" {% if change_freq == 'session' %}checked="checked"{% endif %} />
                                 <span>{{ __('At each browser session') }}</span>
-                                <span class="description">({{ __('Stores a cookie on the visitor\'s computer for the duration of the browser session') }})</span>
                             </label>
+                            <span class="description">({{ __('Stores a cookie on the visitor\'s computer for the duration of the browser session') }})</span>
                             <br />
                             <label>
                                 <input class="change_freq" type="radio" value="load" name="change_freq" {% if change_freq == 'load' %}checked="checked"{% endif %} />
@@ -101,6 +102,25 @@
                         </fieldset>
                     </td>
                 </tr>
+
+                <tr valign="top" class="change_freq_lc">
+                    <th scope="row">
+                        {{ __('Remember last displayed image') }}
+                    </th>
+                    <td>
+                        <fieldset id="image_remember_last_sel">
+                            <legend class="screen-reader-text">
+                                <span>{{ __('Remember last displayed image') }}</span>
+                            </legend>
+                            <label>
+                                <input type="checkbox" id="image_remember_last" name="image_remember_last" {% if image_remember_last %}checked="checked"{% endif %} />
+                                <span>{{ __('Enabled') }}</span>
+                            </label>
+                            <span class="description">({{ __('Displays the last displayed image on the next page, provided that page is using the same Image Set. Stores a cookie.') }})</span>
+                        </fieldset>
+                    </td>
+                </tr>
+
                 <tr valign="top">
                     <th scope="row">
                         <label for="background_color">{{ __('Background Color') }}</label>
@@ -478,8 +498,8 @@
                         <label>
                             <input type="checkbox" value="1" id="initial_ease_in" name="initial_ease_in" {% if initial_ease_in %}checked="checked"{% endif %} />
                             <span>{{ __('Enabled') }}</span>
-                            <span class="description">({{ __('Eases in the initial image after it has finished downloading') }})</span>
                         </label>
+                        <span class="description">({{ __('Eases in the initial image after it has finished downloading') }})</span>
                     </td>
                 </tr>
 
