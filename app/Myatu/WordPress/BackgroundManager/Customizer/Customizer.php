@@ -25,31 +25,32 @@ class Customizer
     const PG_BGM      = 'background';
 
     /** Preview Options */
-    const P_GALLERY      = 'active_gallery';
-    const P_SELECTOR     = 'image_selection';
-    const P_OPACITY      = 'background_opacity';
-    const P_CHANGE_FREQ  = 'change_freq';
-    const P_CHANGE_FCST  = 'change_freq_custom';
-    const P_OVERLAY      = 'active_overlay';
-    const P_OVERLAY_O    = 'overlay_opacity';
-    const P_COLOR        = 'background_color';
-    const P_BG_SIZE      = 'background_size';
-    const P_BG_POS       = 'background_position';
-    const P_BG_TILE      = 'background_repeat';
-    const P_BG_SCROLL    = 'background_scroll';
-    const P_BG_ST_VER    = 'background_stretch_vertical';
-    const P_BG_ST_HOR    = 'background_stretch_horizontal';
-    const P_TRANSITION   = 'background_transition';
-    const P_TRANS_SPD    = 'transition_speed';
-    const P_INFO_TAB     = 'info_tab';
-    const P_INFO_TAB_T   = 'info_tab_thumb';
-    const P_INFO_TAB_D   = 'info_tab_desc';
-    const P_INFO_TAB_LN  = 'info_tab_link';
-    const P_INFO_TAB_L   = 'info_tab_location';
-    const P_PIN_IT_BTN   = 'pin_it_btn';
-    const P_PIN_IT_BTN_L = 'pin_it_btn_location';
-    const P_FS_CENTER    = 'full_screen_center';
-    const P_INIT_EASE_IN = 'initial_ease_in';
+    const P_GALLERY       = 'active_gallery';
+    const P_SELECTOR      = 'image_selection';
+    const P_OPACITY       = 'background_opacity';
+    const P_CHANGE_FREQ   = 'change_freq';
+    const P_CHANGE_FCST   = 'change_freq_custom';
+    const P_OVERLAY       = 'active_overlay';
+    const P_OVERLAY_O     = 'overlay_opacity';
+    const P_COLOR         = 'background_color';
+    const P_BG_SIZE       = 'background_size';
+    const P_BG_POS        = 'background_position';
+    const P_BG_TILE       = 'background_repeat';
+    const P_BG_SCROLL     = 'background_scroll';
+    const P_BG_ST_VER     = 'background_stretch_vertical';
+    const P_BG_ST_HOR     = 'background_stretch_horizontal';
+    const P_TRANSITION    = 'background_transition';
+    const P_TRANS_SPD     = 'transition_speed';
+    const P_INFO_TAB      = 'info_tab';
+    const P_INFO_TAB_T    = 'info_tab_thumb';
+    const P_INFO_TAB_D    = 'info_tab_desc';
+    const P_INFO_TAB_LN   = 'info_tab_link';
+    const P_INFO_TAB_L    = 'info_tab_location';
+    const P_PIN_IT_BTN    = 'pin_it_btn';
+    const P_PIN_IT_BTN_L  = 'pin_it_btn_location';
+    const P_FS_CENTER     = 'full_screen_center';
+    const P_INIT_EASE_IN  = 'initial_ease_in';
+    const P_REMEMBER_LAST = 'image_remember_last';
 
     /** Magic method prefixes, see @__call */
     const M_PREVIEW = 'OnPreview_';
@@ -74,7 +75,8 @@ class Customizer
             static::P_SELECTOR      => array('label' => __('Image selection order', $this->owner->getName()),   'priority' => 11),
             static::P_CHANGE_FREQ   => array('label' => __('Select an image', $this->owner->getName()),         'priority' => 12),
             static::P_CHANGE_FCST   => array('label' => __('Interval (seconds)', $this->owner->getName()),      'priority' => 13, 'sanitize' => 'onSanitizeCustomFreq'),
-            static::P_COLOR         => array('label' => __('Background Color', $this->owner->getName()),        'priority' => 14, 'sanitize' => 'onSanitizeColor', 'option' => array($this, 'onSaveColor')),
+            static::P_REMEMBER_LAST => array('label' => __('Remember last displayed image', $this->owner->getName()), 'priority' => 14),
+            static::P_COLOR         => array('label' => __('Background Color', $this->owner->getName()),        'priority' => 15, 'sanitize' => 'onSanitizeColor', 'option' => array($this, 'onSaveColor')),
             static::P_BG_SIZE       => array('label' => __('Size', $this->owner->getName()),                    'priority' => 20),
             static::P_BG_POS        => array('label' => __('Position', $this->owner->getName()),                'priority' => 21),
             static::P_BG_TILE       => array('label' => __('Tiling', $this->owner->getName()),                  'priority' => 21),
@@ -426,12 +428,13 @@ class Customizer
                     $this->addSettingControl($id, $details, 'radio', $choices);
                     break;
 
-                case static::P_BG_ST_VER   :
-                case static::P_BG_ST_HOR   :
-                case static::P_INFO_TAB_T  :
-                case static::P_INFO_TAB_D  :
-                case static::P_INFO_TAB_LN :
-                case static::P_FS_CENTER   :
+                case static::P_BG_ST_VER     :
+                case static::P_BG_ST_HOR     :
+                case static::P_INFO_TAB_T    :
+                case static::P_INFO_TAB_D    :
+                case static::P_INFO_TAB_LN   :
+                case static::P_FS_CENTER     :
+                case static::P_REMEMBER_LAST :
                     $this->addSettingControl($id, $details, 'checkbox');
                     break;
 

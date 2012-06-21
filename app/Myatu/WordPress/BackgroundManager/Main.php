@@ -136,6 +136,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'full_screen_center',
         'full_screen_adjust',
         'initial_ease_in',
+        'image_remember_last',
     );
 
     /* Enable public-side Ajax - @see onAjaxRequest() */
@@ -372,9 +373,11 @@ class Main extends \Pf4wp\WordpressPlugin
         $image_url       = false;
         $results         = array();
         $change_freq     = $this->getFilteredOptions('change_freq');
+        $remember_last   = $this->getFilteredOptions('image_remember_last');
         $image_selection = ($active_image_selection === false) ? $this->getFilteredOptions('image_selection') : $active_image_selection;
         $gallery_id      = ($active_gallery_id === false) ? $this->getFilteredOptions('active_gallery') : $active_gallery_id;
         $cache_id        = 'get_image_' . md5($image_selection . $gallery_id . $change_freq);
+        $cookie_id       = static::BASE_PUB_PREFIX . 'bg_id_' . $gallery_id; // Cookie ID for stored background image ID
 
         // Default results
         $defaults = array(
@@ -393,32 +396,44 @@ class Main extends \Pf4wp\WordpressPlugin
             return $this->np_cache[$cache_id];
 
         if ($this->getGallery($gallery_id) != false) {
-            $prev_id  = $this->images->URLtoID($previous_image);
-            $image_id = $this->images->getImageId($gallery_id, $image_selection, $prev_id);
+            $prev_id = $this->images->URLtoID($previous_image);
 
-            if ($change_freq == static::CF_SESSION) {
-                $cookie_id = static::BASE_PUB_PREFIX . 'bg_id_' . $gallery_id; // Cookie ID for stored background image ID
-
-                // Grab the cookie if it exists, otherwise use the $image_id we've set earlier
+            // Use the last shown image if we're not trying to grab the next image
+            if ($change_freq == static::CF_CUSTOM && $remember_last && empty($previous_image)) {
                 $image_id  = Cookies::get($cookie_id, $image_id);
                 $image_url = wp_get_attachment_image_src($image_id, $size);
 
-                if ($image_url) {
-                    // We only need the URL
-                    $image_url = $image_url[0];
-
-                    // Save random image in cookie
-                    Cookies::set($cookie_id, $image_id, 0, false);
-                } else {
-                    // Invalidate cookie
-                    Cookies::delete($cookie_id);
-                }
-            } else {
-                $image_url = wp_get_attachment_image_src($image_id, $size);
-
-                // Just the URL, please
+                // We only need the URL if we have a valid image
                 if ($image_url)
                     $image_url = $image_url[0];
+            }
+
+            // If there's no last shown image...
+            if (!$image_url) {
+                $image_id = $this->images->getImageId($gallery_id, $image_selection, $prev_id);
+
+                if ($change_freq == static::CF_SESSION) {
+                    // Grab the cookie if it exists, otherwise use the $image_id we've set earlier
+                    $image_id  = Cookies::get($cookie_id, $image_id);
+                    $image_url = wp_get_attachment_image_src($image_id, $size);
+
+                    if ($image_url) {
+                        // We only need the URL
+                        $image_url = $image_url[0];
+
+                        // Save random image in cookie
+                        Cookies::set($cookie_id, $image_id, 0, false);
+                    } else {
+                        // Invalidate cookie
+                        Cookies::delete($cookie_id);
+                    }
+                } else {
+                    $image_url = wp_get_attachment_image_src($image_id, $size);
+
+                    // Just the URL, please
+                    if ($image_url)
+                        $image_url = $image_url[0];
+                }
             }
         }
 
@@ -451,6 +466,10 @@ class Main extends \Pf4wp\WordpressPlugin
                 if (empty($results['caption']))
                     $results['caption'] = $image->post_title;
             }
+
+            // Store the last shown image, if need be
+            if ($change_freq == static::CF_CUSTOM && $remember_last)
+                Cookies::set($cookie_id, $image_id, 0);
         }
 
         // Store into cache
