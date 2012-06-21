@@ -11,6 +11,7 @@ Options:
     -o ARG      Output directory
     -q          Quiet output
     -s          Sync with output directory
+    -c          Use current branch (do not switch to master)
 EOF
 }
 
@@ -19,9 +20,10 @@ OUTDIR=""
 DOQUIET=""
 TMPDIR="/tmp/myatu_export/"
 SYNC=0
+CURRENT_BRANCH=0
 
 ## CLI PARAMS
-while getopts ":ho:qs" option
+while getopts ":ho:qsc" option
 do
     case ${option} in
     h)  showHelp
@@ -35,6 +37,9 @@ do
         ;;
     s)  # Sync to output
         SYNC=1
+        ;;
+    c)  # Current branch (do not switch to master)
+        CURRENT_BRANCH=1
         ;;
     *)	;;
     esac
@@ -76,7 +81,10 @@ fi
 
 # Start export
 echo "Exporting GIT..."
-git checkout master ${DOQUIET}
+if [ ${CURRENT_BRANCH} == 0 ]
+then
+    git checkout master ${DOQUIET}
+fi
 git checkout-index -a -f --prefix=${WORKDIR}/ ${DOQUIET}
 
 # If there are submodules, check them out too
