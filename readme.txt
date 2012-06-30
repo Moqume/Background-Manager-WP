@@ -4,7 +4,7 @@ Donate link: http://pledgie.com/campaigns/16906
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.4.1
-Stable tag: 1.1.6
+Stable tag: 1.1.6.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -89,6 +89,9 @@ with PHP versions older than 5.3.
 3. Editing an Image Set within Background Manager
 
 == Changelog ==
+
+= 1.1.6.1 (June 30, 2012) =
+* Fixed: For some themes, the background image group would override screen elements (menus, links) due to missing z-index
 
 = 1.1.6 (June 30, 2012) =
 * __Added__: Option to remember last displayed image for subsequent page views
@@ -197,6 +200,9 @@ web pages not to finish rendering.
 * Public BETA release of the plugin
 
 == Upgrade Notice ==
+
+= 1.1.6.1 =
+An upgrade to this version is only required if certain screen elements, such as links or menus, are "missing"
 
 = 1.1 =
 Version 1.1 introduces many new features and changes. Before upgrading, it is highly recommended to visit the official website and read about the changes and how they may impact your website.
