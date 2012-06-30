@@ -90,10 +90,12 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.1.4 =
+= 1.1.6 =
 * __Added__: Option to remember last displayed image for subsequent page views
 * Fixed: Background links were not opened in a new window, as defined by the user
 * Fixed: Non-fatal error when adding image to Image Set, related to a missing URL field
+* Fixed: Pinterest button updated caused the browser history to be filled
+* Fixed: Image group had incorrect positioning, which caused the background image from appearing
 
 = 1.1.1 (June 14, 2012) =
 * Fixed: A bug managed its way past testing, causing background overrides to stop working.

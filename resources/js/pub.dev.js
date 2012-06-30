@@ -10,6 +10,33 @@ if (typeof myatu_bgm === "undefined") {
     var myatu_bgm = {};
 }
 
+/** Adds naturalWidth and naturalHeight support to images in jQuery. Props to Jack Moore <jack@colorpowered.com> */
+(function($){
+    var props = ['Width', 'Height']
+    ,prop;
+
+    while (prop = props.pop()) {
+        (function (natural, prop) {
+            $.fn[natural] = (natural in new Image()) ? function () {
+                return this[0][natural];
+            } : function () {
+                var node = this[0]
+                    , img
+                    , value;
+
+                if (node.tagName.toLowerCase() === 'img') {
+                    img     = new Image();
+                    img.src = node.src,
+                    value   = img[prop];
+                }
+
+                return value;
+            };
+        }('natural' + prop, prop.toLowerCase()));
+    }
+}(jQuery));
+
+/** Background Manager */
 (function($){
     $.extend(myatu_bgm, {
         // Previous background data
@@ -195,27 +222,21 @@ if (typeof myatu_bgm === "undefined") {
          * @return bool Returns true if the image was adjusted, false otherwise
          */
         adjustImageSize : function(img) {
-            var centered     = (myatu_bgm.fs_center === 'true')
-                , css        = {'left' : 0,'top' : 0}
-                , win_height = $(window).height()
-                , win_width  = $(window).width()
-                , bg_width   = win_width
-                , bg_height, ratio, bg_offset, img_n, img_natural_width, img_natural_height;
+            var centered             = (myatu_bgm.fs_center === 'true')
+                , css                = {'left' : 0,'top' : 0}
+                , img_natural_width  = $(img).naturalWidth()
+                , img_natural_height = $(img).naturalHeight()
+                , ratio              = img_natural_width / img_natural_height
+                , win_height         = $(window).height()
+                , win_width          = $(window).width()
+                , bg_width           = win_width
+                , bg_height          = bg_width / ratio
+                , bg_offset;
+
 
             if (myatu_bgm.is_fullsize !== 'true') {
                 return false; // This can only be done on full-size images
             }
-
-            // Obtain the natural width and height of the image (already loaded, so no need to wait)
-            img_n = new Image();
-            img_n.src = $(img).attr('src');
-            img_natural_width  = img_n.width;
-            img_natural_height = img_n.height;
-            img_n = null;
-
-            // Set the ratio and initial heigth
-            ratio     = img_natural_width / img_natural_height;
-            bg_height = bg_width / ratio;
 
             if (bg_height >= win_height) {
                 bg_offset = (bg_height - win_height) / 2;
@@ -245,10 +266,7 @@ if (typeof myatu_bgm === "undefined") {
         loadImage : function(src, callback) {
             if (myatu_bgm.image_holder === null) {
                 // Create an image element (held as fragment)
-                myatu_bgm.image_holder = $('<img />').css({
-                    'position'   : 'absolute',
-                    'display'    : 'none'
-                });
+                myatu_bgm.image_holder = $('<img />');
             }
 
             // Pre-load the image
@@ -510,13 +528,20 @@ if (typeof myatu_bgm === "undefined") {
 
                 // "Pin it" button
                 if ($('#myatu_bgm_pin_it_btn').length) {
-                    // Replace "Pin it" button's iFrame source
-                    var pin_it_src = $('#myatu_bgm_pin_it_btn iframe').attr('src'), clean_desc = new_image.desc.replace(/(<([^>]+)>)/ig,'');
+                    var pin_it       = $('#myatu_bgm_pin_it_btn iframe')
+                        , new_pin_it = pin_it.clone()
+                        , pin_it_src = pin_it.attr('src')
+                        , clean_desc = new_image.desc.replace(/(<([^>]+)>)/ig,'');
 
+                    // Set the new button source
                     pin_it_src = myatu_bgm.urlReplaceQueryArgVal(pin_it_src, 'media', new_image.url);       // Replace image URL
                     pin_it_src = myatu_bgm.urlReplaceQueryArgVal(pin_it_src, 'description', clean_desc);    // Replace description
 
-                    $('#myatu_bgm_pin_it_btn iframe').attr('src', pin_it_src);
+                    new_pin_it.attr('src', pin_it_src);
+
+                    // Replace the old iframe - doing this avoid the browser history from being filled
+                    pin_it.remove();
+                    $('#myatu_bgm_pin_it_btn').append(new_pin_it);
                 }
             });
         },
