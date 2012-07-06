@@ -270,7 +270,7 @@ This depends. If you have your very own server, then this is Operating System sp
 
 If you are using a web hosting provider, then you need to contact the provider regarding this. Some can move your website to a different server with a newer version of PHP 5.3, while others make it as simple as adding/changing a line in the `.htaccess` file or a setting in the control panel. For example:
 
-* 1&1 Webhosting: Add `AddType x-mapp-php6 .php` to the `.htaccess` file
+* 1&1 Webhosting: Add `AddHandler x-mapp-php6 .php` to the `.htaccess` file
 * OVH: Add `SetEnv PHP_VER 5_3` or `SetEnv PHP_VER 5_TEST` to the `.htaccess` file
 * GoDaddy Linux Shared Hosting: Add `AddHandler x-httpd-php5-3 .php` to the `.htaccess` file
 * GoDaddy 4GH Hosting: Visit GoDaddy's __Hosting Control Center__ -> __Content__ -> __Programming Languages__
