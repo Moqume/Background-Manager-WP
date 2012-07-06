@@ -1236,7 +1236,7 @@ class Main extends \Pf4wp\WordpressPlugin
         if ($background_color) {
             $style .= sprintf('background-color: #%s !important;', $background_color);
         } else {
-            $style .= 'background-color: initial !important;';
+            $style .= 'background-color: transparent !important;';
         }
 
         if ($style || $custom_styles)
