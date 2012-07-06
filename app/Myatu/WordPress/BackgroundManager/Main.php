@@ -1230,11 +1230,14 @@ class Main extends \Pf4wp\WordpressPlugin
                 );
             }
         } else {
-            $style .= sprintf('background-image: none !important;');
+            $style .= 'background-image: none !important;';
         }
 
-        if ($background_color)
+        if ($background_color) {
             $style .= sprintf('background-color: #%s !important;', $background_color);
+        } else {
+            $style .= 'background-color: initial !important;';
+        }
 
         if ($style || $custom_styles)
             printf('<style type="text/css" media="screen">body { %s } %s</style>'.PHP_EOL, $style, $custom_styles);
