@@ -94,11 +94,14 @@
 }
 
 #myatu_bgm_bg_link {
+    z-index: -1995;
+}
+
+#myatu_bgm_overlay {
     z-index: -1996;
 }
 
-#myatu_bgm_img_group,
-#myatu_bgm_overlay {
+#myatu_bgm_img_group {
     z-index: -1997;
 }
 
