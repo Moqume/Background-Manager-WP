@@ -1228,6 +1228,12 @@ class Main extends \Pf4wp\WordpressPlugin
                     ($background_stretch_horizontal) ? '100%' : 'auto',
                     ($background_stretch_vertical) ? '100%' : 'auto'
                 );
+
+                // MSIE < 9, only if both vertical and horizontal stretching is enabled, and we have a valid bg img
+                if ($background_stretch_horizontal === $background_stretch_vertical && $random_image['url']) {
+                    $ms_filter = sprintf('progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'%s\',sizingMethod=\'scale\')', $random_image['url']);
+                    $style .= sprintf('filter: %s;-ms-filter: "%1$s";', $ms_filter);
+                }
             }
         } else {
             $style .= 'background-image: none !important;';

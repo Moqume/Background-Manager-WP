@@ -35,7 +35,9 @@ if (typeof myatu_bgm === "undefined") {
             var elems = this.filter('img');
 
             elems.each(function() {
-                if (this.complete === undefined || this.complete || this.readyState === 4) {
+                if ((typeof this.complete !== "undefined" && this.complete) ||
+                     (typeof this.readyState !== "undefined" && this.readyState === 4) ||
+                     $(this).width() > 0) {
                     // Cached
                     callback.call(this);
                 } else {

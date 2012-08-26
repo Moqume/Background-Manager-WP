@@ -90,6 +90,12 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
+= 1.1.10 =
+* Fixed: Overlay z-index was shared with the background image, causing it not to appear.
+* Fixed: Issue where the background could be overwritten by a sub-class in Normal mode.
+* Changed: Modified handler for browser-cached images, which in FireFox was causing premature transitions.
+* Changed: If both vertical and horizontal stretching is selected in Normal mode, an added CSS filter is added for use for older MSIE browsers (missing 'background-size' support).
+
 = 1.1.6.1 (June 30, 2012) =
 * Fixed: For some themes, the background image group would override screen elements (menus, links) due to missing z-index
 
