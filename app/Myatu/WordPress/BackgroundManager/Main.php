@@ -1204,7 +1204,7 @@ class Main extends \Pf4wp\WordpressPlugin
             $random_image = $this->getImage();
 
             if ($random_image['url'])
-                $style .= sprintf('background-image: url(\'%s\');', $random_image['url']);
+                $style .= sprintf('background-image: url(\'%s\') !important;', $random_image['url']);
 
             // Grab the background position
             if (!$background_position) {

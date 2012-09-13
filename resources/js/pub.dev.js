@@ -510,8 +510,8 @@ if (typeof myatu_bgm === "undefined") {
                         }
                     });
                 } else {
-                    // Simply replace the body background
-                    $('body').css('background-image', 'url("' + new_image.url + '")');
+                    // Simply replace the body background - note the use of attr, due to priority flag
+                    $('body').attr('style', 'background-image: url("' + new_image.url + '") !important');
                     myatu_bgm.setTimer();
                 }
 
