@@ -25,26 +25,21 @@ if (typeof myatu_bgm === "undefined") {
         scrollTo : function(obj){ $(this).clearQueue().animate({scrollTop: $(obj).offset().top}, 'fast'); return $(this); },
 
         /**
-         * Based on code by Paul Irish (MIT License)
-         *
          * Same as load(), but supports cached images. Only activated when DOM is ready.
-         *
-         * @link https://github.com/paulirish/jquery.imgloaded
          */
         imgLoaded : function(callback) {
-            var elems = this.filter('img');
+            var elems = this.filter('img'),
+                BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
-            elems.each(function() {
-                if ((typeof this.complete !== "undefined" && this.complete) ||
-                     (typeof this.readyState !== "undefined" && this.readyState === 4) ||
-                     $(this).width() > 0) {
-                    // Cached
-                    callback.call(this);
-                } else {
-                    // Uncached
-                    $(this).one('load', function(e) {
-                        callback.call(this);
-                    });
+            elems.one('load', function(e) {
+                callback.call(this);
+            }).each(function(i, el) {
+                var src = el.src;
+
+                // Force the 'load' event to fire.
+                if (el.readyState || el.complete) {
+                    el.src = BLANK;
+                    el.src = src;
                 }
             });
         }
