@@ -502,7 +502,7 @@ class Main extends \Pf4wp\WordpressPlugin
             if ($qa = strpos($current_url, '?'))
                 $current_url = substr($current_url, 0, $qa);
 
-            $is_at_door  = (trailingslashit(home_url()) == trailingslashit($current_url));
+            $is_at_door  = (trailingslashit(home_url()) == trailingslashit($current_url)) && !is_search();
 
             $this->np_cache['can_display_background']  = (
                 ($this->options->display_on_front_page  && $is_at_door)     ||
