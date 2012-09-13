@@ -227,12 +227,11 @@ if (typeof myatu_bgm === "undefined") {
                 , img_natural_width  = $(img).naturalWidth()
                 , img_natural_height = $(img).naturalHeight()
                 , ratio              = img_natural_width / img_natural_height
-                , win_height         = $(window).height()
-                , win_width          = $(window).width()
+                , win_height         = window.innerHeight || $(window).height()
+                , win_width          = window.innerWidth || $(window).width()
                 , bg_width           = win_width
                 , bg_height          = bg_width / ratio
                 , bg_offset;
-
 
             if (myatu_bgm.is_fullsize !== 'true') {
                 return false; // This can only be done on full-size images
@@ -619,5 +618,7 @@ if (typeof myatu_bgm === "undefined") {
 
         // Initialize the timer
         myatu_bgm.setTimer();
+
+
     });
 }(jQuery));

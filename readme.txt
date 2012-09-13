@@ -90,9 +90,10 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.1.10 =
+= 1.1.11 =
 * Fixed: Overlay z-index was shared with the background image, causing it not to appear.
 * Fixed: Issue where the background could be overwritten by a sub-class in Normal mode.
+* Fixed: jQuery bug 6724 reporting incorrect window height on iOS devices
 * Changed: Modified handler for browser-cached images, which in FireFox was causing premature transitions.
 * Changed: If both vertical and horizontal stretching is selected in Normal mode, an added CSS filter is added for use for older MSIE browsers (missing 'background-size' support).
 
