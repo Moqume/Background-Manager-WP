@@ -3,8 +3,8 @@ Contributors: Myatu
 Donate link: http://pledgie.com/campaigns/16906
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
-Tested up to: 3.4.1
-Stable tag: 1.1.6.1
+Tested up to: 3.4.2
+Stable tag: 1.1.11
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -90,7 +90,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.1.11 =
+= 1.1.11 (September 12, 2012) =
 * Fixed: Overlay z-index was shared with the background image, causing it not to appear.
 * Fixed: Issue where the background could be overwritten by a sub-class in Normal mode.
 * Fixed: jQuery bug 6724 reporting incorrect window height on iOS devices
