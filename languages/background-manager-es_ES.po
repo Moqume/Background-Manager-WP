@@ -1,0 +1,840 @@
+# Copyright (C) 2013 Background Manager
+# This file is distributed under the same license as the background-manager package.
+# Diego Gomez <diegogd@gmail.com>, 2013.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-01-22 23:29+0100\n"
+"PO-Revision-Date: 2013-01-23 00:01+0100\n"
+"Last-Translator: Diego Gomez <diegogd@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:74
+msgid "Image Set"
+msgstr "Conjunto de imágenes"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:75
+msgid "Image selection order"
+msgstr "Orden de selección de imagen"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:76
+msgid "Select an image"
+msgstr "Selecciona una imagen"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:77
+msgid "Interval (seconds)"
+msgstr "Intervalo (segundos)"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:78
+msgid "Remember last displayed image"
+msgstr "Recordar última imagen mostrada"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:79
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:367
+msgid "Background Color"
+msgstr "Color de fondo"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:80
+msgid "Size"
+msgstr "Tamaño"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:81
+msgid "Position"
+msgstr "Posición"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:82
+msgid "Tiling"
+msgstr "Azulejos"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:83
+msgid "Scrolling"
+msgstr "Desplazamiento"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:84
+msgid "Opacity"
+msgstr "Opacidad"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:85
+msgid "Stretch Vertical"
+msgstr "Estire Vertical"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:86
+msgid "Stretch Horizontal"
+msgstr "Estire Horizontal"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:87
+msgid "Center Image"
+msgstr "Centro de la Imagen"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:88
+msgid "Transition Effect"
+msgstr "Efecto de transición"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:89
+msgid "Transition Speed"
+msgstr "Velocidad de transición"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:90
+msgid "Overlay"
+msgstr "Superposición"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:91
+msgid "Overlay Opacity"
+msgstr "Opacidad de superposición"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:92
+msgid "Display [ + ] Icon"
+msgstr "Mostrar [+] Icono"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:93
+msgid "Show thumbnail"
+msgstr "Mostrar miniaturas"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:94
+msgid "Show description"
+msgstr "Mostrar descripción"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:95
+msgid "Enable linking"
+msgstr "Habilitar vinculación"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:96
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:98
+msgid "Location"
+msgstr "Ubicación"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:97
+msgid "Display \"Pin It\" Button"
+msgstr "Mostrar botón \"Pin It\""
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:99
+msgid "Ease in first image"
+msgstr "Fundido en la primera imagen"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:317
+#: Myatu/WordPress/BackgroundManager/Main.php:1046
+#: Myatu/WordPress/BackgroundManager/Main.php:1073
+msgid "Background"
+msgstr "Fondo"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:329
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:396
+#: Myatu/WordPress/BackgroundManager/Meta/Taxonomy.php:85
+#: Myatu/WordPress/BackgroundManager/Meta/Single.php:118
+#: Myatu/WordPress/BackgroundManager/Meta/Single.php:132
+#: Myatu/WordPress/BackgroundManager/Pages/Settings.php:174
+#: Myatu/WordPress/BackgroundManager/Pages/Settings.php:183
+#: Myatu/WordPress/BackgroundManager/Main.php:187
+msgid "-- None (deactivated) --"
+msgstr "-- Ninguno (desactivado) --"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:339
+#: Myatu/WordPress/BackgroundManager/Main.php:188
+msgid "Random"
+msgstr "Aleatorio"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:339
+msgid "Ascending"
+msgstr "Ascendente"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:339
+msgid "Descending"
+msgstr "Descendente"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:346
+msgid "At each browser session"
+msgstr "En cada sesión del explorador"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:347
+msgid "On a page (re)load"
+msgstr "En una página (re)carga"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:348
+msgid "At a specified interval"
+msgstr "En un intervalo especificado"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:376
+msgid "Normal"
+msgstr "Normal"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:377
+msgid "Full Screen"
+msgstr "Pantalla completa"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:381
+msgid "Background Layout"
+msgstr "Imagen de fondo"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:403
+msgid "Background Overlay"
+msgstr "Superposición de fondo"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:424
+msgid "Scroll with the screen"
+msgstr "Desplácese con la pantalla"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:425
+msgid "Fixed"
+msgstr "Fijo"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:443
+msgid "Background Transitioning Effect"
+msgstr "Efecto de transicción en el fondo"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:471
+msgid "Background Information"
+msgstr "Información del historial"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:476
+msgid "Pinterest"
+msgstr "Pinterest"
+
+#: Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:486
+msgid "Miscellaneous"
+msgstr "Varios"
+
+#: Myatu/WordPress/BackgroundManager/Meta/Submit.php:68
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:389
+msgid "Move this Image Set to the Trash"
+msgstr "Mueva este conjunto de imágenes a la Papelera"
+
+#: Myatu/WordPress/BackgroundManager/Meta/Submit.php:69
+msgid "Trash Image Set"
+msgstr "Mandar a la papelera el conjunto de imágenes"
+
+#: Myatu/WordPress/BackgroundManager/Meta/Submit.php:73
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:395
+msgid "Delete this Image Set permanently"
+msgstr "Eliminar este conjunto de imágenes permanentemente"
+
+#: Myatu/WordPress/BackgroundManager/Meta/Submit.php:74
+msgid "Delete Image Set"
+msgstr "Eliminar conjunto de imágenes"
+
+#: Myatu/WordPress/BackgroundManager/Meta/Submit.php:97
+msgid "Save Changes"
+msgstr "Guardar cambios"
+
+#: Myatu/WordPress/BackgroundManager/Meta/Submit.php:97
+msgid "Add Image Set"
+msgstr "Añadir conjunto de imágenes"
+
+#: Myatu/WordPress/BackgroundManager/Meta/Taxonomy.php:90
+#: Myatu/WordPress/BackgroundManager/Meta/Single.php:137
+msgid "Default Overlay"
+msgstr "Superposición por defecto"
+
+#: Myatu/WordPress/BackgroundManager/Meta/Single.php:123
+msgid "Default Image Set"
+msgstr "Conjunto de imágenes predeterminado"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:90
+msgid "Background URL"
+msgstr "URL de imagen de fondo"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:91
+msgid "Optional link URL for the background"
+msgstr "Enlace opcional (URL) para el fondo"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:99
+msgid "Add to Image Set"
+msgstr "Añadir a conjunto de imágenes"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:109
+msgid "Copy to Image Set"
+msgstr "Copiar conjunto de imágenes"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:121
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:246
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:396
+msgid "Delete Permanently"
+msgstr "Eliminar de forma permanente"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:131
+msgid "Delete"
+msgstr "Borrar"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:132
+#, php-format
+msgid "You are about to delete <strong>%s</strong>."
+msgstr "Usted está a punto de borrar <strong>%s</strong>."
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:134
+msgid "Continue"
+msgstr "Continuar"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:135
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:143
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:241
+msgid "Move to Trash"
+msgstr "Mover a la papelera"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:145
+msgid "Undo"
+msgstr "Deshacer"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:174
+msgid "Download from URL"
+msgstr "Descarga de URL"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:394
+#: Myatu/WordPress/BackgroundManager/Importers/Flickr.php:214
+#, php-format
+msgid ""
+"<p>%s</p><p>By: <a href=\"http://www.flickr.com/photos/%s/%s/\">%s</a> (%s)</"
+"p>"
+msgstr "<p>%s</p><p>Por: <a href=\"http://www.flickr.com/photos/%s/%s/\">%s</a> (%s)</p>"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:408
+msgid "Unable to import image at specified URL"
+msgstr "No se puede importar la imagen en la URL especificada"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:432
+msgid "Download"
+msgstr "Descargar"
+
+#: Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:433
+#: Myatu/WordPress/BackgroundManager/Pages/Sub/EditGallery.php:229
+msgid "Save all changes"
+msgstr "Guarde todos los cambios"
+
+#: Myatu/WordPress/BackgroundManager/Pointers/AddNewStep2.php:29
+msgid ""
+"<p>Click on this icon to start adding some images.</p><p>Save using the "
+"<strong>Add Image Set</strong> button. Don't forget to add a title!</p>"
+msgstr "<p>Haga clic en este icono para empezar a añadir algunas imágenes.</p> Guardar usando la <strong>Agregar conjunto de imágenes</strong>. No se olvide de añadir un título </p>"
+
+#: Myatu/WordPress/BackgroundManager/Pointers/AddNewStep2.php:30
+msgid "Add Some Images!"
+msgstr "¡Añadir imágenes!"
+
+#: Myatu/WordPress/BackgroundManager/Pointers/Upgrade1dot1new3.php:29
+msgid ""
+"<p><strong>New in version 1.1!</strong></p><p>Now you can change the "
+"backgrond color when overriding a Category or Tag, too!</p>"
+msgstr "<p>Nuevo en la versión 1.1! </strong> </p> Ahora usted puede cambiar el color backgrond cuando se reemplaza una categoría o etiqueta, también! </p>"
+
+#: Myatu/WordPress/BackgroundManager/Pointers/Upgrade1dot1new3.php:30
+msgid "Add some color"
+msgstr "Añadir un poco de color"
+
+#: Myatu/WordPress/BackgroundManager/Pointers/AddNewStep1.php:29
+msgid ""
+"<p>Start by adding a new <em>Image Set</em><p><p>Once you're done, come back "
+"here and set it as the active <em>Background Image Set</em>.</p>"
+msgstr "<p>Comience añadiendo un nuevo <em>conjunto de imágenes</em><p><p>Una vez que hayas terminado, vuelve aquí y establecerla como <em>conjunto de fondos de imágenes</em>. </p>"
+
+#: Myatu/WordPress/BackgroundManager/Pointers/AddNewStep1.php:30
+msgid "Let's Get Started!"
+msgstr "¡Comencemos!"
+
+#: Myatu/WordPress/BackgroundManager/Pointers/Upgrade1dot1new1.php:29
+msgid ""
+"<p><strong>New in version 1.1!</strong></p><p>Now you can select the order "
+"in which background images are displayed.</p>"
+msgstr "<p>¡Nuevo en la versión 1.1! </strong></p> Ahora puede seleccionar el orden en que se muestran las imágenes de fondo. </p>"
+
+#: Myatu/WordPress/BackgroundManager/Pointers/Upgrade1dot1new1.php:30
+msgid "Random or sequential?"
+msgstr "¿Aleatoria o secuencial?"
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:81
+#: Myatu/WordPress/BackgroundManager/Galleries.php:279
+#: Myatu/WordPress/BackgroundManager/Galleries.php:390
+#: Myatu/WordPress/BackgroundManager/Pages/Sub/EditGallery.php:135
+#: Myatu/WordPress/BackgroundManager/Pages/Settings.php:133
+#: Myatu/WordPress/BackgroundManager/Pages/Import.php:67
+#: Myatu/WordPress/BackgroundManager/Pages/Import.php:100
+msgid "You do not have permission to do that [nonce]."
+msgstr "Usted no tiene permiso para hacer eso [nonce]."
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:286
+msgid "The Trash has been emptied."
+msgstr "La papelera se ha vaciado."
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:288
+msgid "There was a problem emptying the Trash."
+msgstr "Hubo un problema al vaciar la Papelera."
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:317
+#, php-format
+msgid "%s moved to the Trash. <a href=\"%s\">Undo</a>"
+msgstr "%s movido a la Papelera. <a href=\"%s\">Deshacer</a>"
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:328
+msgid "There was a problem moving the Image Set(s) to the Trash."
+msgstr "Hubo un problema al mover el/los conjunto/s de imágenes a la Papelera."
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:348
+#, php-format
+msgid "%s restored from the Trash."
+msgstr "%s restaurado a partir de la Papelera."
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:350
+msgid "There was a problem restoring the Image Set(s) from the Trash."
+msgstr "Hubo un problema al restaurar el conjunto de imágenes de la Papelera."
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:370
+#, php-format
+msgid "%s permanently deleted."
+msgstr "%s borran definitivamente."
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:372
+msgid "There was a problem deleting the Image Set(s)."
+msgstr "Hubo un problema al eliminar el Conjunto de imágenes."
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:396
+msgid "Please specify a name for this Image Set."
+msgstr "Por favor, especifique un nombre para este conjunto de imágenes."
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:403
+msgid "The Image Set could not be saved."
+msgstr "El conjunto de imágenes no se pudo guardar."
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:408
+msgid "added"
+msgstr "añadido"
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:408
+msgid "saved"
+msgstr "guardado."
+
+#: Myatu/WordPress/BackgroundManager/Galleries.php:409
+#, php-format
+msgid "The Image Set was successfully %s."
+msgstr "El conjunto de imágenes fue exitosamente %s."
+
+#: Myatu/WordPress/BackgroundManager/Importers/Importer.php:91
+msgid "Done!"
+msgstr "¡Hecho!"
+
+#: Myatu/WordPress/BackgroundManager/Importers/Flickr.php:92
+msgid "Unable to obtain a Flickr authorization URL. Please try again later."
+msgstr "No se puede obtener una autorización URL Flickr. Por favor, inténtelo de nuevo más tarde."
+
+#: Myatu/WordPress/BackgroundManager/Importers/Flickr.php:142
+#, php-format
+msgid "\"%s\" is not a valid Flickr user."
+msgstr ""\%s\" no es un usuario válido de Flickr."
+
+#: Myatu/WordPress/BackgroundManager/Importers/Flickr.php:179
+#: Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:98
+#: Myatu/WordPress/BackgroundManager/Importers/GrandFlaGallery.php:98
+#: Myatu/WordPress/BackgroundManager/Importers/WpFlickrBackground.php:69
+#, php-format
+msgid "%s (Imported)"
+msgstr "%s (importado)"
+
+#: Myatu/WordPress/BackgroundManager/Importers/Flickr.php:183
+#: Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:102
+#: Myatu/WordPress/BackgroundManager/Importers/GrandFlaGallery.php:102
+#: Myatu/WordPress/BackgroundManager/Importers/WpFlickrBackground.php:73
+#: Myatu/WordPress/BackgroundManager/Importers/Local.php:120
+#, php-format
+msgid "Unable to create Image Set <strong>%s</strong>"
+msgstr "No se puede crear conjuntos de imágenes <strong> %s </strong>"
+
+#: Myatu/WordPress/BackgroundManager/Importers/Flickr.php:187
+msgid "Invalid or inaccessible Flickr Photo Set selected"
+msgstr "Conjunto de Flickr seleccionado inválido o inaccesible"
+
+#: Myatu/WordPress/BackgroundManager/Importers/Flickr.php:257
+#, php-format
+msgid "%d photos could not be added."
+msgstr "%d fotos no se podrían añadir."
+
+#: Myatu/WordPress/BackgroundManager/Importers/Flickr.php:259
+msgid "Completed import from Flickr"
+msgstr "Finalizada la importación de Flickr"
+
+#: Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:93
+msgid "There was a problem obtaining NextGEN Gallery database details"
+msgstr "Hubo un problema al obtener información de bases de datos NextGen Gallery"
+
+#: Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:120
+#: Myatu/WordPress/BackgroundManager/Importers/GrandFlaGallery.php:120
+#: Myatu/WordPress/BackgroundManager/Importers/WpFlickrBackground.php:87
+#: Myatu/WordPress/BackgroundManager/Importers/WpFlickrBackground.php:100
+#, php-format
+msgid "Unable to import image <em>%s</em> into Image Set <strong>%s</strong>"
+msgstr "No se puede importar la imagen <em> %s </em> en el conjunto de imágenes <strong> %s </strong>"
+
+#: Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:127
+msgid "Completed import from NextGEN Gallery"
+msgstr "Finalizada la importación de NextGen Gallery"
+
+#: Myatu/WordPress/BackgroundManager/Importers/GrandFlaGallery.php:93
+msgid "There was a problem obtaining GRAND FlAGallery database details"
+msgstr "Hubo un problema al obtener información de bases de datos GRAND FlAGallery"
+
+#: Myatu/WordPress/BackgroundManager/Importers/GrandFlaGallery.php:127
+msgid "Completed import from GRAND FlAGallery"
+msgstr "Finalizada la importación de GRAND FlAGallery"
+
+#: Myatu/WordPress/BackgroundManager/Importers/WpFlickrBackground.php:109
+msgid "Completed import from WP Flickr Background"
+msgstr "Finalizada la importación de WP Flickr Antecedentes"
+
+#: Myatu/WordPress/BackgroundManager/Importers/Local.php:114
+#, php-format
+msgid "Imported directory \"%s\""
+msgstr "Importado directorio \"%s\" "
+
+#: Myatu/WordPress/BackgroundManager/Importers/Local.php:116
+msgid " and sub-directories"
+msgstr " y sub-directorios"
+
+#: Myatu/WordPress/BackgroundManager/Importers/Local.php:136
+msgid "Completed import from Local Directory"
+msgstr "Finalizada la importación de directorio local"
+
+#: Myatu/WordPress/BackgroundManager/Importers/Local.php:155
+#, php-format
+msgid "Unable to import <em>%s</em> into Image Set"
+msgstr "No se puede importar <em> %s </em> en el conjunto de imágenes"
+
+#: Myatu/WordPress/BackgroundManager/Pages/Sub/EditGallery.php:67
+msgid "Add an Image"
+msgstr "Publicar una imagen"
+
+#: Myatu/WordPress/BackgroundManager/Pages/Sub/EditGallery.php:173
+#: Myatu/WordPress/BackgroundManager/Main.php:905
+msgid "&laquo;"
+msgstr "&laquo;"
+
+#: Myatu/WordPress/BackgroundManager/Pages/Sub/EditGallery.php:174
+#: Myatu/WordPress/BackgroundManager/Main.php:906
+msgid "&raquo;"
+msgstr "&raquo;"
+
+#: Myatu/WordPress/BackgroundManager/Pages/Galleries.php:109
+msgid "You are about to permanently delete the selected images. Are you sure?"
+msgstr "Estás a punto de eliminar permanentemente las imágenes seleccionadas. ¿Estás seguro?"
+
+#: Myatu/WordPress/BackgroundManager/Pages/Galleries.php:110
+msgid "You are about to permanently delete this image. Are you sure?"
+msgstr "Estás a punto de eliminar permanentemente esta imagen. ¿Estás seguro?"
+
+#: Myatu/WordPress/BackgroundManager/Pages/Galleries.php:129
+msgid "images per page"
+msgstr "imágenes por página"
+
+#: Myatu/WordPress/BackgroundManager/Pages/Settings.php:159
+msgid "Settings have been saved"
+msgstr "La configuración se ha guardado"
+
+#: Myatu/WordPress/BackgroundManager/Pages/Import.php:131
+msgid "Continue Import"
+msgstr "Continuar Importación"
+
+#: Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:222
+msgid ""
+"There was a problem contacting Flickr or the request was not authorized. "
+"Please try again."
+msgstr "Hubo un problema al contactar con Flickr o la solicitud no fue autorizada. Por favor, inténtelo de nuevo."
+
+#: Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:225
+msgid "Malformed results received from Flickr. Please try again."
+msgstr "Resultados malformados recibido de Flickr. Por favor, inténtelo de nuevo."
+
+#: Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:230
+msgid "The photo could not be found or has been removed from public view."
+msgstr "La foto no se ha encontrado o ha sido eliminado de la vista del público."
+
+#: Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:233
+msgid "You do not have permission to view this photo."
+msgstr "No tiene permiso para ver esta página"
+
+#: Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:236
+msgid "The login details or authentication token passed were invalid."
+msgstr "Los datos de acceso o token de autenticación pasado no eran válidos."
+
+#: Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:239
+msgid ""
+"This requires user authentication but no user was not logged in, or the "
+"authenticated method call did not have the required permissions."
+msgstr "Esto requiere autenticación de usuario, pero ningún usuario no estaba conectado, o la llamada al método autenticado no contaba con los permisos necesarios."
+
+#: Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:242
+msgid "There was a problem with the API Key. Please contact the plugin author."
+msgstr "Hubo un problema con la clave de API. Por favor, póngase en contacto con el autor del plugin."
+
+#: Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:245
+msgid "Flickr is currently too busy. Please try again later."
+msgstr "Flickr está actualmente demasiado ocupado. Por favor, inténtelo de nuevo más tarde."
+
+#: Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:248
+msgid ""
+"Flickr does not support the requested format. Please contact the plugin "
+"author."
+msgstr "Flickr no es compatible con el formato solicitado. Por favor, póngase en contacto con el autor del plugin."
+
+#: Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:251
+msgid ""
+"Flickr does not support the requested function. Please contact the plugin "
+"author."
+msgstr "Flickr no es compatible con la función solicitada. Por favor, póngase en contacto con el autor del plugin."
+
+#: Myatu/WordPress/BackgroundManager/Common/FlickrApi.php:254
+#, php-format
+msgid "Flickr reported <i>\"%s\"</i>."
+msgstr "Flickr informó <i>\"%s\"</i>."
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:186
+msgid "Title"
+msgstr "Título"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:187
+msgid "Description"
+msgstr "Descripcion"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:188
+msgid "Categories"
+msgstr "Categorías"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:189
+msgid "Tags"
+msgstr "Etiquetas"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:190
+msgid "Images"
+msgstr "Imágenes"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:191
+msgid "Last Modified"
+msgstr "Última modificación"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:244
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:402
+msgid "Restore"
+msgstr "Restaurar"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:266
+msgid "Add New"
+msgstr "Añadir Nuevo"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:272
+msgid "Empty Trash"
+msgstr "Vaciar papelera"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:312
+#, php-format
+msgid "%s ago"
+msgstr "%s atras"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:314
+msgid "Y/m/d"
+msgstr "Y/m/d"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:383
+msgid "Edit this Image Set"
+msgstr "Editar este conjunto de imágenes"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:384
+msgid "Edit"
+msgstr "Editar"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:390
+#: Myatu/WordPress/BackgroundManager/Main.php:1087
+msgid "Trash"
+msgstr "Papelera"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:401
+msgid "Restore this Image Set from the Trash"
+msgstr "Restaurar este conjunto de imágenes de la Papelera"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:417
+#, php-format
+msgid "Edit &#8220;%s&#8221;"
+msgstr "Editar %s"
+
+#: Myatu/WordPress/BackgroundManager/Lists/Galleries.php:421
+msgid "Active Background"
+msgstr "Fondo Activo"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:158
+#: Myatu/WordPress/BackgroundManager/Main.php:179
+msgid "Top Left"
+msgstr "Arriba, izquierda"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:159
+msgid "Top Center"
+msgstr "Arriba, centro"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:160
+#: Myatu/WordPress/BackgroundManager/Main.php:180
+msgid "Top Right"
+msgstr "Arriba, derecha"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:161
+msgid "Center Left"
+msgstr "Centro, izquierda"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:162
+msgid "Center"
+msgstr "Centro"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:163
+msgid "Center Right"
+msgstr "Centro, derecha"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:164
+#: Myatu/WordPress/BackgroundManager/Main.php:181
+msgid "Bottom Left"
+msgstr "Abajo, izquierda"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:165
+msgid "Bottom Center"
+msgstr "Abajo, centro"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:166
+#: Myatu/WordPress/BackgroundManager/Main.php:182
+msgid "Bottom Right"
+msgstr "Abajo, derecha"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:171
+msgid "Tile horizontal and vertical"
+msgstr "Mosaico horizontal y vertical"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:172
+msgid "Tile horizontal"
+msgstr "Mosaico horizontal"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:173
+msgid "Tile vertical"
+msgstr "Mosaico vertical"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:174
+msgid "No Tiling"
+msgstr "No Mosaico"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:189
+msgid "Slide Downward"
+msgstr "Deslice hacia abajo"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:190
+msgid "Slide Upward"
+msgstr "Deslice hacia arriba"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:191
+msgid "Slide to Left"
+msgstr "Deslice a la izquierda"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:192
+msgid "Slide to Right"
+msgstr "Deslice a la derecha"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:193
+msgid "Cover Downward"
+msgstr "Cubierta hacia abajo"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:194
+msgid "Cover Upward"
+msgstr "Cubierta hacia arriba"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:195
+msgid "Cover to Left"
+msgstr "Cubra a la izquierda"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:196
+msgid "Cover to Right"
+msgstr "Cubra a derecha"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:197
+msgid "Crossfade"
+msgstr "Crossfade"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:198
+msgid "Crossfade + Zoom"
+msgstr "Crossfade + Zoom"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:199
+msgid "Bars"
+msgstr "Barras "
+
+#: Myatu/WordPress/BackgroundManager/Main.php:200
+msgid "Zip"
+msgstr "Zipzap"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:201
+msgid "Blinds"
+msgstr "Persianas"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:202
+msgid "Swipe"
+msgstr "Golpe fuerte"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:203
+msgid "Random Blocks"
+msgstr "Bloques de azar"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:204
+msgid "Sequential Blocks"
+msgstr "Bloques secuenciales"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:205
+msgid "Concentric"
+msgstr "Concéntrico"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:206
+msgid "Warp"
+msgstr "Deformar"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:210
+msgid "Administrator"
+msgstr "Administrador"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:211
+msgid "Editor"
+msgstr "Editor"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:212
+msgid "Author"
+msgstr "Autor"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:213
+msgid "Contributor"
+msgstr "Ayudante"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:724
+msgid "Background Image Sets"
+msgstr "Establece la imagen de fondo"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:725
+msgid "Background Image Set"
+msgstr "Conjunto de imágenes de fondo"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:787
+msgid "Imported Background"
+msgstr "Fondo Importado"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:787
+msgid ""
+"Automatically created Image Set, containing the original background image "
+"specified in WordPress."
+msgstr "Automáticamente crea conjuntos de imágenes, que contiene la imagen de fondo original especificada en WordPress."
+
+#: Myatu/WordPress/BackgroundManager/Main.php:1079
+msgid "Image Sets"
+msgstr "Conjuntos de imágenes"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:1094
+msgid "Import"
+msgstr "Importar"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:1101
+msgid "Settings"
+msgstr "Configuración"
+
+#: Myatu/WordPress/BackgroundManager/Main.php:1134
+msgid "Add New Image Set"
+msgstr "Añadir nuevo conjunto de imágenes"
+
