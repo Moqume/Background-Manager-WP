@@ -363,12 +363,17 @@ if (typeof myatu_bgm === "undefined") {
         /**
          * Event called by the timer, switched the background
          */
-        switchBackground: function() {
+        switchBackground: function(override_selection) {
             var is_fullsize  = (myatu_bgm.is_fullsize === 'true')
                 , is_preview    = (myatu_bgm.is_preview  === 'true')
                 , info_tab      = $('#myatu_bgm_info_tab')
                 , cover         = false
                 , transition_speed, active_transition, image_selection, flux_instance;
+
+            // Ensure the timer is cleared (for manual calls)
+            if (myatu_bgm.timer) {
+                clearTimeout(myatu_bgm.timer);
+            }
 
             // Determine if the top image is actually "visible". If not, we simply reset the timer
             if ((is_fullsize && !$('#myatu_bgm_top').is(':visible'))) {
@@ -382,6 +387,12 @@ if (typeof myatu_bgm === "undefined") {
             // Override the method for selecting an image in the preview (Theme Customizer)
             if (is_preview) {
                 image_selection = myatu_bgm.image_selection;
+            }
+
+            // Allow 'overide_selection' to change the image selection method
+            override_selection = override_selection || false;
+            if (override_selection) {
+                image_selection = override_selection;
             }
 
             // Async call

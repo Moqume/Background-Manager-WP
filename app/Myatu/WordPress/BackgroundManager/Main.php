@@ -142,6 +142,9 @@ class Main extends \Pf4wp\WordpressPlugin
     /* Enable public-side Ajax - @see onAjaxRequest() */
     public $public_ajax = true;
 
+    /** Disable AJAX verification on public side */
+    public $verify_public_ajax = false;
+
 
     /* ----------- Helpers ----------- */
 

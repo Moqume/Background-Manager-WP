@@ -75,8 +75,8 @@ if (typeof myatu_bgm === "undefined") {
         /** Gets all the ids of the images [Ajax] */
         getImageIds: function() { return (myatu_bgm.GetAjaxData('image_ids', $('#edit_id').val())); },
 
-        /** Removes the image iframe overlay and restores iframe visibility */
-        removeImagesOverlay: function() { $('#images_iframe').fadeIn('fast', function() { $('#image_iframe_overlay').hide(); }); },
+        /** Removes the image iframe overlay and restores iframe visibility - Note: no longer an "overlay", but simply a loader */
+        removeImagesOverlay: function() { $('#small-loader').hide(); },
 
         /** Helper to remove or delete images */
         doDeleteRemoveImages : function(do_delete, id) {
@@ -183,24 +183,20 @@ if (typeof myatu_bgm === "undefined") {
 
         /** Loads a URL in the image iframe */
         loadImagesIframe: function(dest) {
-            var overlay = $('#image_iframe_overlay'), loader = $('#loader', overlay);
+            var small_loader = $('#small-loader');
 
             if (dest === undefined) {
                 dest = $('#images_iframe').attr("src"); // Default action is to reload
             }
 
-            // Display the overlay on top of the images iframe
-            overlay.show();
+            // Display the loader to indicate background activity
+            small_loader.show();
 
             // Hide the image buttons, if shown.
             $('#image_buttons').hide();
 
-            // Center the loader image
-            loader.css('top', ((overlay.height() - loader.outerHeight()) / 2) + overlay.scrollTop() + 'px');
-            loader.css('left', ((overlay.width() - loader.outerWidth()) / 2) + overlay.scrollLeft() + 'px');
-
-            // Fade out the iframe
-            $('#images_iframe').attr("src", dest).fadeOut('fast');
+            // Go to the specified destination
+            $('#images_iframe').attr("src", dest);
         },
 
         /** Shows (or hides) the (single image) buttons on the highlighted item */
@@ -209,7 +205,7 @@ if (typeof myatu_bgm === "undefined") {
                 image_buttons    = $('#image_buttons',                  image_iframe),
                 image_r_button_h = $('#image_move_right_button_holder', image_iframe),
                 image_l_button_h = $('#image_move_left_button_holder',  image_iframe),
-                image_img_bottom, image_img, overlay, image_id;
+                image_img_bottom, image_img, image_id;
 
             // If nothing is highlighted, then we hide the buttons instead.
             if (!$(highlighted).length) {
@@ -220,23 +216,22 @@ if (typeof myatu_bgm === "undefined") {
             }
 
             image_img = $('img', highlighted);
-            overlay   = $('#image_iframe_overlay');
             image_id  = $(highlighted).attr('id').replace('image_', '');
 
             // Align edit buttons within the top-left corner of the image
-            image_buttons.css('top',  image_img.offset().top  - overlay.scrollTop()  + 'px');
-            image_buttons.css('left', image_img.offset().left - overlay.scrollLeft() + 'px');
+            image_buttons.css('top',  image_img.offset().top  + 'px');
+            image_buttons.css('left', image_img.offset().left + 'px');
             image_buttons.show();
 
-            image_img_bottom = (image_img.height() + image_img.offset().top - 30) - overlay.scrollTop();
+            image_img_bottom = (image_img.height() + image_img.offset().top - 30);
             // Align the 'move left' button with the bottom-left corner of the image
-            image_l_button_h.css('top',  image_img_bottom + 'px');
-            image_l_button_h.css('left', image_img.offset().left - overlay.scrollLeft() + 'px');
+            image_l_button_h.css('top',  image_img_bottom        + 'px');
+            image_l_button_h.css('left', image_img.offset().left + 'px');
             image_l_button_h.show();
 
             // Align the 'move right' button with the bottom-right corner of the image
             image_r_button_h.css('top',  image_img_bottom + 'px');
-            image_r_button_h.css('left', (image_img.width() + image_img.offset().left - 30) - overlay.scrollLeft() + 'px');
+            image_r_button_h.css('left', (image_img.width() + image_img.offset().left - 30) + 'px');
             image_r_button_h.show();
 
             // Set the correct href for the buttons

@@ -90,10 +90,11 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.1.13 =
-* Fixed: Background would always show on search results regardless of user selection
-* Changed: Modified handler for browser-cached images, as problem still exists in FireFox
-* Changed: Removed background priority flag in Normal mode
+= 1.1.14 =
+* Fixed: Background would always show on search results regardless of user selection.
+* Fixed: Background image would not be replaced in Normal mode, due to a priority flag.
+* Changed: Modified handler for browser-cached images, as problem still exists in FireFox.
+* Changed: Removed overlay in image set editor, replaced with simple loader to indicate an operation.
 
 = 1.1.11 (September 12, 2012) =
 * Fixed: Overlay z-index was shared with the background image, causing it not to appear.
