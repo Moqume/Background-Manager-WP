@@ -24,31 +24,31 @@ class Categories extends Taxonomy
     const META_TAX_PREFIX = 'myatu_bgm_override_';
     const DEF_META_TAX    = 'myatu_bgm_override_cats';
     const DEF_TAXONOMY    = 'category';
-    
+
     protected $title   = 'Override by Category';
     protected $pages   = array(\Myatu\WordPress\BackgroundManager\Main::PT_GALLERY);
     protected $context = 'side';
-    
+
     private $reg_categories = array(); // Registered taxonomies of 'Category' type
-    
+
     /**
      * Initialize the registered categories variable
      */
     public function __construct($owner, $auto_register = true)
     {
         $this->resetMetaVars();
-        
+
         parent::__construct($owner, $auto_register);
-        
+
         // Search for registered taxonomies, and add them if they match 'categor'(y|ies) in key name
         $reg_taxonomies = get_taxonomies(array('public' => true, 'show_ui' => true), 'objects');
-        
+
         foreach ($reg_taxonomies as $reg_taxonomy_key => $reg_taxonomy) {
-            if (stristr($reg_taxonomy_key, 'categor'))
+            if (stristr($reg_taxonomy_key, 'cat'))
                 $this->reg_categories[$reg_taxonomy_key] = $reg_taxonomy;
         }
     }
-    
+
     /**
      * Mark as active dynamic class
      *
@@ -58,7 +58,7 @@ class Categories extends Taxonomy
     {
         return true;
     }
-    
+
     /**
      * Set the meta_tax and taxonomy variables according to the taxonomy id
      *
@@ -72,10 +72,10 @@ class Categories extends Taxonomy
         } else {
             $this->meta_tax = static::META_TAX_PREFIX . $tax_id;
         }
-            
+
         $this->taxonomy = $tax_id;
     }
-    
+
     /**
      * Reset meta_tax and taxonomy variables to defaults
      *
@@ -86,9 +86,9 @@ class Categories extends Taxonomy
         $this->meta_tax = static::DEF_META_TAX;
         $this->taxonomy = static::DEF_TAXONOMY;
     }
-    
+
     /**
-     * Event called when ready to render the Metabox contents 
+     * Event called when ready to render the Metabox contents
      *
      * @param int $id ID of the gallery
      * @param object $gallery The gallery object, or post data.
@@ -96,12 +96,12 @@ class Categories extends Taxonomy
     public function onRender($id, $gallery)
     {
         $categories = array();
-        
+
         foreach ($this->reg_categories as $reg_cat_key => $reg_cat) {
             $this->setMetaVars($reg_cat_key);
-            
+
             $selected_cats = get_post_meta($id, $this->meta_tax, true);
-            
+
             ob_start();
             wp_terms_checklist($id, array('selected_cats' => $selected_cats, 'taxonomy' => $this->taxonomy));
             $categories[$reg_cat_key] = array(
@@ -113,7 +113,7 @@ class Categories extends Taxonomy
         $this->resetMetaVars();
         $this->doRender($id, 'meta_gallery_categories.html.twig', array('categories' => $categories));
     }
-    
+
     /**
      * Event called when a gallery is saved
      *
@@ -123,23 +123,23 @@ class Categories extends Taxonomy
     {
         $overlay          = (isset($_REQUEST['overlay_cat_override'])) ? $_REQUEST['overlay_cat_override'] : 0;
         $background_color = (isset($_REQUEST['background_cat_color'])) ? ltrim($_REQUEST['background_cat_color'], '#') : '';
-        
+
         foreach ($this->reg_categories as $reg_cat_key => $reg_cat) {
             $this->setMetaVars($reg_cat_key);
-            
+
             $tax = (isset($_REQUEST['tax_input'][$this->taxonomy])) ? $_REQUEST['tax_input'][$this->taxonomy] : array();
-            
+
             // Check 'post_category' instead, if tax_input is empty
             if (empty($tax)) {
                 $tax = (isset($_REQUEST['post_category'])) ? $_REQUEST['post_category'] : array();
             }
-            
+
             $this->doSave($id, $tax, $overlay, $background_color);
         }
-        
+
         $this->resetMetaVars();
     }
-    
+
     /**
      * Helper function to obtain the Override ID for a specific item
      *
@@ -148,19 +148,19 @@ class Categories extends Taxonomy
     protected function getOverrideId($item)
     {
         $result = parent::getOverrideId($item);
-        
+
         if (!$result) {
             foreach ($this->reg_categories as $reg_cat_key => $reg_cat) {
                 $this->setMetaVars($reg_cat_key);
-                
+
                 $result = parent::getOverrideId($item);
-                
+
                 if ($result) break;
             }
-            
+
             $this->resetMetaVars();
         }
-        
+
         return $result;
-    }    
+    }
 }

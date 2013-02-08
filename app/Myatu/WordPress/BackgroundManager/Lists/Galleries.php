@@ -35,12 +35,12 @@ class Galleries extends \WP_List_Table
 {
     /** The owner of this class */
     protected $owner;
-    
+
     /** Items per page to display */
     protected $per_page;
-    
+
     private $trash = false;
-    
+
     /**
      * Constructor [Override]
      *
@@ -49,7 +49,7 @@ class Galleries extends \WP_List_Table
     public function __construct(WordpressPlugin $owner, $trash = false, $per_page = 20)
     {
         $this->owner = $owner;
-        
+
         $this->setPerPage($per_page);
         $this->setTrash($trash);
 
@@ -61,7 +61,7 @@ class Galleries extends \WP_List_Table
             )
         );
     }
-    
+
     /**
      * Sets the items to display per page
      */
@@ -69,7 +69,7 @@ class Galleries extends \WP_List_Table
     {
         $this->per_page = $per_page;
     }
-    
+
     /**
      * Sets whether we should display trash, instead of active items
      */
@@ -77,7 +77,7 @@ class Galleries extends \WP_List_Table
     {
         $this->trash = $trash;
     }
-    
+
     /**
      * Returns whether this is a Trash listing
      *
@@ -87,12 +87,12 @@ class Galleries extends \WP_List_Table
     {
         return $this->trash;
     }
-    
+
     /**
      * Renders the list
      *
      * This redirects the display() output and returns it instead
-     * 
+     *
      * @return string The list to display
      */
     function render()
@@ -101,14 +101,14 @@ class Galleries extends \WP_List_Table
         $this->display();
         return ob_get_clean();
     }
-    
+
     /**
      * Prepares a list of items for displaying [Override]
      *
      * It uses set_pagination_args(), providing the total amount of items,
-     * total amount of pages and items per page. 
-     * 
-     * It also fills the variable $items exposed by \WP_List_Table with the 
+     * total amount of pages and items per page.
+     *
+     * It also fills the variable $items exposed by \WP_List_Table with the
      * actual items.
      */
     function prepare_items()
@@ -116,7 +116,7 @@ class Galleries extends \WP_List_Table
         // Grab the request data, if any
         $orderby    = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'modified';
         $order      = (!empty($_REQUEST['order']))   ? $_REQUEST['order']   : 'desc';
-        
+
         // Ensure we have valid request values
         $orderby = (in_array($orderby, array_keys($this->get_sortable_columns()))) ? $orderby : 'modified';
         $order   = ($order == 'asc') ? 'ASC' : 'DESC';
@@ -125,7 +125,7 @@ class Galleries extends \WP_List_Table
         $total_items = $this->owner->getGalleryCount(!$this->trash);
         if (($total_pages = ceil($total_items / $this->per_page)) < 1)
             $total_pages = 1;
-            
+
         // Get a sensible page number from the user selection
         $page_num = $this->get_pagenum();
         if ($page_num > $total_pages) {
@@ -133,7 +133,7 @@ class Galleries extends \WP_List_Table
         } else if ($page_num < 1) {
             $page_num = 1;
         }
-        
+
         // Get the image sets
         $this->items = get_posts(array(
             'numberposts' => $this->per_page,
@@ -144,7 +144,7 @@ class Galleries extends \WP_List_Table
             'post_status' => ($this->trash) ? 'trash' : '',
         ));
 
-        // ... and finally set the pagination args. 
+        // ... and finally set the pagination args.
         $this->set_pagination_args(
             array(
                 'total_items' => $total_items,
@@ -160,8 +160,8 @@ class Galleries extends \WP_List_Table
 	function no_items()
     {
 		_e('No image sets found.', $this->owner->getName());
-	}    
-    
+	}
+
     /**
      * Provides the columns [Override]
      *
@@ -178,9 +178,9 @@ class Galleries extends \WP_List_Table
     {
         if ($this->owner->inEdit())
             return array();
-            
+
         $prefix = ($this->trash) ? 'trash_' : ''; // obsolete
-            
+
         return array(
             'cb'            => '<input type="checkbox" />',
             'title'         => __('Title', $this->owner->getName()),
@@ -191,7 +191,7 @@ class Galleries extends \WP_List_Table
             'modified'      => __('Last Modified', $this->owner->getName()),
         );
     }
-    
+
 	/**
 	 * Get a list of sortable columns [Override]
      *
@@ -210,7 +210,7 @@ class Galleries extends \WP_List_Table
             'modified' => array('modified', true)
         );
 	}
-    
+
     /**
      * Returns to WP_List_Table what columns are available [Override]
      *
@@ -219,14 +219,14 @@ class Galleries extends \WP_List_Table
     function get_column_info()
     {
         $columns = apply_filters('myatu_bgm_galleries_columns', $this->get_columns(), $this->trash);
-        
+
         return array(
             $columns,
             (array)get_user_option('manage' . get_current_screen()->id . 'columnshidden'),
             $this->get_sortable_columns()
         );
     }
-    
+
 	/**
 	 * Get an associative array (option_name => option_title) with the list
 	 * of bulk actions available on this table. [Override]
@@ -242,13 +242,13 @@ class Galleries extends \WP_List_Table
         } else {
             if (EMPTY_TRASH_DAYS)
                 $result['restore_all'] = __('Restore', $this->owner->getName());
-                
+
             $result['delete_all'] = __('Delete Permanently', $this->owner->getName());
         }
-        
+
         return $result;
 	}
-    
+
     /**
 	 * Extra controls to be displayed between bulk actions and pagination [Override]
 	 */
@@ -275,26 +275,26 @@ class Galleries extends \WP_List_Table
             }
         }
     }
-    
+
     /** Default column display function */
     function column_default($item, $column_name)
     {
         do_action('myatu_bgm_galleries_custom_column', $item, $column_name);
     }
-    
+
     /** Displays a checkbox column */
     function column_cb($item)
     {
         echo '<input type="checkbox" name="ids[]" value="' . $item->ID . '" />';
 	}
-    
+
     /** Displays the description of the item */
     function column_description($item)
     {
         echo (empty($item->post_content)) ? '&nbsp;' : htmlspecialchars($item->post_content);
     }
-    
-    /** 
+
+    /**
      * Displays the image count of the item
      */
     function column_images($item)
@@ -307,63 +307,63 @@ class Galleries extends \WP_List_Table
     {
         $post_modified = strtotime($item->post_modified);
         $time_diff     = time() - $post_modified;
-        
+
         if ( $time_diff > 0 && $time_diff < 24*60*60 ) {
             printf(__( '%s ago' ), human_time_diff( $post_modified ));
         } else {
             echo mysql2date(__( 'Y/m/d' ), $item->post_modified);
         }
     }
-    
+
     /** Displays the `Categories` (terms) column */
     function column_categories($item)
     {
         $result         = array();
         $reg_taxonomies = get_taxonomies(array('public' => true, 'show_ui' => true), 'objects');
-        
+
         foreach ($reg_taxonomies as $reg_taxonomy_key => $reg_taxonomy) {
-            if (stristr($reg_taxonomy_key, 'categor')) {
+            if (stristr($reg_taxonomy_key, 'cat')) {
                 $non_wp_term = !$reg_taxonomy->_builtin;
-                
+
                 if ($reg_taxonomy_key == 'category') {
                     $meta_tax = \Myatu\WordPress\BackgroundManager\Meta\Categories::META_TAX_PREFIX . 'cats';
                 } else {
                     $meta_tax = \Myatu\WordPress\BackgroundManager\Meta\Categories::META_TAX_PREFIX . $reg_taxonomy_key;
                 }
-                
+
                 // Obtain selected terms in this taxonomy for the gallery
                 $terms = get_post_meta($item->ID, $meta_tax, true);
-                
+
                 // Convert Category ID's into names
                 if (is_array($terms)) {
                     $is_first = true;
                     foreach($terms as $term) {
                         $term_name = get_term_field('name', $term, $reg_taxonomy_key);
-                        
+
                         if ($is_first && $non_wp_term)
                             $term_name = '<em>' . $reg_taxonomy->label . '</em>: ' . $term_name;
-                        
+
                         $result[] = $term_name;
                         $is_first = false;
                     }
                 }
             }
-        }        
-        
+        }
+
         echo implode(', ', $result);
     }
-    
+
     /** Displays the `Tags` column */
     function column_tags($item)
     {
         $tags   = get_post_meta($item->ID, 'myatu_bgm_override_tags', true);
         $result = '';
-        
+
         if (is_array($tags))
             echo implode(', ', $tags);
     }
-    
-    
+
+
     /**
      * Creates an action link
      *
@@ -383,46 +383,46 @@ class Galleries extends \WP_List_Table
                 $title = (!$title) ? __('Edit this Image Set', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Edit', $this->owner->getName()) : $text;
                 return sprintf($link, esc_url(add_query_arg(array('edit'=>$id, 'action'=>false, 'ids'=>false, '_wpnonce'=>false, 'order'=>false, 'orderby'=>false))), $title, $class, $text);
-                
+
             case 'trash':
                 $nonce =  wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_TRASH_GALLERY . $id);
                 $title = (!$title) ? __('Move this Image Set to the Trash', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Trash', $this->owner->getName()) : $text;
                 break;
-                
+
             case 'delete':
                 $nonce = wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_DELETE_GALLERY . $id);
                 $title = (!$title) ? __('Delete this Image Set permanently', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Delete Permanently', $this->owner->getName()) : $text;
                 break;
-            
+
             case 'restore':
                 $nonce = wp_create_nonce(\Myatu\WordPress\BackgroundManager\Main::NONCE_RESTORE_GALLERY . $id);
                 $title = (!$title) ? __('Restore this Image Set from the Trash', $this->owner->getName()) : $title;
                 $text  = (!$text) ? __('Restore', $this->owner->getName()) : $text;
                 break;
-                
+
             default:
                 return '';
         }
-                
+
         return sprintf($link, esc_url(add_query_arg(array('action' => $action, 'ids' => $id, '_wpnonce' => $nonce, 'edit'=>false))), $title, $class, $text);
-    }   
-    
+    }
+
     /** Displays the name and actions */
     function column_title($item)
     {
         if (!$this->trash) {
             // Print the name of the gallery
             echo $this->actionLink('edit', $item->ID, sprintf('<strong>%s</strong>', htmlspecialchars($item->post_title)), sprintf(__('Edit &#8220;%s&#8221;', $this->owner->getName()), get_the_title($item->ID)));
-            
+
             // Print active state
             if ($this->owner->options->active_gallery == $item->ID)
                 printf(' - <strong>%s</strong>', __('Active Background', $this->owner->getName()));
-            
+
             // Set the actions (start off with an `edit` link)
             $actions = array($this->actionLink('edit', $item->ID));
-            
+
             if (EMPTY_TRASH_DAYS) {
                 $actions['trash'] = $this->actionLink('trash', $item->ID);
             } else {
@@ -431,17 +431,17 @@ class Galleries extends \WP_List_Table
         } else {
             // Print the name of the gallery
             printf('<strong>%s</strong>', htmlspecialchars($item->post_title));
-            
+
             // And set the actions
             $actions = array(
                 'untrash' => $this->actionLink('restore', $item->ID),
                 'delete'  => $this->actionLink('delete', $item->ID),
             );
         }
-        
+
         $actions = apply_filters('myatu_bgm_galleries_actions', $actions, $item, $this->trash);
-        
+
         echo $this->row_actions($actions);
     }
-    
+
 }

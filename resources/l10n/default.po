@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Background Manager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-29 21:23+0100\n"
-"PO-Revision-Date: 2012-04-29 21:23+0100\n"
+"POT-Creation-Date: 2013-02-08 19:00+0100\n"
+"PO-Revision-Date: 2013-02-08 19:01+0100\n"
 "Last-Translator: Mike Green <myatus@gmail.com>\n"
 "Language-Team: \n"
 "Language: \n"
@@ -14,28 +14,28 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ../..\n"
 
-#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:907
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:1019
 msgid "Configure this plugin"
 msgstr ""
 
-#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:908
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:1020
 msgid "Settings"
 msgstr ""
 
-#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:985
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:1095
 msgid "Malformed AJAX Request"
 msgstr ""
 
-#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:1039
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:1191
 msgid "Oops! Something went wrong"
 msgstr ""
 
-#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:1051
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:1203
 #, php-format
 msgid "at %s%s%s()"
 msgstr ""
 
-#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:1059
+#: ../../vendor/pf4wp/lib/Pf4wp/WordpressPlugin.php:1211
 #, php-format
 msgid " in <code>%s</code> line %s"
 msgstr ""
@@ -64,176 +64,205 @@ msgstr ""
 msgid "items per page"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:150
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:171
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:161
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:182
 msgid "Top Left"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:151
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:162
 msgid "Top Center"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:152
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:172
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:163
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:183
 msgid "Top Right"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:153
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:164
 msgid "Center Left"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:154
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:165
 msgid "Center"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:155
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:166
 msgid "Center Right"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:156
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:173
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:167
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:184
 msgid "Bottom Left"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:157
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:168
 msgid "Bottom Center"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:158
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:174
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:169
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:185
 msgid "Bottom Right"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:163
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:174
 msgid "Tile horizontal and vertical"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:164
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:175
 msgid "Tile horizontal"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:165
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:176
 msgid "Tile vertical"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:166
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:177
 msgid "No Tiling"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:179
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:327
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:393
-#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Taxonomy.php:85
-#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Single.php:118
-#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Single.php:132
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:190
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:329
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:396
 msgid "-- None (deactivated) --"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:180
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:337
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:191
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:339
 msgid "Random"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:181
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:192
 msgid "Slide Downward"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:182
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:193
 msgid "Slide Upward"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:183
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:194
 msgid "Slide to Left"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:184
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:195
 msgid "Slide to Right"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:185
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:196
 msgid "Cover Downward"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:186
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:197
 msgid "Cover Upward"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:187
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:198
 msgid "Cover to Left"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:188
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:199
 msgid "Cover to Right"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:189
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:200
 msgid "Crossfade"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:190
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:201
 msgid "Crossfade + Zoom"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:194
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:202
+msgid "Bars"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:203
+msgid "Zip"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:204
+msgid "Blinds"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:205
+msgid "Swipe"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:206
+msgid "Random Blocks"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:207
+msgid "Sequential Blocks"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:208
+msgid "Concentric"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:209
+msgid "Warp"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:213
 msgid "Administrator"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:195
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:214
 msgid "Editor"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:196
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:215
 msgid "Author"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:197
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:216
 msgid "Contributor"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:685
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:727
 msgid "Background Image Sets"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:686
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:728
 msgid "Background Image Set"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:747
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:790
 msgid "Imported Background"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:747
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:790
 msgid "Automatically created Image Set, containing the original background image specified in WordPress."
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:886
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:908
 msgid "&laquo;"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:887
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:909
 msgid "&raquo;"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1027
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1054
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:315
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1049
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1076
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:317
 msgid "Background"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1060
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1082
 msgid "Image Sets"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1068
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1090
 #: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:390
 msgid "Trash"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1075
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1097
 msgid "Import"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1115
+#: ../../app/Myatu/WordPress/BackgroundManager/Main.php:1137
 msgid "Add New Image Set"
 msgstr ""
 
@@ -324,7 +353,7 @@ msgid "Last Modified"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:241
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:141
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:143
 msgid "Move to Trash"
 msgstr ""
 
@@ -335,7 +364,7 @@ msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:246
 #: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:396
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:119
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:121
 msgid "Delete Permanently"
 msgstr ""
 
@@ -365,12 +394,10 @@ msgid "Edit"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:389
-#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Submit.php:68
 msgid "Move this Image Set to the Trash"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Lists/Galleries.php:395
-#: ../../app/Myatu/WordPress/BackgroundManager/Meta/Submit.php:73
 msgid "Delete this Image Set permanently"
 msgstr ""
 
@@ -432,215 +459,223 @@ msgstr ""
 msgid "Flickr reported <i>\"%s\"</i>."
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:73
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:74
 msgid "Image Set"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:74
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:75
 msgid "Image selection order"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:75
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:76
 msgid "Select an image"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:76
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:77
 msgid "Interval (seconds)"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:77
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:364
-msgid "Background Color"
-msgstr ""
-
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:78
-msgid "Size"
+msgid "Remember last displayed image"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:79
-msgid "Position"
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:367
+msgid "Background Color"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:80
-msgid "Tiling"
+msgid "Size"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:81
-msgid "Scrolling"
+msgid "Position"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:82
-msgid "Opacity"
+msgid "Tiling"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:83
-msgid "Stretch Vertical"
+msgid "Scrolling"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:84
-msgid "Stretch Horizontal"
+msgid "Opacity"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:85
-msgid "Transition Effect"
+msgid "Stretch Vertical"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:86
-msgid "Transition Speed"
+msgid "Stretch Horizontal"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:87
-msgid "Adjust Image Size"
-msgstr ""
-
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:88
 msgid "Center Image"
 msgstr ""
 
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:88
+msgid "Transition Effect"
+msgstr ""
+
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:89
-msgid "Overlay"
+msgid "Transition Speed"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:90
-msgid "Overlay Opacity"
+msgid "Overlay"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:91
-msgid "Display [ + ] Icon"
+msgid "Overlay Opacity"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:92
-msgid "Show thumbnail"
+msgid "Display [ + ] Icon"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:93
-msgid "Show description"
+msgid "Show thumbnail"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:94
-msgid "Enable linking"
+msgid "Show description"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:95
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:97
-msgid "Location"
+msgid "Enable linking"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:96
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:98
+msgid "Location"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:97
 msgid "Display \"Pin It\" Button"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:337
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:99
+msgid "Ease in first image"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:339
 msgid "Ascending"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:337
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:339
 msgid "Descending"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:344
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:346
 msgid "At each browser session"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:345
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:347
 msgid "On a page (re)load"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:346
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:348
 msgid "At a specified interval"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:373
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:376
 msgid "Normal"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:374
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:377
 msgid "Full Screen"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:378
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:381
 msgid "Background Layout"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:400
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:403
 msgid "Background Overlay"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:421
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:424
 msgid "Scroll with the screen"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:422
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:425
 msgid "Fixed"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:440
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:443
 msgid "Background Transitioning Effect"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:468
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:471
 msgid "Background Information"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:473
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:476
 msgid "Pinterest"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:88
+#: ../../app/Myatu/WordPress/BackgroundManager/Customizer/Customizer.php:486
+msgid "Miscellaneous"
+msgstr ""
+
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:90
 msgid "Background URL"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:89
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:91
 msgid "Optional link URL for the background"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:97
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:99
 msgid "Add to Image Set"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:107
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:109
 msgid "Copy to Image Set"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:129
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:131
 msgid "Delete"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:130
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:132
 #, php-format
 msgid "You are about to delete <strong>%s</strong>."
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:132
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:134
 msgid "Continue"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:133
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:135
 msgid "Cancel"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:143
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:145
 msgid "Undo"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:172
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:174
 msgid "Download from URL"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:392
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:394
 #, php-format
 msgid "<p>%s</p><p>By: <a href=\"http://www.flickr.com/photos/%s/%s/\">%s</a> (%s)</p>"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:406
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:408
 msgid "Unable to import image at specified URL"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:430
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:432
 msgid "Download"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:431
+#: ../../app/Myatu/WordPress/BackgroundManager/Filter/MediaLibrary.php:433
 msgid "Save all changes"
 msgstr ""
 
@@ -685,20 +720,12 @@ msgstr ""
 msgid "Continue Import"
 msgstr ""
 
-#: ../../app/Myatu/WordPress/BackgroundManager/Pages/Settings.php:156
+#: ../../app/Myatu/WordPress/BackgroundManager/Pages/Settings.php:159
 msgid "Settings have been saved"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Pages/Sub/EditGallery.php:67
 msgid "Add an Image"
-msgstr ""
-
-#: ../../app/Myatu/WordPress/BackgroundManager/Pointers/Upgrade1dot1new2.php:29
-msgid "<p><strong>New in version 1.1!</strong></p><p>Large images can now be automatically adjusted to the size of the browser window, while maintianing the aspect ratio.</p>"
-msgstr ""
-
-#: ../../app/Myatu/WordPress/BackgroundManager/Pointers/Upgrade1dot1new2.php:30
-msgid "Automatic Image Adjusting"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Pointers/Upgrade1dot1new3.php:29
@@ -738,22 +765,16 @@ msgid "There was a problem obtaining NextGEN Gallery database details"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:98
-#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Flickr.php:179
-#: ../../app/Myatu/WordPress/BackgroundManager/Importers/GrandFlaGallery.php:98
 #, php-format
 msgid "%s (Imported)"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:102
-#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Local.php:120
-#: ../../app/Myatu/WordPress/BackgroundManager/Importers/Flickr.php:183
-#: ../../app/Myatu/WordPress/BackgroundManager/Importers/GrandFlaGallery.php:102
 #, php-format
 msgid "Unable to create Image Set <strong>%s</strong>"
 msgstr ""
 
 #: ../../app/Myatu/WordPress/BackgroundManager/Importers/NextGenGallery.php:120
-#: ../../app/Myatu/WordPress/BackgroundManager/Importers/GrandFlaGallery.php:120
 #, php-format
 msgid "Unable to import image <em>%s</em> into Image Set <strong>%s</strong>"
 msgstr ""
@@ -850,150 +871,182 @@ msgstr ""
 msgid "Preview"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:86
+#: ../../resources/views/settings.html.twig:88
 msgid "Stores a cookie on the visitor's computer for the duration of the browser session"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:96
+#: ../../resources/views/settings.html.twig:97
 msgid "Every"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:99
+#: ../../resources/views/settings.html.twig:100
 msgid "seconds"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:100
-#: ../../resources/views/settings.html.twig:212
+#: ../../resources/views/settings.html.twig:101
 msgid "Requires Javascript by the visitor, but will gracefully degrade if not available"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:116
-#: ../../resources/views/settings.html.twig:121
-msgid "Active on"
-msgstr ""
-
-#: ../../resources/views/settings.html.twig:125
-msgid "Front page"
-msgstr ""
-
-#: ../../resources/views/settings.html.twig:130
-msgid "Single post"
-msgstr ""
-
-#: ../../resources/views/settings.html.twig:135
-msgid "Single page"
-msgstr ""
-
-#: ../../resources/views/settings.html.twig:140
-msgid "Archive (Category, Tag, History) pages"
-msgstr ""
-
-#: ../../resources/views/settings.html.twig:145
-msgid "Search results"
-msgstr ""
-
-#: ../../resources/views/settings.html.twig:150
-msgid "Error page"
-msgstr ""
-
-#: ../../resources/views/settings.html.twig:191
-msgid "Background Image Opacity"
-msgstr ""
-
-#: ../../resources/views/settings.html.twig:197
-#: ../../resources/views/settings.html.twig:314
-msgid "Only available for Full Screen layouts"
-msgstr ""
-
-#: ../../resources/views/settings.html.twig:211
-#: ../../resources/views/settings.html.twig:225
-#: ../../resources/views/settings.html.twig:393
-#: ../../resources/views/settings.html.twig:456
+#: ../../resources/views/settings.html.twig:117
+#: ../../resources/views/settings.html.twig:231
+#: ../../resources/views/settings.html.twig:399
+#: ../../resources/views/settings.html.twig:462
+#: ../../resources/views/settings.html.twig:500
 msgid "Enabled"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:291
-#: ../../resources/views/settings.html.twig:296
+#: ../../resources/views/settings.html.twig:119
+msgid "Displays the last displayed image on the next page, provided that page is using the same Image Set. Stores a cookie."
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:136
+#: ../../resources/views/settings.html.twig:141
+msgid "Active on"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:145
+msgid "Front page"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:150
+msgid "Single post"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:155
+msgid "Single page"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:160
+msgid "Archive (Category, Tag, History) pages"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:165
+msgid "Search results"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:170
+msgid "Error page"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:211
+msgid "Background Image Opacity"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:217
+#: ../../resources/views/settings.html.twig:320
+msgid "Only available for Full Screen layouts"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:297
+#: ../../resources/views/settings.html.twig:302
 msgid "Stretching"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:300
+#: ../../resources/views/settings.html.twig:306
 msgid "Vertical"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:305
+#: ../../resources/views/settings.html.twig:311
 msgid "Horizontal"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:336
+#: ../../resources/views/settings.html.twig:342
 msgid "milliseconds"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:337
+#: ../../resources/views/settings.html.twig:343
 msgid "1000 milliseconds = 1 second"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:340
+#: ../../resources/views/settings.html.twig:346
 msgid "Slower"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:342
+#: ../../resources/views/settings.html.twig:348
 msgid "Faster"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:387
+#: ../../resources/views/settings.html.twig:393
 msgid "Display icon"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:394
+#: ../../resources/views/settings.html.twig:400
 msgid "This will display a small <code>[ + ]</code> icon in one of the selected locations"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:401
+#: ../../resources/views/settings.html.twig:407
 msgid "Options"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:407
+#: ../../resources/views/settings.html.twig:413
 msgid "Display a short description when the mouse is hovered over the icon"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:408
+#: ../../resources/views/settings.html.twig:414
 msgid "Requires Javascript by the visitor"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:413
+#: ../../resources/views/settings.html.twig:419
 msgid "Include a thumbnail in the short description"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:418
+#: ../../resources/views/settings.html.twig:424
 msgid "Icon is linked to a seperate page containing more information about the displayed background"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:457
+#: ../../resources/views/settings.html.twig:463
 msgid "This will display a \"Pin It\" button for the <a href=\"http://pinterest.com\" target=\"_blank\" class=\"pinterest_logo myatu_inline_block\">Pinterest</a> service in one of the selected locations"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:484
-msgid "Miscellaneous"
+#: ../../resources/views/settings.html.twig:495
+msgid "Initial Ease-in"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:489
-msgid "Override Posts and Pages"
+#: ../../resources/views/settings.html.twig:502
+msgid "Eases in the initial image after it has finished downloading"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:511
-msgid "Debug"
-msgstr ""
-
-#: ../../resources/views/settings.html.twig:512
-msgid "Rate It"
+#: ../../resources/views/settings.html.twig:508
+msgid "Clickable Backgrounds"
 msgstr ""
 
 #: ../../resources/views/settings.html.twig:513
-msgid "Forum"
+msgid "Clicking the background opens the associated link in a new window"
 msgstr ""
 
-#: ../../resources/views/settings.html.twig:514
+#: ../../resources/views/settings.html.twig:520
+msgid "Track Background Links"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:525
+msgid "Track background clicks and impressions using Google Analytics."
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:528
+msgid "Category name:"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:531
+msgid "See Help for details"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:537
+msgid "Override Posts and Pages"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:559
+msgid "Debug"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:560
+msgid "Rate It"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:561
+msgid "Support"
+msgstr ""
+
+#: ../../resources/views/settings.html.twig:562
 msgid "Donate"
 msgstr ""
 
@@ -1058,39 +1111,31 @@ msgstr ""
 msgid "Background Image Link"
 msgstr ""
 
-#: ../../resources/views/edit_gallery.html.twig:30
-msgid "Enter title here"
-msgstr ""
-
-#: ../../resources/views/edit_gallery.html.twig:41
-msgid "Upload/Insert"
-msgstr ""
-
-#: ../../resources/views/edit_gallery.html.twig:50
+#: ../../resources/views/edit_gallery.html.twig:52
 msgid "Image Selection: "
 msgstr ""
 
-#: ../../resources/views/edit_gallery.html.twig:51
+#: ../../resources/views/edit_gallery.html.twig:53
 msgid "Move Left"
 msgstr ""
 
-#: ../../resources/views/edit_gallery.html.twig:52
+#: ../../resources/views/edit_gallery.html.twig:54
 msgid "Move Right"
 msgstr ""
 
-#: ../../resources/views/edit_gallery.html.twig:55
+#: ../../resources/views/edit_gallery.html.twig:57
 msgid "Remove"
 msgstr ""
 
-#: ../../resources/views/edit_gallery.html.twig:57
+#: ../../resources/views/edit_gallery.html.twig:59
 msgid "Clear"
 msgstr ""
 
-#: ../../resources/views/edit_gallery.html.twig:74
+#: ../../resources/views/edit_gallery.html.twig:70
 msgid "Image count"
 msgstr ""
 
-#: ../../resources/views/edit_gallery.html.twig:75
+#: ../../resources/views/edit_gallery.html.twig:71
 msgid "selected"
 msgstr ""
 
