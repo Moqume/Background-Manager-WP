@@ -41,7 +41,7 @@ Visit the [Background Manager Demo Site](http://j.mp/bgmdemo) for a live demonst
 * Optional "Ease in" of a full-screen background image
 * Multiple _Image Sets_ to select a random or sequential image from
 * Override the _Image Set_ for each Post, Page, Custom post type or by Tag(s) or Category, including
-WP e-Commerce and WooTheme WooCommerce Product Categories
+WP e-Commerce and WooCommerce Product Categories
 * User defined display interval between the background images (timed slideshow)
 * Optional transition effects between the different background images displayed:
     * Fade-in/Fade-out (Crossfade)
@@ -91,10 +91,11 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.1.15 =
-* __Added__: Support for WooTheme WooCommerce categories
+= 1.1.16 =
+* __Added__: Support for WooCommerce categories
 * Fixed: Background would always show on search results regardless of user selection.
 * Fixed: Background image would not be replaced in Normal mode, due to a priority flag.
+* Fixed: Issue where background click opening in new browser window was blocked by Chrome.
 * Changed: Modified handler for browser-cached images, as problem still exists in FireFox.
 * Changed: Removed overlay in image set editor, replaced with simple loader to indicate an operation.
 

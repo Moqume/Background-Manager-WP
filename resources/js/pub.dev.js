@@ -94,7 +94,7 @@ if (typeof myatu_bgm === "undefined") {
          * Event called when the background is clicked
          */
         onBackgroundClick: function(e) {
-            var link = myatu_bgm.current_background.bg_link;
+            var link = myatu_bgm.current_background.bg_link, popup;
 
             if (e.target === this || $(e.target).hasClass('myatu_bgm_fs')) {
                 // Fire custom event function(event, url)
@@ -103,16 +103,15 @@ if (typeof myatu_bgm === "undefined") {
                 // Event tracking for Google Analytics
                 myatu_bgm.doGAEvent('Click');
 
-                // Wait a short moment before actually performing the "click"
-                setTimeout(function() {
-                    if (myatu_bgm.bg_click_new_window === 'true') {
-                        // Open the link in a new window
-                        window.open(link);
-                    } else {
-                        // Open the link in the same window
+                if (myatu_bgm.bg_click_new_window === 'true') {
+                    // Open the link in a new window
+                    window.open(link);
+                } else {
+                    // Open the link in the same window
+                    setTimeout(function() {
                         window.location.assign(link);
-                    }
-                }, 500);
+                    }, 500);
+                }
 
                 return false;
             }
