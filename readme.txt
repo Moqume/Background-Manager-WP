@@ -3,7 +3,7 @@ Contributors: Myatu
 Donate link: http://pledgie.com/campaigns/16906
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
-Tested up to: 3.4.2
+Tested up to: 3.5.1
 Stable tag: 1.1.11
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -91,7 +91,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.1.16 =
+= 1.2 (February 13, 2013) =
 * __Added__: Support for WooCommerce categories
 * Fixed: Background would always show on search results regardless of user selection.
 * Fixed: Background image would not be replaced in Normal mode, due to a priority flag.
