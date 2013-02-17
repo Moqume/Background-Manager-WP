@@ -91,6 +91,11 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
+= 1.2.2 =
+
+* Fixed: Restored Pinterest button functionality
+* Fixed: Addressed regression bug for MSIE 7 and MSIE 8, which also addressed initial "flash" on some browsers
+
 = 1.2 (February 13, 2013) =
 * __Added__: Support for WooCommerce categories
 * Fixed: Background would always show on search results regardless of user selection.
@@ -295,4 +300,4 @@ If you are using a web hosting provider, then you need to contact the provider r
 
 = How do I translate Background Manager to another language? =
 
-Background Manager uses the same method as WordPress to translate text. A default .PO file has already been created and can be found at `/wp-content/plugins/background-manager/resources/l10n/default.po`. Once you are done editing it, export the .MO file into the same directory, giving it the locale as name. For example: `en_US.mo` for American English, or `en_NL.mo` for Dutch.
+Background Manager uses the same method as WordPress to translate text. A default .PO file has already been created and can be found at `/wp-content/plugins/background-manager/resources/l10n/default.po`. Once you are done editing it, export the .MO file into the same directory, giving it the locale as name. For example: `en_US.mo` for American English, or `nl_NL.mo` for Dutch.
