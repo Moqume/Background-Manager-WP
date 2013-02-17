@@ -28,22 +28,37 @@ if (typeof myatu_bgm === "undefined") {
          * Same as load(), but supports cached images. Only activated when DOM is ready.
          */
         imgLoaded : function(callback) {
-            var elems = this.filter('img'),
-                BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+            var elems = this.filter('img');
 
             elems.one('load', function(e) {
                 callback.call(this);
             }).each(function(i, el) {
-                var src = el.src;
-
                 // Force the 'load' event to fire.
-                if (el.readyState || el.complete) {
-                    el.src = BLANK;
-                    el.src = src;
+                // Complete and cach check
+                if (el.complete && typeof el.naturalWidth !== "undefined") {
+                    /* Create a fake image holder to see if the image has
+                     * in fact been completed downloading or is cached
+                     */
+                    var img = new Image();
+
+                    img.src = el.src;
+
+                    if (img.complete) {
+                        $(el).trigger('load');
+                    }
+
+                    return;
+                }
+
+                // Readystate Check
+                if (el.readyState === "complete") {
+                    $(el).trigger('load');
+                    return;
                 }
             });
         }
     });
+
 
     $.extend(myatu_bgm, {
         base_prefix: 'myatu_bgm_',
@@ -68,7 +83,7 @@ if (typeof myatu_bgm === "undefined") {
                 type     : 'POST',
                 dataType : 'json',
                 url      : background_manager_ajax.url,
-                timeout  : 5000,
+                timeout  : 15000,
                 async    : has_callback,
                 data     : { 'action': background_manager_ajax.action, 'func': ajaxFunc, 'data': ajaxData, '_ajax_nonce': background_manager_ajax.nonce },
                 success  : function(ajaxResp) {

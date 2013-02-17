@@ -537,20 +537,15 @@ if (typeof myatu_bgm === "undefined") {
 
                 // "Pin it" button
                 if ($('#myatu_bgm_pin_it_btn').length) {
-                    var pin_it       = $('#myatu_bgm_pin_it_btn iframe')
-                        , new_pin_it = pin_it.clone()
-                        , pin_it_src = pin_it.attr('src')
+                    var pin_it       = $('#myatu_bgm_pin_it_btn a')
+                        , pin_it_src = pin_it.attr('href')
                         , clean_desc = new_image.desc.replace(/(<([^>]+)>)/ig,'');
 
                     // Set the new button source
                     pin_it_src = myatu_bgm.urlReplaceQueryArgVal(pin_it_src, 'media', new_image.url);       // Replace image URL
                     pin_it_src = myatu_bgm.urlReplaceQueryArgVal(pin_it_src, 'description', clean_desc);    // Replace description
 
-                    new_pin_it.attr('src', pin_it_src);
-
-                    // Replace the old iframe - doing this avoid the browser history from being filled
-                    pin_it.remove();
-                    $('#myatu_bgm_pin_it_btn').append(new_pin_it);
+                    pin_it.attr('href', pin_it_src);
                 }
             });
         },
