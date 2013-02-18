@@ -4,7 +4,7 @@ Donate link: http://pledgie.com/campaigns/16906
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.5.1
-Stable tag: 1.2
+Stable tag: 1.2.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -91,7 +91,7 @@ with PHP versions older than 5.3.
 
 == Changelog ==
 
-= 1.2.2 =
+= 1.2.2 (February 18, 2013) =
 
 * Fixed: Restored Pinterest button functionality
 * Fixed: Addressed regression bug for MSIE 7 and MSIE 8, which also addressed initial "flash" on some browsers
