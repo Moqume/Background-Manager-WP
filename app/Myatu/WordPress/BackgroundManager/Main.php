@@ -98,6 +98,7 @@ class Main extends \Pf4wp\WordpressPlugin
         'display_on_archive'     => true,
         'display_on_search'      => true,
         'display_on_error'       => true,
+        'display_on_mobile'      => true,
         'full_screen_center'     => true,
         'info_tab_location'      => 'bottom-left',
         'info_tab_thumb'         => true,
@@ -501,7 +502,9 @@ class Main extends \Pf4wp\WordpressPlugin
         if (!isset($this->np_cache['can_display_background'])) {
             /* When is_home() is set, it does not report is_page() (even though it is). We use this
              * to figure out if we're at the greeting page */
-            $current_url = wp_guess_url();
+            $schema = is_ssl() ? 'https://' : 'http://';
+            $current_url = $schema . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; //// wp_guess_url();
+
             if ($qa = strpos($current_url, '?'))
                 $current_url = substr($current_url, 0, $qa);
 
@@ -753,6 +756,8 @@ class Main extends \Pf4wp\WordpressPlugin
         add_action('add_attachment',     array($this, 'onAddAttachment'), 20);          // Adds 'Background Image' to Library
         add_action('edit_attachment',    array($this, 'onAddAttachment'), 20);
         add_action('admin_bar_menu',     array($this, 'onAdminBarMenu'), 90);
+
+        add_filter('body_class',         array($this, 'onBodyClass'), 20);
 
         // @see: onAddAttachment()
         add_theme_support('custom-background');
@@ -1249,7 +1254,19 @@ class Main extends \Pf4wp\WordpressPlugin
         }
 
         if ($style || $custom_styles)
-            printf('<style type="text/css" media="screen">body { %s } %s</style>'.PHP_EOL, $style, $custom_styles);
+            printf('<style type="text/css" media="screen">body.myatu_bgm_body { %s } %s</style>'.PHP_EOL, $style, $custom_styles);
+    }
+
+    /**
+     * Event called on the body_class filter
+     *
+     * @param array $classes List of classes to add to the body tag
+     * @return array
+     */
+    public function onBodyClass($classes) {
+        $classes[] = 'myatu_bgm_body';
+
+        return $classes;
     }
 
     /**
@@ -1320,7 +1337,7 @@ class Main extends \Pf4wp\WordpressPlugin
             'bg_click_new_window'      => ($this->options->bg_click_new_window) ? 'true' : 'false',
             'bg_track_clicks'          => ($this->options->bg_track_clicks) ? 'true' : 'false',
             'bg_track_clicks_category' => $this->options->bg_track_clicks_category,
-
+            'display_on_mobile'        => ($this->options->display_on_mobile) ? 'true' : 'false',
         );
 
         // Add to variables if in full screen mode

@@ -169,6 +169,12 @@
                                 <input type="checkbox" value="1" name="display_on_error" {% if display_on_error %}checked="checked"{% endif %} />
                                 <span>{{ __('Error page') }}</span>
                             </label>
+                            <br />
+                            <label class="bg_display_on">
+                                <input type="checkbox" value="1" name="display_on_mobile" {% if display_on_mobile %}checked="checked"{% endif %} />
+                                <span>{{ __('Mobile browsers') }}</span>
+                                <span class="description">({{ __('Requires Javascript by the visitor') }})</span>
+                            </label>
                             {% for custom_post_type_key,custom_post_type in custom_post_types %}
                             <br />
                             <label class="bg_display_on">

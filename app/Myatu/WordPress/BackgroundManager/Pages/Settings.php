@@ -65,6 +65,7 @@ class Settings
             'display_on_archive'            => 'bool',
             'display_on_search'             => 'bool',
             'display_on_error'              => 'bool',
+            'display_on_mobile'             => 'bool',
             'info_tab'                      => 'bool',
             'info_tab_location'             => array('in_array', $this->owner->getBgOptions('corner')),
             'info_tab_thumb'                => 'bool',

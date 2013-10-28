@@ -3,8 +3,8 @@ Contributors: Myatu
 Donate link: http://pledgie.com/campaigns/16906
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
-Tested up to: 3.5.1
-Stable tag: 1.2.2
+Tested up to: 3.7
+Stable tag: 1.2.5
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -90,6 +90,12 @@ with PHP versions older than 5.3.
 3. Editing an Image Set within Background Manager
 
 == Changelog ==
+
+= 1.2.5 (October 28, 2013) =
+
+* __Added__: Option to disable Background Manager on mobile devices (experimental)
+* Fixed: Would incorrectly determine the 'home' page in WordPress 3.7, causing background images to appear on all pages despite set to do otherwise.
+* Changed: Updated the Twig and Pf4wp vendor libraries.  For Pf4wp, additional APC checks are in place, logging is enabled, and fatal error are caught with either a user-friendly message, or if it occurred on the public side, the plugin will automatically be disabled to prevent it from causing problems on the website.
 
 = 1.2.2 (February 18, 2013) =
 

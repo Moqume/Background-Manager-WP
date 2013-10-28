@@ -50,9 +50,11 @@
 
 <script type="text/javascript">
 /*<![CDATA[*/
-{# UNCOMPRESSED, modified original from Pinterest:
+{# UNCOMPRESSED, modified original from Pinterest with minor modification for isDisabled():
 (function() {
     window.PinIt = window.PinIt || { loaded : false };
+
+    if (myatu_bgm.isDisabled()) { return; }
 
     if (window.PinIt.loaded) { return; }
 
@@ -72,7 +74,7 @@
     }
 }());
 #}
-(function(){window.PinIt=window.PinIt||{loaded:false};if(window.PinIt.loaded){return}window.PinIt.loaded=true;function a(){var c=document.createElement("script"),b=document.getElementsByTagName("script")[0];c.src="//assets.pinterest.com/js/pinit.js";c.type="text/javascript";c.async=true;b.parentNode.insertBefore(c,b)}if(window.attachEvent){window.attachEvent("onload",a)}else{window.addEventListener("load",a,false)}}());
+(function(){window.PinIt=window.PinIt||{loaded:false};if(myatu_bgm.isDisabled()){return}if(window.PinIt.loaded){return}window.PinIt.loaded=true;function a(){var c=document.createElement("script"),b=document.getElementsByTagName("script")[0];c.src="//assets.pinterest.com/js/pinit.js";c.type="text/javascript";c.async=true;b.parentNode.insertBefore(c,b)}if(window.attachEvent){window.attachEvent("onload",a)}else{window.addEventListener("load",a,false)}}());
 /*]]>*/
 </script>
     <a href="http://pinterest.com/pin/create/button/?url={{ permalink | url_encode }}&media={{ random_image.url | url_encode }}&description={{ random_image.desc | striptags | url_encode }}" class="pin-it-button" count-layout="none">Pin It</a>
