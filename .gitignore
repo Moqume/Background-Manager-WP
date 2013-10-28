@@ -1,6 +1,7 @@
-# Ignore auto-save/backup files
+# Ignore auto-save/backup and log files
 *~
 *.bak
+*.log
 
 # Ignore data store
 /store/
@@ -8,3 +9,5 @@
 # Ignore SVN
 .svn
 
+# Ignore node_modules (grunt)
+/node_modules/
