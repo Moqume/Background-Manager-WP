@@ -4,7 +4,7 @@ Donate link: http://pledgie.com/campaigns/16906
 Tags: background, theme, photo, image, rotate, slideshow, random, flickr
 Requires at least: 3.2.1
 Tested up to: 3.7
-Stable tag: 1.2.5.1
+Stable tag: 1.2.5.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -90,6 +90,14 @@ with PHP versions older than 5.3.
 3. Editing an Image Set within Background Manager
 
 == Changelog ==
+
+= 1.2.5.2 (October 29, 2013) =
+
+* Fixed: Bug with NONCE check on AJAX requests, affecting some versions of Firefox and MSIE
+
+= 1.2.5.1 (October 28, 2013) =
+
+* Fixed: Bug within the code, regarding AbstractObjectArray.php, that affected PHP 5.3.x installation (up to 5.3.12)
 
 = 1.2.5 (October 28, 2013) =
 
