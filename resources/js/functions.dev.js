@@ -87,7 +87,7 @@ if (typeof myatu_bgm === "undefined") {
                 async    : has_callback,
                 data     : { 'action': background_manager_ajax.action, 'func': ajaxFunc, 'data': ajaxData, '_ajax_nonce': background_manager_ajax.nonce },
                 success  : function(ajaxResp) {
-                    if (ajaxResp.nonce === background_manager_ajax.nonceresponse && ajaxResp.stat === 'ok') {
+                    if (ajaxResp.stat === 'ok') {
                         resp = ajaxResp.data;
 
                         if (has_callback) {
