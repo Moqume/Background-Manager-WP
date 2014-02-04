@@ -40,6 +40,10 @@ $_pf4wp_ucl->register();
 // Additional include path
 set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__.'/vendor/OAuth/lib');
 
+/* Added custom translation */
+$lang_dir = basename( dirname( __FILE__ ) ) . '/languages';
+load_plugin_textdomain('background-manager', 'wp-content/plugins/'.$lang_dir, $lang_dir);
+
 /* Fire her up, Scotty! */
 
 call_user_func('Myatu\\WordPress\\BackgroundManager\\Main::register', __FILE__);
