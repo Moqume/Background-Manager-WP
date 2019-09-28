@@ -456,7 +456,7 @@ class Main extends \Pf4wp\WordpressPlugin
                 'url'       => $image_url,
                 'id'        => $image_id,
                 'alt'       => get_post_meta($image_id, '_wp_attachment_image_alt', true),
-                'link'      => apply_filters('myatu_bgm_image_link', $gallery_id, post_permalink($image_id)), /* filtered since 1.0.34 */
+                'link'      => apply_filters('myatu_bgm_image_link', $gallery_id, get_permalink($image_id)), /* filtered since 1.0.34 */
                 'bg_link'   => get_post_meta($image_id, Filter\MediaLibrary::META_LINK, true),
                 'thumb'     => ($thumb = wp_get_attachment_image_src($image_id, 'thumbnail')) ? $thumb[0] : '',
             );
@@ -642,7 +642,7 @@ class Main extends \Pf4wp\WordpressPlugin
 
                 // Grab the description from an accompanying file, if possible
                 if (@is_file($desc_file) && ($handle = @fopen($desc_file, 'r')) != false) {
-                    $desc = fgetss($handle);
+                    $desc = fgets($handle);
                     fclose($handle);
                 }
 
